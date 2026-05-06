@@ -1,0 +1,41 @@
+.dialog-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c2c2c;
+  margin-bottom: 8px;
+}
+
+.dialog-content {
+  min-width: 320px;
+  padding-top: 4px;
+}
+
+.main-text {
+  font-size: 14px;
+  color: #444;
+  margin-bottom: 16px;
+}
+
+.warning-box {
+  background: #fff4f4;
+  border: 1px solid #f5c2c2;
+  color: #b42318;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.dialog-actions {
+  margin-top: 16px;
+  gap: 8px;
+}
+
+button[mat-stroked-button] {
+  border-radius: 6px;
+  padding: 0 16px;
+}
+
+button[mat-flat-button] {
+  border-radius: 6px;
+  padding: 0 16px;
+}

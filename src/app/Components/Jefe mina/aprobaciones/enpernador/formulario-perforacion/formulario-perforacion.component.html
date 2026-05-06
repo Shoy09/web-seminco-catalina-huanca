@@ -1,0 +1,237 @@
+<div class="modal-overlay perf-overlay" *ngIf="visible">
+  <div class="modal-card perf-card">
+    <div class="perf-header">
+      <div class="header-left">
+        <i class="far fa-file-alt header-icon"></i>
+        <h1 class="header-title">Formulario de Empernador</h1>
+      </div>
+      <div class="header-right">
+        <span class="editable-badge">• EDITABLE</span>
+        <span class="estado-badge" [class]="estado.toLowerCase()">
+          {{ estado }}
+        </span>
+      </div>
+    </div>
+
+    <div class="validation-error" *ngIf="formularioInvalido">
+      <i class="fas fa-exclamation-triangle"></i>
+      Complete los campos obligatorios de Ubicación (*).
+    </div>
+
+    <form class="perf-form">
+      <!-- SECCIÓN UBICACIÓN (siempre visible) -->
+      <fieldset class="form-section">
+        <legend class="section-legend">
+          <i class="fas fa-map-marker-alt icon"></i> Ubicación
+        </legend>
+        <div class="row-inputs">
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-layer-group label-icon"></i>
+              Nivel <span class="required-star">*</span>
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="Ej: 4100"
+              [(ngModel)]="datosPerforacion.ubicacion.nivel"
+              name="nivel"
+              list="nivelesList"
+            />
+            <datalist id="nivelesList">
+              <option *ngFor="let n of niveles" [value]="n"></option>
+            </datalist>
+          </div>
+          
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-screwdriver-wrench label-icon"></i>
+              Tipo Labor <span class="required-star">*</span>
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="Ej: CX, RAMPA, GALERIA"
+              [(ngModel)]="datosPerforacion.ubicacion.tipoLabor"
+              name="tipoLabor"
+              list="tiposLaborList"
+            />
+            <datalist id="tiposLaborList">
+              <option *ngFor="let t of tiposLabor" [value]="t"></option>
+            </datalist>
+          </div>
+          
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-warehouse label-icon"></i>
+              Labor <span class="required-star">*</span>
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="Ej: 640"
+              [(ngModel)]="datosPerforacion.ubicacion.labor"
+              name="labor"
+              list="laboresList"
+            />
+            <datalist id="laboresList">
+              <option *ngFor="let l of labores" [value]="l"></option>
+            </datalist>
+          </div>
+          
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-code-branch label-icon"></i>
+              Ala
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="Ej: NORTE, SUR (opcional)"
+              [(ngModel)]="datosPerforacion.ubicacion.ala"
+              name="ala"
+              list="alasList"
+            />
+            <datalist id="alasList">
+              <option *ngFor="let a of alas" [value]="a"></option>
+            </datalist>
+          </div>
+        </div>
+      </fieldset>
+      
+      <!-- SECCIÓN PERNOS (solo OPERATIVO) -->
+      <fieldset class="form-section" *ngIf="mostrarCamposCompletos">
+        <legend class="section-legend">
+          <i class="fas fa-tools icon"></i> Pernos
+        </legend>
+
+        <div class="row-inputs three-cols">
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-bolt label-icon"></i>
+              Tipo Pernos
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="Ej: Split Set, Swellex"
+              [(ngModel)]="datosPerforacion.pernos.tipo"
+              name="tipoPerno"
+            />
+          </div>
+
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-chart-line label-icon"></i>
+              Long Pernos
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="Ingrese log de pernos"
+              [(ngModel)]="datosPerforacion.pernos.log"
+              name="logPerno"
+            />
+          </div>
+
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-hashtag label-icon"></i>
+              N° Pernos Instalados
+            </label>
+            <input
+              type="number"
+              class="perf-input"
+              placeholder="0"
+              [(ngModel)]="datosPerforacion.pernos.nInstalados"
+              name="nInstalados"
+            />
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- SECCIÓN MALLA (solo OPERATIVO) -->
+      <fieldset class="form-section" *ngIf="mostrarCamposCompletos">
+        <legend class="section-legend">
+          <i class="fas fa-border-all icon"></i> Malla y Sistemático
+        </legend>
+
+        <div class="row-inputs three-cols">
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-th label-icon"></i>
+              Tipo Malla
+            </label>
+            <input type="text"
+              class="perf-input"
+              placeholder="Ej: Cuadrada, Rectangular"
+              [(ngModel)]="datosPerforacion.malla.tipo"
+              name="tipoMalla">
+          </div>
+
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-ruler-combined label-icon"></i>
+              MTS² Malla
+            </label>
+            <input type="text"
+              class="perf-input"
+              placeholder="Ej: 1.5 x 1.5"
+              [(ngModel)]="datosPerforacion.malla.mts2"
+              name="mts2Malla">
+          </div>
+
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-draw-polygon label-icon"></i>
+              Sistemático / Puntual
+            </label>
+            <input type="text"
+              class="perf-input"
+              placeholder="Sistemático o Puntual"
+              [(ngModel)]="datosPerforacion.malla.sistematicoPuntual"
+              name="sistematico">
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- SECCIÓN OBSERVACIONES (siempre visible) -->
+      <fieldset class="form-section">
+        <legend class="section-legend">
+          <i class="fas fa-comment icon"></i> Observaciones
+        </legend>
+
+        <div class="input-field textarea-field">
+          <label class="field-label">
+            <i class="fas fa-pen label-icon"></i>
+            Observaciones adicionales
+          </label>
+          <textarea
+            class="perf-input perf-textarea"
+            rows="3"
+            placeholder="Ingrese observaciones importantes sobre la perforación..."
+            [(ngModel)]="datosPerforacion.observaciones"
+            name="observaciones"
+          ></textarea>
+        </div>
+      </fieldset>
+
+      <div class="perf-footer-actions">
+        <button
+          type="button"
+          class="btn-cancelar"
+          (click)="cerrarFormPerforacion()"
+        >
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn-guardar"
+          (click)="guardarPerforacion()"
+        >
+          <i class="fas fa-save"></i> Guardar cambios
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

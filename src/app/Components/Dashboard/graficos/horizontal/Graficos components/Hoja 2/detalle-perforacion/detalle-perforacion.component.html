@@ -1,0 +1,93 @@
+<div class="table-container">
+  <h3 class="table-title">DETALLE</h3>
+  
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Equipo</th>
+          <th>Horas Percutadas</th>
+          <th>Tal Prod</th>
+          <th>Tal Rim</th>
+          <th>Tal Repaso</th>
+          <th>Tal Alivio</th>
+          <th>Pies</th>
+          <th>M/Hr</th>
+          <th>Metros Perforados</th>
+        </tr>
+      </thead>
+      <tbody>
+  <tr *ngFor="let item of paginatedData">
+    <td class="equipo-cell">{{ item.equipo }}</td>
+    <td>{{ item.horas_percutadas | number:'1.0-2' }}</td>
+    <td>{{ item.tal_prod | number:'1.0-0' }}</td>
+    <td>{{ item.tal_rimados | number:'1.0-0' }}</td>
+    <td>{{ item.tal_repaso | number:'1.0-0' }}</td>
+    <td>{{ item.tal_alivio | number:'1.0-0' }}</td>
+    <td>{{ item.long_barras | number:'1.0-2' }}</td>
+    <td>{{ item.fr_mhr_hp | number:'1.0-0' }}</td>
+    <td>{{ item.metros_perforados | number:'1.0-1' }}</td>
+  </tr>
+</tbody>
+      <tfoot *ngIf="displayedData.length > 0">
+        <tr class="total-row">
+          <td class="total-label"><strong>Total</strong></td>
+          <td><strong>{{ totales.horas_percutadas | number:'1.0-2' }}</strong></td>
+
+<td><strong>{{ totales.tal_prod | number:'1.0-0' }}</strong></td>
+<td><strong>{{ totales.tal_rimados | number:'1.0-0' }}</strong></td>
+<td><strong>{{ totales.tal_repaso | number:'1.0-0' }}</strong></td>
+<td><strong>{{ totales.tal_alivio | number:'1.0-0' }}</strong></td>
+
+<td><strong>{{ totales.long_barras | number:'1.0-2' }}</strong></td>
+
+<td><strong>{{ totales.fr_mhr_hp | number:'1.0-0' }}</strong></td>
+
+<td><strong>{{ totales.metros_perforados | number:'1.0-1' }}</strong></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- Controles de paginación -->
+  <div class="pagination-controls" *ngIf="displayedData.length > 0">
+    <div class="rows-info">
+      Mostrando {{ startIndex + 1 }} - {{ endIndex }} de {{ displayedData.length }} registros
+    </div>
+    <div class="pagination-buttons">
+      <button 
+        class="pagination-btn" 
+        (click)="previousPage()" 
+        [disabled]="currentPage === 1">
+        ‹ Anterior
+      </button>
+      
+      <div class="page-numbers">
+        <button 
+          *ngFor="let page of pageNumbers" 
+          class="page-btn" 
+          [class.active]="page === currentPage"
+          (click)="goToPage(page)">
+          {{ page }}
+        </button>
+      </div>
+      
+      <button 
+        class="pagination-btn" 
+        (click)="nextPage()" 
+        [disabled]="currentPage === totalPages">
+        Siguiente ›
+      </button>
+    </div>
+    
+    <div class="rows-per-page">
+      <label>Filas por página:</label>
+      <select (change)="onRowsPerPageChange($event)" class="rows-select">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+      </select>
+    </div>
+  </div>
+</div>

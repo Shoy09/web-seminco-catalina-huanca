@@ -1,0 +1,141 @@
+/* CONTENEDOR PADRE DE LA TABLA */
+.table-wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Importante: evitar scroll en el wrapper */
+}
+
+/* SCROLL CONTROLADO - solo el cuerpo de la tabla debe hacer scroll */
+.table-responsive {
+  flex: 1;
+  overflow-y: auto; /* Scroll solo vertical */
+  overflow-x: auto; /* Scroll horizontal si es necesario */
+  margin: 10px 30px;
+  border-radius: 15px;
+  background-color: rgba(138, 138, 138, 0.096);
+  position: relative;
+}
+
+/* PADRE GLOBAL */
+.tabla-container {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Tabla - estructura corregida */
+.main-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 12px;
+}
+
+/* Encabezados sticky - fijos mientras se hace scroll */
+.main-table thead tr th {
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Asegurar que el fondo de los encabezados cubra el contenido al hacer scroll */
+.main-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.main-table th {
+  color: #888;
+  font-weight: 500;
+  text-align: left;
+  padding: 15px 10px;
+  border-bottom: 1px solid #eee;
+  background-color: white; /* Fondo sólido */
+}
+
+.main-table td {
+  padding: 15px 10px;
+  border-bottom: 1px solid #f5f5f5;
+  color: #555;
+  background-color: white; /* Fondo blanco para las celdas */
+}
+
+.font-bold {
+  font-weight: 700;
+  color: #333;
+}
+
+/* Badge de Estado */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 11px;
+}
+
+/* Contenedor de Acciones */
+.action-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn-icon {
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 12px;
+}
+
+.edit {
+  background-color: #fff8e1;
+  color: #ffa000;
+}
+
+.delete {
+  background-color: #ffebee;
+  color: #e53935;
+}
+
+.btn-icon:hover {
+  transform: scale(1.1);
+  filter: brightness(0.95);
+}
+
+.text-center {
+  text-align: center !important;
+}
+
+/* Asegurar que el contenedor de la tabla permita el scroll correcto */
+.table-responsive::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

@@ -1,0 +1,94 @@
+<!-- card-operaciones.component.html -->
+<div class="form-container">
+  <div class="form-row">
+
+    <!-- Fecha — fijo -->
+    <fieldset class="field">
+      <legend>Fecha</legend>
+      <div class="input-inner">
+        <input type="date" [(ngModel)]="formValues['fecha']" (ngModelChange)="onChange()">
+        <span class="icon-gray"></span>
+      </div> 
+    </fieldset>
+
+    <!-- Turno -->
+    <fieldset class="field">
+      <legend>Turno</legend>
+      <div class="input-inner">
+        <span class="icon-color">🕒</span>
+        <select [(ngModel)]="formValues['turno']" (ngModelChange)="onChange()">
+          <option *ngFor="let opt of getCampo('turno').options" [value]="opt">{{ opt }}</option>
+        </select>
+      </div>
+    </fieldset>
+
+    <!-- Equipo -->
+    <fieldset class="field">
+      <legend>Equipo</legend>
+      <div class="input-inner">
+        <span class="icon-color">🚜</span>
+        <select [(ngModel)]="formValues['equipo']" (ngModelChange)="onChange()">
+          <option *ngFor="let opt of getCampo('equipo').options" [value]="opt">{{ opt }}</option>
+        </select>
+      </div>
+    </fieldset>
+
+    <!-- Código -->
+    <fieldset class="field">
+      <legend>Código</legend>
+      <div class="input-inner">
+        <span class="icon-color">🔢</span>
+        <select [(ngModel)]="formValues['codigo']" (ngModelChange)="onChange()">
+          <option *ngFor="let opt of getCampo('codigo').options" [value]="opt">{{ opt }}</option>
+        </select>
+      </div>
+    </fieldset>
+
+    <!-- Modelo Equipo -->
+<fieldset class="field">
+  <legend>Modelo</legend>
+  <div class="input-inner">
+    <span class="icon-color">⚙️</span>
+    <select [(ngModel)]="formValues['modelo_equipo']" (ngModelChange)="onChange()">
+      <option *ngFor="let opt of getCampo('modelo_equipo').options" [value]="opt">
+        {{ opt }}
+      </option>
+    </select>
+  </div>
+</fieldset>
+
+
+<!-- Operador -->
+<fieldset class="field">
+  <legend>Operador</legend>
+  <div class="input-inner">
+    <input type="text" placeholder="6666 6666" [(ngModel)]="formValues['operador']" (ngModelChange)="onChange()">
+    <span class="icon-gray">👤</span>
+  </div>
+</fieldset>
+
+    <!-- Jefe Guardia -->
+    <fieldset class="field">
+      <legend>Jefe Guardia</legend>
+      <div class="input-inner">
+        <span class="icon-color">👤</span>
+        <select [(ngModel)]="formValues['jefeGuardia']" (ngModelChange)="onChange()">
+          <option *ngFor="let opt of getCampo('jefeGuardia').options" [value]="opt">{{ opt }}</option>
+        </select>
+      </div>
+    </fieldset>
+
+    <!-- Sección -->
+    <fieldset class="field">
+      <legend>Sección</legend>
+      <div class="input-inner">
+        <span class="icon-color">🗺️</span>
+        <select [(ngModel)]="formValues['seccion']" (ngModelChange)="onChange()">
+          <option *ngFor="let opt of getCampo('seccion').options" [value]="opt">{{ opt }}</option>
+        </select>
+      </div>
+    </fieldset>
+
+  </div>
+
+</div>

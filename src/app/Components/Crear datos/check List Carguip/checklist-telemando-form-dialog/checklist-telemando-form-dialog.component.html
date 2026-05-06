@@ -1,0 +1,23 @@
+<h2 mat-dialog-title>{{ titulo }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="form-container">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Nombre del Checklist</mat-label>
+      <input matInput formControlName="nombre" placeholder="Ingrese el nombre del checklist">
+      <mat-icon matSuffix>checklist</mat-icon>
+      <mat-error *ngIf="nombreInvalido">
+        <span *ngIf="nombre?.errors?.['required']">El nombre es obligatorio</span>
+        <span *ngIf="nombre?.errors?.['minlength']">Mínimo 3 caracteres</span>
+        <span *ngIf="nombre?.errors?.['maxlength']">Máximo 100 caracteres</span>
+      </mat-error>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancelar()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="guardar()" [disabled]="form.invalid">
+    {{ modo === 'crear' ? 'Crear' : 'Actualizar' }}
+  </button>
+</mat-dialog-actions>

@@ -1,0 +1,330 @@
+<div class="modal-overlay perf-overlay" *ngIf="visible">
+  <div class="modal-card perf-card">
+    <div class="perf-header">
+      <div class="header-left">
+        <i class="far fa-file-alt header-icon"></i>
+        <h1 class="header-title">Formulario de Perforación</h1>
+      </div>
+      <div class="header-right">
+        <span class="editable-badge">• EDITABLE</span>
+        <span class="estado-badge" [class]="estado.toLowerCase()">
+          {{ estado }}
+        </span>
+      </div>
+    </div>
+
+    <!-- <div class="validation-error" *ngIf="formularioInvalido">
+      <i class="fas fa-exclamation-triangle"></i>
+      Complete los campos obligatorios de Ubicación (*).
+    </div> -->
+
+    <form class="perf-form">
+      <!-- SECCIÓN UBICACIÓN (siempre visible) -->
+      <fieldset class="form-section">
+        <legend class="section-legend">
+          <i class="fas fa-map-marker-alt icon"></i> Ubicación
+        </legend>
+        <div class="row-inputs">
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-layer-group label-icon"></i>
+              Nivel <span class="required-star">*</span>
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="Ej: 450"
+              [(ngModel)]="datosPerforacion.ubicacion.nivel"
+              name="nivel"
+            />
+          </div>
+          
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-screwdriver-wrench label-icon"></i>
+              Tipo Labor <span class="required-star">*</span>
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="Ej: RAMPA, GALERIA, etc."
+              [(ngModel)]="datosPerforacion.ubicacion.tipoLabor"
+              name="tipoLabor"
+            />
+          </div>
+          
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-warehouse label-icon"></i>
+              Labor <span class="required-star">*</span>
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="Nombre de la labor"
+              [(ngModel)]="datosPerforacion.ubicacion.labor"
+              name="labor"
+            />
+          </div>
+          
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-code-branch label-icon"></i>
+              Ala
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="Ej: NORTE, SUR, etc. (opcional)"
+              [(ngModel)]="datosPerforacion.ubicacion.ala"
+              name="ala"
+            />
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- SECCIÓN PRODUCCIÓN (solo OPERATIVO) -->
+      <fieldset class="form-section" *ngIf="mostrarCamposCompletos">
+        <legend class="section-legend">
+          <i class="fas fa-chart-line icon"></i> Producción
+        </legend>
+        <div class="row-inputs two-cols">
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-gripfire label-icon"></i>
+              Metros Perforados (m)
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="Metros producción"
+              [(ngModel)]="datosPerforacion.metrosPerforados.produccion"
+              name="metros_produccion"
+            />
+          </div>
+
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-hashtag label-icon"></i>
+              Número de Taladros
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="N° taladros producción"
+              [(ngModel)]="datosPerforacion.numeroTaladros.produccion"
+              name="tal_produccion"
+            />
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- SECCIÓN RIMADOS (solo OPERATIVO) -->
+      <fieldset class="form-section" *ngIf="mostrarCamposCompletos">
+        <legend class="section-legend">
+          <i class="fas fa-chart-line icon"></i> Rimados
+        </legend>
+        <div class="row-inputs two-cols">
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-gripfire label-icon"></i>
+              Metros Perforados (m)
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="Metros rimados"
+              [(ngModel)]="datosPerforacion.metrosPerforados.rimados"
+              name="metros_rimados"
+            />
+          </div>
+
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-hashtag label-icon"></i>
+              Número de Taladros
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="N° taladros rimados"
+              [(ngModel)]="datosPerforacion.numeroTaladros.rimados"
+              name="tal_rimados"
+            />
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- SECCIÓN ALIVIO (solo OPERATIVO) -->
+      <fieldset class="form-section" *ngIf="mostrarCamposCompletos">
+        <legend class="section-legend">
+          <i class="fas fa-chart-line icon"></i> Alivio
+        </legend>
+        <div class="row-inputs two-cols">
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-gripfire label-icon"></i>
+              Metros Perforados (m)
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="Metros alivio"
+              [(ngModel)]="datosPerforacion.metrosPerforados.alivio"
+              name="metros_alivio"
+            />
+          </div>
+
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-hashtag label-icon"></i>
+              Número de Taladros
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="N° taladros alivio"
+              [(ngModel)]="datosPerforacion.numeroTaladros.alivio"
+              name="tal_alivio"
+            />
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- SECCIÓN REPASO (solo OPERATIVO) -->
+      <fieldset class="form-section" *ngIf="mostrarCamposCompletos">
+        <legend class="section-legend">
+          <i class="fas fa-chart-line icon"></i> Repaso
+        </legend>
+        <div class="row-inputs two-cols">
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-gripfire label-icon"></i>
+              Metros Perforados (m)
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="Metros repaso"
+              [(ngModel)]="datosPerforacion.metrosPerforados.repaso"
+              name="metros_repaso"
+            />
+          </div>
+
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-hashtag label-icon"></i>
+              Número de Taladros
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="N° taladros repaso"
+              [(ngModel)]="datosPerforacion.numeroTaladros.repaso"
+              name="tal_repaso"
+            />
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- SECCIÓN BARRAS (solo OPERATIVO) -->
+      <fieldset class="form-section" *ngIf="mostrarCamposCompletos">
+        <legend class="section-legend">
+          <i class="fas fa-ruler-combined icon"></i> Barras
+        </legend>
+        <div class="row-inputs two-cols">
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-ruler label-icon"></i>
+              Longitud de Barras (m)
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="Ej: 5.0"
+              [(ngModel)]="datosPerforacion.barras.longitud"
+              name="long_barras"
+            />
+          </div>
+
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-hashtag label-icon"></i>
+              Número de Barras
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="Ej: 10"
+              [(ngModel)]="datosPerforacion.barras.numero"
+              name="num_barras"
+            />
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- SECCIÓN TIPO PERFORACIÓN (solo OPERATIVO) -->
+      <fieldset class="form-section" *ngIf="mostrarCamposCompletos">
+        <legend class="section-legend">
+          <i class="fas fa-drill icon"></i> Tipo de Perforación
+        </legend>
+        <div class="row-inputs">
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-hard-hat label-icon"></i>
+              Tipo Perforación <span class="required-star">*</span>
+            </label>
+            <select
+              class="perf-select"
+              [(ngModel)]="datosPerforacion.tipoPerforacion.id"
+              name="tipoPerforacion_id"
+            >
+              <option [ngValue]="null" disabled>Seleccionar tipo de perforación</option>
+              <option *ngFor="let tp of tiposPerforacion" [ngValue]="tp.id">
+                {{ tp.nombre }}
+              </option>
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- SECCIÓN OBSERVACIONES (siempre visible) -->
+      <fieldset class="form-section">
+        <legend class="section-legend">
+          <i class="fas fa-comment icon"></i> Observaciones
+        </legend>
+        <div class="input-field textarea-field">
+          <label class="field-label">
+            <i class="fas fa-pen label-icon"></i>
+            Observaciones adicionales
+          </label>
+          <textarea
+            class="perf-input perf-textarea"
+            rows="3"
+            placeholder="Ingrese observaciones importantes sobre la perforación..."
+            [(ngModel)]="datosPerforacion.observaciones"
+            name="observaciones"
+          ></textarea>
+        </div>
+      </fieldset>
+
+      <!-- BOTONES -->
+      <div class="perf-footer-actions">
+        <button
+          type="button"
+          class="btn-cancelar"
+          (click)="cerrarFormPerforacion()"
+        >
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn-guardar"
+          (click)="guardarPerforacion()"
+        >
+          <i class="fas fa-save"></i> Guardar cambios
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

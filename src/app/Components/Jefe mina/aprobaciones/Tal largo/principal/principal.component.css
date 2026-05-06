@@ -1,0 +1,17 @@
+.layout-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* ocupa toda la pantalla */
+}
+
+/* La tabla crece y ocupa el espacio disponible */
+.tabla-container {
+  flex: 1;
+  overflow: auto; /* scroll si hay muchos datos */
+  margin-bottom: 10px; /* pequeña separación del menú */
+}
+
+/* Menú siempre abajo */
+app-menuAcciones {
+  flex-shrink: 0;
+}

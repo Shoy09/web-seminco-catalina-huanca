@@ -1,0 +1,162 @@
+/* 1. EL CONTENEDOR RAIZ */
+.scheduler-wrapper {
+  overflow-x: auto;
+  overflow-y: auto; /* ← Cambiar de 'visible' a 'auto' */
+  /* overflow-y: visible; */  /* Eliminar esta línea */
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+  padding-bottom: 143px; /* Ahora sí generará scroll extra */
+}
+
+.scheduler {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  min-width: 1500px; /* Aumentamos para que las horas tengan aire */
+  overflow: visible; 
+}
+
+/* 2. HEADER (Alineación exacta con el body) */
+.timeline-header {
+  display: flex;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+  position: sticky;
+  top: 0;
+  z-index: 10; /* Suficiente para estar sobre el body pero bajo el tooltip activo */
+}
+
+.header-left {
+  display: flex;
+  flex-shrink: 0;
+}
+
+/* Ancho fijo idéntico al de las celdas del body */
+.fecha-col, .equipo-col {
+  width: 140px;
+  padding: 10px 12px;
+  font-weight: 600;
+  border-right: 1px solid #e2e8f0;
+  box-sizing: border-box;
+}
+
+.header-timeline {
+  flex: 1; /* Ocupa todo el espacio restante */
+  display: flex;
+}
+
+.hour {
+  flex: 1; /* Se distribuyen equitativamente */
+  text-align: center;
+  padding: 10px 0;
+  font-size: 11px;
+  color: #64748b;
+  border-left: 1px solid #e2e8f0;
+}
+
+/* 3. BODY */
+.timeline-body {
+  overflow: visible;
+}
+
+.fecha-row {
+  display: flex;
+}
+
+.fecha-cell {
+  width: 140px;
+  flex-shrink: 0;
+  padding: 12px;
+  background: #fefce8;
+  font-weight: 600;
+  border-right: 1px solid #e2e8f0;
+  box-sizing: border-box;
+}
+
+.fecha-tasks {
+  flex: 1; /* ESTO alinea las tareas con el header-timeline del mismo flex:1 */
+  overflow: visible;
+}
+
+.equipo-row {
+  display: flex;
+  border-bottom: 1px solid #f1f5f9;
+  min-height: 48px;
+  overflow: visible;
+}
+
+.equipo-cell {
+  width: 140px;
+  flex-shrink: 0;
+  padding: 12px;
+  font-weight: 500;
+  border-right: 1px solid #e2e8f0;
+  box-sizing: border-box;
+}
+
+/* 4. ÁREA DE TAREAS */
+.timeline-row {
+  flex: 1;
+  position: relative;
+  height: 48px;
+  overflow: visible;
+  /* Rejilla visual opcional para verificar alineación */
+  background-image: linear-gradient(to right, #f1f5f9 1px, transparent 1px);
+  background-size: calc(100% / 24) 100%; 
+}
+
+/* 5. TASK Y TOOLTIP (Corregido para que no se corte arriba) */
+.task {
+  position: absolute;
+  top: 8px;
+  height: 32px;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 11px;
+  padding: 0 10px;
+  line-height: 32px;
+  white-space: nowrap;
+  cursor: pointer;
+  z-index: 5;
+}
+
+.task:hover {
+  z-index: 9999; /* Al hacer hover, sube por encima del header sticky */
+}
+
+.task-tooltip {
+  position: absolute;
+  top: 120%; /* HACIA ABAJO para que no choque con el header sticky */
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e293b;
+  color: #f1f5f9;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  z-index: 10000;
+  white-space: normal;
+  min-width: 160px;
+  max-width: 220px;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* Flecha hacia arriba */
+.task-tooltip::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-bottom-color: #1e293b;
+}
+
+.task:hover .task-tooltip {
+  opacity: 1;
+  visibility: visible;
+}

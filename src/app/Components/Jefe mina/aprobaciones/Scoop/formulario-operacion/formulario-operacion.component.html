@@ -1,0 +1,85 @@
+<div class="modal-overlay" *ngIf="visible">
+  <div class="modal-card op-card">
+    <h2 class="title">REGISTRAR OPERACIÓN</h2>
+    <p class="subtitle">Última hora: 07:00</p>
+
+    <div class="status-info">
+      <i class="fas fa-info-circle"></i>
+      <span>Estado: {{ formData.estado }}</span>
+    </div>
+
+    <form class="form-container">
+      <!-- 🔥 CÓDIGO -->
+      <div class="input-group">
+        <select
+          class="custom-select"
+          name="codigo"
+          [(ngModel)]="formData.codigo"
+          required
+        >
+          <option value="" disabled>Código (*)</option>
+
+          <option *ngFor="let c of codigos" [value]="c">
+            {{ c }}
+          </option>
+        </select>
+        <i class="fas fa-caret-down select-arrow"></i>
+      </div>
+
+      <!-- 🔥 HORA INICIO -->
+      <div class="input-group has-label">
+        <label class="floating-label">Hora Inicio (*)</label>
+        <select
+          class="custom-select"
+          name="horaInicio"
+          [(ngModel)]="formData.horaInicio"
+        >
+          <option value="">Seleccione > 07:00</option>
+
+          <option *ngFor="let h of horas" [value]="h">
+  {{ h }}
+</option>
+        </select>
+        <i class="fas fa-caret-down select-arrow"></i>
+      </div>
+
+      <div class="input-group has-label">
+        <label class="floating-label">Hora Fin</label>
+        <select
+          class="custom-select"
+          name="horaFin"
+          [(ngModel)]="formData.horaFin"
+        >
+          <option value="">Seleccione</option>
+
+          <option *ngFor="let h of getHorasFin()" [value]="h">
+  {{ h }}
+</option>
+        </select>
+        <i class="fas fa-caret-down select-arrow"></i>
+      </div>
+
+      <!-- 🔥 BOTONES -->
+      <div class="button-group">
+        <button
+          type="button"
+          class="btn-outline"
+          (click)="cerrarFormOperacion()"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          class="btn-fill"
+          [disabled]="!formData.codigo"
+          (click)="confirmarOperacion()"
+        >
+          Guardar
+        </button>
+      </div>
+    </form>
+
+    <p class="footer-note">(*) Los campos con asterisco son obligatorios.</p>
+  </div>
+</div>

@@ -1,0 +1,114 @@
+.form-container {
+  background-color: rgba(138, 138, 138, 0.096);
+  margin: 10px 30px;
+  border-radius: 15px;  
+  padding: 25px;
+  font-family: 'Segoe UI', sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Espacio entre los campos y el botón */
+}
+ 
+.form-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+/* Campos */
+.field {
+  background: #fff;
+  border: 1px solid #e2e0ed;
+  border-radius: 12px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0 10px 8px 10px;
+  margin: 0;
+  min-width: 130px;
+  box-sizing: border-box;
+}
+
+.field:not(.checks-box) {
+  height: 54px;
+}
+
+.field > legend {
+  font-size: 11px;
+  color: #b0aec1;
+  font-weight: 500;
+  padding: 0 4px;
+  margin-left: 2px;
+  transform: translateY(-2px);
+}
+
+.input-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.input-inner input, .input-inner select {
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 100%;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #4a485d;
+}
+
+/* Iconos */
+.icon-gray { color: #b0aec1; font-size: 14px; }
+.icon-color { color: #8c85ae; font-size: 14px; }
+
+/* Checkboxes */
+.checks-box { min-width: 160px; }
+.checks-group { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+.check-item { 
+  display: flex; align-items: center; gap: 8px; 
+  font-size: 13px; font-weight: 600; color: #4a485d; 
+}
+.check-item input { accent-color: #8c85ae; width: 16px; height: 16px; }
+
+/* --- ESTILO DEL BOTÓN (IGUAL A LA IMAGEN) --- */
+.btn-submit {
+  width: 100%;
+  background-color: #e2e1eb;
+  border: none;
+  border-radius: 10px;
+  
+  padding: 8px 12px; 
+
+  color: #9290a5;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+/* Para que el icono se vea proporcional al nuevo grosor */
+.btn-submit span {
+  font-size: 16px; /* Bajamos un poco el tamaño del ⊕ */
+  line-height: 1;
+}
+
+.btn-submit:hover {
+  background-color: #dad8e6;
+  color: #7a7891;
+}
+
+/* Flecha de select */
+.input-inner select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%23b0aec1' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right -5px center;
+}

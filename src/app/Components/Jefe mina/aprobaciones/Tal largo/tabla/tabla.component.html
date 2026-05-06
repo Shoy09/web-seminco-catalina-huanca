@@ -1,0 +1,66 @@
+<div class="table-wrapper">
+  <div class="table-responsive">
+    <table class="main-table">
+      <thead>
+        <tr>
+          <th>N°</th>
+          <th>Estado</th>
+          <th>Código</th>
+          <th>Hora Inicio</th>
+          <th>Hora Fin</th>
+          <th class="text-center">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of datos">
+          <td>{{ item.nro }}</td>
+          <td>
+            <span
+              class="status-badge"
+              [style.color]="item.color"
+              [style.background-color]="item.color + '15'"
+            >
+              <i class="fas fa-check-circle"></i>
+              {{ item.estado }}
+            </span>
+          </td>
+          <td class="font-bold">{{ item.codigo }}</td>
+          <td>{{ item.horaInicio }}</td>
+          <td>{{ item.horaFin }}</td>
+          <td>
+            <div class="action-container">
+              <button class="btn-icon edit" (click)="onEdit(item)">
+                <i class="fas fa-pencil-alt"></i>
+              </button>
+
+              <!-- 🔥 NUEVO BOTÓN EJECUTADO -->
+              <button class="btn-icon execute" (click)="onExecute(item)">
+                <i class="fas fa-check"></i>
+              </button>
+
+              <button class="btn-icon delete" (click)="onDelete(item)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<!-- 🔥 AQUÍ LLAMAS LOS MODALES -->
+<app-formulario-operacion
+  [visible]="mostrarOperacion"
+  [turno]="turno"
+  [data]="operacionFormSeleccionada"
+  (confirmar)="onConfirmarOperacion($event)"
+  (cerrarForm)="mostrarOperacion = false">
+</app-formulario-operacion>
+
+<app-formulario-perforacion
+  [visible]="mostrarPerforacion"
+  [operacion]="operacionSeleccionada"
+  [estado]="registroEnEdicion?.estado || ''"
+  (guardar)="onGuardarPerforacion($event)"
+  (cerrar)="mostrarPerforacion = false">
+</app-formulario-perforacion>

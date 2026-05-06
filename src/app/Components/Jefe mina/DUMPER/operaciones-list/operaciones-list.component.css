@@ -1,0 +1,463 @@
+/* Variables corporativas */
+:host {
+  --primary-color: #0a5c8e;
+  --primary-dark: #084c74;
+  --secondary-color: #2c3e50;
+  --success-color: #2e7d32;
+  --warning-color: #ed6c02;
+  --error-color: #d32f2f;
+  --gray-50: #f8fafc;
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-300: #cbd5e1;
+  --gray-400: #94a3b8;
+  --gray-500: #64748b;
+  --gray-600: #475569;
+  --gray-700: #334155;
+  --gray-800: #1e293b;
+  --gray-900: #0f172a;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+}
+
+.container {
+  padding: 32px;
+  max-width: 1440px;
+  margin: 0 auto;
+  background: var(--gray-50);
+  min-height: 100vh;
+}
+
+/* Header Section - Estilo corporativo */
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding-bottom: 24px;
+  border-bottom: 2px solid var(--gray-200);
+}
+
+.title-section h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--gray-900);
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  margin: 8px 0 0 0;
+  font-size: 14px;
+  color: var(--gray-500);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.badge-jefe {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  color: var(--gray-700);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'Monaco', 'Courier New', monospace;
+  box-shadow: var(--shadow-sm);
+}
+
+.badge-jefe svg {
+  color: var(--primary-color);
+}
+
+/* Loading State */
+.loading-state {
+  text-align: center;
+  padding: 80px 20px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--gray-200);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-state p {
+  color: var(--gray-500);
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid var(--gray-200);
+  box-shadow: var(--shadow-sm);
+}
+
+.empty-state svg {
+  color: var(--gray-400);
+  margin-bottom: 20px;
+}
+
+.empty-state p {
+  color: var(--gray-600);
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0 0 8px 0;
+}
+
+.empty-hint {
+  font-size: 13px;
+  color: var(--gray-400);
+}
+
+/* Cards Grid */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 24px;
+}
+
+/* Card Styles - Estilo corporativo */
+.card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid var(--gray-200);
+  transition: all 0.2s ease;
+  animation: fadeInUp 0.3s ease-out forwards;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--gray-300);
+}
+
+/* Card Header */
+.card-header {
+  padding: 20px 24px;
+  background: white;
+  border-bottom: 1px solid var(--gray-100);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.id-section {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.id-prefix {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray-400);
+  letter-spacing: 0.5px;
+}
+
+.id-number {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gray-800);
+  font-family: 'Monaco', 'Courier New', monospace;
+}
+
+/* Status Indicator - Minimalista */
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--gray-50);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-indicator.approved .status-dot {
+  background: var(--success-color);
+  box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.1);
+}
+
+.status-indicator.rejected .status-dot {
+  background: var(--error-color);
+  box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.1);
+}
+
+.status-indicator.pending .status-dot {
+  background: var(--warning-color);
+  box-shadow: 0 0 0 2px rgba(237, 108, 2, 0.1);
+}
+
+.status-indicator .status-text {
+  color: var(--gray-700);
+}
+
+/* Card Body */
+.card-body {
+  padding: 20px 24px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.info-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--gray-400);
+}
+
+.info-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gray-700);
+}
+
+.turno-value {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.turno-value.morning {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.turno-value.afternoon {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.turno-value.night {
+  background: #e8eaf6;
+  color: #5c6bc0;
+}
+
+.divider {
+  height: 1px;
+  background: var(--gray-100);
+  margin: 16px 0;
+}
+
+/* Equipment Section */
+.equipment-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.equipment-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.equipment-number {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  background: var(--gray-50);
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--gray-200);
+}
+
+.number-prefix {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gray-400);
+}
+
+.number-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--gray-700);
+  font-family: monospace;
+}
+
+/* Card Footer - Métricas */
+.card-footer {
+  padding: 16px 24px;
+  background: var(--gray-50);
+  border-top: 1px solid var(--gray-200);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.metric {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: center;
+}
+
+.metric-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--gray-400);
+}
+
+.metric-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-700);
+}
+
+.metric-value.revision-pending {
+  color: var(--warning-color);
+}
+
+.metric-value.revision-one {
+  color: var(--warning-color);
+}
+
+.metric-value.revision-two {
+  color: var(--warning-color);
+}
+
+.metric-value.revision-completed {
+  color: var(--success-color);
+}
+
+.metric-value.approved {
+  color: var(--success-color);
+}
+
+.metric-value.rejected {
+  color: var(--error-color);
+}
+
+.metric-value.pending {
+  color: var(--warning-color);
+}
+
+.metric-divider {
+  width: 1px;
+  height: 32px;
+  background: var(--gray-200);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 20px;
+  }
+  
+  .header-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .title-section h1 {
+    font-size: 24px;
+  }
+  
+  .cards-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .card-header {
+    padding: 16px 20px;
+  }
+  
+  .card-body {
+    padding: 16px 20px;
+  }
+  
+  .card-footer {
+    padding: 12px 20px;
+  }
+  
+  .info-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .container {
+    background: white;
+    padding: 0;
+  }
+  
+  .card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    border: 1px solid #ddd;
+    box-shadow: none;
+  }
+  
+  .card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}

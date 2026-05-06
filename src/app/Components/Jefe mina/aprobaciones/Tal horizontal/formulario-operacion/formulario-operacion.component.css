@@ -1,0 +1,150 @@
+/* ================================================== */
+/* --- ESTILOS COMUNES DE MODAL --- */
+/* ================================================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.modal-card {
+  border-radius: 12px;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+  animation: modalIn 0.3s ease-out;
+  overflow: hidden;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+@keyframes modalIn {
+  from { transform: translateY(-30px); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+
+/* ================================================== */
+/* --- 1er MODAL: REGISTRAR OPERACIÓN --- */
+/* ================================================== */
+.op-card {
+  background-color: #f0eff5;
+  width: 90%;
+  max-width: 480px;
+  padding: 30px;
+  text-align: center;
+}
+
+.title {
+  font-size: 22px;
+  color: #333;
+  margin: 0 0 5px 0;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 20px;
+}
+
+.status-info {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  border: 1px solid #bbdefb;
+  padding: 10px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.form-container .input-group {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.custom-select {
+  width: 100%;
+  padding: 12px;
+  border: 1.5px solid #a0a0a0;
+  border-radius: 8px;
+  background: transparent;
+  appearance: none;
+  font-size: 15px;
+  color: #555;
+}
+
+.floating-label {
+  position: absolute;
+  top: -9px;
+  left: 15px;
+  background-color: #f0eff5;
+  padding: 0 6px;
+  font-size: 12px;
+  color: #666;
+  font-weight: 600;
+}
+
+.select-arrow {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+  pointer-events: none;
+}
+
+.helper-text {
+  text-align: left;
+  font-size: 11px;
+  color: #888;
+  margin: -10px 0 25px 5px;
+}
+
+.button-group {
+  display: flex;
+  gap: 15px;
+}
+
+.btn-outline {
+  flex: 1;
+  padding: 12px;
+  border: 2px solid #2196f3;
+  background: transparent;
+  color: #2196f3;
+  border-radius: 25px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-fill {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  background-color: #4caf50;
+  color: white;
+  border-radius: 25px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-fill[disabled] {
+  background-color: #bdc3c7;
+  color: #7f8c8d;
+  cursor: not-allowed;
+}
+
+.footer-note {
+  font-size: 11px;
+  color: #aaa;
+  margin-top: 25px;
+}

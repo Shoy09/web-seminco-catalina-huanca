@@ -1,0 +1,20 @@
+<div class="layout-container">
+  <app-card-operaciones
+    *ngIf="cardData"
+    [data]="cardData"
+    (dataChange)="onCardChange($event)">
+  </app-card-operaciones>
+
+  <div class="tabla-container">
+    <app-tabla *ngIf="!loading" [turno]="cardData?.turno" [data]="tablaData" (dataChange)="onTablaChange($event)"></app-tabla>
+  </div>
+
+  <app-menuAcciones
+    [horometrosData]="horometrosData"
+    [condicionesData]="condicionesData"
+    [checkListData]="checkListData"
+    [llantasData]="llantasData"
+    (dataChange)="onMenuChange($event)"
+    (actualizarClick)="validarCambios()">
+  </app-menuAcciones>
+</div>

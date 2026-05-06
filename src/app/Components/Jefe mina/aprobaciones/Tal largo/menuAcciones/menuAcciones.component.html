@@ -1,0 +1,242 @@
+
+<div class="barra-acciones">
+  <div class="contenedor-items">
+    <div *ngFor="let item of acciones" 
+         class="item-accion" 
+         [class.activo]="accionSeleccionada === item.id"
+         (click)="seleccionarAccion(item.id)">
+      <i class="fa-solid" [ngClass]="item.icono"></i>
+      <span class="texto-accion">{{ item.texto }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="mostrarModalHorometro">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="header-left">
+        <i class="fa-solid fa-gauge-high header-icon"></i>
+        <h1 class="header-title">Horómetros</h1>
+      </div>
+      <span class="editable-badge">EDITABLE</span>
+    </div>
+
+    <div class="modal-body">
+      <table class="horo-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Inicial</th>
+            <th>Final</th>
+            <th>OP</th>
+            <th>INOP</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let fila of filasHorometro">
+            <td class="col-nombre">{{ fila.nombre }}</td>
+            <td><input type="number" class="horo-input" [(ngModel)]="fila.inicial"></td>
+            <td><input type="number" class="horo-input" [(ngModel)]="fila.final"></td>
+            <td class="col-check">
+              <input type="checkbox" [checked]="fila.op" (change)="toggleStatus(fila, 'op')">
+            </td>
+            <td class="col-check">
+              <input type="checkbox" [checked]="fila.inop" (change)="toggleStatus(fila, 'inop')">
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancelar" (click)="cerrarModales()">Cancelar</button>
+      <button class="btn-guardar" (click)="guardarHorometros()">
+        <i class="fa-solid fa-floppy-disk"></i> Guardar
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="mostrarModalCondiciones">
+  <div class="modal-card">
+
+    <div class="modal-header">
+      <div class="header-left">
+        <i class="fa-solid fa-users-gear header-icon"></i>
+        <h1 class="header-title">Condiciones del Equipo</h1>
+      </div>
+      <span class="editable-badge">EDITABLE</span>
+    </div>
+
+    <div class="modal-body">
+      <!-- ESTADO OP / NO-OP -->
+      <div class="row-flex">
+        <div class="section-card half">
+          <label class="label-title">ESTADO</label>
+          <div class="checkbox-group">
+            <label>
+              <input type="checkbox" [(ngModel)]="condicionesData.operativo"> OP
+            </label>
+            <label>
+              <input type="checkbox" [(ngModel)]="condicionesData.noOperativo"> NO-OP
+            </label>
+          </div>
+        </div>
+
+        <!-- LUGAR -->
+        <div class="section-card half">
+          <label class="label-title">LUGAR</label>
+          <input type="text" class="input-form" placeholder="Ubicación del equipo" [(ngModel)]="condicionesData.lugar">
+        </div>
+      </div>
+
+      <!-- DESCRIPCIÓN -->
+      <div class="section-card">
+        <label class="label-title">DESCRIPCIÓN</label>
+        <textarea class="textarea-form" placeholder="Describa las condiciones observadas..." [(ngModel)]="condicionesData.descripcion"></textarea>
+      </div>
+
+      <!-- ACEITES Y LUBRICANTES -->
+      <div class="section-card">
+        <label class="label-title">
+          <i class="fa-solid fa-oil-can"></i> ACEITES Y LUBRICANTES
+        </label>
+        <div class="checkbox-group">
+          <label>
+            <input type="checkbox" [(ngModel)]="condicionesData.aceiteMotor"> MOTOR
+          </label>
+          <label>
+            <input type="checkbox" [(ngModel)]="condicionesData.aceiteHidraulico"> HIDRÁULICO
+          </label>
+          <label>
+            <input type="checkbox" [(ngModel)]="condicionesData.aceiteTransmision"> TRANSMISIÓN
+          </label>
+        </div>
+      </div>
+
+      <!-- COMBUSTIBLE -->
+      <div class="section-card">
+        <div class="row-flex ai-center">
+          <label class="label-title no-m">
+            <i class="fa-solid fa-gas-pump"></i> COMBUSTIBLE
+          </label>
+          <input type="text" class="input-form flex-1 m-left" placeholder="Ej: 1/2, 3/4, LLENO" [(ngModel)]="condicionesData.combustible">
+        </div>
+      </div>
+
+      <!-- HORA DE LLENADO -->
+      <div class="section-card">
+        <div class="row-flex ai-center">
+          <label class="label-title no-m">
+            <i class="fa-solid fa-clock"></i> HORA DE LLENADO
+          </label>
+          <div class="input-with-icon flex-1 m-left">
+            <input type="text" class="input-form" placeholder="Seleccionar hora" [(ngModel)]="condicionesData.horaLlenado">
+            <i class="fa-regular fa-clock icon-inside"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="modal-footer">
+      <button class="btn-cancelar" (click)="cerrarModales()">Cancelar</button>
+      <button class="btn-guardar" (click)="guardarCondiciones()">
+        <i class="fa-solid fa-floppy-disk"></i> Guardar
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="mostrarModalChecklist">
+  <div class="modal-card">
+    
+    <div class="modal-header">
+      <div class="header-left">
+        <i class="fa-solid fa-list-check header-icon"></i>
+        <h1 class="header-title">Checklist de Operación</h1>
+      </div>
+      <span class="editable-badge">EDITABLE</span>
+    </div>
+
+    <div class="modal-body">
+      <div class="empty-state" *ngIf="itemsChecklist.length === 0">
+        <div class="empty-icon-container">
+          <i class="fa-solid fa-check-double"></i>
+          <div class="line-decorator"></div>
+        </div>
+        <h3 class="empty-title">No hay items en el checklist</h3>
+        <p class="empty-subtitle">Esta operación no tiene items definidos</p>
+      </div>
+
+      <table class="horo-table" *ngIf="itemsChecklist.length > 0">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th class="col-check">Estado</th>
+            <th>Observaciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of itemsChecklist">
+            <td class="col-nombre">{{ item.descripcion }}</td>
+            <td class="col-check">
+              <input type="checkbox" [(ngModel)]="item.decision">
+            </td>
+            <td>
+              <input type="text" class="input-form" [(ngModel)]="item.observacion" placeholder="...">
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancelar" (click)="cerrarModales()">Cancelar</button>
+      <button class="btn-guardar" (click)="guardarChecklist()">
+        <i class="fa-solid fa-floppy-disk"></i> Guardar
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="mostrarModalInspeccion">
+  <div class="modal-card">
+    
+    <div class="modal-header">
+      <div class="header-left">
+        <i class="fa-solid fa-magnifying-glass-chart header-icon"></i>
+        <h1 class="header-title">Inspección Visual</h1>
+      </div>
+      <span class="editable-badge">EDITABLE</span>
+    </div>
+
+    <div class="modal-body ai-center">
+      <div class="inspeccion-container">
+        
+        <div class="canvas-inspeccion">
+  <img *ngIf="imagenEquipoUrl" [src]="imagenEquipoUrl" class="img-fondo-inspeccion">
+  
+  <div class="empty-state-canvas" *ngIf="!imagenEquipoUrl">
+    <i class="fa-solid fa-image-slash"></i>
+    <span>Imagen no encontrada</span>
+  </div>
+</div>
+
+        <div *ngFor="let llanta of llantasInspeccion; let i = index" [ngClass]="'selector-pos pos-' + (i+1)">
+    <span class="num-pos">{{ i + 1 }}</span>
+    <input type="checkbox" class="check-pos" [(ngModel)]="llanta.estado">
+  </div>
+
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancelar" (click)="cerrarModales()">Cancelar</button>
+      <button class="btn-guardar" (click)="guardarInspeccion()">
+        <i class="fa-solid fa-floppy-disk"></i> Guardar
+      </button>
+    </div>
+  </div>
+</div>

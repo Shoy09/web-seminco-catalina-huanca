@@ -1,0 +1,222 @@
+<div class="dashboard-container">
+  <div class="header-grid">
+    <div class="header-left">
+      <img src="https://icemin.pe/wp-content/uploads/2022/02/Logo-Alpayana.png" alt="Logo Alpayana" class="logo-imagen">
+    </div>
+    <div class="header-center">
+      <h1 class="titulo-principal">REPORTE SOSTENIMIENTO</h1>
+    </div>
+    <div class="header-right"></div>
+  </div>
+
+  <div class="filtros">
+    <div class="filtro-grupo">
+      <button class="btn-filtro" (click)="toggleAnio($event)">{{ textoResumen(aniosSeleccionados, 'Año') }}</button>
+      <div class="dropdown" *ngIf="abrirAnio">
+        <div *ngFor="let a of anios" class="opcion">
+          <label><input type="checkbox" [value]="a" [checked]="aniosSeleccionados.includes(a)" (change)="onAnioChange(a, $event)"> {{ a }}</label>
+        </div>
+      </div>
+    </div>
+    <div class="filtro-grupo">
+      <button class="btn-filtro" (click)="toggleMes($event)">{{ textoResumen(mesesSeleccionados, 'Mes') }}</button>
+      <div class="dropdown" *ngIf="abrirMes">
+        <div *ngFor="let m of meses" class="opcion">
+          <label><input type="checkbox" [value]="m.numero" [checked]="mesesSeleccionados.includes(m.numero)" (change)="onMesChange(m.numero, $event)"> {{ m.nombre }}</label>
+        </div>
+      </div>
+    </div>
+    <div class="filtro-grupo">
+      <button class="btn-filtro" (click)="toggleDia($event)">{{ textoResumen(diasSeleccionados, 'Día') }}</button>
+      <div class="dropdown" *ngIf="abrirDia">
+        <div *ngFor="let d of dias" class="opcion">
+          <label><input type="checkbox" [value]="d" [checked]="diasSeleccionados.includes(d)" (change)="onDiaChange(d, $event)"> {{ d }}</label>
+        </div>
+      </div>
+    </div>
+    <div class="filtro-grupo">
+      <button class="btn-filtro" (click)="toggleTurno($event)">{{ textoResumen(turnosSeleccionados, 'Turno') }}</button>
+      <div class="dropdown" *ngIf="abrirTurno">
+        <div *ngFor="let t of turnos" class="opcion">
+          <label><input type="checkbox" [value]="t" [checked]="turnosSeleccionados.includes(t)" (change)="onTurnoChange(t, $event)"> {{ t }}</label>
+        </div>
+      </div>
+    </div>
+    <button class="btn-limpiar" (click)="limpiarFiltros()">Limpiar</button>
+  </div>
+
+  <hr class="linea-separadora">
+
+  <div class="dashboard-row">
+    <div class="resumen-wrapper">
+      <div class="resumen-header">RESUMEN</div>
+      <div class="tarjetas-grid" *ngIf="!cargando && !error">
+        <div class="card"><div class="card-title">EQUIPOS EMPERNADORES</div><div class="card-value black-value">{{ cantidadEquiposUnicos }}</div></div>
+        <div class="card"><div class="card-title">TOTAL DE METROS PERFORADOS</div><div class="card-value black-value">{{ totalMetrosPerforados | number:'1.0-0' }}</div></div>
+        <div class="card"><div class="card-title">TOTAL LABORES SOSTENIDAS</div><div class="card-value black-value">{{ totalLaboresSostenidas }}</div></div>
+        <div class="card"><div class="card-title">N° PERNOS/DÍA</div><div class="card-value black-value">{{ pernosPorDia | number:'1.0-0' }}</div></div>
+      </div>
+    </div>
+
+    <div class="grafico-wrapper" *ngIf="!cargando && !error">
+      <div class="grafico-header">PERNOS POR EQUIPO</div>
+      <div class="grafico-container">
+        <canvas #barChartEquipoCanvas width="800" height="320" style="width:100%; height:320px;"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-columns-row" *ngIf="!cargando && !error">
+    <div class="grafico-labor-wrapper">
+      <div class="grafico-header">PERNOS POR LABOR</div>
+      <div class="grafico-container-chart-limited">
+        <canvas #barChartLaborCanvas width="800" height="320" style="width:100%; height:320px;"></canvas>
+      </div>
+    </div>
+
+    <div class="grafico-dmuti-wrapper">
+      <div class="grafico-header">DM% y UTI% POR EQUIPO</div>
+      <div class="grafico-container-chart-dmuti">
+        <canvas #barChartDMUTICanvas width="800" height="320" style="width:100%; height:320px;"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-columns-row" *ngIf="!cargando && !error">
+    <div class="grafico-pareto-wrapper">
+      <div class="grafico-header">DEMORAS OPERATIVAS</div>
+      <div class="grafico-container-chart-pareto">
+        <canvas #barChartDemorasOperativasCanvas width="800" height="320" style="width:100%; height:320px;"></canvas>
+      </div>
+    </div>
+
+    <div class="grafico-pareto-wrapper">
+      <div class="grafico-header">DEMORAS INOPERATIVAS</div>
+      <div class="grafico-container-chart-pareto">
+        <canvas #barChartDemorasInoperativasCanvas width="800" height="320" style="width:100%; height:320px;"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-columns-row" *ngIf="!cargando && !error">
+    <div class="grafico-pareto-wrapper">
+      <div class="grafico-header">HORAS MANTENIMIENTO</div>
+      <div class="grafico-container-chart-pareto">
+        <canvas #barChartHorasMantenimientoCanvas width="800" height="320" style="width:100%; height:320px;"></canvas>
+      </div>
+    </div>
+
+    <div class="grafico-pie-wrapper">
+      <div class="grafico-header">PERNOS INSTALADOS</div>
+      <div class="grafico-container-chart-pie">
+        <canvas #pieChartPernosCanvas width="800" height="320" style="width:100%; height:320px;"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-columns-row" *ngIf="!cargando && !error">
+    <div class="grafico-mhr-wrapper">
+      <div class="grafico-header">M/Hr POR EQUIPO</div>
+      <div class="grafico-container-chart-mhr">
+        <canvas #barChartMhrCanvas width="800" height="320" style="width:100%; height:320px;"></canvas>
+      </div>
+    </div>
+
+    <div class="grafico-metros-wrapper">
+      <div class="grafico-header">METROS PERFORADOS POR EQUIPO</div>
+      <div class="grafico-container-chart-metros">
+        <canvas #barChartMetrosCanvas width="800" height="320" style="width:100%; height:320px;"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="grafico-horometros-wrapper" *ngIf="!cargando && !error">
+    <div class="grafico-header">HOROMETROS DE EMPERNADORES</div>
+    <div class="grafico-container-chart-horometros">
+      <canvas #barChartHorometrosCanvas width="800" height="320" style="width:100%; height:320px;"></canvas>
+    </div>
+  </div>
+
+  <div class="two-columns-row" *ngIf="!cargando && !error">
+    <div class="grafico-linea-wrapper">
+      <div class="grafico-header">HORAS DE INICIO DE PERFORACIÓN (Turno DÍA)</div>
+      <div class="grafico-container-chart-linea">
+        <canvas #lineChartPrimeraPerfCanvas width="800" height="320" style="width:100%; height:320px;"></canvas>
+      </div>
+    </div>
+
+    <div class="grafico-linea-wrapper">
+      <div class="grafico-header">HORAS DE TÉRMINO DE PERFORACIÓN (Turno DÍA)</div>
+      <div class="grafico-container-chart-linea">
+        <canvas #lineChartUltimaPerfCanvas width="800" height="320" style="width:100%; height:320px;"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-columns-row" *ngIf="!cargando && !error">
+    <div class="grafico-linea-wrapper">
+      <div class="grafico-header">HISTORIAL DE INICIO DE PERFORACIÓN (Turno DÍA)</div>
+      <div class="grafico-container-chart-linea">
+        <canvas #lineChartHistorialInicioCanvas width="800" height="320" style="width:100%; height:320px;"></canvas>
+      </div>
+    </div>
+
+    <div class="grafico-linea-wrapper">
+      <div class="grafico-header">HISTORIAL DE TÉRMINO DE PERFORACIÓN (Turno DÍA)</div>
+      <div class="grafico-container-chart-linea">
+        <canvas #lineChartHistorialTerminoCanvas width="800" height="320" style="width:100%; height:320px;"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLA DETALLE -->
+  <div *ngIf="!cargando && !error && datosDetalle.length > 0" class="tabla-depuracion">
+    <div class="tabla-header">DETALLE</div>
+    <div style="overflow-x: auto; max-height: 400px; overflow-y: auto;">
+      <table class="tabla-resaltada">
+        <thead>
+          <tr>
+            <th *ngFor="let col of columnasDetalle">{{ col }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of datosDetalle">
+            <td>{{ row.Equipo }}</td>
+            <td>{{ row.HorasPercutadas }}</td>
+            <td>{{ row.N_Pernos }}</td>
+            <td>{{ row.LongPernos }}</td>
+            <td>{{ row.NLaboresSostenidas }}</td>
+            <td>{{ row.PernosPorLabor }}</td>
+            <td>{{ row.Mhr }}</td>
+            <td [ngClass]="getColorClassForMetrosDetalle(row.MetrosPerforados)">{{ row.MetrosPerforados }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TABLA MEJORES OPERADORES turno DIA -->
+  <div *ngIf="!cargando && !error && datosMejoresOperadores.length > 0" class="tabla-depuracion">
+    <div class="tabla-header">MEJORES OPERADORES turno DIA</div>
+    <div style="overflow-x: auto; max-height: 400px; overflow-y: auto;">
+      <table class="tabla-resaltada">
+        <thead>
+          <tr>
+            <th *ngFor="let col of columnasMejoresOperadores">{{ col }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of datosMejoresOperadores">
+            <td>{{ row.Operador }}</td>
+            <td>{{ row.Turno }}</td>
+            <td>{{ row.Mhr }}</td>
+            <td [ngClass]="getColorClassForMetrosOperador(row.MetrosPerforados)">{{ row.MetrosPerforados }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div *ngIf="cargando" class="loader">Cargando datos...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+</div>

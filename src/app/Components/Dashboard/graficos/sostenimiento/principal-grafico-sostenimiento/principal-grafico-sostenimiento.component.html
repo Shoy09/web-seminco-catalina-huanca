@@ -1,0 +1,107 @@
+<div class="filtro-fechas">
+  <div class="campo">
+    <label>Fecha inicio</label>
+    <input type="date" [(ngModel)]="fechaInicio">
+  </div>
+
+  <div class="campo">
+    <label>Fecha fin</label>
+    <input type="date" [(ngModel)]="fechaFin">
+  </div>
+
+  <div class="campo">
+  <label>Turno</label>
+  <select [(ngModel)]="turnoSeleccionado">
+    <option value="">Todos</option>
+    <option value="DÍA">Día</option>
+    <option value="NOCHE">Noche</option>
+  </select>
+</div>
+
+
+  <button class="btn-aplicar" (click)="aplicarFiltro()">
+    Aplicar
+  </button>
+
+  <button class="btn-aplicar" (click)="quitarFiltro()">
+    Quitar filtro
+  </button>
+
+  <button class="btn-aplicar" (click)="generarPDF()">
+  Exportar PDF
+</button>
+
+<!-- <button class="btn-aplicar" (click)="toggleVista()">
+  {{ vistaPrincipal ? 'Ver gráfico de linea' : 'Gráficos principales' }}
+</button> -->
+
+</div>
+
+<div class="graficos-container" *ngIf="vistaPrincipal">
+  <!-- Hoja 1 pdf -->
+  <app-resumen class="full-width" [data]="resumen" data-page="1"></app-resumen>
+
+  <app-pernos-equipo  [data]="DataPernosPorEquipo" data-page="1"></app-pernos-equipo>
+
+  <app-pernos-dia [data]="dataPernoDia" data-page="1"></app-pernos-dia>
+
+  <app-pernos-labor [data]="DataPernosPorLabor" data-page="1"></app-pernos-labor>
+
+  <app-rendimiento-equipo [data]="DataDMyUTI" data-page="1"></app-rendimiento-equipo>
+
+  <app-demoras-operativas [data]="DataEstadosSOS" data-page="1"></app-demoras-operativas>
+
+  <app-demoras-inoperativas [data]="dataDemoraIno" data-page="1"></app-demoras-inoperativas>
+
+  <app-horas-mantenimiento [data]="dataHoraMantenimiento" data-page="1"></app-horas-mantenimiento>
+
+  <app-pernos-instalados-tipo [data]="dataPernosInstalados" data-page="1"></app-pernos-instalados-tipo>
+
+  <app-mhr-equipo [data]="dataMHREquipo" data-page="1"></app-mhr-equipo>
+
+  <app-metros-equipo [data]="dataMetrosEquipo" data-page="1"></app-metros-equipo>
+
+  <app-horometro-empernador [data]="dataHorometrosEquipo" data-page="1"></app-horometro-empernador>
+
+  <app-total-horometros [data]="dataHorometroGeneral" data-page="1"></app-total-horometros>
+
+   <!-- Hoja 2 pdf -->
+
+
+
+<app-pernos-minado-tipo [data]="dataPernosMinadoTipo" data-page="2"></app-pernos-minado-tipo>
+
+<app-horas-primera-perforacion [data]="dataProcesoLaborFR" data-page="3"></app-horas-primera-perforacion>
+
+<app-detalle-equipo class="full-width" [data]="dataIndicadores" data-page="4"></app-detalle-equipo>
+
+<app-detalle-sostenimiento class="full-width" [data]="dataIndicadoresLabor" data-page="5"></app-detalle-sostenimiento>
+
+<app-mejores-operadores class="full-width" [data]="dataFrPorOperadorTurno" data-page="5"></app-mejores-operadores>
+<app-ranking-operador [data]="dataFrPorOperadorTurno" data-page="5"></app-ranking-operador>
+
+  <app-observaciones class="full-width" [data]="dataLaborFRDetallado" data-page="5"></app-observaciones>
+
+     <app-scatter-turnos 
+  *ngIf="turnoAplicado === '' || turnoAplicado === 'DÍA'"
+  class="full-width"
+  [data]="dataHorasNumericas" data-page="6">
+</app-scatter-turnos>
+
+<app-scatter-turnos-noche 
+  *ngIf="turnoAplicado === '' || turnoAplicado === 'NOCHE'"
+  class="full-width"
+  [data]="dataHorasNumericas" data-page="6">
+</app-scatter-turnos-noche>
+ 
+</div>
+
+<div class="graficos-container" *ngIf="!vistaPrincipal">
+
+<app-scheduler class="full-width" [data]="ganttData" data-page="6"></app-scheduler>
+</div>
+ 
+<div class="overlay" *ngIf="cargandoPDF">
+  <div class="spinner"></div>
+  <p>Generando PDF...</p>
+</div>  

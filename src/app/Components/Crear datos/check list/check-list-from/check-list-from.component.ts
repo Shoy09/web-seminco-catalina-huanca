@@ -1,0 +1,60 @@
+import { CommonModule } from "@angular/common";
+import { Component, Inject } from "@angular/core";
+import { ReactiveFormsModule, FormGroup, FormBuilder, Validators } from "@angular/forms";
+import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
+import { CheckListItemService } from "../../../../services/checklist-item.service";
+import { CheckListItem } from "../../../../models/checklist-item.model";
+
+@Component({
+  selector: 'app-check-list-from',
+  imports: [ReactiveFormsModule, CommonModule],
+  templateUrl: './check-list-from.component.html',
+  styleUrl: './check-list-from.component.css'
+})
+export class CheckListFromComponent  {
+  checkListForm: FormGroup;
+  mensaje: string = '';
+categorias: string[] = [];
+  constructor(
+  private fb: FormBuilder,
+  private checkListService: CheckListItemService,
+  public dialogRef: MatDialogRef<CheckListFromComponent>,
+  @Inject(MAT_DIALOG_DATA) public data: { 
+    proceso: string,
+    categorias: string[]
+  }
+) {
+
+  this.categorias = data.categorias;
+
+  this.checkListForm = this.fb.group({
+    proceso: [{ value: this.data.proceso, disabled: true }],
+    categoria: ['', Validators.required],
+    nombre: ['', Validators.required]
+  });
+}
+
+  onSubmit() {
+    if (this.checkListForm.valid) {
+      this.checkListForm.get('proceso')?.enable(); // Habilita el campo antes de obtener el valor
+      const nuevoItem: CheckListItem = this.checkListForm.value;
+      this.checkListForm.get('proceso')?.disable(); // Lo vuelve a deshabilitar
+
+      this.checkListService.createCheckListItem(nuevoItem).subscribe({
+        next: (response) => {
+          this.mensaje = 'Checklist creado exitosamente!';
+          this.checkListForm.reset();
+          this.dialogRef.close(response);
+        },
+        error: (error) => {
+          console.error('Error al crear el checklist:', error);
+          this.mensaje = 'Ocurrió un error al crear el checklist.';
+        }
+      });
+    }
+  }
+
+  onCancel(): void {
+    this.dialogRef.close(); // Cierra el diálogo sin hacer nada
+  }
+}

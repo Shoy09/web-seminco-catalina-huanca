@@ -1,0 +1,24 @@
+.form-container {
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+}
+
+.full-width {
+  width: 100%;
+}
+
+mat-dialog-content {
+  min-width: 400px;
+}
+
+mat-dialog-actions {
+  padding: 16px 24px;
+  gap: 8px;
+}
+
+@media (max-width: 600px) {
+  mat-dialog-content {
+    min-width: 300px;
+  }
+}

@@ -1,0 +1,107 @@
+<div class="container">
+  <div class="header-section">
+    <div class="title-section">
+      <h1>Gestión de Operaciones</h1>
+      <p class="subtitle">{{ tipo | uppercase }} · Panel de control</p>
+    </div>
+    <div class="badge-jefe">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 21V19C20 16.7909 18.2091 15 16 15H8C5.79086 15 4 16.7909 4 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" stroke-width="2"/>
+      </svg>
+      <span>JEFE DE GUARDIA: {{ jefe_guardia }}</span>
+    </div>
+  </div>
+
+  <!-- 🔄 loading -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Cargando operaciones...</p>
+  </div>
+
+  <!-- ❌ sin datos -->
+  <div *ngIf="!loading && operaciones.length === 0" class="empty-state">
+    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M9 12H15M9 16H15M17 21H7C5.89543 21 5 20.1046 5 19V5C5 3.89543 5.89543 3 7 3H12.5858C12.851 3 13.1054 3.10536 13.2929 3.29289L18.7071 8.70711C18.8946 8.89464 19 9.149 19 9.41421V19C19 20.1046 18.1046 21 17 21Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <p>No se encontraron registros</p>
+    <span class="empty-hint">No hay operaciones para mostrar</span>
+  </div>
+
+  <!-- ✅ cards -->
+  <div class="cards-grid" *ngIf="!loading && operaciones.length > 0">
+    <div class="card" *ngFor="let op of operaciones" (click)="irDetalle(op)">
+      
+      <!-- Header con ID y estado -->
+      <div class="card-header">
+        <div class="id-section">
+          <span class="id-prefix">OPER-</span>
+          <span class="id-number">{{ op.id }}</span>
+        </div>
+        <div class="status-indicator" [class]="getStatusClass(op)">
+          <span class="status-dot"></span>
+          <span class="status-text">{{ getStatusText(op) }}</span>
+        </div>
+      </div>
+
+      <!-- Información principal -->
+      <div class="card-body">
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">Fecha</div>
+            <div class="info-value">{{ op.fecha | date:'dd/MM/yyyy' }}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Turno</div>
+            <div class="info-value turno-value" [class]="getTurnoClass(op.turno)">
+              {{ op.turno }}
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="info-item full-width">
+          <div class="info-label">Operador</div>
+          <div class="info-value">{{ op.operador }}</div>
+        </div>
+
+        <div class="info-item full-width">
+          <div class="info-label">Jefe de Guardia</div>
+          <div class="info-value">{{ op.jefe_guardia }}</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="equipment-section">
+          <div class="equipment-field">
+            <div class="info-label">Equipo</div>
+            <div class="info-value">{{ op.equipo }}</div>
+          </div>
+          <div class="equipment-number">
+            <span class="number-prefix">N°</span>
+            <span class="number-value">{{ op.n_equipo }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer con métricas -->
+      <div class="card-footer">
+        <div class="metric">
+          <div class="metric-label">Revisiones</div>
+          <div class="metric-value" [class]="getRevisionClass(op)">
+            {{ getRevisionText(op) }}
+          </div>
+        </div>
+        <div class="metric-divider"></div>
+        <div class="metric">
+          <div class="metric-label">Estado final</div>
+          <div class="metric-value" [class]="getReviewClass(op)">
+            {{ getStatusText(op) }}
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

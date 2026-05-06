@@ -1,0 +1,26 @@
+.chart-container {
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  position: relative;
+}
+
+.chart {
+  height: 400px;
+  width: 100%;
+}
+
+.objetivo-label {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 14px;
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.objetivo-line {
+  color: #e74c3c;
+  font-size: 16px;
+  letter-spacing: 2px;
+}

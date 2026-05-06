@@ -1,0 +1,13 @@
+<div class="container-botones">
+  <button 
+    *ngFor="let btn of botones" 
+    class="btn-status" 
+    [style.background-color]="btn.color"
+    (click)="accion(btn.value)">
+    <i class="fas" [ngClass]="btn.icon"></i>
+    <span>{{ btn.label }}</span>
+  </button>
+</div>
+
+
+

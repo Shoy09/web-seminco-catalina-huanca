@@ -1,0 +1,23 @@
+<h2 mat-dialog-title class="dialog-title">
+  Confirmar eliminación
+</h2>
+
+<mat-dialog-content class="dialog-content">
+  <p class="main-text">
+    ¿Estás seguro de que deseas eliminar este registro?
+  </p>
+
+  <div class="warning-box">
+    Esta acción es permanente y no se puede deshacer.
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-stroked-button (click)="cancelar()">
+    Cancelar
+  </button>
+
+  <button mat-flat-button color="warn" (click)="confirmar()">
+    Eliminar
+  </button>
+</mat-dialog-actions>

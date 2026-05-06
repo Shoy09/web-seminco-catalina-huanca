@@ -1,0 +1,50 @@
+<div class="scheduler-wrapper">
+  <div class="scheduler">
+    <div class="timeline-header">
+      <div class="header-left">
+        <div class="fecha-col">Fecha / Turno</div>
+        <div class="equipo-col">Equipo</div>
+      </div>
+      <div class="header-timeline">
+        <div class="hour" *ngFor="let h of hours">{{ h }}</div>
+      </div>
+    </div>
+
+    <div class="timeline-body">
+      <ng-container *ngFor="let fecha of groups; let i = index">
+        <div class="fecha-group">
+          <div class="fecha-row">
+            <div class="fecha-cell">{{ fecha.fechaTurno }}</div>
+            <div class="fecha-tasks">
+              <div class="equipo-row" *ngFor="let equipo of fecha.equipos">
+                <div class="equipo-cell">{{ equipo.equipoCodigo }}</div>
+                <div class="timeline-row">
+                  <div
+                    class="task"
+                    *ngFor="let task of equipo.tasks"
+                    [ngStyle]="getTaskStyle(task)"
+                    [attr.data-tooltip]="getTaskTooltip(task)"
+                  >
+                    <span class="task-label">
+  {{ task.labor?.slice(0, 3) }}
+</span>
+                    <div class="task-tooltip">
+                      <div class="tooltip-title">{{ task.labor }}</div>
+                      <div *ngIf="task.description && task.description !== ''" class="tooltip-description">
+                        📝 {{ task.description }} | ⏱️ {{ minutesToTime(task.startMin) }} - {{ minutesToTime(task.endMin) }}
+                      </div>
+                      <div *ngIf="task.tipo_estado && task.tipo_estado !== ''" class="tooltip-tipo-estado">
+                        🏷️ {{ task.tipo_estado }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="fecha-divider" *ngIf="i < groups.length - 1"></div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>

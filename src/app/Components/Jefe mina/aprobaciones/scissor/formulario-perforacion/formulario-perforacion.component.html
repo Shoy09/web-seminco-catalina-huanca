@@ -1,0 +1,184 @@
+<div class="modal-overlay perf-overlay" *ngIf="visible">
+  <div class="modal-card perf-card">
+    <div class="perf-header">
+      <div class="header-left">
+        <i class="far fa-file-alt header-icon"></i>
+        <h1 class="header-title">Formulario de Perforación</h1>
+      </div>
+      <div class="header-right">
+        <span class="editable-badge">• EDITABLE</span>
+        <span class="estado-badge" [class]="estado.toLowerCase()">
+          {{ estado }}
+        </span>
+      </div>
+    </div>
+
+    <form class="perf-form">
+      <!-- SECCIÓN ORIGEN (siempre visible) -->
+      <fieldset class="form-section">
+        <legend class="section-legend">
+          <i class="fas fa-arrow-right-from-bracket icon"></i> Origen
+        </legend>
+        <div class="row-inputs">
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-layer-group label-icon"></i>
+              Nivel <span class="required-star">*</span>
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="Ej: 450"
+              [(ngModel)]="datosPerforacion.origen.nivel"
+              name="origen_nivel"
+            />
+          </div>
+          
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-screwdriver-wrench label-icon"></i>
+              Tipo Labor <span class="required-star">*</span>
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="Ej: RAMPA, GALERIA, etc."
+              [(ngModel)]="datosPerforacion.origen.tipoLabor"
+              name="origen_tipoLabor"
+            />
+          </div>
+          
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-warehouse label-icon"></i>
+              Labor <span class="required-star">*</span>
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="Nombre de la labor"
+              [(ngModel)]="datosPerforacion.origen.labor"
+              name="origen_labor"
+            />
+          </div>
+          
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-code-branch label-icon"></i>
+              Ala
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="Ej: NORTE, SUR, etc. (opcional)"
+              [(ngModel)]="datosPerforacion.origen.ala"
+              name="origen_ala"
+            />
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- SECCIÓN DESTINO (solo OPERATIVO) -->
+      <fieldset class="form-section" *ngIf="mostrarCamposCompletos">
+        <legend class="section-legend">
+          <i class="fas fa-arrow-right-to-bracket icon"></i> Destino
+        </legend>
+        <div class="row-inputs">
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-layer-group label-icon"></i>
+              Nivel
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="Ej: 450"
+              [(ngModel)]="datosPerforacion.destino.nivel"
+              name="destino_nivel"
+            />
+          </div>
+          
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-screwdriver-wrench label-icon"></i>
+              Tipo Labor
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="Ej: RAMPA, GALERIA, etc."
+              [(ngModel)]="datosPerforacion.destino.tipoLabor"
+              name="destino_tipoLabor"
+            />
+          </div>
+          
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-warehouse label-icon"></i>
+              Labor
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="Nombre de la labor"
+              [(ngModel)]="datosPerforacion.destino.labor"
+              name="destino_labor"
+            />
+          </div>
+          
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-code-branch label-icon"></i>
+              Ala
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="Ej: NORTE, SUR, etc. (opcional)"
+              [(ngModel)]="datosPerforacion.destino.ala"
+              name="destino_ala"
+            />
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- SECCIÓN OBSERVACIONES (siempre visible) -->
+      <fieldset class="form-section">
+        <legend class="section-legend">
+          <i class="fas fa-comment icon"></i> Observaciones
+        </legend>
+        <div class="input-field textarea-field">
+          <label class="field-label">
+            <i class="fas fa-pen label-icon"></i>
+            Observaciones adicionales
+          </label>
+          <textarea
+            class="perf-input perf-textarea"
+            rows="3"
+            placeholder="Ingrese observaciones importantes sobre la perforación..."
+            [(ngModel)]="datosPerforacion.observaciones"
+            name="observaciones"
+          ></textarea>
+        </div>
+      </fieldset>
+
+      <!-- BOTONES -->
+      <div class="perf-footer-actions">
+        <button
+          type="button"
+          class="btn-cancelar"
+          (click)="cerrarFormPerforacion()"
+        >
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn-guardar"
+          (click)="guardarPerforacion()"
+        >
+          <i class="fas fa-save"></i> Guardar cambios
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

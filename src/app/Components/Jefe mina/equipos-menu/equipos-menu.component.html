@@ -1,0 +1,19 @@
+<!-- equipos-menu.component.html -->
+<div class="equipos-container">
+  <div class="header">
+    <h1 class="titulo">Operaciones por Equipo</h1>
+    <p class="subtitulo">Seleccione un equipo para gestionar sus operaciones</p>
+  </div>
+  
+  <div class="botones-grid">
+    <button 
+      *ngFor="let equipo of equipos" 
+      class="boton-equipo"
+      (click)="navigateToEquipo(equipo.ruta)">
+      <div class="boton-contenido">
+        <i [class]="equipo.icono + ' icono'"></i>
+        <span class="boton-texto">{{ equipo.nombre }}</span>
+      </div>
+    </button>
+  </div>
+</div>

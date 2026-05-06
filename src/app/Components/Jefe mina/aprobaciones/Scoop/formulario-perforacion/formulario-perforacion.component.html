@@ -1,0 +1,192 @@
+<div class="modal-overlay perf-overlay" *ngIf="visible">
+  <div class="modal-card perf-card">
+    <div class="perf-header">
+      <div class="header-left">
+        <i class="far fa-file-alt header-icon"></i>
+        <h1 class="header-title">Formulario de Operación</h1>
+      </div>
+      <div class="header-right">
+        <span class="editable-badge">• EDITABLE</span>
+        <span class="estado-badge" [class]="estado.toLowerCase()">
+          {{ estado }}
+        </span>
+      </div>
+    </div>
+
+    <div class="validation-error" *ngIf="formularioInvalido">
+      <i class="fas fa-exclamation-triangle"></i>
+      Complete los campos obligatorios de Ubicación (*).
+    </div>
+
+    <form class="perf-form">
+      <!-- SECCIÓN UBICACIÓN (siempre visible) -->
+      <fieldset class="form-section">
+        <legend class="section-legend">
+          <i class="fas fa-map-marker-alt icon"></i> Ubicación de Inicio
+          <span class="required-star" *ngIf="mostrarCamposCompletos">*</span>
+        </legend>
+        <div class="row-inputs">
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-layer-group label-icon"></i>
+              Nivel <span class="required-star" *ngIf="mostrarCamposCompletos">*</span>
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="Ej: 1400"
+              [(ngModel)]="datosPerforacion.ubicacion.nivel_inicio"
+              name="nivel_inicio"
+              list="nivelesList"
+            />
+            <datalist id="nivelesList">
+              <option *ngFor="let n of niveles" [value]="n"></option>
+            </datalist>
+          </div>
+          
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-screwdriver-wrench label-icon"></i>
+              Tipo Labor <span class="required-star" *ngIf="mostrarCamposCompletos">*</span>
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="Ej: SN, RAMPA, GALERIA"
+              [(ngModel)]="datosPerforacion.ubicacion.tipo_labor_inicio"
+              name="tipo_labor_inicio"
+              list="tiposLaborList"
+            />
+            <datalist id="tiposLaborList">
+              <option *ngFor="let t of tiposLabor" [value]="t"></option>
+            </datalist>
+          </div>
+          
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-warehouse label-icon"></i>
+              Labor <span class="required-star" *ngIf="mostrarCamposCompletos">*</span>
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="Ej: 7022"
+              [(ngModel)]="datosPerforacion.ubicacion.labor_inicio"
+              name="labor_inicio"
+              list="laboresList"
+            />
+            <datalist id="laboresList">
+              <option *ngFor="let l of labores" [value]="l"></option>
+            </datalist>
+          </div>
+          
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-code-branch label-icon"></i>
+              Ala
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="Ej: 3S, NORTE, SUR"
+              [(ngModel)]="datosPerforacion.ubicacion.ala_inicio"
+              name="ala_inicio"
+              list="alasList"
+            />
+            <datalist id="alasList">
+              <option *ngFor="let a of alas" [value]="a"></option>
+            </datalist>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- SECCIÓN UBICACIÓN DESTINO -->
+<fieldset class="form-section" *ngIf="mostrarCamposCompletos">
+  <legend class="section-legend">
+    <i class="fas fa-map-marker-alt icon"></i> Ubicación de Destino
+  </legend>
+
+  <div class="row-inputs">
+    <div class="input-field">
+      <label class="field-label">
+        <i class="fas fa-location-dot label-icon"></i>
+        Destino
+      </label>
+      <input
+        type="text"
+        class="perf-input"
+        placeholder="Ej: Caja negra"
+        [(ngModel)]="datosPerforacion.ubicacion_destino"
+        name="ubicacion_destino"
+        list="ubicacionesDestinoList"
+      />
+      <datalist id="ubicacionesDestinoList">
+        <option *ngFor="let u of ubicacionesDestino" [value]="u"></option>
+      </datalist>
+    </div>
+  </div>
+</fieldset>
+
+      <!-- SECCIÓN DATOS OPERACIÓN -->
+<fieldset class="form-section" *ngIf="mostrarCamposCompletos">
+  <legend class="section-legend">
+    <i class="fas fa-chart-line icon"></i> Datos de Operación
+  </legend>
+
+  <div class="row-inputs">
+    <div class="input-field">
+      <label class="field-label">
+        <i class="fas fa-cubes label-icon"></i>
+        N° Cucharas
+      </label>
+      <input
+        type="number"
+        class="perf-input"
+        placeholder="Cantidad de cucharas"
+        [(ngModel)]="datosPerforacion.n_cucharas"
+        name="n_cucharas"
+      />
+    </div>
+  </div>
+</fieldset>
+
+      <!-- SECCIÓN OBSERVACIONES (siempre visible) -->
+      <fieldset class="form-section">
+        <legend class="section-legend">
+          <i class="fas fa-comment icon"></i> Observaciones
+        </legend>
+
+        <div class="input-field textarea-field">
+          <label class="field-label">
+            <i class="fas fa-pen label-icon"></i>
+            Observaciones adicionales
+          </label>
+          <textarea
+            class="perf-input perf-textarea"
+            rows="3"
+            placeholder="Ingrese observaciones importantes sobre la operación..."
+            [(ngModel)]="datosPerforacion.observaciones"
+            name="observaciones"
+          ></textarea>
+        </div>
+      </fieldset>
+
+      <div class="perf-footer-actions">
+        <button
+          type="button"
+          class="btn-cancelar"
+          (click)="cerrarFormPerforacion()"
+        >
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn-guardar"
+          (click)="guardarPerforacion()"
+        >
+          <i class="fas fa-save"></i> Guardar cambios
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,95 @@
+<div class="table-container">
+  <h3 class="table-title">DETALLE DE EQUIPO</h3>
+  
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Equipo</th>
+          <th>Horas percutadas</th>
+          <th>N° Pernos</th>
+          <th>Long Pernos</th>
+          <th>N° Labores Sostenidas</th>
+          <th>N° Pernos/Labor</th>
+          <th>M/HR</th>
+          <th>Metros Perforados</th>
+        </tr>
+      </thead>
+      <tbody>
+  <tr *ngFor="let item of paginatedData">
+    <td class="equipo-cell">{{ item.equipo }}</td>
+
+    <td>{{ item.diferencia_percusion | number:'1.0-1' }}</td>
+    <td>{{ item.n_pernos | number:'1.0-0' }}</td>
+    <td>{{ item.log_pernos | number:'1.0-0' }}</td>
+    <td>{{ item.n_labores_sostenidas | number:'1.0-0' }}</td>
+
+    <td>{{ item.n_pernos_por_labor | number:'1.0-1' }}</td>
+    <td>{{ item.sos_m_hr_hp | number:'1.0-1' }}</td>
+    <td>{{ item.metros_perforados | number:'1.0-1' }}</td>
+  </tr>
+
+  <tr *ngIf="paginatedData.length === 0">
+    <td colspan="8" class="no-data">No hay datos disponibles</td>
+  </tr>
+</tbody>
+
+<tfoot *ngIf="displayedData.length > 0">
+  <tr class="total-row">
+    <td class="total-label"><strong>Total/Promedio</strong></td>
+
+    <td><strong>{{ totales.diferencia_percusion | number:'1.0-1' }}</strong></td>
+    <td><strong>{{ totales.n_pernos | number:'1.0-0' }}</strong></td>
+    <td><strong>{{ totales.log_pernos | number:'1.0-0' }}</strong></td>
+    <td><strong>{{ totales.n_labores_sostenidas | number:'1.0-0' }}</strong></td>
+
+    <td><strong>{{ totales.n_pernos_por_labor | number:'1.0-1' }}</strong></td>
+    <td><strong>{{ totales.sos_m_hr_hp | number:'1.0-1' }}</strong></td>
+    <td><strong>{{ totales.metros_perforados | number:'1.0-1' }}</strong></td>
+  </tr>
+</tfoot>
+    </table>
+  </div>
+
+  <!-- Controles de paginación -->
+  <div class="pagination-controls" *ngIf="displayedData.length > 0">
+    <div class="rows-info">
+      Mostrando {{ startIndex + 1 }} - {{ endIndex }} de {{ displayedData.length }} registros
+    </div>
+    <div class="pagination-buttons">
+      <button 
+        class="pagination-btn" 
+        (click)="previousPage()" 
+        [disabled]="currentPage === 1">
+        ‹ Anterior
+      </button>
+      
+      <div class="page-numbers">
+        <button 
+          *ngFor="let page of pageNumbers" 
+          class="page-btn" 
+          [class.active]="page === currentPage"
+          (click)="goToPage(page)">
+          {{ page }}
+        </button>
+      </div>
+      
+      <button 
+        class="pagination-btn" 
+        (click)="nextPage()" 
+        [disabled]="currentPage === totalPages">
+        Siguiente ›
+      </button>
+    </div>
+    
+    <div class="rows-per-page">
+      <label>Filas por página:</label>
+      <select (change)="onRowsPerPageChange($event)" class="rows-select">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+      </select>
+    </div>
+  </div>
+</div>

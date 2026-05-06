@@ -1,0 +1,71 @@
+<div class="table-container">
+  <h3 class="table-title">HORA DE PRIMER VIAJE POR EQUIPO</h3>
+  
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Equipo</th>
+          <th>Labor</th>
+          <th>Fecha</th>
+          <th>Turno</th>
+          <th>Hora</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of paginatedData">
+          <td>{{ item.equipo }}</td>
+          <td>{{ item.labor }}</td>
+          <td>{{ item.fecha }}</td>
+          <td>{{ item.turno }}</td>
+          <td>{{ item.hora }}</td>
+        </tr>
+        <tr *ngIf="paginatedData.length === 0">
+          <td colspan="5" class="no-data">No hay datos disponibles</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Controles de paginación -->
+  <div class="pagination-controls" *ngIf="displayedData.length > 0">
+    <div class="rows-info">
+      Mostrando {{ startIndex + 1 }} - {{ endIndex }} de {{ displayedData.length }} registros
+    </div>
+    <div class="pagination-buttons">
+      <button 
+        class="pagination-btn" 
+        (click)="previousPage()" 
+        [disabled]="currentPage === 1">
+        ‹ Anterior
+      </button>
+      
+      <div class="page-numbers">
+        <button 
+          *ngFor="let page of pageNumbers" 
+          class="page-btn" 
+          [class.active]="page === currentPage"
+          (click)="goToPage(page)">
+          {{ page }}
+        </button>
+      </div>
+      
+      <button 
+        class="pagination-btn" 
+        (click)="nextPage()" 
+        [disabled]="currentPage === totalPages">
+        Siguiente ›
+      </button>
+    </div>
+    
+    <div class="rows-per-page">
+      <label>Filas por página:</label>
+      <select (change)="onRowsPerPageChange($event)" class="rows-select">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+      </select>
+    </div>
+  </div>
+</div>

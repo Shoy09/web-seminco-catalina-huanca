@@ -1,0 +1,100 @@
+.dashboard-container {
+  padding: 20px;
+  background: #f5f7fa;
+  border-radius: 12px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  height: 100%; /* Para que ocupe todo el espacio */
+}
+
+.dashboard-title {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 30px;
+  font-size: 24px;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+/* FORZAR 2 COLUMNAS SIEMPRE */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 🔥 4 columnas */
+  gap: 20px;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+}
+
+.card-icon {
+  color: #3498db;
+  margin-bottom: 15px;
+}
+
+.card-icon svg {
+  width: 40px;
+  height: 40px;
+}
+
+.card-label {
+  font-size: 14px;
+  color: #7f8c8d;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.card-value {
+  font-size: 36px;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+/* Colores diferentes para cada tarjeta */
+.card:nth-child(1) .card-icon {
+  color: #e74c3c;
+}
+
+.card:nth-child(2) .card-icon {
+  color: #3498db;
+}
+
+.card:nth-child(3) .card-icon {
+  color: #2ecc71;
+}
+
+.card:nth-child(4) .card-icon {
+  color: #f39c12;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+/* Tablets */
+@media (max-width: 1024px) {
+  .cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Móviles */
+@media (max-width: 600px) {
+  .cards-grid {
+    grid-template-columns: 1fr;
+  }
+}

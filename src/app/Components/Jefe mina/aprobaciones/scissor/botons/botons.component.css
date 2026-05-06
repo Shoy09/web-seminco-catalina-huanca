@@ -1,0 +1,56 @@
+/* ================================================== */
+/* --- BOTONES SUPERIORES --- */
+/* ================================================== */
+.container-botones {
+  display: flex;
+  gap: 10px;
+  padding: 20px;
+  flex-wrap: wrap;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  justify-content: center;
+  min-height: 35px;
+  background-color: rgba(138, 138, 138, 0.096);
+  margin: 10px 30px;
+  border-radius: 15px;
+}
+
+.btn-status {
+  display: flex;
+  align-items: center;
+  border: none;
+  border-radius: 12px;
+  color: white;
+  padding: 10px 18px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s, box-shadow 0.2s;
+  text-transform: uppercase;
+}
+
+.btn-status:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  filter: brightness(1.1);
+}
+
+.btn-status i {
+  margin-right: 8px;
+  font-size: 1.1rem;
+}
+
+.btn-status span {
+  letter-spacing: 0.5px;
+}
+
+/* ================================================== */
+/* --- RESPONSIVO --- */
+/* ================================================== */
+@media (max-width: 900px) {
+  .row-inputs,
+  .row-inputs.three-cols,
+  .row-inputs.four-cols {
+    grid-template-columns: 1fr 1fr;
+  }
+}
