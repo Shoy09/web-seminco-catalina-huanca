@@ -13,6 +13,8 @@ import { LongitudBarrasService } from '../../../services/longitud-barras.service
 import { PernosService } from '../../../services/pernos.service';
 import { MallasService } from '../../../services/mallas.service';
 import { OrigenDestinoService } from '../../../services/origen-destino.service';
+import { GuardiaService } from '../../../services/guardia.service';
+import { MaterialService } from '../../../services/material.service';
 
 
 @Component({
@@ -51,6 +53,8 @@ datoOriginal: any = null;
   private pernosService: PernosService,
   private mallasService: MallasService,
   private origenDestinoService: OrigenDestinoService,
+  private guardiaService: GuardiaService,
+    private materialService: MaterialService 
   ) {} // Inyecta los servicios
 
   ngOnInit() {
@@ -214,7 +218,24 @@ datoOriginal: any = null;
         { nombre: 'mes', label: 'Mes', tipo: 'text' },
       ]
     },
-    
+    {
+  nombre: 'Guardias',
+  icon: 'mas.svg',
+  tipo: 'Guardias',
+  datos: [],
+  campos: [
+    { nombre: 'guardia', label: 'Guardia', tipo: 'text' }
+  ]
+},
+    {
+    nombre: 'Materiales',
+    icon: 'mas.svg',
+    tipo: 'Material',
+    datos: [],
+    campos: [
+        { nombre: 'nombre', label: 'Nombre del Material', tipo: 'text' }
+    ]
+},
   ];  
 
   cerrarModal() {
@@ -335,6 +356,22 @@ else if (this.modalContenido.tipo === 'Mallas') {
     },
     error: (err) => console.error('Error al actualizar OrigenDestino:', err)
   });
+}else if (this.modalContenido.tipo === 'Guardias') {
+  this.guardiaService.updateGuardia(id, datosActualizados).subscribe({
+    next: (data) => {
+      this.modalContenido.datos[this.indiceEditando] = data;
+      this.cancelarEdicion();
+    },
+    error: (err) => console.error('Error al actualizar Guardia:', err)
+  });
+}else if (this.modalContenido.tipo === 'Material') {
+    this.materialService.updateMaterial(id, datosActualizados).subscribe({
+        next: (data) => {
+            this.modalContenido.datos[this.indiceEditando] = data;
+            this.cancelarEdicion();
+        },
+        error: (err) => console.error('Error al actualizar Material:', err)
+    });
 }
 
     // Agregar más casos según necesites, como 'Fechas Plan Mensual', 'Toneladas', etc.
@@ -576,6 +613,20 @@ else if (button.tipo === 'Mallas') {
     },
     error: (err) => console.error('Error al cargar OrigenDestino:', err)
   });
+}else if (button.tipo === 'Guardias') {
+  this.guardiaService.getGuardias().subscribe({
+    next: (data) => {
+      this.modalContenido.datos = data;
+    },
+    error: (err) => console.error('Error al cargar Guardias:', err)
+  });
+}else if (button.tipo === 'Material') {
+    this.materialService.getMateriales().subscribe({
+        next: (data) => {
+            this.modalContenido.datos = data;
+        },
+        error: (err) => console.error('Error al cargar Materiales:', err)
+    });
 }
 
   }
@@ -683,6 +734,20 @@ else if (this.modalContenido.tipo === 'Mallas') {
     },
     error: (err) => console.error('Error al guardar OrigenDestino:', err)
   });
+}else if (this.modalContenido.tipo === 'Guardias') {
+  this.guardiaService.createGuardia(nuevoRegistro).subscribe({
+    next: (data) => {
+      this.modalContenido.datos.push(data);
+    },
+    error: (err) => console.error('Error al guardar Guardia:', err)
+  });
+}else if (this.modalContenido.tipo === 'Material') {
+    this.materialService.createMaterial(nuevoRegistro).subscribe({
+        next: (data) => {
+            this.modalContenido.datos.push(data);
+        },
+        error: (err) => console.error('Error al guardar Material:', err)
+    });
 }
 
       this.nuevoDato = {};
@@ -770,6 +835,24 @@ else if (this.modalContenido.tipo === 'Mallas') {
     },
     error: (err) => console.error('Error al eliminar OrigenDestino:', err)
   });
+}else if (this.modalContenido.tipo === 'Guardias') {
+  this.guardiaService.deleteGuardia(item.id).subscribe({
+    next: () => {
+      this.modalContenido.datos = this.modalContenido.datos.filter(
+        (dato: any) => dato.id !== item.id
+      );
+    },
+    error: (err) => console.error('Error al eliminar Guardia:', err)
+  });
+}else if (this.modalContenido.tipo === 'Material') {
+    this.materialService.deleteMaterial(item.id).subscribe({
+        next: () => {
+            this.modalContenido.datos = this.modalContenido.datos.filter(
+                (dato: any) => dato.id !== item.id
+            );
+        },
+        error: (err) => console.error('Error al eliminar Material:', err)
+    });
 }
 
   }

@@ -128,12 +128,12 @@ export class RankingOperadorRendimientoComponent implements OnInit {
       },
 
       grid: {
-        left: '12%',     // Espacio para nombres de operadores
-        right: '8%',
-        top: '15%',
-        bottom: '5%',
-        containLabel: true
-      },
+  left: '3%',      // ← CAMBIADO: de 12% a 3%
+  right: '8%',
+  top: '15%',
+  bottom: '5%',
+  containLabel: true  // ← AÑADIDO: importante para no cortar etiquetas
+},
 
       xAxis: {
         type: 'value',

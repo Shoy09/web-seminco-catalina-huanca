@@ -13,6 +13,24 @@ export class OperacionesService {
 
   constructor(private apiService: ApiService) {}
 
+
+  // ✅ Crear uno o varios registros
+crear(
+  tipo: string,
+  data: OperacionBase | OperacionBase[]
+): Observable<{ ok: boolean; data: any }> {
+
+  return this.apiService.postDatos(
+    `${this.baseUrl}/crear`,
+    {
+      tipo,
+      data
+    }
+  ).pipe(
+    tap(() => this.notificarActualizacion())
+  );
+}
+
   // ✅ Obtener por jefe_guardia
 getPorJefe(  tipo: string,
   jefe_guardia: string,

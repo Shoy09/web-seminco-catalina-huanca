@@ -31,6 +31,10 @@
   Exportar PDF
 </button>
 
+<button class="btn-aplicar" (click)="ImportarExcel()">
+  Crear Masivos
+</button>
+
 <!-- <button class="btn-aplicar" (click)="toggleVista()">
   {{ vistaPrincipal ? 'Ver gráfico de linea' : 'Gráficos principales' }}
 </button> -->
@@ -55,15 +59,43 @@
  <app-horas-demora-codigo class="third-width" [data]="DataHorasDemoraPorCodigo"></app-horas-demora-codigo>
 <app-utilizacion-dia-mes class="third-width" [data]="DataUtilizacionPorDia"></app-utilizacion-dia-mes>
 
+
 <app-rendimiento-general class="full-width-compact" ></app-rendimiento-general>
 <app-rendimiento-guardia class="third-width"></app-rendimiento-guardia>
 <app-rendimiento-seccion-labor class="third-width"></app-rendimiento-seccion-labor>
 <app-rendimiento-mes-ano class="third-width"></app-rendimiento-mes-ano>
 <app-top-equipos class="third-width"></app-top-equipos>
 <app-rendimiento-dia-mes class="third-width"></app-rendimiento-dia-mes>
-<app-ranking-operador-utilizacion class="half-width"></app-ranking-operador-utilizacion>
+
+
+<app-ranking-operador-utilizacion class="half-width" [data]="DataDisponibilidadPorOperador" ></app-ranking-operador-utilizacion>
 <app-ranking-operador-rendimiento class="half-width"></app-ranking-operador-rendimiento>
 
+
+<app-ranking-disponibilidad-guardia class="quarter-width"></app-ranking-disponibilidad-guardia>
+<app-mineral-guardia class="quarter-width"></app-mineral-guardia>
+<app-ranking-rendimiento-guardia class="quarter-width"></app-ranking-rendimiento-guardia>
+<app-ranking-utilizacion-guardia class="quarter-width"></app-ranking-utilizacion-guardia>
+<app-promedios-materiales-equipo class="half-width"></app-promedios-materiales-equipo>
+<app-promedio-material-guardia class="half-width"></app-promedio-material-guardia>
+
+
+<app-pareto-no-programadas class="full-width"></app-pareto-no-programadas>
+
+
+<app-diagrama-pareto class="full-width"></app-diagrama-pareto>
+
+
+<app-mtbf-equipo class="half-width"></app-mtbf-equipo>
+<app-mtbf-ano class="half-width"></app-mtbf-ano>
+<app-mtbf-semanas class="half-width"></app-mtbf-semanas>
+<app-mtbf-mes class="half-width"></app-mtbf-mes>
+
+
+<app-mttr-equipo class="half-width"></app-mttr-equipo>
+<app-mttr-ano class="half-width"></app-mttr-ano>
+<app-mttr-semanas class="half-width"></app-mttr-semanas>
+<app-mttr-mes class="half-width"></app-mttr-mes>
 </div>
  
 <div class="overlay" *ngIf="cargandoPDF">

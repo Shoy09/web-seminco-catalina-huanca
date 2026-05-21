@@ -29,6 +29,24 @@ import { UtilizacionMesComponent } from "../Graficos components/Utilizacion/util
 import { UtilizacionGuardiaComponent } from "../Graficos components/Utilizacion/utilizacion-guardia/utilizacion-guardia.component";
 import { HorasDemoraCodigoComponent } from "../Graficos components/Utilizacion/horas-demora-codigo/horas-demora-codigo.component";
 import { UtilizacionDiaMesComponent } from "../Graficos components/Utilizacion/app-utilizacion-dia-mes/app-utilizacion-dia-mes.component";
+import { DisponibilidadRankingGuardiaComponent } from "../Graficos components/Ranking Guardia/disponibilidad-guardia/disponibilidad-guardia.component";
+import { MineralRankingGuardiaComponent } from "../Graficos components/Ranking Guardia/mineral-guardia/mineral-guardia.component";
+import { RendimientoRankingGuardiaComponent } from "../Graficos components/Ranking Guardia/rendimiento-guardia/rendimiento-guardia.component";
+import { UtilizacionRankingGuardiaComponent } from "../Graficos components/Ranking Guardia/utilizacion-guardia/utilizacion-guardia.component";
+import { PromediosMaterialesEquipoComponent } from "../Graficos components/Ranking Guardia/promedios-materiales-equipo/promedios-materiales-equipo.component";
+import { PromedioMaterialGuardiaComponent } from "../Graficos components/Ranking Guardia/promedio-material-guardia/promedio-material-guardia.component";
+import { ParetoNoProgramadasComponent } from "../Graficos components/Dis_Pareto_Detalle/pareto-no-programada/pareto-no-programada.component";
+import { DiagramaParetoComponent } from "../Graficos components/Util_Pareto_Detalle/diagrama-pareto/diagrama-pareto.component";
+import { MtbfEquipoComponent } from '../Graficos components/MTBF-MTTR/MTBF/mtbf-equipo/mtbf-equipo.component';
+import { MtbfSemanasComponent } from '../Graficos components/MTBF-MTTR/MTBF/mtbf-semanas/mtbf-semanas.component';
+import { MtbfAnoComponent } from '../Graficos components/MTBF-MTTR/MTBF/mtbf-ano/mtbf-ano.component';
+import { MtbfMesComponent } from '../Graficos components/MTBF-MTTR/MTBF/mtbf-mes/mtbf-mes.component';
+import { MttrEquipoComponent } from "../Graficos components/MTBF-MTTR/MTTR/mttr-equipo/mttr-equipo.component";
+import { MttrAnoComponent } from "../Graficos components/MTBF-MTTR/MTTR/mttr-ano/mttr-ano.component";
+import { MttrSemanasComponent } from "../Graficos components/MTBF-MTTR/MTTR/mttr-semanas/mttr-semanas.component";
+import { MttrMesComponent } from "../Graficos components/MTBF-MTTR/MTTR/mttr-mes/mttr-mes.component";
+import { ExcelImportService } from '../../../../../services/subir data/excel-operacion-mapper-scoops.service';
+
 
 @Component({
   selector: 'app-principal-grafico-scoops',
@@ -54,7 +72,23 @@ import { UtilizacionDiaMesComponent } from "../Graficos components/Utilizacion/a
     UtilizacionMesComponent,
     UtilizacionGuardiaComponent,
     HorasDemoraCodigoComponent,
-    UtilizacionDiaMesComponent
+    UtilizacionDiaMesComponent,
+    DisponibilidadRankingGuardiaComponent,
+    MineralRankingGuardiaComponent,
+    RendimientoRankingGuardiaComponent,
+    UtilizacionRankingGuardiaComponent,
+    PromediosMaterialesEquipoComponent,
+    PromedioMaterialGuardiaComponent,
+    ParetoNoProgramadasComponent,
+    DiagramaParetoComponent,
+    MtbfEquipoComponent,
+    MtbfSemanasComponent,
+    MtbfMesComponent,
+    MtbfAnoComponent,
+    MttrEquipoComponent,
+    MttrAnoComponent,
+    MttrSemanasComponent,
+    MttrMesComponent
 ],
   templateUrl: './principal-grafico-scoops.component.html',
   styleUrl: './principal-grafico-scoops.component.css',
@@ -85,15 +119,19 @@ DataUtilizacionPorSemana: any[] = [];
 DataUtilizacionPorMes: any[] = [];
 DataHorasDemoraPorCodigo: any[] = [];
 DataUtilizacionPorDia: any[] = [];
+DataDisponibilidadPorOperador: any[] = [];
 
   estadosProceso: any[] = [];
 vistaPrincipal: boolean = true;
 
-  constructor(
+importandoExcel = false;
+
+constructor(
     private planMensualService: PlanMensualService,
     private fechasPlanMensualService: FechasPlanMensualService,
     private operacionesService: OperacionesService,
-        private estadoService: EstadoService
+        private estadoService: EstadoService,
+        private excelImportService: ExcelImportService
   ) {}
 
   ngOnInit(): void {
@@ -212,6 +250,11 @@ mapaEstados: Map<string, any> = new Map();
   this.DataUtilizacionPorMes = this.UtilizacionPorMes();
   this.DataHorasDemoraPorCodigo = this.HorasDemoraPorCodigo();
   this.DataUtilizacionPorDia = this.UtilizacionPorDia();
+
+
+
+
+  this.DataDisponibilidadPorOperador = this.DisponibilidadPorOperador();
 
 }
 
@@ -1229,6 +1272,131 @@ UtilizacionPorDia() {
 
   // console.log('📊 UTILIZACIÓN POR DÍA:', resultado);
   return resultado;
+}
+
+//=========================================
+//HOJA 4
+//|=========================================
+DisponibilidadPorOperador() {
+  const resultadoMap = new Map<string, any>();
+
+  this.operacionesFiltradas.forEach((op) => {
+    const operador = op.operador || 'SIN OPERADOR';
+    const HORAS_TOTALES = 12;
+    let horasMtto = 0;
+
+    const registrosArray = op.registros;
+    if (!Array.isArray(registrosArray)) return;
+
+    for (const registro of registrosArray) {
+      if (registro.estado !== 'MANTENIMIENTO') continue;
+      const horas = this.calcularDuracionHoras(
+        registro.hora_inicio,
+        registro.hora_final
+      );
+      horasMtto += horas;
+    }
+
+    horasMtto = Math.min(horasMtto, HORAS_TOTALES);
+
+    if (!resultadoMap.has(operador)) {
+      resultadoMap.set(operador, {
+        operador,
+        horasTotales: 0,
+        horasMtto: 0,
+        disponibilidad: 0,
+        cantidadOperaciones: 0
+      });
+    }
+
+    const item = resultadoMap.get(operador);
+    item.horasTotales += HORAS_TOTALES;
+    item.horasMtto += horasMtto;
+    item.cantidadOperaciones += 1;
+
+    try {
+      const disponibilidadActual = ((item.horasTotales - item.horasMtto) / item.horasTotales) * 100;
+      item.disponibilidad = Number(disponibilidadActual.toFixed(2));
+    } catch (error) {
+      item.disponibilidad = 0;
+    }
+  });
+
+  const resultado = Array.from(resultadoMap.values())
+    .sort((a, b) => b.disponibilidad - a.disponibilidad); // Ordenar por mejor disponibilidad
+
+  console.log('📊 DISPONIBILIDAD POR OPERADOR:', resultado);
+  return resultado;
+}
+
+
+//=========================================
+//HOJA 6
+//|=========================================
+
+
+
+//IMPORTAR EXCEL:
+async ImportarExcel() {
+
+  const input = document.createElement('input');
+
+  input.type = 'file';
+
+  input.accept = '.xlsx,.xls';
+
+  input.onchange = async (event: any) => {
+
+    const file = event.target.files[0];
+
+    if (!file) return;
+
+    try {
+
+      this.importandoExcel = true;
+
+      // 🔥 LEER Y MAPEAR
+      const jsonFinal = await this.excelImportService.leerExcel(file);
+
+      console.log('📦 JSON FINAL:', jsonFinal);
+
+      // 🔥 ENVIAR
+      this.operacionesService
+        .crear('carguio', jsonFinal)
+        .subscribe({
+
+          next: (resp) => {
+
+            console.log('✅ Importación exitosa', resp);
+
+            alert('Excel importado correctamente');
+
+            this.cargarOperaciones();
+
+            this.importandoExcel = false;
+          },
+
+          error: (err) => {
+
+            console.error('❌ Error importando', err);
+
+            alert('Error al importar Excel');
+
+            this.importandoExcel = false;
+          }
+        });
+
+    } catch (error) {
+
+      console.error('❌ Error leyendo Excel', error);
+
+      alert('Error leyendo Excel');
+
+      this.importandoExcel = false;
+    }
+  };
+
+  input.click();
 }
 
 }

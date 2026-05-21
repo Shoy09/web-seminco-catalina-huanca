@@ -161,9 +161,9 @@ export class RendimientoDiaMesComponent implements OnInit {
 
           return `
             <strong>${mes} - DÍA ${dia}</strong><br/>
-            Disponibilidad: ${data.value}%<br/>
+            Cantidad: ${data.value} t/h<br/>
             <span style="color:#3498db; font-weight:bold;">●</span>
-            Nivel: ${data.value}%
+            Nivel: ${data.value} t/h
           `;
         }
       },
@@ -217,20 +217,15 @@ export class RendimientoDiaMesComponent implements OnInit {
 
         type: 'value',
 
-        name: 'Porcentaje (%)',
+        name: 'Cantidad (t/h)',
 
         nameLocation: 'middle',
 
         nameGap: 45,
 
-        min: 0,
-        max: 100,
-
-        interval: 20,
-
         axisLabel: {
           fontSize: 9,
-          formatter: '{value}%'
+          formatter: '{value} t/h'
         },
 
         splitLine: {
@@ -244,7 +239,7 @@ export class RendimientoDiaMesComponent implements OnInit {
       series: [
         {
 
-          name: 'Disponibilidad',
+          name: 'Rendimiento',
 
           type: 'bar',
 
@@ -279,7 +274,7 @@ export class RendimientoDiaMesComponent implements OnInit {
 
             fontSize: 11,
 
-            formatter: '{c}%',
+            formatter: '{c} t/h',
 
             color: '#333'
           },

@@ -1,0 +1,31 @@
+<div class="contenedor-mtbf-ano">
+
+  <!-- INDICADOR MTBF AÑO -->
+  <div
+    class="gauge-card"
+    *ngFor="let item of tarjetas"
+    [attr.data-tooltip]="getTooltipText(item)"
+  >
+    <div class="gauge-title">
+      {{ item.titulo }}
+    </div>
+    
+    <div class="gauge-container">
+      <div
+        class="gauge"
+        [style.--value]="item.porcentaje"
+        [style.--color]="item.color"
+      >
+        <div class="gauge-center">
+          <span class="valor">{{ item.valor }}</span>
+          <span class="unidad">{{ item.unidad }}</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- <div class="objetivo-info">
+      Objetivo: {{ item.maxObjetivo }} {{ item.unidad }}
+    </div>
+  </div> -->
+
+</div>

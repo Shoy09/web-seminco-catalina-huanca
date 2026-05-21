@@ -28,8 +28,9 @@ export class UtilizacionGuardiaComponent  implements OnInit {
 
   // Datos por tipo de guardia
   readonly datosPorGuardia = [
-    { guardia: 'DIA', valor: 98, color: '#f9e79f' },
-    { guardia: 'NOCHE', valor: 95, color: '#85c1e9' }
+    { guardia: 'C', valor: 95, color: '#f9e79f' },
+    { guardia: 'B', valor: 92, color: '#85c1e9' },
+    { guardia: 'A', valor: 90, color: '#85c1e9' }
   ];
 
   ngOnInit(): void {

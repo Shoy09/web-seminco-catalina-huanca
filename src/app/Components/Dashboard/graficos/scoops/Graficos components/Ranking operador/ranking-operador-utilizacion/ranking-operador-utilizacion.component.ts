@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -27,39 +27,100 @@ echarts.use([
   templateUrl: './ranking-operador-utilizacion.component.html',
   styleUrl: './ranking-operador-utilizacion.component.css'
 })
-export class RankingOperadorUtilizacionComponent implements OnInit {
+export class RankingOperadorUtilizacionComponent implements OnInit, OnChanges {
+
+  @Input() data: any[] = []; // Recibe datos del componente padre
+  @Input() title: string = 'RANKING OPERADORES - UTILIZACIÓN'; // Título configurable
+  @Input() showMedals: boolean = true; // Mostrar medallas o no
 
   chartOptions: any = {};
-
-  // Datos organizados por operador y % de utilización
-  readonly datosOperadores = [
-    { operador: 'Juan Pérez', utilizacion: 95 },
-    { operador: 'Carlos López', utilizacion: 88 },
-    { operador: 'María González', utilizacion: 92 },
-    { operador: 'Ana Rodríguez', utilizacion: 78 },
-    { operador: 'Luis Martínez', utilizacion: 85 },
-  ];
+  
+  // Datos procesados para el gráfico
+  datosOperadores: Array<{ operador: string; utilizacion: number }> = [];
 
   ngOnInit(): void {
-    // Ordenar datos de mayor a menor utilización
+    this.procesarDatos();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // Cuando los datos cambian, actualizar el gráfico
+    if (changes['data'] && this.data) {
+      this.procesarDatos();
+    }
+  }
+
+  procesarDatos(): void {
+    // Validar si hay datos
+    if (!this.data || this.data.length === 0) {
+      this.datosOperadores = [];
+      this.mostrarGraficoSinDatos();
+      return;
+    }
+
+    // Mapear la estructura de datos de DisponibilidadPorOperador()
+    // Espera: { operador: string, disponibilidad: number, ... }
+    this.datosOperadores = this.data.map(item => ({
+      operador: item.operador || 'SIN OPERADOR',
+      utilizacion: Number(item.disponibilidad) || 0 // Asegurar que sea número
+    }));
+
+    // Ordenar de mayor a menor utilización
     this.datosOperadores.sort((a, b) => b.utilizacion - a.utilizacion);
+    
+    // Actualizar el gráfico
     this.actualizarGrafico();
   }
 
+  mostrarGraficoSinDatos(): void {
+    this.chartOptions = {
+      title: {
+        text: this.title,
+        left: 'center',
+        top: 10,
+        textStyle: {
+          fontSize: 16,
+          fontWeight: 'bold',
+          color: '#333',
+          fontFamily: 'Arial'
+        }
+      },
+      graphic: {
+        type: 'text',
+        left: 'center',
+        top: 'middle',
+        style: {
+          text: '📊 No hay datos disponibles\nSeleccione un rango de fechas',
+          fill: '#999',
+          fontSize: 14,
+          fontFamily: 'Arial',
+          lineHeight: 24
+        },
+        z: 100
+      }
+    };
+  }
+
   actualizarGrafico(): void {
+    // Validar si hay datos
+    if (this.datosOperadores.length === 0) {
+      this.mostrarGraficoSinDatos();
+      return;
+    }
+
     // Nombres de operadores para el eje Y
     const operadores = this.datosOperadores.map(item => item.operador);
     
     // Valores de utilización
     const valores = this.datosOperadores.map(item => item.utilizacion);
 
-    // Calcular máximo para escala dinámica (siempre 100% para utilización)
-    const maxValor = 100;
-    const escalaMax = 100;
+    // Escala dinámica (mínimo 0, máximo redondeado hacia arriba al 5%)
+    const maxValor = Math.max(...valores, 100); // Usar 100 como referencia mínima
+    const escalaMax = Math.ceil(maxValor / 5) * 5; // Redondear a múltiplo de 5
+    const escalaMin = 0;
 
     this.chartOptions = {
       title: {
-        text: 'RANKING OPERADORES - UTILIZACIÓN',
+        text: this.title,
         left: 'center',
         top: 10,
         textStyle: {
@@ -82,9 +143,11 @@ export class RankingOperadorUtilizacionComponent implements OnInit {
           const puesto = index + 1;
           
           let medalla = '';
-          if (puesto === 1) medalla = '🥇 ';
-          else if (puesto === 2) medalla = '🥈 ';
-          else if (puesto === 3) medalla = '🥉 ';
+          if (this.showMedals) {
+            if (puesto === 1) medalla = '🥇 ';
+            else if (puesto === 2) medalla = '🥈 ';
+            else if (puesto === 3) medalla = '🥉 ';
+          }
           
           // Determinar nivel de eficiencia
           let nivel = '';
@@ -107,7 +170,7 @@ export class RankingOperadorUtilizacionComponent implements OnInit {
             <strong>${medalla}${item.operador}</strong><br/>
             <hr style="margin: 4px 0;"/>
             <span style="color:#3498db; font-weight:bold;">●</span>
-            Utilización: <strong>${data.value}%</strong><br/>
+            Disponibilidad: <strong>${data.value}%</strong><br/>
             <span style="color:#2ecc71; font-weight:bold;">●</span>
             Puesto: <strong>#${puesto}</strong> de ${this.datosOperadores.length}<br/>
             <span style="color:${colorNivel}; font-weight:bold;">●</span>
@@ -117,7 +180,7 @@ export class RankingOperadorUtilizacionComponent implements OnInit {
       },
 
       grid: {
-        left: '12%',     // Espacio para nombres de operadores
+        left: '3%',
         right: '8%',
         top: '15%',
         bottom: '5%',
@@ -128,7 +191,7 @@ export class RankingOperadorUtilizacionComponent implements OnInit {
         type: 'value',
         nameLocation: 'middle',
         nameGap: 35,
-        min: 0,
+        min: escalaMin,
         max: escalaMax,
         axisLabel: {
           fontSize: 10,
@@ -145,7 +208,7 @@ export class RankingOperadorUtilizacionComponent implements OnInit {
       yAxis: {
         type: 'category',
         data: operadores,
-        inverse: true,  // Mayor utilización arriba
+        inverse: true,
         axisLabel: {
           show: true,
           interval: 0,
@@ -154,6 +217,7 @@ export class RankingOperadorUtilizacionComponent implements OnInit {
           color: '#2c3e50',
           fontFamily: 'Arial',
           formatter: (value: string, index: number) => {
+            if (!this.showMedals) return `${index + 1}. ${value}`;
             if (index === 0) return `🥇 ${value}`;
             if (index === 1) return `🥈 ${value}`;
             if (index === 2) return `🥉 ${value}`;
@@ -172,7 +236,7 @@ export class RankingOperadorUtilizacionComponent implements OnInit {
 
       series: [
         {
-          name: 'Utilización',
+          name: 'Disponibilidad',
           type: 'bar',
           barWidth: '50%',
           data: valores.map((valor, index) => ({
