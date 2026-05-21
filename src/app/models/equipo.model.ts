@@ -10,4 +10,5 @@ export interface Equipo {
   fechaIngreso: string | null;  // Permite null si la fecha no se proporciona
   capacidadYd3: number | null;  // Permite null si no hay capacidad en yd3
   capacidadM3: number | null;   // Permite null si no hay capacidad en m3
+  capacidad_tonelada: number | null;
 }

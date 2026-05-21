@@ -161,7 +161,9 @@ datoOriginal: any = null;
         { nombre: 'anioFabricacion', label: 'Año de Fabricación', tipo: 'number' },
         { nombre: 'fechaIngreso', label: 'Fecha de Ingreso', tipo: 'date' },
         { nombre: 'capacidadYd3', label: 'Capacidad (Yd³)', tipo: 'number' },
-        { nombre: 'capacidadM3', label: 'Capacidad (m³)', tipo: 'number' }
+        { nombre: 'capacidadM3', label: 'Capacidad (m³)', tipo: 'number' },
+        { nombre: 'capacidad_tonelada',label: 'Capacidad (Toneladas)',tipo: 'number'
+    }
       ]
     },
     {
