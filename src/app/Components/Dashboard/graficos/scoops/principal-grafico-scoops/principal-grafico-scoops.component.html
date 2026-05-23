@@ -60,10 +60,10 @@
 <app-utilizacion-dia-mes class="third-width" [data]="DataUtilizacionPorDia"></app-utilizacion-dia-mes>
 
 
-<app-rendimiento-general class="full-width-compact" ></app-rendimiento-general>
-<app-rendimiento-guardia class="third-width"></app-rendimiento-guardia>
-<app-rendimiento-seccion-labor class="third-width"></app-rendimiento-seccion-labor>
-<app-rendimiento-mes-ano class="third-width"></app-rendimiento-mes-ano>
+<app-rendimiento-general class="full-width-compact" [data]="DataprocesarEquiposConCapacidad"></app-rendimiento-general>
+<app-rendimiento-guardia class="third-width" ></app-rendimiento-guardia>
+<app-rendimiento-seccion-labor class="third-width"  [data]="DataprocesarEquiposConCapacidad"></app-rendimiento-seccion-labor>
+<app-rendimiento-mes-ano class="third-width" [data]="DataRendimientoPorMes"></app-rendimiento-mes-ano>
 <app-top-equipos class="third-width"></app-top-equipos>
 <app-rendimiento-dia-mes class="third-width"></app-rendimiento-dia-mes>
 

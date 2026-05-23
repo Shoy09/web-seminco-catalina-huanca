@@ -162,7 +162,8 @@ datoOriginal: any = null;
         { nombre: 'fechaIngreso', label: 'Fecha de Ingreso', tipo: 'date' },
         { nombre: 'capacidadYd3', label: 'Capacidad (Yd³)', tipo: 'number' },
         { nombre: 'capacidadM3', label: 'Capacidad (m³)', tipo: 'number' },
-        { nombre: 'capacidad_tonelada',label: 'Capacidad (Toneladas)',tipo: 'number'
+        { nombre: 'capacidad_tonelada', label: 'Capacidad Material (Toneladas)', tipo: 'number'},
+        {nombre: 'capacidad_tonelada_desmonte', label: 'Capacidad Desmonte (Toneladas)', tipo: 'number'
     }
       ]
     },

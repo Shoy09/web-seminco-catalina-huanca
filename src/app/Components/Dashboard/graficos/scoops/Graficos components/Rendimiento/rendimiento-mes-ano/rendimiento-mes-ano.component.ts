@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -27,19 +27,46 @@ echarts.use([
   templateUrl: './rendimiento-mes-ano.component.html',
   styleUrl: './rendimiento-mes-ano.component.css'
 })
-export class RendimientoMesAnoComponent implements OnInit {
+export class RendimientoMesAnoComponent implements OnInit, OnChanges {
+
+  @Input() data: any[] = [];
 
   chartOptions: any = {};
 
-  // Datos organizados por mes y año
-  readonly datosRendimiento = [
-    { mes: 'ENERO', ano: 2024, cantidad: 185 },
-    { mes: 'FEBRERO', ano: 2024, cantidad: 192 },
-    { mes: 'MARZO', ano: 2024, cantidad: 178 },
-    { mes: 'ABRIL', ano: 2024, cantidad: 195 },
-  ];
+  datosRendimiento: any[] = [];
 
   ngOnInit(): void {
+    this.procesarDatos();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['data']) {
+      this.procesarDatos();
+    }
+  }
+
+  procesarDatos(): void {
+    if (!this.data || this.data.length === 0) {
+      this.datosRendimiento = [];
+      this.chartOptions = {};
+      return;
+    }
+
+    // Filtrar datos donde rendimiento es mayor a 0 (opcional)
+    // Ordenar por mesNumero para mantener el orden cronológico
+    this.datosRendimiento = [...this.data]
+      .filter(item => item.rendimiento !== undefined && item.rendimiento !== null)
+      .sort((a, b) => {
+        // Ordenar por año primero, luego por mesNumero
+        if (a.año !== b.año) return a.año - b.año;
+        return a.mesNumero - b.mesNumero;
+      });
+
+    if (this.datosRendimiento.length === 0) {
+      this.chartOptions = {};
+      return;
+    }
+
     this.actualizarGrafico();
   }
 
@@ -47,8 +74,8 @@ export class RendimientoMesAnoComponent implements OnInit {
     // Etiquetas para eje X (meses)
     const meses = this.datosRendimiento.map(item => item.mes);
     
-    // Valores (cantidad)
-    const valores = this.datosRendimiento.map(item => item.cantidad);
+    // Valores (rendimiento)
+    const valores = this.datosRendimiento.map(item => item.rendimiento);
 
     // Calcular máximo para escala dinámica
     const maxValor = Math.max(...valores);
@@ -67,7 +94,7 @@ export class RendimientoMesAnoComponent implements OnInit {
 
     for (let i = 0; i < this.datosRendimiento.length; i++) {
       const item = this.datosRendimiento[i];
-      const anoStr = item.ano.toString();
+      const anoStr = item.año?.toString() || '';
 
       if (anoStr !== anoActual) {
         if (anoActual !== '') {
@@ -136,12 +163,18 @@ export class RendimientoMesAnoComponent implements OnInit {
           const item = this.datosRendimiento[index];
           
           return `
-            <strong>📅 ${item.mes} ${item.ano}</strong><br/>
+            <strong>📅 ${item.mes} ${item.año}</strong><br/>
             <hr style="margin: 4px 0;"/>
             <span style="color:#3498db; font-weight:bold;">●</span>
-            Cantidad: <strong>${data.value}</strong> unidades<br/>
+            Rendimiento: <strong>${data.value.toFixed(2)}</strong> t/h<br/>
             <span style="color:#2ecc71; font-weight:bold;">●</span>
-            Rendimiento: ${((data.value / maxValor) * 100).toFixed(1)}% del máximo
+            Porcentaje: ${((data.value / maxValor) * 100).toFixed(1)}% del máximo<br/>
+            <span style="color:#f39c12; font-weight:bold;">●</span>
+            Operaciones: ${item.cantidadOperaciones || 0}<br/>
+            <span style="color:#9b59b6; font-weight:bold;">●</span>
+            Total Toneladas: ${(item.totalToneladas || 0).toFixed(2)} t<br/>
+            <span style="color:#1abc9c; font-weight:bold;">●</span>
+            Total Cucharas: ${item.totalCucharas || 0}
           `;
         }
       },
@@ -164,7 +197,7 @@ export class RendimientoMesAnoComponent implements OnInit {
           margin: 15,
           fontSize: 11,
           fontWeight: 'bold',
-          color: '#000000',  // Color rojo para los meses
+          color: '#2c3e50',
           fontFamily: 'Arial'
         },
         axisLine: {
@@ -179,7 +212,7 @@ export class RendimientoMesAnoComponent implements OnInit {
 
       yAxis: {
         type: 'value',
-        name: 'Cantidad (unidades)',
+        name: 'Rendimiento (t/h)',
         nameLocation: 'middle',
         nameGap: 45,
         min: 0,
@@ -218,7 +251,7 @@ export class RendimientoMesAnoComponent implements OnInit {
             position: 'top',
             fontWeight: 'bold',
             fontSize: 11,
-            formatter: '{c}',
+            formatter: (params: any) => params.value.toFixed(1),
             color: '#333'
           },
           emphasis: {
@@ -243,9 +276,11 @@ export class RendimientoMesAnoComponent implements OnInit {
 
   // Color según valor
   private getColorByValue(valor: number, maxValor: number): string {
+    if (valor === 0) return '#95a5a6';  // Gris para valores cero
     const porcentaje = (valor / maxValor) * 100;
     if (porcentaje >= 80) return '#2ecc71';  // Verde
-    if (porcentaje >= 60) return '#f39c12';  // Naranja
+    if (porcentaje >= 60) return '#3498db';  // Azul
+    if (porcentaje >= 40) return '#f39c12';  // Naranja
     return '#e74c3c';  // Rojo
   }
-}
+} 

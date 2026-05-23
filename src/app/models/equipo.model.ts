@@ -11,4 +11,5 @@ export interface Equipo {
   capacidadYd3: number | null;  // Permite null si no hay capacidad en yd3
   capacidadM3: number | null;   // Permite null si no hay capacidad en m3
   capacidad_tonelada: number | null;
+  capacidad_tonelada_desmonte: number | null;
 }

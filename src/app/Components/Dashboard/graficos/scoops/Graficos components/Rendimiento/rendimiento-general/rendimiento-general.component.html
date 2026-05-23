@@ -1,16 +1,17 @@
 <div class="contenedor-rendimiento">
 
   <!-- TARJETA PRINCIPAL -->
-  <div class="card-principal" [attr.data-tooltip]="'Rendimiento general del equipo'">
+  <div class="card-principal" [attr.data-tooltip]="getTooltipText(tarjetas[0])">
     <div class="valor-principal">
-      {{ tarjetas[0].valor }}
+      {{ tarjetas[0]?.valor }}
     </div>
     <div class="titulo-principal">
-      {{ tarjetas[0].titulo }}
+      {{ tarjetas[0]?.titulo }}
     </div>
+    <div class="decoracion-barra"></div>
   </div>
 
-  <!-- INDICADORES -->
+  <!-- INDICADORES POR EQUIPO -->
   <div
     class="gauge-card"
     *ngFor="let item of tarjetas.slice(1)"
@@ -26,9 +27,12 @@
         [style.--color]="item.color"
       >
         <div class="gauge-center">
-          {{ item.valor }}
+          {{ item.valor | number:'1.0-0' }}
         </div>
       </div>
+    </div>
+    <div class="gauge-subinfo">
+      {{ item.valor | number:'1.0-0' }}
     </div>
   </div>
 

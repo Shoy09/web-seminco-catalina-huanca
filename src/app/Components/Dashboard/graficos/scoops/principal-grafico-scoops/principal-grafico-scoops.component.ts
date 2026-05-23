@@ -46,6 +46,8 @@ import { MttrAnoComponent } from "../Graficos components/MTBF-MTTR/MTTR/mttr-ano
 import { MttrSemanasComponent } from "../Graficos components/MTBF-MTTR/MTTR/mttr-semanas/mttr-semanas.component";
 import { MttrMesComponent } from "../Graficos components/MTBF-MTTR/MTTR/mttr-mes/mttr-mes.component";
 import { ExcelImportService } from '../../../../../services/subir data/excel-operacion-mapper-scoops.service';
+import { EquipoService } from '../../../../../services/equipo.service';
+import { Equipo } from '../../../../../models/equipo.model';
 
 
 @Component({
@@ -119,19 +121,22 @@ DataUtilizacionPorSemana: any[] = [];
 DataUtilizacionPorMes: any[] = [];
 DataHorasDemoraPorCodigo: any[] = [];
 DataUtilizacionPorDia: any[] = [];
+DataprocesarEquiposConCapacidad: any[] = [];
+DataRendimientoPorMes: any[] = [];
 DataDisponibilidadPorOperador: any[] = [];
 
   estadosProceso: any[] = [];
 vistaPrincipal: boolean = true;
 
 importandoExcel = false;
-
+equiposProceso: Equipo[] = [];
 constructor(
     private planMensualService: PlanMensualService,
     private fechasPlanMensualService: FechasPlanMensualService,
     private operacionesService: OperacionesService,
         private estadoService: EstadoService,
-        private excelImportService: ExcelImportService
+        private excelImportService: ExcelImportService,
+        private equipoService: EquipoService
   ) {}
 
   ngOnInit(): void {
@@ -145,7 +150,22 @@ constructor(
 
     this.cargarOperaciones();
     this.obtenerEstadosPorProceso('SCOOPTRAM');
+    this.obtenerEquiposPorProceso('SCOOPTRAM');
   }
+
+  obtenerEquiposPorProceso(proceso: string) {
+  this.equipoService.getEquiposByProceso(proceso)
+    .subscribe({
+      next: (data) => {
+        this.equiposProceso = data;
+
+        console.log('Equipos por proceso:', data);
+      },
+      error: (err) => {
+        console.error('Error al traer equipos por proceso', err);
+      }
+    });
+}
 
   obtenerEstadosPorProceso(proceso: string) {
   this.estadoService.getEstadosByProceso(proceso)
@@ -244,13 +264,15 @@ mapaEstados: Map<string, any> = new Map();
   this.DataDisponibilidadPorMes = this.DisponibilidadPorMes();
   this.DataHorasMantenimientoPorCodigo = this.HorasMantenimientoPorCodigo();
   this.DataDisponibilidadPorDiaMes = this.DisponibilidadPorDiaMes();
-
+  //UTILIZACION
   this.DataUtilizacionPorEquipo = this.UtilizacionPorEquipo();
   this.DataUtilizacionPorSemana = this.UtilizacionPorSemana();
   this.DataUtilizacionPorMes = this.UtilizacionPorMes();
   this.DataHorasDemoraPorCodigo = this.HorasDemoraPorCodigo();
   this.DataUtilizacionPorDia = this.UtilizacionPorDia();
-
+  //RENDIMIENTO
+  this.DataprocesarEquiposConCapacidad = this.RendimientoPorEquipo();
+  this.DataRendimientoPorMes = this.RendimientoPorMes();
 
 
 
@@ -1275,6 +1297,203 @@ UtilizacionPorDia() {
 }
 
 //=========================================
+//HOJA 3
+//|=========================================
+//GRAFICO 7 - RENDIMIENTO POR EQUIPO (SOLO CÓDIGOS ESPECÍFICOS)
+RendimientoPorEquipo() {
+  const resultadoMap = new Map<string, any>();
+
+  // 🔥 Códigos de actividad permitidos
+  const codigosPermitidos = ['101', '102', '105', '106', '108'];
+
+  this.operacionesFiltradas.forEach((op) => {
+    const modeloEquipo = `${op.equipo}-${op.n_equipo}`;
+    
+    // 🔥 Buscar capacidad del equipo
+    const equipoEncontrado = this.equiposProceso.find(
+      equipo => equipo.nombre === op.equipo && equipo.codigo === op.n_equipo
+    );
+    
+    const capacidadTonelada = equipoEncontrado?.capacidad_tonelada || 0;
+    const capacidadYd3 = equipoEncontrado?.capacidadYd3 || 0;
+
+    let horasOperativas = 0;
+    let toneladasTotales = 0;
+    let totalCucharas = 0;
+
+    const registrosArray = op.registros;
+    if (!Array.isArray(registrosArray)) return;
+
+    for (const registro of registrosArray) {
+      const codigo = registro.codigo?.toString() || '';
+      
+      // 🔥 Solo procesar si el código está en la lista permitida
+      if (codigosPermitidos.includes(codigo)) {
+        
+        // 🔥 Calcular horas operativas
+        const horas = this.calcularDuracionHoras(
+          registro.hora_inicio,
+          registro.hora_final
+        );
+        horasOperativas += horas;
+        
+        // 🔥 Calcular cucharas y toneladas
+        const n_cucharas = registro.operacion?.n_cucharas;
+        if (n_cucharas && !isNaN(Number(n_cucharas))) {
+          const cucharas = Number(n_cucharas);
+          totalCucharas += cucharas;
+          toneladasTotales += cucharas * capacidadTonelada;
+        }
+      }
+    }
+
+    // Limitar horas operativas a 12 (jornada máxima)
+    horasOperativas = Math.min(horasOperativas, 12);
+
+    if (!resultadoMap.has(modeloEquipo)) {
+      resultadoMap.set(modeloEquipo, {
+        modeloEquipo,
+        nombre: op.equipo,
+        codigo: op.n_equipo,
+        capacidadYd3: capacidadYd3,
+        capacidadTonelada: capacidadTonelada,
+        horasOperativas: 0,
+        totalCucharas: 0,
+        totalToneladas: 0,
+        rendimiento: 0,  // 🔥 Toneladas por hora operativa
+        cantidadOperaciones: 0
+      });
+    }
+
+    const item = resultadoMap.get(modeloEquipo);
+    item.horasOperativas += horasOperativas;
+    item.totalCucharas += totalCucharas;
+    item.totalToneladas = Number((item.totalToneladas + toneladasTotales).toFixed(2));
+    item.cantidadOperaciones += 1;
+
+    // 🔥 Calcular rendimiento: Toneladas / Horas Operativas
+    try {
+      if (item.horasOperativas > 0) {
+        item.rendimiento = Number((item.totalToneladas / item.horasOperativas).toFixed(2));
+      } else {
+        item.rendimiento = 0;
+      }
+    } catch (error) {
+      item.rendimiento = 0;
+    }
+  });
+
+  const resultado = Array.from(resultadoMap.values());
+  console.log('📊 RENDIMIENTO POR EQUIPO (códigos 101,102,105,106,108):', resultado);
+  return resultado;
+}
+
+RendimientoPorMes() {
+  const resultadoMap = new Map<string, any>();
+  
+  // 🔥 Códigos de actividad permitidos
+  const codigosPermitidos = ['101', '102', '105', '106', '108'];
+  
+  // 🔥 Nombres de meses en español
+  const nombresMeses = [
+    'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
+    'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'
+  ];
+
+  this.operacionesFiltradas.forEach((op) => {
+    if (!op.fecha) return;
+    
+    // 🔥 Extraer año y mes de la fecha
+    const fecha = new Date(op.fecha);
+    const año = fecha.getFullYear();
+    const mesNumero = fecha.getMonth() + 1;
+    const nombreMes = nombresMeses[mesNumero - 1];
+    const clave = `${año}-${mesNumero.toString().padStart(2, '0')}`;
+    
+    // 🔥 Buscar capacidad del equipo
+    const equipoEncontrado = this.equiposProceso.find(
+      equipo => equipo.nombre === op.equipo && equipo.codigo === op.n_equipo
+    );
+    
+    const capacidadTonelada = equipoEncontrado?.capacidad_tonelada || 0;
+
+    let horasOperativas = 0;
+    let toneladasTotales = 0;
+
+    const registrosArray = op.registros;
+    if (!Array.isArray(registrosArray)) return;
+
+    for (const registro of registrosArray) {
+      const codigo = registro.codigo?.toString() || '';
+      
+      // 🔥 Solo procesar si el código está en la lista permitida
+      if (codigosPermitidos.includes(codigo)) {
+        
+        // 🔥 Calcular horas operativas
+        const horas = this.calcularDuracionHoras(
+          registro.hora_inicio,
+          registro.hora_final
+        );
+        horasOperativas += horas;
+        
+        // 🔥 Calcular toneladas
+        const n_cucharas = registro.operacion?.n_cucharas;
+        if (n_cucharas && !isNaN(Number(n_cucharas))) {
+          toneladasTotales += Number(n_cucharas) * capacidadTonelada;
+        }
+      }
+    }
+
+    // Limitar horas operativas a 12 (jornada máxima)
+    horasOperativas = Math.min(horasOperativas, 12);
+
+    if (!resultadoMap.has(clave)) {
+      resultadoMap.set(clave, {
+        // 🔥 CAMPOS SEPARADOS PARA EL GRÁFICO
+        mes: nombreMes,      // "MAYO"
+        año: año,            // 2026
+        mesNumero: mesNumero, // 5 (para ordenar)
+        
+        // 🔥 VALOR PRINCIPAL
+        rendimiento: 0,      // toneladas/hora
+        
+        // 🔥 Datos adicionales para tooltip
+        horasOperativas: 0,
+        totalToneladas: 0,
+        totalCucharas: 0,
+        cantidadOperaciones: 0,
+        capacidadTonelada: capacidadTonelada
+      });
+    }
+
+    const item = resultadoMap.get(clave);
+    item.horasOperativas += horasOperativas;
+    item.totalToneladas = Number((item.totalToneladas + toneladasTotales).toFixed(2));
+    item.cantidadOperaciones += 1;
+    
+    // 🔥 Acumular cucharas
+    if (capacidadTonelada > 0) {
+      item.totalCucharas += toneladasTotales / capacidadTonelada;
+    }
+
+    // 🔥 CALCULAR RENDIMIENTO (Toneladas / Horas Operativas)
+    if (item.horasOperativas > 0) {
+      item.rendimiento = Number((item.totalToneladas / item.horasOperativas).toFixed(2));
+    }
+  });
+
+  // 🔥 Ordenar por año y mes
+  const resultado = Array.from(resultadoMap.values())
+    .sort((a, b) => {
+      if (a.año !== b.año) return a.año - b.año;
+      return a.mesNumero - b.mesNumero;
+    });
+
+  console.log('📊 RENDIMIENTO POR MES:', resultado);
+  return resultado;
+}
+
+//=========================================
 //HOJA 4
 //|=========================================
 DisponibilidadPorOperador() {
@@ -1325,7 +1544,7 @@ DisponibilidadPorOperador() {
   const resultado = Array.from(resultadoMap.values())
     .sort((a, b) => b.disponibilidad - a.disponibilidad); // Ordenar por mejor disponibilidad
 
-  console.log('📊 DISPONIBILIDAD POR OPERADOR:', resultado);
+  //console.log('📊 DISPONIBILIDAD POR OPERADOR:', resultado);
   return resultado;
 }
 
