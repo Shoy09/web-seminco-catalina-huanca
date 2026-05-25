@@ -1,8 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
-import { TitleComponent, TooltipComponent, GridComponent, ToolboxComponent } from 'echarts/components';
+import {
+  TitleComponent,
+  TooltipComponent,
+  GridComponent,
+  ToolboxComponent,
+} from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 
 echarts.use([
@@ -11,7 +22,7 @@ echarts.use([
   TooltipComponent,
   GridComponent,
   ToolboxComponent,
-  CanvasRenderer
+  CanvasRenderer,
 ]);
 
 @Component({
@@ -20,91 +31,125 @@ echarts.use([
   imports: [NgxEchartsDirective],
   providers: [provideEchartsCore({ echarts })],
   templateUrl: './disponibilidad-guardia.component.html',
-  styleUrl: './disponibilidad-guardia.component.css'
+  styleUrl: './disponibilidad-guardia.component.css',
 })
-export class DisponibilidadRankingGuardiaComponent implements OnInit {
-  
+export class DisponibilidadRankingGuardiaComponent
+  implements OnInit, OnChanges
+{
+  @Input() data: any[] = [];
+
   chartOptions: any = {};
 
-  // Datos por tipo de guardia
-  readonly datosPorGuardia = [
-    { guardia: 'C', valor: 98, color: '#f9e79f' },
-    { guardia: 'B', valor: 95, color: '#85c1e9' },
-    { guardia: 'A', valor: 92, color: '#85c1e9' }
-  ];
-
   ngOnInit(): void {
+    this.procesarDatos();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['data']) {
+      this.procesarDatos();
+    }
+  }
+
+  procesarDatos(): void {
+    console.log('DATA DISPONIBILIDAD GUARDIA:', this.data);
+
+    if (!this.data || this.data.length === 0) {
+      this.chartOptions = {};
+      return;
+    }
+
     this.actualizarGrafico();
   }
 
-actualizarGrafico(): void {
-  const guardias = this.datosPorGuardia.map(item => item.guardia);
-  const valores = this.datosPorGuardia.map(item => item.valor);
-  const colores = this.datosPorGuardia.map(item => item.color);
+  obtenerColor(disponibilidad: number): string {
+    if (disponibilidad >= 95) return '#2ecc71'; // verde
+    if (disponibilidad >= 85) return '#f1c40f'; // amarillo
+    return '#e74c3c'; // rojo
+  }
+
+  actualizarGrafico(): void {
+
+  const datosOrdenados = [...this.data]
+    .sort((a, b) => b.disponibilidad - a.disponibilidad);
+
+  const guardias = datosOrdenados.map((item) => `Guardia ${item.guardia}`);
+
+  const valores = datosOrdenados.map((item) => item.disponibilidad);
+
+  const colores = datosOrdenados.map((item) =>
+    this.obtenerColor(item.disponibilidad)
+  );
 
   this.chartOptions = {
     title: {
-      text: 'DISPONIBILIDAD - GUARDIA',
+      text: 'DISPONIBILIDAD POR GUARDIA',
       left: 'center',
       top: 10,
       textStyle: {
-        fontSize: 12,        // ← CAMBIADO: antes 16, ahora 12 (más pequeño)
+        fontSize: 12,
         fontWeight: 'bold',
         color: '#333',
-        fontFamily: 'Arial'
-      }
+        fontFamily: 'Arial',
+      },
     },
 
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
       formatter: (params: any) => {
-        const data = params[0];
-        return `<strong>${data.name}</strong><br/>
-                Disponibilidad: ${data.value}%`;
-      }
+        const index = params[0].dataIndex;
+        const item = datosOrdenados[index];
+
+        return `
+          <strong>Guardia ${item.guardia}</strong><br/>
+          Horas totales: ${item.horasTotales?.toFixed(2) || 0}<br/>
+          Horas mantenimiento: ${item.horasMtto?.toFixed(2) || 0}<br/>
+          Horas operativas: ${item.horasOperativas?.toFixed(2) || 0}<br/>
+          Cantidad operaciones: ${item.cantidadOperaciones || 0}<br/>
+          Disponibilidad: <strong>${item.disponibilidad}%</strong>
+        `;
+      },
     },
 
     grid: {
-      left: '10%',
-      right: '10%',
-      top: '15%',        // ← CAMBIADO: antes 18%, ahora 15% (menos espacio para título más pequeño)
+      left: '15%',
+      right: '12%',
+      top: '18%',
       bottom: '10%',
-      containLabel: true
+      containLabel: true,
     },
 
-    // AHORA EL X ES VALUE
     xAxis: {
       type: 'value',
       min: 0,
-      max: 110,
+      max: 100,
       interval: 20,
       axisLabel: {
         formatter: '{value}%',
-        fontSize: 10
+        fontSize: 10,
       },
       splitLine: {
         lineStyle: {
           type: 'dashed',
-          color: '#ccc'
-        }
-      }
+          color: '#ccc',
+        },
+      },
     },
 
-    // AHORA EL Y ES CATEGORY
     yAxis: {
       type: 'category',
       data: guardias,
+      inverse: true,
       axisLabel: {
         fontSize: 12,
         fontWeight: 'bold',
-        fontFamily: 'Arial'
+        fontFamily: 'Arial',
       },
       axisLine: {
         lineStyle: {
-          color: '#666'
-        }
-      }
+          color: '#666',
+        },
+      },
     },
 
     series: [
@@ -116,17 +161,15 @@ actualizarGrafico(): void {
         data: valores.map((valor, index) => ({
           value: valor,
           itemStyle: {
-            color: colores[index]
-          }
+            color: colores[index],
+          },
         })),
 
         itemStyle: {
-          // Horizontal
           borderRadius: [0, 5, 5, 0],
-
           shadowColor: 'rgba(0,0,0,0.2)',
           shadowBlur: 6,
-          shadowOffsetY: 2
+          shadowOffsetY: 2,
         },
 
         label: {
@@ -134,26 +177,26 @@ actualizarGrafico(): void {
           position: 'right',
           formatter: '{c}%',
           fontWeight: 'bold',
-          fontSize: 13,
-          color: '#333'
+          fontSize: 12,
+          color: '#333',
         },
 
         emphasis: {
           focus: 'series',
           itemStyle: {
             shadowBlur: 10,
-            shadowColor: 'rgba(0,0,0,0.3)'
-          }
+            shadowColor: 'rgba(0,0,0,0.3)',
+          },
         },
 
         showBackground: true,
 
         backgroundStyle: {
           color: 'rgba(180,180,180,0.1)',
-          borderRadius: 5
-        }
-      }
-    ]
+          borderRadius: 5,
+        },
+      },
+    ],
   };
 }
 }

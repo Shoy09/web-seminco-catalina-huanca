@@ -1,8 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
-import { TitleComponent, TooltipComponent, GridComponent, ToolboxComponent } from 'echarts/components';
+import {
+  TitleComponent,
+  TooltipComponent,
+  GridComponent,
+  ToolboxComponent
+} from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 
 echarts.use([
@@ -22,33 +27,60 @@ echarts.use([
   templateUrl: './mineral-guardia.component.html',
   styleUrl: './mineral-guardia.component.css'
 })
-export class MineralRankingGuardiaComponent implements OnInit {
-  
+export class MineralRankingGuardiaComponent implements OnInit, OnChanges {
+
   chartOptions: any = {};
 
-  // Datos por tipo de guardia - PRODUCCIÓN DE MINERAL (toneladas)
-  readonly datosPorGuardia = [
-    { guardia: 'C', valor: 1250, color: '#f9e79f' },
-    { guardia: 'B', valor: 980, color: '#85c1e9' },
-    { guardia: 'A', valor: 1100, color: '#85c1e9' }
-  ];
+  @Input() data: any[] = [];
 
   ngOnInit(): void {
+    this.procesarDatos();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['data']) {
+      this.procesarDatos();
+    }
+  }
+
+  procesarDatos(): void {
+    console.log('DATA MINERAL GUARDIA:', this.data);
+
+    if (!this.data || this.data.length === 0) {
+      this.chartOptions = {};
+      return;
+    }
+
     this.actualizarGrafico();
   }
 
+  obtenerColor(valor: number): string {
+    if (valor >= 1200) return '#2ecc71'; // verde
+    if (valor >= 800) return '#f1c40f';  // amarillo
+    return '#e74c3c';                    // rojo
+  }
+
   actualizarGrafico(): void {
-    const guardias = this.datosPorGuardia.map(item => item.guardia);
-    const valores = this.datosPorGuardia.map(item => item.valor);
-    const colores = this.datosPorGuardia.map(item => item.color);
-    
-    // Calcular máximo para escala dinámica
-    const maxValor = Math.max(...valores);
+
+    const datosOrdenados = [...this.data]
+      .sort((a, b) => b.tnMineralAjustado - a.tnMineralAjustado);
+
+    const guardias = datosOrdenados.map((item) => `Guardia ${item.guardia}`);
+
+    const valores = datosOrdenados.map((item) =>
+      Number(item.tnMineralAjustado || 0)
+    );
+
+    const colores = datosOrdenados.map((item) =>
+      this.obtenerColor(Number(item.tnMineralAjustado || 0))
+    );
+
+    const maxValor = Math.max(...valores, 1);
     const escalaMax = Math.ceil(maxValor / 500) * 500;
 
     this.chartOptions = {
       title: {
-        text: 'MINERAL - GUARDIA',
+        text: 'MINERAL POR GUARDIA',
         left: 'center',
         top: 10,
         textStyle: {
@@ -63,36 +95,49 @@ export class MineralRankingGuardiaComponent implements OnInit {
         trigger: 'axis',
         axisPointer: { type: 'shadow' },
         formatter: (params: any) => {
-          const data = params[0];
+          const index = params[0].dataIndex;
+          const item = datosOrdenados[index];
+
+          const tnMineral = Number(item.tnMineralAjustado || 0);
+          const horas = Number(item.horasOperativasMineral || 0);
+          const cucharas = Number(item.cantidadCucharasMineral || 0);
+          const rendimiento = Number(item.rendimientoMineral || 0);
+
           let produccion = '';
-          if (data.value >= 1200) produccion = 'Alta 🚀';
-          else if (data.value >= 1000) produccion = 'Media 📈';
-          else if (data.value >= 800) produccion = 'Normal 📊';
+
+          if (tnMineral >= 1200) produccion = 'Alta 🚀';
+          else if (tnMineral >= 1000) produccion = 'Media 📈';
+          else if (tnMineral >= 800) produccion = 'Normal 📊';
           else produccion = 'Baja ⚠️';
-          
-          return `<strong>Guardia ${data.name}</strong><br/>
-                  Producción: ${data.value.toLocaleString()} toneladas<br/>
-                  Nivel: ${produccion}`;
+
+          return `
+            <strong>Guardia ${item.guardia}</strong><br/>
+            Mineral ajustado: <strong>${tnMineral.toLocaleString()} Tn</strong><br/>
+            Horas operativas mineral: ${horas.toFixed(2)} h<br/>
+            Cucharas mineral: ${cucharas}<br/>
+            Registros mineral: ${item.cantidadRegistrosMineral || 0}<br/>
+            Cantidad operaciones: ${item.cantidadOperaciones || 0}<br/>
+            Rendimiento mineral: ${rendimiento.toFixed(2)} Tn/h<br/>
+            Nivel: ${produccion}
+          `;
         }
       },
 
       grid: {
-        left: '10%',
-        right: '10%',
-        top: '15%',
+        left: '15%',
+        right: '15%',
+        top: '18%',
         bottom: '10%',
         containLabel: true
       },
 
       xAxis: {
         type: 'value',
-        nameLocation: 'middle',
-        nameGap: 35,
         min: 0,
         max: escalaMax,
         axisLabel: {
           fontSize: 10,
-          formatter: (value: number) => value.toLocaleString()
+          formatter: (value: number) => `${value.toLocaleString()} Tn`
         },
         splitLine: {
           lineStyle: {
@@ -105,6 +150,7 @@ export class MineralRankingGuardiaComponent implements OnInit {
       yAxis: {
         type: 'category',
         data: guardias,
+        inverse: true,
         axisLabel: {
           fontSize: 12,
           fontWeight: 'bold',
@@ -119,29 +165,35 @@ export class MineralRankingGuardiaComponent implements OnInit {
 
       series: [
         {
-          name: 'Producción',
+          name: 'Mineral',
           type: 'bar',
           barWidth: '45%',
+
           data: valores.map((valor, index) => ({
             value: valor,
             itemStyle: {
               color: colores[index]
             }
           })),
+
           itemStyle: {
             borderRadius: [0, 5, 5, 0],
             shadowColor: 'rgba(0,0,0,0.2)',
             shadowBlur: 6,
             shadowOffsetY: 2
           },
+
           label: {
             show: true,
             position: 'right',
-            formatter: (params: any) => params.value.toLocaleString(),
+            formatter: (params: any) => {
+              return `${Number(params.value).toLocaleString()} Tn`;
+            },
             fontWeight: 'bold',
-            fontSize: 13,
+            fontSize: 12,
             color: '#333'
           },
+
           emphasis: {
             focus: 'series',
             itemStyle: {
@@ -149,7 +201,9 @@ export class MineralRankingGuardiaComponent implements OnInit {
               shadowColor: 'rgba(0,0,0,0.3)'
             }
           },
+
           showBackground: true,
+
           backgroundStyle: {
             color: 'rgba(180,180,180,0.1)',
             borderRadius: 5
