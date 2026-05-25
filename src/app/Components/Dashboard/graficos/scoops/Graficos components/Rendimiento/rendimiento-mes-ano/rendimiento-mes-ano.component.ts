@@ -212,7 +212,6 @@ export class RendimientoMesAnoComponent implements OnInit, OnChanges {
 
       yAxis: {
         type: 'value',
-        name: 'Rendimiento (t/h)',
         nameLocation: 'middle',
         nameGap: 45,
         min: 0,

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -27,24 +27,59 @@ echarts.use([
   templateUrl: './top-equipos.component.html',
   styleUrl: './top-equipos.component.css'
 })
-export class TopEquiposComponent implements OnInit {
+export class TopEquiposComponent implements OnInit, OnChanges {
+
+  @Input() data: any[] = [];
 
   chartOptions: any = {};
 
-  // Datos organizados por equipo y rendimiento
-  readonly datosEquipos = [
-    { equipo: 'ST22', rendimiento: 200 },
-    { equipo: 'ST23', rendimiento: 180 },
-    { equipo: 'ST24', rendimiento: 140 },
-  ];
+  datosEquipos: any[] = [];
 
   ngOnInit(): void {
-    // Ordenar datos de mayor a menor rendimiento
-    this.datosEquipos.sort((a, b) => b.rendimiento - a.rendimiento);
+    this.procesarDatos();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['data']) {
+      this.procesarDatos();
+    }
+  }
+
+  procesarDatos(): void {
+    if (!this.data || this.data.length === 0) {
+      this.datosEquipos = [];
+      this.chartOptions = {};
+      return;
+    }
+
+    // Mapear los datos: codigo = equipo, rendimiento = valor
+    // Ordenar por rendimiento de mayor a menor
+    this.datosEquipos = this.data
+      .map(item => ({
+        equipo: item.codigo || item.equipo || 'Sin datos',
+        rendimiento: item.rendimiento || 0,
+        // Guardar datos adicionales para tooltip
+        nombre: item.nombre || '',
+        modeloEquipo: item.modeloEquipo || '',
+        capacidadTonelada: item.capacidadTonelada || 0,
+        capacidadYd3: item.capacidadYd3 || 0,
+        totalToneladas: item.totalToneladas || 0,
+        totalCucharas: item.totalCucharas || 0,
+        cantidadOperaciones: item.cantidadOperaciones || 0,
+        horasOperativas: item.horasOperativas || 0,
+        capacidadToneladaDesmonte: item.capacidadToneladaDesmonte || 0
+      }))
+      .sort((a, b) => b.rendimiento - a.rendimiento);
+
     this.actualizarGrafico();
   }
 
   actualizarGrafico(): void {
+    if (!this.datosEquipos.length) {
+      this.chartOptions = {};
+      return;
+    }
+
     // Nombres de equipos para el eje Y
     const equipos = this.datosEquipos.map(item => item.equipo);
     
@@ -54,11 +89,6 @@ export class TopEquiposComponent implements OnInit {
     // Calcular máximo para escala dinámica
     const maxValor = Math.max(...valores);
     const escalaMax = Math.ceil(maxValor / 50) * 50;
-
-    // =========================
-    // GRAPHICS: Sección de equipos destacados
-    // =========================
-    const graphics: any[] = [];
 
     this.chartOptions = {
       title: {
@@ -93,17 +123,27 @@ export class TopEquiposComponent implements OnInit {
             <strong>${medalla}${item.equipo}</strong><br/>
             <hr style="margin: 4px 0;"/>
             <span style="color:#3498db; font-weight:bold;">●</span>
-            Rendimiento: <strong>${data.value}</strong> unidades<br/>
+            Rendimiento: <strong>${data.value.toFixed(2)}</strong> t/h<br/>
             <span style="color:#2ecc71; font-weight:bold;">●</span>
             Puesto: <strong>#${puesto}</strong> de ${this.datosEquipos.length}<br/>
             <span style="color:#f39c12; font-weight:bold;">●</span>
-            Porcentaje: ${((data.value / maxValor) * 100).toFixed(1)}% del máximo
+            Porcentaje: ${((data.value / maxValor) * 100).toFixed(1)}% del máximo<br/>
+            <span style="color:#9b59b6; font-weight:bold;">●</span>
+            Total Toneladas: <strong>${item.totalToneladas.toFixed(2)}</strong> t<br/>
+            <span style="color:#1abc9c; font-weight:bold;">●</span>
+            Total Cucharas: <strong>${item.totalCucharas}</strong><br/>
+            <span style="color:#e67e22; font-weight:bold;">●</span>
+            Capacidad: <strong>${item.capacidadYd3}</strong> yd³ (${item.capacidadTonelada.toFixed(2)} t)<br/>
+            <span style="color:#e74c3c; font-weight:bold;">●</span>
+            Operaciones: <strong>${item.cantidadOperaciones}</strong><br/>
+            <span style="color:#95a5a6; font-weight:bold;">●</span>
+            Horas Operativas: <strong>${item.horasOperativas.toFixed(2)}</strong> hrs
           `;
         }
       },
 
       grid: {
-        left: '3%',      // ← REDUCIDO: antes 15%, ahora 3% (más a la izquierda)
+        left: '3%',
         right: '8%',
         top: '15%',
         bottom: '5%',
@@ -131,8 +171,7 @@ export class TopEquiposComponent implements OnInit {
       yAxis: {
         type: 'category',
         data: equipos,
-        // IMPORTANTE: Invertir el eje Y para que el mayor valor aparezca arriba
-        inverse: true,  // ← AÑADIDO: Esto hace que el primer elemento (mayor) esté arriba
+        inverse: true,
         axisLabel: {
           show: true,
           interval: 0,
@@ -141,7 +180,6 @@ export class TopEquiposComponent implements OnInit {
           color: '#2c3e50',
           fontFamily: 'Arial',
           formatter: (value: string, index: number) => {
-            // Como ahora está invertido, index 0 sigue siendo el primero (mayor rendimiento)
             if (index === 0) return `🥇 ${value}`;
             if (index === 1) return `🥈 ${value}`;
             if (index === 2) return `🥉 ${value}`;
@@ -162,7 +200,7 @@ export class TopEquiposComponent implements OnInit {
         {
           name: 'Rendimiento',
           type: 'bar',
-          barWidth: '50%',  // ← Reducido para mejor aspecto
+          barWidth: '50%',
           data: valores.map((valor, index) => ({
             value: valor,
             itemStyle: {
@@ -180,7 +218,7 @@ export class TopEquiposComponent implements OnInit {
             position: 'right',
             fontWeight: 'bold',
             fontSize: 11,
-            formatter: '{c}',
+            formatter: (params: any) => params.value.toFixed(1),
             color: '#333'
           },
           emphasis: {
@@ -197,9 +235,7 @@ export class TopEquiposComponent implements OnInit {
             borderRadius: 6
           }
         }
-      ],
-
-      graphic: graphics
+      ]
     };
   }
 

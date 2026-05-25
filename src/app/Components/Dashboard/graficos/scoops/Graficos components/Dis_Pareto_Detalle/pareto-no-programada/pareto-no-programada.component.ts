@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -27,57 +27,123 @@ echarts.use([
   templateUrl: './pareto-no-programada.component.html',
   styleUrl: './pareto-no-programada.component.css'
 })
-export class ParetoNoProgramadasComponent implements OnInit {
+export class ParetoNoProgramadasComponent implements OnInit, OnChanges {
+
+  @Input() data: any[] = [];
 
   chartOptions: any = {};
 
-  // Datos de causas de paradas no programadas
-  readonly datosParadas = [
-    { causa: 'Fallas Eléctricas', frecuencia: 45 },
-    { causa: 'Mantenimiento Correctivo', frecuencia: 38 },
-    { causa: 'Falta de Material', frecuencia: 32 },
-    { causa: 'Problemas Operativos', frecuencia: 25 },
-    { causa: 'Fallas Mecánicas', frecuencia: 20 },
-    { causa: 'Falta de Personal', frecuencia: 15 },
-    { causa: 'Problemas de Calidad', frecuencia: 10 },
-    { causa: 'Otros', frecuencia: 5 }
-  ];
+  datosParadas: any[] = [];
 
   ngOnInit(): void {
-    // Ordenar datos de mayor a menor frecuencia
-    this.datosParadas.sort((a, b) => b.frecuencia - a.frecuencia);
+    this.procesarDatos();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['data']) {
+      this.procesarDatos();
+    }
+  }
+
+  procesarDatos(): void {
+    if (!this.data || this.data.length === 0) {
+      this.datosParadas = [];
+      this.chartOptions = {};
+      return;
+    }
+
+    // Filtrar datos: excluir observaciones "SIN OBSERVACIÓN" (case insensitive)
+    const datosFiltrados = this.data.filter(item => {
+      const observacion = (item.observacion || '').toUpperCase();
+      return observacion !== 'SIN OBSERVACIÓN' && observacion !== 'SIN OBSERVACION';
+    });
+
+    if (datosFiltrados.length === 0) {
+      this.datosParadas = [];
+      this.chartOptions = {};
+      return;
+    }
+
+    // Agrupar por observación (causa) y sumar horasTotales
+    const gruposPorObservacion = new Map();
+
+    datosFiltrados.forEach(item => {
+      const observacion = item.observacion || 'Sin observación';
+      const horas = item.horasTotales || 0;
+      
+      if (gruposPorObservacion.has(observacion)) {
+        const grupo = gruposPorObservacion.get(observacion);
+        grupo.horas += horas;
+        grupo.cantidadRegistros += item.cantidadRegistros || 1;
+        // Acumular códigos y estados relacionados
+        if (item.codigosRelacionados) {
+          grupo.codigosRelacionados.push(...item.codigosRelacionados);
+        }
+        if (item.estadosRelacionados) {
+          grupo.estadosRelacionados.push(...item.estadosRelacionados);
+        }
+      } else {
+        gruposPorObservacion.set(observacion, {
+          causa: observacion,
+          frecuencia: horas,
+          horas: horas,
+          cantidadRegistros: item.cantidadRegistros || 1,
+          codigosRelacionados: item.codigosRelacionados ? [...item.codigosRelacionados] : [],
+          estadosRelacionados: item.estadosRelacionados ? [...item.estadosRelacionados] : []
+        });
+      }
+    });
+
+    // Convertir el mapa a un array y ordenar por horas de mayor a menor
+    this.datosParadas = Array.from(gruposPorObservacion.values())
+      .map(grupo => ({
+        causa: grupo.causa,
+        frecuencia: grupo.horas,
+        cantidadRegistros: grupo.cantidadRegistros,
+        codigosRelacionados: grupo.codigosRelacionados,
+        estadosRelacionados: grupo.estadosRelacionados
+      }))
+      .sort((a, b) => b.frecuencia - a.frecuencia);
+
     this.actualizarGrafico();
   }
 
   actualizarGrafico(): void {
+    if (!this.datosParadas.length) {
+      this.chartOptions = {};
+      return;
+    }
+
     // Nombres de causas para el eje X (con salto de línea si son largos)
     const causas = this.datosParadas.map(item => {
-      // Si la causa tiene más de 15 caracteres, agregar salto de línea
-      if (item.causa.length > 15) {
+      // Si la causa tiene más de 20 caracteres, agregar salto de línea
+      if (item.causa.length > 20) {
         const medio = Math.floor(item.causa.length / 2);
         const espacio = item.causa.indexOf(' ');
         if (espacio !== -1 && espacio < medio) {
-          // Cortar por espacio si existe
           const primeraParte = item.causa.substring(0, espacio);
           const segundaParte = item.causa.substring(espacio + 1);
           return primeraParte + '\n' + segundaParte;
         } else {
-          // Cortar por la mitad si no hay espacio
           return item.causa.substring(0, medio) + '\n' + item.causa.substring(medio);
         }
       }
       return item.causa;
     });
     
-    // Valores de frecuencia
-    const frecuencias = this.datosParadas.map(item => item.frecuencia);
+    // Valores de horas
+    const valores = this.datosParadas.map(item => item.frecuencia);
     
     // Calcular total para tooltip
-    const total = frecuencias.reduce((sum, val) => sum + val, 0);
+    const total = valores.reduce((sum, val) => sum + val, 0);
+
+    // Calcular máximo para escala dinámica
+    const maxValor = Math.max(...valores);
+    const escalaMax = Math.ceil(maxValor / 5) * 5;
 
     this.chartOptions = {
       title: {
-        text: 'PARADAS NO PROGRAMADAS',
+        text: 'PARADAS NO PROGRAMADAS - HORAS',
         left: 'center',
         top: 10,
         textStyle: {
@@ -116,15 +182,34 @@ export class ParetoNoProgramadasComponent implements OnInit {
             colorCriticidad = '#2ecc71';
           }
           
+          // Mostrar códigos relacionados si existen
+          let codigosTexto = '';
+          if (item.codigosRelacionados && item.codigosRelacionados.length > 0) {
+            const codigosUnicos = [...new Set(item.codigosRelacionados)];
+            codigosTexto = `<br/><span style="color:#9b59b6; font-weight:bold;">●</span>
+              Códigos: <strong>${codigosUnicos.join(', ')}</strong>`;
+          }
+          
+          let estadosTexto = '';
+          if (item.estadosRelacionados && item.estadosRelacionados.length > 0) {
+            const estadosUnicos = [...new Set(item.estadosRelacionados)];
+            estadosTexto = `<br/><span style="color:#1abc9c; font-weight:bold;">●</span>
+              Estados: <strong>${estadosUnicos.join(', ')}</strong>`;
+          }
+          
           return `
-            <strong>${item.causa}</strong><br/>
+            <strong>📋 ${item.causa}</strong><br/>
             <hr style="margin: 4px 0;"/>
             <span style="color:#3498db; font-weight:bold;">●</span>
-            Frecuencia: <strong>${data.value}</strong> veces<br/>
+            Horas Totales: <strong>${data.value.toFixed(2)}</strong> hrs<br/>
             <span style="color:${colorCriticidad}; font-weight:bold;">●</span>
             Contribución: <strong>${porcentajeIndividual}%</strong><br/>
             <span style="color:#f39c12; font-weight:bold;">●</span>
-            Criticidad: <strong>${criticidad}</strong>
+            Criticidad: <strong>${criticidad}</strong><br/>
+            <span style="color:#e67e22; font-weight:bold;">●</span>
+            Cantidad Registros: <strong>${item.cantidadRegistros}</strong>
+            ${codigosTexto}
+            ${estadosTexto}
           `;
         }
       },
@@ -145,11 +230,10 @@ export class ParetoNoProgramadasComponent implements OnInit {
           fontWeight: 'bold',
           color: '#2c3e50',
           fontFamily: 'Arial',
-          rotate: 0,           // Sin rotación, texto horizontal
+          rotate: 0,
           interval: 0,
-          lineHeight: 18,      // Altura de línea para texto con salto
+          lineHeight: 18,
           formatter: (value: string) => {
-            // Mantener los saltos de línea que ya agregamos
             return value;
           }
         },
@@ -168,10 +252,10 @@ export class ParetoNoProgramadasComponent implements OnInit {
         nameLocation: 'middle',
         nameGap: 45,
         min: 0,
-        max: Math.max(...frecuencias) + 10,
+        max: escalaMax,
         axisLabel: {
           fontSize: 10,
-          formatter: '{value}'
+          formatter: '{value} hrs'
         },
         splitLine: {
           lineStyle: {
@@ -183,12 +267,12 @@ export class ParetoNoProgramadasComponent implements OnInit {
 
       series: [
         {
-          name: 'Frecuencia de Paradas',
+          name: 'Horas de Parada',
           type: 'bar',
           barWidth: '60%',
-          data: frecuencias,
+          data: valores,
           itemStyle: {
-            color: '#3498db',  // ← UN SOLO COLOR AZUL
+            color: '#3498db',
             borderRadius: [6, 6, 0, 0],
             shadowColor: 'rgba(0, 0, 0, 0.2)',
             shadowBlur: 6,
@@ -199,7 +283,7 @@ export class ParetoNoProgramadasComponent implements OnInit {
             position: 'top',
             fontWeight: 'bold',
             fontSize: 11,
-            formatter: '{c}',
+            formatter: (params: any) => params.value.toFixed(1) + 'h',
             color: '#333'
           },
           emphasis: {

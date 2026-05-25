@@ -47,7 +47,7 @@
 <app-disponibilidad-equipo class="third-width" [data]="DataDisponibilidadPorEquipo" ></app-disponibilidad-equipo>
 <app-disponibilidad-semana class="third-width" [data]="DataDisponibilidadPorSemana"></app-disponibilidad-semana>
 <app-disponibilidad-mes class="third-width" [data]="DataDisponibilidadPorMes"></app-disponibilidad-mes>
-<app-disponibilidad-guardia class="third-width"></app-disponibilidad-guardia>
+<app-disponibilidad-guardia class="third-width" [data]="DataDisponibilidadPorSeccion"></app-disponibilidad-guardia>
 <app-disponibilidad-estado class="third-width" [data]="DataHorasMantenimientoPorCodigo"></app-disponibilidad-estado>
 <app-disponibilidad-dia-mes class="third-width"  [data]="DataDisponibilidadPorDiaMes" ></app-disponibilidad-dia-mes>
 
@@ -55,21 +55,21 @@
 <app-utilizacion-equipo class="third-width" [data]="DataUtilizacionPorEquipo"></app-utilizacion-equipo>
 <app-utilizacion-semana class="third-width" [data]="DataUtilizacionPorSemana"></app-utilizacion-semana>
 <app-utilizacion-mes class="third-width" [data]="DataUtilizacionPorMes"></app-utilizacion-mes>
- <app-utilizacion-guardia class="third-width"></app-utilizacion-guardia>
+ <app-utilizacion-guardia class="third-width" [data]="DataUtilizacionPorSeccionDetallada"></app-utilizacion-guardia>
  <app-horas-demora-codigo class="third-width" [data]="DataHorasDemoraPorCodigo"></app-horas-demora-codigo>
 <app-utilizacion-dia-mes class="third-width" [data]="DataUtilizacionPorDia"></app-utilizacion-dia-mes>
 
 
 <app-rendimiento-general class="full-width-compact" [data]="DataprocesarEquiposConCapacidad"></app-rendimiento-general>
-<app-rendimiento-guardia class="third-width" ></app-rendimiento-guardia>
+<app-rendimiento-guardia class="third-width" [data]="DataRendimientoPorSeccionDetallado"></app-rendimiento-guardia>
 <app-rendimiento-seccion-labor class="third-width"  [data]="DataprocesarEquiposConCapacidad"></app-rendimiento-seccion-labor>
 <app-rendimiento-mes-ano class="third-width" [data]="DataRendimientoPorMes"></app-rendimiento-mes-ano>
-<app-top-equipos class="third-width"></app-top-equipos>
-<app-rendimiento-dia-mes class="third-width"></app-rendimiento-dia-mes>
+<app-top-equipos class="half-width" [data]="DataprocesarEquiposConCapacidad"></app-top-equipos>
+<app-rendimiento-dia-mes class="half-width" [data]="DataRendimientoPorDia" ></app-rendimiento-dia-mes>
 
 
 <app-ranking-operador-utilizacion class="half-width" [data]="DataDisponibilidadPorOperador" ></app-ranking-operador-utilizacion>
-<app-ranking-operador-rendimiento class="half-width"></app-ranking-operador-rendimiento>
+<app-ranking-operador-rendimiento class="half-width" [data]="DataRendimientoPorOperador" ></app-ranking-operador-rendimiento>
 
 
 <app-ranking-disponibilidad-guardia class="quarter-width"></app-ranking-disponibilidad-guardia>
@@ -80,8 +80,7 @@
 <app-promedio-material-guardia class="half-width"></app-promedio-material-guardia>
 
 
-<app-pareto-no-programadas class="full-width"></app-pareto-no-programadas>
-
+<app-pareto-no-programadas class="full-width" [data]="DataHorasPorObservacion"></app-pareto-no-programadas>
 
 <app-diagrama-pareto class="full-width"></app-diagrama-pareto>
 

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -27,25 +27,56 @@ echarts.use([
   templateUrl: './ranking-operador-rendimiento.component.html',
   styleUrl: './ranking-operador-rendimiento.component.css'
 })
-export class RankingOperadorRendimientoComponent implements OnInit {
+export class RankingOperadorRendimientoComponent implements OnInit, OnChanges {
+
+  @Input() data: any[] = [];
 
   chartOptions: any = {};
 
-  // Datos organizados por operador y rendimiento (t/h)
-  readonly datosOperadores = [
-    { operador: 'Juan Pérez', rendimiento: 245 },
-    { operador: 'Carlos López', rendimiento: 218 },
-    { operador: 'María González', rendimiento: 235 },
-    { operador: 'Ana Rodríguez', rendimiento: 195 },
-  ];
+  datosOperadores: any[] = [];
 
   ngOnInit(): void {
-    // Ordenar datos de mayor a menor rendimiento
-    this.datosOperadores.sort((a, b) => b.rendimiento - a.rendimiento);
+    this.procesarDatos();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['data']) {
+      this.procesarDatos();
+    }
+  }
+
+  procesarDatos(): void {
+    if (!this.data || this.data.length === 0) {
+      this.datosOperadores = [];
+      this.chartOptions = {};
+      return;
+    }
+
+    // Mapear los datos: operador, rendimiento
+    // Ordenar por rendimiento de mayor a menor
+    this.datosOperadores = this.data
+      .map(item => ({
+        operador: item.operador || 'Sin datos',
+        rendimiento: item.rendimiento || 0,
+        // Guardar datos adicionales para tooltip
+        totalToneladas: item.totalToneladas || 0,
+        totalCucharas: item.totalCucharas || 0,
+        cantidadOperaciones: item.cantidadOperaciones || 0,
+        horasOperativas: item.horasOperativas || 0,
+        cantidadEquipos: item.cantidadEquipos || 1,
+        equiposUsados: item.equiposUsados ? Array.from(item.equiposUsados).join(', ') : 'N/A'
+      }))
+      .sort((a, b) => b.rendimiento - a.rendimiento);
+
     this.actualizarGrafico();
   }
 
   actualizarGrafico(): void {
+    if (!this.datosOperadores.length) {
+      this.chartOptions = {};
+      return;
+    }
+
     // Nombres de operadores para el eje Y
     const operadores = this.datosOperadores.map(item => item.operador);
     
@@ -116,24 +147,34 @@ export class RankingOperadorRendimientoComponent implements OnInit {
             <strong>${medalla}${item.operador}</strong><br/>
             <hr style="margin: 4px 0;"/>
             <span style="color:#3498db; font-weight:bold;">●</span>
-            Rendimiento: <strong>${data.value} t/h</strong><br/>
+            Rendimiento: <strong>${data.value.toFixed(2)} t/h</strong><br/>
             <span style="color:#2ecc71; font-weight:bold;">●</span>
             Puesto: <strong>#${puesto}</strong> de ${this.datosOperadores.length}<br/>
             <span style="color:${colorNivel}; font-weight:bold;">●</span>
             Nivel: <strong>${nivel}</strong><br/>
             <span style="color:#9b59b6; font-weight:bold;">●</span>
-            ${diferenciaTexto}
+            ${diferenciaTexto}<br/>
+            <span style="color:#f39c12; font-weight:bold;">●</span>
+            Total Toneladas: <strong>${item.totalToneladas.toFixed(2)} t</strong><br/>
+            <span style="color:#1abc9c; font-weight:bold;">●</span>
+            Total Cucharas: <strong>${item.totalCucharas}</strong><br/>
+            <span style="color:#e67e22; font-weight:bold;">●</span>
+            Operaciones: <strong>${item.cantidadOperaciones}</strong><br/>
+            <span style="color:#e74c3c; font-weight:bold;">●</span>
+            Horas Operativas: <strong>${item.horasOperativas.toFixed(2)} hrs</strong><br/>
+            <span style="color:#95a5a6; font-weight:bold;">●</span>
+            Equipos Usados: <strong>${item.equiposUsados}</strong>
           `;
         }
       },
 
       grid: {
-  left: '3%',      // ← CAMBIADO: de 12% a 3%
-  right: '8%',
-  top: '15%',
-  bottom: '5%',
-  containLabel: true  // ← AÑADIDO: importante para no cortar etiquetas
-},
+        left: '3%',
+        right: '8%',
+        top: '15%',
+        bottom: '5%',
+        containLabel: true
+      },
 
       xAxis: {
         type: 'value',
@@ -156,7 +197,7 @@ export class RankingOperadorRendimientoComponent implements OnInit {
       yAxis: {
         type: 'category',
         data: operadores,
-        inverse: true,  // Mayor rendimiento arriba
+        inverse: true,
         axisLabel: {
           show: true,
           interval: 0,
@@ -208,7 +249,7 @@ export class RankingOperadorRendimientoComponent implements OnInit {
             position: 'right',
             fontWeight: 'bold',
             fontSize: 11,
-            formatter: '{c} t/h',
+            formatter: (params: any) => params.value.toFixed(1) + ' t/h',
             color: '#333'
           },
           emphasis: {

@@ -218,7 +218,6 @@ export class RendimientoSeccionLaborComponent implements OnInit, OnChanges {
 
       yAxis: {
         type: 'value',
-        name: 'Rendimiento (t/op)',
         nameLocation: 'middle',
         nameGap: 45,
         min: 0,
