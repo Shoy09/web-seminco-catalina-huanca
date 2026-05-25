@@ -48,6 +48,10 @@ import { MttrMesComponent } from "../Graficos components/MTBF-MTTR/MTTR/mttr-mes
 import { ExcelImportService } from '../../../../../services/subir data/excel-operacion-mapper-scoops.service';
 import { EquipoService } from '../../../../../services/equipo.service';
 import { Equipo } from '../../../../../models/equipo.model';
+import { HorasOperativasDiaComponent } from '../Graficos components/HorasOperativas/horas-operativas-dia/horas-operativas-dia.component';
+import { HorasOperativasSemanaComponent } from '../Graficos components/HorasOperativas/horas-operativas-semana/horas-operativas-semana.component';
+import { HorasOperativasMesComponent } from '../Graficos components/HorasOperativas/horas-operativas-mes/horas-operativas-mes.component';
+import { generarDiasEntreFechas, MESES_CORTOS, obtenerPeriodo, obtenerPeriodoDesdeKey, obtenerRangoSemanaISO, obtenerSemanaISO, parseFechaLocal } from '../../../../../utils/fecha-utils';
 
 
 @Component({
@@ -90,7 +94,10 @@ import { Equipo } from '../../../../../models/equipo.model';
     MttrEquipoComponent,
     MttrAnoComponent,
     MttrSemanasComponent,
-    MttrMesComponent
+    MttrMesComponent,
+    HorasOperativasDiaComponent,
+    HorasOperativasSemanaComponent,
+    HorasOperativasMesComponent,
 ],
   templateUrl: './principal-grafico-scoops.component.html',
   styleUrl: './principal-grafico-scoops.component.css',
@@ -137,6 +144,10 @@ DataRendimientoPorGuardia: any[] = [];
 DataMineralGuardia: any[] = [];
 DataUtilizacionGuardia: any[] = [];
 
+dataHorasOperativasDia: any[] = [];
+dataHorasOperativasSemana: any[] = [];
+dataHorasOperativasMes: any[] = [];
+
   estadosProceso: any[] = [];
 vistaPrincipal: boolean = true;
 
@@ -162,7 +173,6 @@ constructor(
 
     this.cargarOperaciones();
     this.obtenerEstadosPorProceso('SCOOPTRAM');
-    this.obtenerEquiposPorProceso('SCOOPTRAM');
   }
 
   obtenerEquiposPorProceso(proceso: string) {
@@ -302,6 +312,10 @@ mapaEstados: Map<string, any> = new Map();
   this.DataRendimientoPorGuardia = this.RendimientoPorGuardia();
   this.DataMineralGuardia = this.MineralGuardia();
   this.DataUtilizacionGuardia = this.UtilizacionGuardia();
+
+  this.dataHorasOperativasDia = this.HorasOperativasPorDia();
+  this.dataHorasOperativasSemana = this.HorasOperativasPorSemana();
+  this.dataHorasOperativasMes = this.HorasOperativasPorMes();
 
 }
 
@@ -2628,7 +2642,167 @@ UtilizacionGuardia() {
 
   resultado.sort((a, b) => b.utilizacion - a.utilizacion);
 
-  console.log('📊 UTILIZACIÓN POR GUARDIA:', resultado);
+  return resultado;
+}
+
+//
+private readonly CODIGOS_OPERATIVOS = ['101', '102', '105', '106', '108'];
+
+HorasOperativasPorDia() {
+  return this.calcularHorasOperativasPorPeriodo('DIA');
+}
+
+HorasOperativasPorSemana() {
+  return this.calcularHorasOperativasPorPeriodo('SEMANA');
+}
+
+HorasOperativasPorMes() {
+  return this.calcularHorasOperativasPorPeriodo('MES');
+}
+
+private calcularHorasOperativasPorPeriodo(tipo: 'DIA' | 'SEMANA' | 'MES') {
+  const datosPorDia = this.calcularHorasOperativasBasePorDia();
+
+  if (tipo === 'DIA') {
+    return datosPorDia;
+  }
+
+  const resultadoMap = new Map<string, any>();
+
+  datosPorDia.forEach((dia) => {
+    const periodo = obtenerPeriodoDesdeKey(dia.key, tipo);
+
+    if (!periodo) return;
+
+    if (!resultadoMap.has(periodo.key)) {
+      resultadoMap.set(periodo.key, {
+        key: periodo.key,
+        periodo: periodo.label,
+        fechaInicio: periodo.fechaInicio || null,
+        fechaFin: periodo.fechaFin || null,
+        sumaHorasOperativas: 0,
+        horasOperativas: 0,
+        cantidadDias: 0,
+        cantidadOperaciones: 0,
+        cantidadRegistrosOperativos: 0
+      });
+    }
+
+    const item = resultadoMap.get(periodo.key);
+
+    item.sumaHorasOperativas += Number(dia.horasOperativas || 0);
+    item.cantidadDias += 1;
+    item.cantidadOperaciones += Number(dia.cantidadOperaciones || 0);
+    item.cantidadRegistrosOperativos += Number(dia.cantidadRegistrosOperativos || 0);
+  });
+
+  const resultado = Array.from(resultadoMap.values()).map((item) => {
+    item.horasOperativas = item.cantidadDias > 0
+      ? Number((item.sumaHorasOperativas / item.cantidadDias).toFixed(2))
+      : 0;
+
+    item.sumaHorasOperativas = Number(item.sumaHorasOperativas.toFixed(2));
+
+    return item;
+  });
+
+  resultado.sort((a, b) => a.key.localeCompare(b.key));
+
+  return resultado;
+}
+
+private calcularHorasOperativasBasePorDia() {
+  const resultadoMap = new Map<string, any>();
+
+  // Crear todos los días del rango con 0
+  if (this.fechaInicio && this.fechaFin) {
+    const diasRango = generarDiasEntreFechas(this.fechaInicio, this.fechaFin);
+
+    diasRango.forEach((dia) => {
+      resultadoMap.set(dia.key, {
+        key: dia.key,
+        periodo: dia.label,
+
+        // suma total de horas operativas del día
+        sumaHorasOperativas: 0,
+
+        // promedio final que se mostrará en el gráfico
+        horasOperativas: 0,
+
+        cantidadOperaciones: 0,
+        cantidadRegistrosOperativos: 0
+      });
+    });
+  }
+
+  this.operacionesFiltradas.forEach((op) => {
+    const registrosArray = op.registros;
+
+    if (!Array.isArray(registrosArray)) return;
+
+    const fecha = op.fecha;
+
+    if (!fecha) return;
+
+    const periodo = obtenerPeriodo(fecha, 'DIA');
+
+    if (!periodo) return;
+
+    if (!resultadoMap.has(periodo.key)) {
+      resultadoMap.set(periodo.key, {
+        key: periodo.key,
+        periodo: periodo.label,
+        sumaHorasOperativas: 0,
+        horasOperativas: 0,
+        cantidadOperaciones: 0,
+        cantidadRegistrosOperativos: 0
+      });
+    }
+
+    const item = resultadoMap.get(periodo.key);
+
+    let horasOperativasOperacion = 0;
+    let tieneHorasOperativas = false;
+
+    for (const registro of registrosArray) {
+      const codigo = String(registro.codigo || '').trim();
+
+      if (!this.CODIGOS_OPERATIVOS.includes(codigo)) continue;
+
+      const horas = this.calcularDuracionHoras(
+        registro.hora_inicio,
+        registro.hora_final
+      );
+
+      if (!horas || horas <= 0) continue;
+
+      horasOperativasOperacion += horas;
+      item.cantidadRegistrosOperativos += 1;
+      tieneHorasOperativas = true;
+    }
+
+    // Solo cuenta la operación si tuvo horas operativas reales
+    if (tieneHorasOperativas) {
+      item.sumaHorasOperativas += horasOperativasOperacion;
+      item.cantidadOperaciones += 1;
+    }
+  });
+
+  const resultado = Array.from(resultadoMap.values()).map((item) => {
+    if (item.cantidadOperaciones > 0) {
+      item.horasOperativas = Number(
+        (item.sumaHorasOperativas / item.cantidadOperaciones).toFixed(2)
+      );
+    } else {
+      item.horasOperativas = 0;
+    }
+
+    item.sumaHorasOperativas = Number(item.sumaHorasOperativas.toFixed(2));
+
+    return item;
+  });
+
+  resultado.sort((a, b) => a.key.localeCompare(b.key));
 
   return resultado;
 }
