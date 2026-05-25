@@ -35,6 +35,10 @@
   Crear Masivos
 </button>
 
+<button class="btn-aplicar" (click)="Presentacion()">
+  presentación
+</button>
+
 <!-- <button class="btn-aplicar" (click)="toggleVista()">
   {{ vistaPrincipal ? 'Ver gráfico de linea' : 'Gráficos principales' }}
 </button> -->
@@ -82,24 +86,23 @@
 
 <app-pareto-no-programadas class="full-width" [data]="DataHorasPorObservacion"></app-pareto-no-programadas>
 
-<app-diagrama-pareto class="full-width"></app-diagrama-pareto>
+<app-diagrama-pareto class="full-width" [data]="DataHorasDemoraPorCodigoCompleto"></app-diagrama-pareto>
 
 
-<app-mtbf-equipo class="half-width"></app-mtbf-equipo>
-<app-mtbf-ano class="half-width"></app-mtbf-ano>
-<app-mtbf-semanas class="half-width"></app-mtbf-semanas>
-<app-mtbf-mes class="half-width"></app-mtbf-mes>
+<app-mtbf-equipo class="half-width" [data]="DataMTBFPorEquipo"></app-mtbf-equipo>
+<app-mtbf-ano class="half-width" [data]="DataMTBFPorAnio"></app-mtbf-ano>
+<app-mtbf-semanas class="half-width" [data]="DataMTBFPorSemanas"></app-mtbf-semanas>
+<app-mtbf-mes class="half-width" [data]="DataMTBFPorMes"></app-mtbf-mes>
 
 
-<app-mttr-equipo class="half-width"></app-mttr-equipo>
-<app-mttr-ano class="half-width"></app-mttr-ano>
-<app-mttr-semanas class="half-width"></app-mttr-semanas>
-<app-mttr-mes class="half-width"></app-mttr-mes>
+<app-mttr-equipo class="half-width" [data]="DataMTTRPorEquipo"></app-mttr-equipo>
+<app-mttr-ano class="half-width" [data]="DataMTTRPorAnio"></app-mttr-ano>
+<app-mttr-semanas class="half-width" [data]="DataMTTRPorSemanas"></app-mttr-semanas>
+<app-mttr-mes class="half-width" [data]="DataMTTRPorMes"></app-mttr-mes>
 
 <app-horas-operativas-dia class="half-width" [data]="dataHorasOperativasDia" />
 <app-horas-operativas-semana class="half-width" [data]="dataHorasOperativasSemana" />
 <app-horas-operativas-mes class="half-width" [data]="dataHorasOperativasMes" />
-
 </div>
  
 <div class="overlay" *ngIf="cargandoPDF">

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -27,55 +27,123 @@ echarts.use([
   templateUrl: './mtbf-mes.component.html',
   styleUrl: './mtbf-mes.component.css'
 })
-export class MtbfMesComponent implements OnInit {
+export class MtbfMesComponent implements OnInit, OnChanges {
+
+  @Input() data: any[] = [];
 
   chartOptions: any = {};
 
-  // Datos de MTBF por mes (solo 3 meses)
-  readonly datosMTBFMes = [
-    { mes: 'Marzo 2026', mtbf: 285.5 },
-    { mes: 'Abril 2026', mtbf: 312.8 },
-    { mes: 'Mayo 2026', mtbf: 348.2 }
-  ];
+  datosMtbfMes: any[] = [];
 
   ngOnInit(): void {
+    this.procesarDatos();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['data']) {
+      this.procesarDatos();
+    }
+  }
+
+  procesarDatos(): void {
+    if (!this.data || this.data.length === 0) {
+      this.datosMtbfMes = [];
+      this.chartOptions = {};
+      return;
+    }
+
+    // Procesar datos y ordenar por año y mesNumero
+    this.datosMtbfMes = [...this.data]
+      .filter(item => item.mtbf !== undefined && item.mtbf !== null)
+      .sort((a, b) => {
+        if (a.año !== b.año) return a.año - b.año;
+        return a.mesNumero - b.mesNumero;
+      });
+
+    if (this.datosMtbfMes.length === 0) {
+      this.chartOptions = {};
+      return;
+    }
+
     this.actualizarGrafico();
   }
 
   actualizarGrafico(): void {
-    // Nombres de meses para el eje X
-    const meses = this.datosMTBFMes.map(item => item.mes);
+    // Etiquetas para eje X (meses)
+    const meses = this.datosMtbfMes.map(item => item.mes);
     
-    // Valores de MTBF
-    const valores = this.datosMTBFMes.map(item => item.mtbf);
-    
-    // Calcular máximo y mínimo para escala dinámica
+    // Valores (MTBF)
+    const valores = this.datosMtbfMes.map(item => item.mtbf);
+
+    // Calcular máximo para escala dinámica
     const maxValor = Math.max(...valores);
-    const minValor = Math.min(...valores);
     const escalaMax = Math.ceil(maxValor / 50) * 50;
-    const escalaMin = Math.floor(minValor / 50) * 50;
 
-    // Calcular promedio de MTBF (solo para tooltip)
-    const promedio = valores.reduce((sum, val) => sum + val, 0) / valores.length;
+    // =========================
+    // GRAPHICS: Año centrado abajo
+    // =========================
+    const graphics: any[] = [];
 
-    // Calcular variación mes a mes
-    const variaciones: any[] = [];
-    for (let i = 1; i < valores.length; i++) {
-      const variacion = valores[i] - valores[i-1];
-      variaciones.push({
-        mes: this.datosMTBFMes[i].mes,
-        variacion: variacion,
-        porcentaje: (variacion / valores[i-1]) * 100
+    // Agrupar por año
+    const anosPosiciones = new Map();
+
+    let anoActual = '';
+    let inicio = 0;
+
+    for (let i = 0; i < this.datosMtbfMes.length; i++) {
+      const item = this.datosMtbfMes[i];
+      const anoStr = item.año?.toString() || '';
+
+      if (anoStr !== anoActual) {
+        if (anoActual !== '') {
+          anosPosiciones.set(anoActual, {
+            start: inicio,
+            end: i - 1
+          });
+        }
+        anoActual = anoStr;
+        inicio = i;
+      }
+    }
+
+    // Guardar último año
+    if (anoActual !== '') {
+      anosPosiciones.set(anoActual, {
+        start: inicio,
+        end: this.datosMtbfMes.length - 1
       });
     }
 
+    const totalItems = this.datosMtbfMes.length;
+
+    // Dibujar años centrados ABAJO
+    anosPosiciones.forEach((pos: any, ano: string) => {
+      const centro = (pos.start + pos.end + 1) / 2;
+      const leftPercent = (centro / totalItems) * 100;
+
+      graphics.push({
+        type: 'text',
+        left: `${leftPercent}%`,
+        bottom: 8,
+        style: {
+          text: ano,
+          fill: '#2c3e50',
+          fontSize: 14,
+          fontWeight: 'bold',
+          fontFamily: 'Arial'
+        },
+        z: 100,
+        styleHtml: true
+      });
+    });
+
     this.chartOptions = {
       title: {
-        text: 'MTBF POR MES',
+        text: 'MTBF (horas) - MES',
         left: 'center',
         top: 10,
         textStyle: {
-          fontSize: 14,
+          fontSize: 16,
           fontWeight: 'bold',
           color: '#333',
           fontFamily: 'Arial'
@@ -90,18 +158,18 @@ export class MtbfMesComponent implements OnInit {
         formatter: (params: any) => {
           const data = params[0];
           const index = data.dataIndex;
-          const item = this.datosMTBFMes[index];
+          const item = this.datosMtbfMes[index];
           
-          // Determinar nivel de confiabilidad
+          // Determinar nivel de confiabilidad (MTBF más alto es mejor)
           let nivel = '';
           let colorNivel = '';
-          if (data.value >= 330) {
+          if (item.mtbf >= 330) {
             nivel = 'Excelente ✅';
             colorNivel = '#2ecc71';
-          } else if (data.value >= 300) {
+          } else if (item.mtbf >= 300) {
             nivel = 'Bueno 👍';
             colorNivel = '#3498db';
-          } else if (data.value >= 270) {
+          } else if (item.mtbf >= 270) {
             nivel = 'Regular ⚠️';
             colorNivel = '#f39c12';
           } else {
@@ -109,52 +177,30 @@ export class MtbfMesComponent implements OnInit {
             colorNivel = '#e74c3c';
           }
           
-          // Comparación con el promedio
-          const comparacion = data.value - promedio;
-          let tendencia = '';
-          let colorTendencia = '';
-          if (comparacion > 0) {
-            tendencia = `+${comparacion.toFixed(1)} hrs sobre promedio`;
-            colorTendencia = '#2ecc71';
-          } else if (comparacion < 0) {
-            tendencia = `${comparacion.toFixed(1)} hrs bajo promedio`;
-            colorTendencia = '#e74c3c';
-          } else {
-            tendencia = 'Igual al promedio';
-            colorTendencia = '#3498db';
-          }
-          
-          let tooltipText = `
-            <strong>${item.mes}</strong><br/>
+          return `
+            <strong>📅 ${item.mes} ${item.año}</strong><br/>
             <hr style="margin: 4px 0;"/>
             <span style="color:#3498db; font-weight:bold;">●</span>
-            MTBF: <strong>${data.value.toFixed(1)}</strong> horas<br/>
+            MTBF: <strong>${data.value.toFixed(2)}</strong> horas<br/>
             <span style="color:${colorNivel}; font-weight:bold;">●</span>
             Confiabilidad: <strong>${nivel}</strong><br/>
-            <span style="color:${colorTendencia}; font-weight:bold;">●</span>
-            ${tendencia}
+            <span style="color:#9b59b6; font-weight:bold;">●</span>
+            Equipos: <strong>${item.cantidadEquipos || 0}</strong><br/>
+            <span style="color:#e67e22; font-weight:bold;">●</span>
+            Fallas: <strong>${item.cantidadFallas || 0}</strong><br/>
+            <span style="color:#1abc9c; font-weight:bold;">●</span>
+            Operaciones: <strong>${item.cantidadOperaciones || 0}</strong><br/>
+            <span style="color:#f39c12; font-weight:bold;">●</span>
+            Horas Operación: <strong>${item.horasOperacion || 0}</strong> hrs
           `;
-          
-          // Agregar variación si no es el primer mes
-          if (index > 0) {
-            const variacion = variaciones[index - 1];
-            const signo = variacion.variacion >= 0 ? '+' : '';
-            const colorVariacion = variacion.variacion >= 0 ? '#2ecc71' : '#e74c3c';
-            tooltipText += `<br/>
-              <span style="color:${colorVariacion}; font-weight:bold;">●</span>
-              Variación: <strong>${signo}${variacion.variacion.toFixed(1)} hrs (${signo}${variacion.porcentaje.toFixed(1)}%)</strong>
-            `;
-          }
-          
-          return tooltipText;
         }
       },
 
       grid: {
         left: '8%',
-        right: '8%',
-        top: '15%',
-        bottom: '10%',
+        right: '5%',
+        top: '18%',
+        bottom: '15%',
         containLabel: true
       },
 
@@ -162,12 +208,14 @@ export class MtbfMesComponent implements OnInit {
         type: 'category',
         data: meses,
         axisLabel: {
+          show: true,
+          interval: 0,
+          rotate: 35,
+          margin: 15,
           fontSize: 11,
           fontWeight: 'bold',
           color: '#2c3e50',
-          fontFamily: 'Arial',
-          rotate: 0,
-          interval: 0
+          fontFamily: 'Arial'
         },
         axisLine: {
           lineStyle: {
@@ -184,7 +232,7 @@ export class MtbfMesComponent implements OnInit {
         name: 'MTBF (horas)',
         nameLocation: 'middle',
         nameGap: 45,
-        min: escalaMin > 0 ? escalaMin : 0,
+        min: 0,
         max: escalaMax,
         axisLabel: {
           fontSize: 10,
@@ -202,11 +250,11 @@ export class MtbfMesComponent implements OnInit {
         {
           name: 'MTBF',
           type: 'bar',
-          barWidth: '50%',
-          data: valores.map((valor) => ({
+          barWidth: '60%',
+          data: valores.map((valor, index) => ({
             value: valor,
             itemStyle: {
-              color: this.getColorByMTBF(valor)
+              color: this.getColorByMtbf(valor)
             }
           })),
           itemStyle: {
@@ -219,15 +267,15 @@ export class MtbfMesComponent implements OnInit {
             show: true,
             position: 'top',
             fontWeight: 'bold',
-            fontSize: 12,
-            formatter: (params: any) => params.value.toFixed(1) + ' hrs',
+            fontSize: 11,
+            formatter: (params: any) => params.value.toFixed(0),
             color: '#333'
           },
           emphasis: {
             focus: 'series',
             itemStyle: {
               shadowBlur: 10,
-              shadowOffsetY: 0,
+              shadowOffsetX: 0,
               shadowColor: 'rgba(0, 0, 0, 0.3)'
             }
           },
@@ -237,16 +285,18 @@ export class MtbfMesComponent implements OnInit {
             borderRadius: 6
           }
         }
-        // ❌ ELIMINADA LA SERIE DE LA LÍNEA ROJA
-      ]
+      ],
+
+      graphic: graphics
     };
   }
 
-  // Color según el valor del MTBF
-  private getColorByMTBF(valor: number): string {
-    if (valor >= 330) return '#2ecc71';   // Verde - Excelente
-    if (valor >= 300) return '#3498db';   // Azul - Bueno
-    if (valor >= 270) return '#f39c12';   // Naranja - Regular
-    return '#e74c3c';                     // Rojo - Crítico
+  // Color según el valor del MTBF (más alto es mejor)
+  private getColorByMtbf(valor: number): string {
+    if (valor === 0) return '#95a5a6';      // Gris - Sin datos/Sin fallas?
+    if (valor >= 330) return '#2ecc71';     // Verde - Excelente
+    if (valor >= 300) return '#3498db';     // Azul - Bueno
+    if (valor >= 270) return '#f39c12';     // Naranja - Regular
+    return '#e74c3c';                        // Rojo - Crítico
   }
 }

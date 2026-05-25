@@ -1,7 +1,7 @@
 /* =========================
    CONTENEDOR PRINCIPAL
 ========================= */
-.contenedor-mtbf-ano {
+.contenedor-mttr-ano {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -9,6 +9,7 @@
   padding: 24px;
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   border-radius: 20px;
+  flex-wrap: wrap;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
@@ -117,14 +118,37 @@
 }
 
 .objetivo-info {
-  margin-top: 16px;
-  font-size: 12px;
+  margin-top: 12px;
+  font-size: 11px;
   font-weight: 500;
   color: #7f8c8d;
   background: rgba(52, 152, 219, 0.08);
-  padding: 6px 12px;
+  padding: 4px 10px;
   border-radius: 20px;
   text-align: center;
+}
+
+.stats-info {
+  margin-top: 6px;
+  font-size: 10px;
+  font-weight: 500;
+  color: #7f8c8d;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.stat {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.no-data {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+  font-size: 14px;
 }
 
 /* =========================
@@ -197,7 +221,7 @@
    RESPONSIVE
 ========================= */
 @media (max-width: 768px) {
-  .contenedor-mtbf-ano {
+  .contenedor-mttr-ano {
     gap: 20px;
     padding: 16px;
   }
@@ -227,6 +251,11 @@
   }
   
   .objetivo-info {
-    font-size: 11px;
+    font-size: 10px;
+  }
+  
+  .stats-info {
+    font-size: 9px;
+    gap: 8px;
   }
 }

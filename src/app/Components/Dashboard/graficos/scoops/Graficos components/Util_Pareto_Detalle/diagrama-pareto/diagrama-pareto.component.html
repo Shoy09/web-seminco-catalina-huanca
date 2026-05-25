@@ -1,3 +1,26 @@
-<div class="grafico-container">
-      <div echarts [options]="chartOptions" class="grafico"></div>
-    </div>
+<div class="pareto-container">
+  <!-- Botones de filtro -->
+  <div class="filtros-container">
+    <button 
+      class="filtro-btn" 
+      [class.active]="tipoFiltro === 'TODAS'"
+      (click)="cambiarFiltro('TODAS')">
+      📊 TODAS
+    </button>
+    <button 
+      class="filtro-btn no-operativa" 
+      [class.active]="tipoFiltro === 'NO OPERATIVA'"
+      (click)="cambiarFiltro('NO OPERATIVA')">
+      🔧 NO OPERATIVA
+    </button>
+    <button 
+      class="filtro-btn operativa" 
+      [class.active]="tipoFiltro === 'OPERATIVA'"
+      (click)="cambiarFiltro('OPERATIVA')">
+      ⚙️ OPERATIVA
+    </button>
+  </div>
+
+  <!-- Gráfico -->
+  <div echarts [options]="chartOptions" class="chart"></div>
+</div>

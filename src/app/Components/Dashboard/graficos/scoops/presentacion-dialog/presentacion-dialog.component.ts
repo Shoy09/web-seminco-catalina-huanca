@@ -1,21 +1,19 @@
-import { Component, OnInit } from '@angular/core';
-import { OperacionBase } from '../../../../../models/OperacionBase.models';
-import { PlanProduccion } from '../../../../../models/plan_produccion.model';
-import { PlanMensualService } from '../../../../../services/plan-mensual.service';
-import { FechasPlanMensualService } from '../../../../../services/fechas-plan-mensual.service';
-import { OperacionesService } from '../../../../../services/operaciones.service';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
+import { Component, Inject, OnInit } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { EstadoService } from '../../../../../services/estado.service';
-import { DisponibilidadDiaMesComponent } from '../Graficos components/Disponibilidad/disponibilidad-dia-mes/disponibilidad-dia-mes.component';
-import { DisponibilidadEquipoComponent } from '../Graficos components/Disponibilidad/disponibilidad-equipo/disponibilidad-equipo.component';
-import { DisponibilidadEstadoComponent } from '../Graficos components/Disponibilidad/disponibilidad-estado/disponibilidad-estado.component';
-import { DisponibilidadGuardiaComponent } from '../Graficos components/Disponibilidad/disponibilidad-guardia/disponibilidad-guardia.component';
-import { DisponibilidadMesComponent } from '../Graficos components/Disponibilidad/disponibilidad-mes/disponibilidad-mes.component';
-import { DisponibilidadSemanaComponent } from '../Graficos components/Disponibilidad/disponibilidad-semana/disponibilidad-semana.component';
-import { RendimientoGeneralComponent } from '../Graficos components/Rendimiento/rendimiento-general/rendimiento-general.component';
+import { DisponibilidadSemanaComponent } from "../Graficos components/Disponibilidad/disponibilidad-semana/disponibilidad-semana.component";
+import { DisponibilidadEquipoComponent } from "../Graficos components/Disponibilidad/disponibilidad-equipo/disponibilidad-equipo.component";
+import { DisponibilidadMesComponent } from "../Graficos components/Disponibilidad/disponibilidad-mes/disponibilidad-mes.component";
+import { DisponibilidadGuardiaComponent } from "../Graficos components/Disponibilidad/disponibilidad-guardia/disponibilidad-guardia.component";
+import { DisponibilidadEstadoComponent } from "../Graficos components/Disponibilidad/disponibilidad-estado/disponibilidad-estado.component";
+import { DisponibilidadDiaMesComponent } from "../Graficos components/Disponibilidad/disponibilidad-dia-mes/disponibilidad-dia-mes.component";
+import { UtilizacionEquipoComponent } from "../Graficos components/Utilizacion/utilizacion-equipo/utilizacion-equipo.component";
+import { UtilizacionSemanaComponent } from "../Graficos components/Utilizacion/utilizacion-semana/utilizacion-semana.component";
+import { UtilizacionMesComponent } from "../Graficos components/Utilizacion/utilizacion-mes/utilizacion-mes.component";
+import { UtilizacionGuardiaComponent } from "../Graficos components/Utilizacion/utilizacion-guardia/utilizacion-guardia.component";
+import { HorasDemoraCodigoComponent } from "../Graficos components/Utilizacion/horas-demora-codigo/horas-demora-codigo.component";
+import { UtilizacionDiaMesComponent } from "../Graficos components/Utilizacion/app-utilizacion-dia-mes/app-utilizacion-dia-mes.component";
+import { RendimientoGeneralComponent } from "../Graficos components/Rendimiento/rendimiento-general/rendimiento-general.component";
 import { RendimientoGuardiaComponent } from "../Graficos components/Rendimiento/rendimiento-guardia/rendimiento-guardia.component";
 import { RendimientoSeccionLaborComponent } from "../Graficos components/Rendimiento/rendimiento-seccion-labor/rendimiento-seccion-labor.component";
 import { RendimientoMesAnoComponent } from "../Graficos components/Rendimiento/rendimiento-mes-ano/rendimiento-mes-ano.component";
@@ -23,102 +21,30 @@ import { TopEquiposComponent } from "../Graficos components/Rendimiento/top-equi
 import { RendimientoDiaMesComponent } from "../Graficos components/Rendimiento/rendimiento-dia-mes/rendimiento-dia-mes.component";
 import { RankingOperadorUtilizacionComponent } from "../Graficos components/Ranking operador/ranking-operador-utilizacion/ranking-operador-utilizacion.component";
 import { RankingOperadorRendimientoComponent } from "../Graficos components/Ranking operador/ranking-operador-rendimiento/ranking-operador-rendimiento.component";
-import { UtilizacionEquipoComponent } from "../Graficos components/Utilizacion/utilizacion-equipo/utilizacion-equipo.component";
-import { UtilizacionSemanaComponent } from "../Graficos components/Utilizacion/utilizacion-semana/utilizacion-semana.component";
-import { UtilizacionMesComponent } from "../Graficos components/Utilizacion/utilizacion-mes/utilizacion-mes.component";
-import { UtilizacionGuardiaComponent } from "../Graficos components/Utilizacion/utilizacion-guardia/utilizacion-guardia.component";
-import { HorasDemoraCodigoComponent } from "../Graficos components/Utilizacion/horas-demora-codigo/horas-demora-codigo.component";
-import { UtilizacionDiaMesComponent } from "../Graficos components/Utilizacion/app-utilizacion-dia-mes/app-utilizacion-dia-mes.component";
-import { DisponibilidadRankingGuardiaComponent } from "../Graficos components/Ranking Guardia/disponibilidad-guardia/disponibilidad-guardia.component";
-import { MineralRankingGuardiaComponent } from "../Graficos components/Ranking Guardia/mineral-guardia/mineral-guardia.component";
-import { RendimientoRankingGuardiaComponent } from "../Graficos components/Ranking Guardia/rendimiento-guardia/rendimiento-guardia.component";
-import { UtilizacionRankingGuardiaComponent } from "../Graficos components/Ranking Guardia/utilizacion-guardia/utilizacion-guardia.component";
-import { PromediosMaterialesEquipoComponent } from "../Graficos components/Ranking Guardia/promedios-materiales-equipo/promedios-materiales-equipo.component";
-import { PromedioMaterialGuardiaComponent } from "../Graficos components/Ranking Guardia/promedio-material-guardia/promedio-material-guardia.component";
 import { ParetoNoProgramadasComponent } from "../Graficos components/Dis_Pareto_Detalle/pareto-no-programada/pareto-no-programada.component";
 import { DiagramaParetoComponent } from "../Graficos components/Util_Pareto_Detalle/diagrama-pareto/diagrama-pareto.component";
-import { MtbfEquipoComponent } from '../Graficos components/MTBF-MTTR/MTBF/mtbf-equipo/mtbf-equipo.component';
-import { MtbfSemanasComponent } from '../Graficos components/MTBF-MTTR/MTBF/mtbf-semanas/mtbf-semanas.component';
-import { MtbfAnoComponent } from '../Graficos components/MTBF-MTTR/MTBF/mtbf-ano/mtbf-ano.component';
-import { MtbfMesComponent } from '../Graficos components/MTBF-MTTR/MTBF/mtbf-mes/mtbf-mes.component';
+import { MtbfEquipoComponent } from "../Graficos components/MTBF-MTTR/MTBF/mtbf-equipo/mtbf-equipo.component";
+import { MtbfAnoComponent } from "../Graficos components/MTBF-MTTR/MTBF/mtbf-ano/mtbf-ano.component";
+import { MtbfSemanasComponent } from "../Graficos components/MTBF-MTTR/MTBF/mtbf-semanas/mtbf-semanas.component";
+import { MtbfMesComponent } from "../Graficos components/MTBF-MTTR/MTBF/mtbf-mes/mtbf-mes.component";
 import { MttrEquipoComponent } from "../Graficos components/MTBF-MTTR/MTTR/mttr-equipo/mttr-equipo.component";
 import { MttrAnoComponent } from "../Graficos components/MTBF-MTTR/MTTR/mttr-ano/mttr-ano.component";
 import { MttrSemanasComponent } from "../Graficos components/MTBF-MTTR/MTTR/mttr-semanas/mttr-semanas.component";
 import { MttrMesComponent } from "../Graficos components/MTBF-MTTR/MTTR/mttr-mes/mttr-mes.component";
-import { ExcelImportService } from '../../../../../services/subir data/excel-operacion-mapper-scoops.service';
-import { EquipoService } from '../../../../../services/equipo.service';
-import { Equipo } from '../../../../../models/equipo.model';
-import { HorasOperativasDiaComponent } from '../Graficos components/HorasOperativas/horas-operativas-dia/horas-operativas-dia.component';
-import { HorasOperativasSemanaComponent } from '../Graficos components/HorasOperativas/horas-operativas-semana/horas-operativas-semana.component';
-import { HorasOperativasMesComponent } from '../Graficos components/HorasOperativas/horas-operativas-mes/horas-operativas-mes.component';
-import { generarDiasEntreFechas, MESES_CORTOS, obtenerPeriodo, obtenerPeriodoDesdeKey, obtenerRangoSemanaISO, obtenerSemanaISO, parseFechaLocal } from '../../../../../utils/fecha-utils';
-import { MatDialog } from '@angular/material/dialog';
-import { PresentacionDialogComponent } from '../presentacion-dialog/presentacion-dialog.component';
-
+import { DisponibilidadRankingGuardiaComponent } from "../Graficos components/Ranking Guardia/disponibilidad-guardia/disponibilidad-guardia.component";
+import { MineralRankingGuardiaComponent } from "../Graficos components/Ranking Guardia/mineral-guardia/mineral-guardia.component";
+import { RendimientoRankingGuardiaComponent } from "../Graficos components/Ranking Guardia/rendimiento-guardia/rendimiento-guardia.component";
+import { UtilizacionRankingGuardiaComponent } from "../Graficos components/Ranking Guardia/utilizacion-guardia/utilizacion-guardia.component";
 
 @Component({
-  selector: 'app-principal-grafico-scoops',
-  imports: [
-    CommonModule,
-    FormsModule,
-    DisponibilidadEquipoComponent,
-    DisponibilidadSemanaComponent,
-    DisponibilidadMesComponent,
-    DisponibilidadGuardiaComponent,
-    DisponibilidadEstadoComponent,
-    DisponibilidadDiaMesComponent,
-    RendimientoGeneralComponent,
-    RendimientoGuardiaComponent,
-    RendimientoSeccionLaborComponent,
-    RendimientoMesAnoComponent,
-    TopEquiposComponent,
-    RendimientoDiaMesComponent,
-    RankingOperadorUtilizacionComponent,
-    RankingOperadorRendimientoComponent,
-    UtilizacionEquipoComponent,
-    UtilizacionSemanaComponent,
-    UtilizacionMesComponent,
-    UtilizacionGuardiaComponent,
-    HorasDemoraCodigoComponent,
-    UtilizacionDiaMesComponent,
-    DisponibilidadRankingGuardiaComponent,
-    MineralRankingGuardiaComponent,
-    RendimientoRankingGuardiaComponent,
-    UtilizacionRankingGuardiaComponent,
-    PromediosMaterialesEquipoComponent,
-    PromedioMaterialGuardiaComponent,
-    ParetoNoProgramadasComponent,
-    DiagramaParetoComponent,
-    MtbfEquipoComponent,
-    MtbfSemanasComponent,
-    MtbfMesComponent,
-    MtbfAnoComponent,
-    MttrEquipoComponent,
-    MttrAnoComponent,
-    MttrSemanasComponent,
-    MttrMesComponent,
-    HorasOperativasDiaComponent,
-    HorasOperativasSemanaComponent,
-    HorasOperativasMesComponent,
-],
-  templateUrl: './principal-grafico-scoops.component.html',
-  styleUrl: './principal-grafico-scoops.component.css',
+  selector: 'app-presentacion-dialog',
+  imports: [CommonModule, DisponibilidadSemanaComponent, DisponibilidadEquipoComponent, DisponibilidadMesComponent, DisponibilidadGuardiaComponent, DisponibilidadEstadoComponent, DisponibilidadDiaMesComponent, UtilizacionEquipoComponent, UtilizacionSemanaComponent, UtilizacionMesComponent, UtilizacionGuardiaComponent, HorasDemoraCodigoComponent, UtilizacionDiaMesComponent, RendimientoGeneralComponent, RendimientoGuardiaComponent, RendimientoSeccionLaborComponent, RendimientoMesAnoComponent, TopEquiposComponent, RendimientoDiaMesComponent, RankingOperadorUtilizacionComponent, RankingOperadorRendimientoComponent, ParetoNoProgramadasComponent, DiagramaParetoComponent, MtbfEquipoComponent, MtbfAnoComponent, MtbfSemanasComponent, MtbfMesComponent, MttrEquipoComponent, MttrAnoComponent, MttrSemanasComponent, MttrMesComponent, DisponibilidadRankingGuardiaComponent, MineralRankingGuardiaComponent, RendimientoRankingGuardiaComponent, UtilizacionRankingGuardiaComponent],
+  templateUrl: './presentacion-dialog.component.html',
+  styleUrl: './presentacion-dialog.component.css'
 })
-export class PrincipalGraficoScoopsComponent implements OnInit {
-  anio!: number;
-  mes!: string;
-
-  // DATA ORIGINAL (sin filtrar)
-  operacionesOriginal: OperacionBase[] = [];
-  operacionesFiltradas: OperacionBase[] = [];
-  planesMensuales: PlanProduccion[] = [];
-
-  fechaInicio: string = '';
-  fechaFin: string = '';
-  turnoSeleccionado: string = '';
-  turnoAplicado: string = '';
-  cargandoPDF = false;
-
+export class PresentacionDialogComponent implements OnInit {
+  hojaActual: string = 'hoja1';
+  
   //DATA
 DataDisponibilidadPorEquipo: any[] = [];
 DataDisponibilidadPorSemana: any[] = [];
@@ -137,8 +63,9 @@ DataprocesarEquiposConCapacidad: any[] = [];
 DataRendimientoPorMes: any[] = [];
 DataRendimientoPorDia: any[] = [];
 DataDisponibilidadPorOperador: any[] = [];
-
 DataRendimientoPorOperador: any[] = [];
+
+
 DataHorasPorObservacion: any[] = [];
 DataHorasDemoraPorCodigoCompleto: any[] = [];
 
@@ -150,176 +77,76 @@ DataMTTRPorEquipo: any[] = [];
 DataMTTRPorAnio: any[] = [];
 DataMTTRPorSemanas: any[] = [];
 DataMTTRPorMes: any[] = [];
-
 DataDisponiblidadPorGuardia: any[] = [];
 DataRendimientoPorGuardia: any[] = [];
 DataMineralGuardia: any[] = [];
 DataUtilizacionGuardia: any[] = [];
 
-dataHorasOperativasDia: any[] = [];
-dataHorasOperativasSemana: any[] = [];
-dataHorasOperativasMes: any[] = [];
+private equiposProceso: any[] = [];
+isFullscreen: boolean = false;
 
-  estadosProceso: any[] = [];
-vistaPrincipal: boolean = true;
-
-importandoExcel = false;
-equiposProceso: Equipo[] = [];
-constructor(
-    private planMensualService: PlanMensualService,
-    private fechasPlanMensualService: FechasPlanMensualService,
-    private operacionesService: OperacionesService,
-        private estadoService: EstadoService,
-        private excelImportService: ExcelImportService,
-        private equipoService: EquipoService,
-        private dialog: MatDialog,
-  ) {}
-
-  ngOnInit(): void {
-    this.obtenerUltimaFecha();
-
-    // 🔥 SETEO AUTOMÁTICO
-    const hoy = this.getFechaHoy();
-    this.fechaInicio = hoy;
-    this.fechaFin = hoy;
-    this.turnoSeleccionado = this.getTurnoActual();
-
-    this.cargarOperaciones();
-    this.obtenerEstadosPorProceso('SCOOPTRAM');
+  constructor(
+    public dialogRef: MatDialogRef<PresentacionDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) {
+    console.log('Datos recibidos en el diálogo:', data);
+    // Extraer equiposProceso de los datos recibidos
+    this.equiposProceso = data.equipos || [];
+    console.log('Equipos proceso:', this.equiposProceso);
   }
 
-  Presentacion() {
-  if (!this.operacionesFiltradas || this.operacionesFiltradas.length === 0) {
-    console.warn('No hay datos filtrados para mostrar');
-    return;
+    ngOnInit(): void {
+    this.procesarTodo();
+    
+    // Escuchar el evento de teclado para ESC
+    document.addEventListener('keydown', this.handleEscKey.bind(this));
   }
 
-  const dialogRef = this.dialog.open(PresentacionDialogComponent, {
-    width: '1800px',
-    maxHeight: '90vh',
-    data: {
-      operaciones: this.operacionesFiltradas,
-      turnoAplicado: this.turnoAplicado,
-      fechaInicio: this.fechaInicio,
-      fechaFin: this.fechaFin,
-      equipos: this.equiposProceso,
-    },
-    disableClose: false,
-    autoFocus: true
-  });
+  ngOnDestroy(): void {
+    // Limpiar event listener
+    document.removeEventListener('keydown', this.handleEscKey.bind(this));
+  }
 
-  // Opcional: Escuchar cuando se cierre el diálogo
-  dialogRef.afterClosed().subscribe(result => {
-    console.log('Diálogo cerrado', result);
-  });
-}
-
-  obtenerEquiposPorProceso(proceso: string) {
-  this.equipoService.getEquiposByProceso(proceso)
-    .subscribe({
-      next: (data) => {
-        this.equiposProceso = data;
-
-        console.log('Equipos por proceso:', data);
-      },
-      error: (err) => {
-        console.error('Error al traer equipos por proceso', err);
+  // 🔥 FUNCIÓN PARA PANTALLA COMPLETA
+  toggleFullscreen(): void {
+    const dialogContainer = document.querySelector('.dialog-container');
+    
+    if (!dialogContainer) return;
+    
+    if (!this.isFullscreen) {
+      // Entrar a pantalla completa
+      if (dialogContainer.requestFullscreen) {
+        dialogContainer.requestFullscreen();
       }
-    });
-}
-
-  obtenerEstadosPorProceso(proceso: string) {
-  this.estadoService.getEstadosByProceso(proceso)
-    .subscribe({
-      next: (data) => {
-        this.estadosProceso = data;
-       //console.log('Estados por proceso:', data);
-
-        // 🔥 CLAVE
-        this.construirMapaEstados();
-      },
-      error: (err) => {
-        console.error('Error al traer estados por proceso', err);
+      this.isFullscreen = true;
+    } else {
+      // Salir de pantalla completa
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
       }
-    });
-}
-
-toggleVista() {
-  this.vistaPrincipal = !this.vistaPrincipal;
-}
-
-construirMapaEstados() {
-  this.mapaEstados.clear();
-
-  this.estadosProceso.forEach(e => {
-    const codigo = String(e.codigo || '').trim();
-    this.mapaEstados.set(codigo, e);
-  });
-
- //console.log('🧩 Mapa de estados construido:', this.mapaEstados.size);
-}
-
-mapaEstados: Map<string, any> = new Map();
-
-  cargarOperaciones() {
-    const tipo = 'carguio';
-
-    this.operacionesService.getAllAprobados(tipo).subscribe({
-      next: (resp) => {
-        this.operacionesOriginal = resp.data;
-
-        console.log('🔥 DATA OPERACIONES:', this.operacionesOriginal);
-
-        // 🔥 SOLO ESTO
-        this.aplicarFiltro();
-      },
-      error: (err) => {
-        //console.error('❌ Error al obtener operaciones:', err);
-      },
-    });
+      this.isFullscreen = false;
+    }
   }
 
-  // =========================================
-  // 🔥 PLAN
-  // =========================================
-  obtenerUltimaFecha(): void {
-    this.fechasPlanMensualService.getUltimaFecha().subscribe({
-      next: (ultimaFecha) => {
-        const anio: number | undefined = ultimaFecha.fecha_ingreso;
-        const mes: string = ultimaFecha.mes;
-
-        if (anio !== undefined) {
-          this.anio = anio;
-          this.mes = mes.trim().toUpperCase();
-
-          this.obtenerPlanesMensuales(this.anio, this.mes);
-        }
-      },
-      error: (error) => {
-        //console.error('❌ Error al obtener la última fecha:', error);
-      },
-    });
+  // Manejar tecla ESC para salir de pantalla completa
+  private handleEscKey(event: KeyboardEvent): void {
+    if (event.key === 'Escape' && this.isFullscreen) {
+      this.isFullscreen = false;
+    }
   }
 
-  obtenerPlanesMensuales(anio: number, mes: string): void {
-    this.planMensualService.getPlanMensualByYearAndMonth(anio, mes).subscribe({
-      next: (planes) => {
-        this.planesMensuales = planes;
-        console.log('🔥 PLANES MENSUALES:', this.planesMensuales);
-
-        this.procesarTodo();
-      },
-      error: (error) => {
-        //console.error('❌ Error al obtener planes mensuales:', error);
-      },
-    });
+  // Escuchar cambios en el estado de fullscreen del navegador
+  private checkFullscreenChange(): void {
+    this.isFullscreen = !!document.fullscreenElement;
   }
 
-  procesarTodo() {
-  if (!this.operacionesFiltradas.length || !this.planesMensuales.length)
-    return;
+  procesarTodo(): void {
+    if (!this.data.operaciones?.length) {
+      console.warn('No hay operaciones filtradas');
+      return;
+    }
 
-  // 🔥 DISPONIBILIDAD
+      // 🔥 DISPONIBILIDAD
   this.DataDisponibilidadPorEquipo = this.DisponibilidadPorEquipo();
   this.DataDisponibilidadPorSemana = this.DisponibilidadPorSemana();
   this.DataDisponibilidadPorMes = this.DisponibilidadPorMes();
@@ -339,13 +166,17 @@ mapaEstados: Map<string, any> = new Map();
   this.DataRendimientoPorMes = this.RendimientoPorMes();
   this.DataRendimientoPorDia = this.RendimientoPorDia();
   //RANKING OPERADOR
-   //DIS_PARETO DETALLE
+  this.DataDisponibilidadPorOperador = this.DisponibilidadPorOperador();
+  this.DataRendimientoPorOperador = this.RendimientoPorOperador();
+
+
+  //DIS_PARETO DETALLE
   this.DataHorasPorObservacion = this.HorasPorObservacion();
 
   //UTIL_PARETO DETALLE
   this.DataHorasDemoraPorCodigoCompleto = this.HorasDemoraPorCodigoCompleto();
 
-  // MTBF - MTTR
+
   this.DataMTBFPorEquipo = this.MTBFPorEquipo();
   this.DataMTBFPorAnio = this.MTBFPorAnio();
   this.DataMTBFPorSemanas = this.MTBFPorSemana();
@@ -360,133 +191,16 @@ mapaEstados: Map<string, any> = new Map();
   this.DataRendimientoPorGuardia = this.RendimientoPorGuardia();
   this.DataMineralGuardia = this.MineralGuardia();
   this.DataUtilizacionGuardia = this.UtilizacionGuardia();
-
-  this.dataHorasOperativasDia = this.HorasOperativasPorDia();
-  this.dataHorasOperativasSemana = this.HorasOperativasPorSemana();
-  this.dataHorasOperativasMes = this.HorasOperativasPorMes();
-
-}
-
-  // =========================================
-  // 🔥 FILTRO POR FECHA
-  // =========================================
-  aplicarFiltro() {
-    this.turnoAplicado = this.turnoSeleccionado; // 🔥 CLAVE
-
-    this.operacionesFiltradas = this.operacionesOriginal.filter((op) => {
-      if (this.fechaInicio && op.fecha < this.fechaInicio) return false;
-      if (this.fechaFin && op.fecha > this.fechaFin) return false;
-
-      if (this.turnoAplicado && op.turno !== this.turnoAplicado) return false;
-
-      return true;
-    });
-    console.log('DATA FILTRADA:', this.operacionesFiltradas);
-    this.procesarTodo();
   }
 
-  quitarFiltro() {
-    this.operacionesFiltradas = [...this.operacionesOriginal];
-    this.fechaInicio = '';
-    this.fechaFin = '';
-    this.turnoAplicado = '';
-    this.turnoSeleccionado = '';
-
-    this.procesarTodo();
-  }
-
-  private getTurnoActual(): string {
-    const hora = new Date().getHours();
-
-    // Día: 07:00 - 18:59
-    if (hora >= 7 && hora < 19) {
-      return 'DÍA';
-    }
-
-    // Noche: 19:00 - 06:59
-    return 'NOCHE';
-  }
-
-  private getFechaHoy(): string {
-    const hoy = new Date();
-    const year = hoy.getFullYear();
-    const month = String(hoy.getMonth() + 1).padStart(2, '0');
-    const day = String(hoy.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
-
-  async generarPDF() {
-    this.cargandoPDF = true;
-
-    try {
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-
-      const todasLasPaginas = document.querySelectorAll('[data-page]');
-      const elementosPorPagina = new Map<number, Element[]>();
-
-      todasLasPaginas.forEach((el) => {
-        const page = parseInt(el.getAttribute('data-page') || '1');
-        if (!elementosPorPagina.has(page)) {
-          elementosPorPagina.set(page, []);
-        }
-        elementosPorPagina.get(page)!.push(el);
-      });
-
-      for (const [pageNum, elementos] of Array.from(
-        elementosPorPagina.entries(),
-      )) {
-        if (pageNum > 1) pdf.addPage();
-
-        todasLasPaginas.forEach((el) => {
-          (el as HTMLElement).style.display = 'none';
-        });
-
-        elementos.forEach((el) => {
-          (el as HTMLElement).style.display = 'block';
-        });
-
-        await this.delay(300);
-
-        const container = document.querySelector(
-          '.graficos-container',
-        ) as HTMLElement;
-
-        if (container) {
-          const canvas = await html2canvas(container, {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: '#ffffff',
-          });
-
-          const imgData = canvas.toDataURL('image/png');
-          const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-          pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
-        }
-      }
-
-      todasLasPaginas.forEach((el) => {
-        (el as HTMLElement).style.display = '';
-      });
-
-      pdf.save('grafico_completo_tal_largo.pdf');
-    } finally {
-      this.cargandoPDF = false;
-    }
-  }
-  private delay(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
-  //=========================================
+//=========================================
   //HOJA 1
   //=========================================
 //GRAFICO 1 - DISPONIBILIDAD POR EQUIPO
   DisponibilidadPorEquipo() {
   const resultadoMap = new Map<string, any>();
 
-  this.operacionesFiltradas.forEach((op) => {
+  this.data.operaciones.forEach((op: any) => {
     const modeloEquipo = `${op.n_equipo}`;
     const HORAS_TOTALES = 12;
     let horasMtto = 0;
@@ -562,7 +276,7 @@ DisponibilidadPorSemana() {
 
   const resultadoMap = new Map<string, any>();
 
-  this.operacionesFiltradas.forEach((op) => {
+  this.data.operaciones.forEach((op: any) => {
 
     const HORAS_TOTALES = 12;
 
@@ -661,7 +375,7 @@ private obtenerNumeroSemana(fecha: string): number {
   DisponibilidadPorMes() {
   const resultadoMap = new Map<string, any>();
 
-  this.operacionesFiltradas.forEach((op) => {
+  this.data.operaciones.forEach((op: any) => {
     const HORAS_TOTALES = 12;
     let horasMtto = 0;
     const registrosArray = op.registros;
@@ -727,7 +441,7 @@ HorasMantenimientoPorCodigo() {
 
   const resultadoMap = new Map<string, any>();
 
-  this.operacionesFiltradas.forEach((op) => {
+  this.data.operaciones.forEach((op: any) => {
 
     const registrosArray = op.registros;
 
@@ -794,7 +508,7 @@ DisponibilidadPorDiaMes() {
 
   const resultadoMap = new Map<string, any>();
 
-  this.operacionesFiltradas.forEach((op) => {
+  this.data.operaciones.forEach((op: any) => {
 
     if (!op.fecha) return;
 
@@ -935,7 +649,7 @@ DisponibilidadPorDiaMes() {
 DisponibilidadPorSeccion() {
   const resultadoMap = new Map<string, any>();
 
-  this.operacionesFiltradas.forEach((op) => {
+  this.data.operaciones.forEach((op: any) => {
     const seccion = op.seccion || 'SIN SECCION';
     const HORAS_TOTALES = 12;
     let horasMtto = 0;
@@ -997,7 +711,7 @@ DisponibilidadPorSeccion() {
 UtilizacionPorEquipo() {
   const resultadoMap = new Map<string, any>();
 
-  this.operacionesFiltradas.forEach((op) => {
+  this.data.operaciones.forEach((op: any) => {
     const modeloEquipo = `${op.equipo}-${op.n_equipo}`;
     const HORAS_TOTALES = 12;
     let horasMtto = 0;
@@ -1071,7 +785,7 @@ UtilizacionPorSemana() {
 
   const resultadoMap = new Map<string, any>();
 
-  this.operacionesFiltradas.forEach((op) => {
+  this.data.operaciones.forEach((op: any) => {
 
     const HORAS_TOTALES = 12;
     let horasMtto = 0;
@@ -1156,7 +870,7 @@ UtilizacionPorSemana() {
 UtilizacionPorMes() {
   const resultadoMap = new Map<string, any>();
 
-  this.operacionesFiltradas.forEach((op) => {
+  this.data.operaciones.forEach((op: any) => {
     const HORAS_TOTALES = 12;
     let horasMtto = 0;
     let horasOperativas = 0;
@@ -1256,7 +970,7 @@ HorasDemoraPorCodigo() {
     '312'
   ];
 
-  this.operacionesFiltradas.forEach((op) => {
+  this.data.operaciones.forEach((op: any) => {
     const HORAS_TOTALES = 12;
     
     const registrosArray = op.registros;
@@ -1334,7 +1048,7 @@ UtilizacionPorDia() {
 
   const resultadoMap = new Map<string, any>();
 
-  this.operacionesFiltradas.forEach((op) => {
+  this.data.operaciones.forEach((op: any) => {
 
     if (!op.fecha) return;
 
@@ -1444,7 +1158,7 @@ UtilizacionPorDia() {
 UtilizacionPorSeccionDetallada() {
   const resultadoMap = new Map<string, any>();
 
-  this.operacionesFiltradas.forEach((op) => {
+  this.data.operaciones.forEach((op: any) => {
     const seccion = op.seccion;
     if (!seccion) return;
     
@@ -1531,7 +1245,7 @@ RendimientoPorSeccionDetallado() {
   const codigosPermitidos = ['101', '102', '105', '106', '108'];
   const materialesDesmonte = ['DESMONTE', 'RELAVE', 'RELLENO'];
 
-  this.operacionesFiltradas.forEach((op) => {
+  this.data.operaciones.forEach((op: any) => {
     const seccion = op.seccion;
     if (!seccion) return;
 
@@ -1639,7 +1353,7 @@ RendimientoPorEquipo() {
     'DESMONTE', 'RELAVE', 'RELLENO'
   ];
 
-  this.operacionesFiltradas.forEach((op) => {
+  this.data.operaciones.forEach((op: any) => {
     const modeloEquipo = `${op.equipo}-${op.n_equipo}`;
 
     // 🔥 Buscar equipo
@@ -1773,7 +1487,7 @@ RendimientoPorMes() {
     'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'
   ];
 
-  this.operacionesFiltradas.forEach((op) => {
+  this.data.operaciones.forEach((op: any) => {
 
     if (!op.fecha) return;
 
@@ -1930,7 +1644,7 @@ RendimientoPorDia() {
     'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'
   ];
 
-  this.operacionesFiltradas.forEach((op) => {
+  this.data.operaciones.forEach((op: any) => {
     if (!op.fecha) return;
 
     // 🔥 Extraer fecha
@@ -2050,7 +1764,7 @@ RendimientoPorDia() {
 DisponibilidadPorOperador() {
   const resultadoMap = new Map<string, any>();
 
-  this.operacionesFiltradas.forEach((op) => {
+  this.data.operaciones.forEach((op: any) => {
     const operador = op.operador || 'SIN OPERADOR';
     const HORAS_TOTALES = 12;
     let horasMtto = 0;
@@ -2112,7 +1826,7 @@ RendimientoPorOperador() {
     'DESMONTE', 'RELAVE', 'RELLENO'
   ];
 
-  this.operacionesFiltradas.forEach((op) => {
+  this.data.operaciones.forEach((op: any) => {
     const operador = op.operador || 'SIN OPERADOR';
 
     // 🔥 Buscar equipo
@@ -2243,7 +1957,7 @@ HorasPorObservacion() {
   // 🔥 Estados que quieres considerar (puedes ajustar según necesites)
   const estadosPermitidos = ['DEMORA'];
 
-  this.operacionesFiltradas.forEach((op) => {
+  this.data.operaciones.forEach((op: any) => {
     const HORAS_TOTALES = 12;
     
     const registrosArray = op.registros;
@@ -2314,10 +2028,767 @@ HorasPorObservacion() {
   //console.log('📊 HORAS POR OBSERVACIÓN:', resultado);
   return resultado;
 }
-DisponibilidadPorGuardia() {
+
+//=========================================
+//HOJA 7
+//|=========================================
+
+//GRAFICO - HORAS DE DEMORA POR CÓDIGO (OPERATIVAS Y NO OPERATIVAS)
+HorasDemoraPorCodigoCompleto() {
   const resultadoMap = new Map<string, any>();
 
-  this.operacionesFiltradas.forEach((op) => {
+  // 🔥 Códigos de demora NO OPERATIVAS
+  const codigosDemoraNoOperativa = [
+    '301', '302', '303', '304', '305', '306',
+    '307', '308', '309', '310', '311', '312'
+  ];
+  
+  // 🔥 Códigos de demora OPERATIVAS (problemas con equipos)
+  const codigosDemoraOperativa = [
+  '401', '402', '403', '404', '405', '406',
+  '407', '408', '409', '410', '411', '412'
+];
+  // 🔥 Unir todos los códigos de demora
+  const todosCodigosDemora = [...codigosDemoraNoOperativa, ...codigosDemoraOperativa];
+  
+  // 🔥 Estados que quieres considerar
+  const estadosPermitidos = ['DEMORA'];
+
+  this.data.operaciones.forEach((op: any) => {
+    const HORAS_TOTALES = 12;
+    
+    const registrosArray = op.registros;
+    if (!Array.isArray(registrosArray)) return;
+
+    for (const registro of registrosArray) {
+      
+      // 🔥 Filtrar por estado
+      const estado = registro.estado || '';
+      if (!estadosPermitidos.includes(estado)) continue;
+      
+      // 🔥 Filtrar por código de demora
+      const codigo = registro.codigo || '';
+      if (!todosCodigosDemora.includes(codigo)) continue;
+      
+      // 🔥 Determinar tipo de demora
+      const tipoDemora = codigosDemoraNoOperativa.includes(codigo) 
+        ? 'NO OPERATIVA' 
+        : 'OPERATIVA';
+      
+      // 🔥 Calcular horas
+      let horas = this.calcularDuracionHoras(
+        registro.hora_inicio,
+        registro.hora_final
+      );
+      
+      horas = Math.min(horas, HORAS_TOTALES);
+      
+      if (!resultadoMap.has(codigo)) {
+        resultadoMap.set(codigo, {
+          codigo: codigo,
+          tipoDemora: tipoDemora,
+          horasDemora: 0,
+          cantidadRegistros: 0,
+          descripcion: this.obtenerDescripcionCompleta(codigo, tipoDemora),
+          equiposRelacionados: new Set()
+        });
+      }
+      
+      const item = resultadoMap.get(codigo);
+      item.horasDemora += horas;
+      item.cantidadRegistros += 1;
+      item.equiposRelacionados.add(`${op.equipo}-${op.n_equipo}`);
+    }
+  });
+  
+  const resultado = Array.from(resultadoMap.values())
+    .map(item => ({
+      ...item,
+      equiposRelacionados: Array.from(item.equiposRelacionados)
+    }))
+    .sort((a, b) => b.horasDemora - a.horasDemora)
+    .map(item => ({
+      ...item,
+      horasDemora: Number(item.horasDemora.toFixed(2))
+    }));
+  
+  //console.log('📊 HORAS DE DEMORA POR CÓDIGO COMPLETO:', resultado);
+  return resultado;
+}
+
+private obtenerDescripcionCompleta(codigo: string, tipoDemora: string): string {
+  const descripciones: { [key: string]: string } = {
+    // OPERATIVAS (equipo)
+    '401': 'ESPERA DE ORDEN DE TRABAJO/EVALUACIÓN GEOMECÁNICA',
+    '402': 'ESPERA POR CONDICIÓN DE LABOR',
+    '403': 'ESPERA DE VOLQUETE',
+    '404': 'ESPERA TRASLADO DE PERSONAL',
+    '405': 'FALTA DE COMBUSTIBLE',
+    '406': 'FALTA DE ILUMINACIÓN',
+    '407': 'FALTA DE OPERADOR',
+    '408': 'FALTA DE VENTILACIÓN',
+    '409': 'OBSTRUCCIÓN DE VÍAS-MATERIAL/EQUIPO',
+    '410': 'STAND BY',
+    '411': 'OTROS',
+    '412': 'SIN ÁREA DE TRABAJO',
+    
+    // NO OPERATIVAS (externas)
+    '301': 'ABASTECIMIENTO DE COMBUSTIBLE',
+    '302': 'CHARLA/REPARTO DE GUARDIA/TRASLADO DE PERSONAL',
+    '303': 'DESPEJE POR VOLADURA',
+    '304': 'INSPECCIÓN DE LA LABOR',
+    '305': 'LAVADO DE EQUIPO',
+    '306': 'LLENADO DE CHECK LIST DEL EQUIPO',
+    '307': 'REFRIGERIO/ALMUERZO',
+    '308': 'PARADA PLANTA',
+    '309': 'PARO SINDICAL',
+    '310': 'OPERADOR NO ENTREGA SU REPORTE',
+    '311': 'INCIDENTE/ACCIDENTE PERSONAL',
+    '312': 'OTROS'
+  };
+  
+  return descripciones[codigo] || `CÓDIGO ${codigo} - ${tipoDemora}`;
+}
+
+
+//=========================================
+//HOJA 8
+//|=========================================
+
+//GRAFICO - MTBF POR EQUIPO (Mean Time Between Failures)
+MTBFPorEquipo() {
+  const resultadoMap = new Map<string, any>();
+
+  this.data.operaciones.forEach((op: any) => {
+    const modeloEquipo = `${op.n_equipo}`;
+    const HORAS_TOTALES = 12;
+    let horasMtto = 0;
+    let cantidadFallas = 0;
+
+    const registrosArray = op.registros;
+    if (!Array.isArray(registrosArray)) return;
+
+    for (const registro of registrosArray) {
+      if (registro.estado !== 'MANTENIMIENTO') continue;
+      
+      // 🔥 Acumular horas de mantenimiento
+      const horas = this.calcularDuracionHoras(
+        registro.hora_inicio,
+        registro.hora_final
+      );
+      horasMtto += horas;
+      
+      // 🔥 CONTAR cada registro de mantenimiento como UNA FALLA
+      cantidadFallas++;
+    }
+
+    // Limitar horasMtto al total disponible
+    horasMtto = Math.min(horasMtto, HORAS_TOTALES);
+    
+    // 🔥 Calcular Horas de Operación = Horas Totales - Horas Mtto
+    const horasOperacion = HORAS_TOTALES - horasMtto;
+
+    if (!resultadoMap.has(modeloEquipo)) {
+      resultadoMap.set(modeloEquipo, {
+        equipo: modeloEquipo,
+        nombre: op.equipo,
+        codigo: op.n_equipo,
+        horasMtto: 0,
+        horasOperacion: 0,
+        cantidadFallas: 0,
+        mtbf: 0,  // 🔥 MTBF = Horas Operación / (Cantidad Fallas + 1)
+        cantidadOperaciones: 0
+      });
+    }
+
+    const item = resultadoMap.get(modeloEquipo);
+    item.horasMtto += horasMtto;
+    item.horasOperacion += horasOperacion;
+    item.cantidadFallas += cantidadFallas;
+    item.cantidadOperaciones += 1;
+
+    // 🔥 Calcular MTBF = Horas Operación / (Cantidad Fallas + 1) (como SI.ERROR)
+    try {
+      const denominador = item.cantidadFallas + 1;
+      if (denominador > 0) {
+        item.mtbf = Number((item.horasOperacion / denominador).toFixed(2));
+      } else {
+        item.mtbf = 0;
+      }
+    } catch (error) {
+      item.mtbf = 0; // 🔥 como el SI.ERROR
+    }
+  });
+
+  const resultado = Array.from(resultadoMap.values())
+    .sort((a, b) => b.mtbf - a.mtbf); // Ordenar por mayor MTBF
+
+  //console.log('📊 MTBF POR EQUIPO:', resultado);
+  return resultado;
+}
+
+//GRAFICO - MTBF POR AÑO
+MTBFPorAnio() {
+  const resultadoMap = new Map<string, any>();
+
+  this.data.operaciones.forEach((op: any) => {
+    if (!op.fecha) return;
+    
+    // 🔥 Extraer el año de la fecha
+    const fecha = new Date(op.fecha);
+    const año = fecha.getFullYear();
+    const clave = `${año}`;
+    
+    const HORAS_TOTALES = 12;
+    let horasMtto = 0;
+    let cantidadFallas = 0;
+
+    const registrosArray = op.registros;
+    if (!Array.isArray(registrosArray)) return;
+
+    for (const registro of registrosArray) {
+      if (registro.estado !== 'MANTENIMIENTO') continue;
+      
+      const horas = this.calcularDuracionHoras(
+        registro.hora_inicio,
+        registro.hora_final
+      );
+      horasMtto += horas;
+      cantidadFallas++;
+    }
+
+    // Limitar horasMtto al total disponible
+    horasMtto = Math.min(horasMtto, HORAS_TOTALES);
+    
+    // 🔥 Calcular Horas de Operación
+    const horasOperacion = HORAS_TOTALES - horasMtto;
+
+    if (!resultadoMap.has(clave)) {
+      resultadoMap.set(clave, {
+        año: año,
+        horasMtto: 0,
+        horasOperacion: 0,
+        cantidadFallas: 0,
+        mtbf: 0,
+        cantidadOperaciones: 0,
+        cantidadEquipos: new Set()
+      });
+    }
+
+    const item = resultadoMap.get(clave);
+    item.horasMtto += horasMtto;
+    item.horasOperacion += horasOperacion;
+    item.cantidadFallas += cantidadFallas;
+    item.cantidadOperaciones += 1;
+    item.cantidadEquipos.add(`${op.equipo}-${op.n_equipo}`);
+
+    // 🔥 Calcular MTBF = Horas Operación / (Cantidad Fallas + 1)
+    try {
+      const denominador = item.cantidadFallas + 1;
+      if (denominador > 0) {
+        item.mtbf = Number((item.horasOperacion / denominador).toFixed(2));
+      } else {
+        item.mtbf = 0;
+      }
+    } catch (error) {
+      item.mtbf = 0;
+    }
+  });
+
+  const resultado = Array.from(resultadoMap.values())
+    .map(item => ({
+      ...item,
+      cantidadEquipos: item.cantidadEquipos.size
+    }))
+    .sort((a, b) => a.año - b.año);
+
+  //console.log('📊 MTBF POR AÑO:', resultado);
+  return resultado;
+}
+
+//GRAFICO - MTBF POR SEMANA
+MTBFPorSemana() {
+  const resultadoMap = new Map<string, any>();
+
+  this.data.operaciones.forEach((op: any) => {
+    if (!op.fecha) return;
+    
+    const numeroSemana = this.obtenerNumeroSemana(op.fecha);
+    const semanaLabel = `SEM ${numeroSemana}`;
+    
+    const HORAS_TOTALES = 12;
+    let horasMtto = 0;
+    let cantidadFallas = 0;
+
+    const registrosArray = op.registros;
+    if (!Array.isArray(registrosArray)) return;
+
+    for (const registro of registrosArray) {
+      if (registro.estado !== 'MANTENIMIENTO') continue;
+      
+      const horas = this.calcularDuracionHoras(
+        registro.hora_inicio,
+        registro.hora_final
+      );
+      horasMtto += horas;
+      cantidadFallas++;
+    }
+
+    horasMtto = Math.min(horasMtto, HORAS_TOTALES);
+    const horasOperacion = HORAS_TOTALES - horasMtto;
+
+    if (!resultadoMap.has(semanaLabel)) {
+      resultadoMap.set(semanaLabel, {
+        semana: semanaLabel,
+        numeroSemana: numeroSemana,
+        horasMtto: 0,
+        horasOperacion: 0,
+        cantidadFallas: 0,
+        mtbf: 0,
+        cantidadOperaciones: 0,
+        cantidadEquipos: new Set()
+      });
+    }
+
+    const item = resultadoMap.get(semanaLabel);
+    item.horasMtto += horasMtto;
+    item.horasOperacion += horasOperacion;
+    item.cantidadFallas += cantidadFallas;
+    item.cantidadOperaciones += 1;
+    item.cantidadEquipos.add(`${op.equipo}-${op.n_equipo}`);
+
+    try {
+      const denominador = item.cantidadFallas + 1;
+      if (denominador > 0) {
+        item.mtbf = Number((item.horasOperacion / denominador).toFixed(2));
+      } else {
+        item.mtbf = 0;
+      }
+    } catch (error) {
+      item.mtbf = 0;
+    }
+  });
+
+  const resultado = Array.from(resultadoMap.values())
+    .map(item => ({
+      ...item,
+      cantidadEquipos: item.cantidadEquipos.size
+    }))
+    .sort((a, b) => a.numeroSemana - b.numeroSemana);
+
+  //console.log('📊 MTBF POR SEMANA:', resultado);
+  return resultado;
+}
+
+//GRAFICO - MTBF POR MES Y AÑO
+MTBFPorMes() {
+  const resultadoMap = new Map<string, any>();
+
+  const nombresMeses = [
+    'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
+    'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'
+  ];
+
+  this.data.operaciones.forEach((op: any) => {
+    if (!op.fecha) return;
+
+    const fecha = new Date(op.fecha);
+    const año = fecha.getFullYear();
+    const mesNumero = fecha.getMonth() + 1;
+    const nombreMes = nombresMeses[mesNumero - 1];
+    const clave = `${año}-${mesNumero.toString().padStart(2, '0')}`;
+
+    const HORAS_TOTALES = 12;
+    let horasMtto = 0;
+    let cantidadFallas = 0;
+
+    const registrosArray = op.registros;
+    if (!Array.isArray(registrosArray)) return;
+
+    for (const registro of registrosArray) {
+      if (registro.estado !== 'MANTENIMIENTO') continue;
+      
+      const horas = this.calcularDuracionHoras(
+        registro.hora_inicio,
+        registro.hora_final
+      );
+      horasMtto += horas;
+      cantidadFallas++;
+    }
+
+    horasMtto = Math.min(horasMtto, HORAS_TOTALES);
+    const horasOperacion = HORAS_TOTALES - horasMtto;
+
+    if (!resultadoMap.has(clave)) {
+      resultadoMap.set(clave, {
+        mes: nombreMes,
+        año: año,
+        mesNumero: mesNumero,
+        horasMtto: 0,
+        horasOperacion: 0,
+        cantidadFallas: 0,
+        mtbf: 0,
+        cantidadOperaciones: 0,
+        cantidadEquipos: new Set()
+      });
+    }
+
+    const item = resultadoMap.get(clave);
+    item.horasMtto += horasMtto;
+    item.horasOperacion += horasOperacion;
+    item.cantidadFallas += cantidadFallas;
+    item.cantidadOperaciones += 1;
+    item.cantidadEquipos.add(`${op.equipo}-${op.n_equipo}`);
+
+    const denominador = item.cantidadFallas + 1;
+    if (denominador > 0) {
+      item.mtbf = Number((item.horasOperacion / denominador).toFixed(2));
+    }
+  });
+
+  const resultado = Array.from(resultadoMap.values())
+    .map(item => ({
+      ...item,
+      cantidadEquipos: item.cantidadEquipos.size
+    }))
+    .sort((a, b) => {
+      if (a.año !== b.año) return a.año - b.año;
+      return a.mesNumero - b.mesNumero;
+    });
+
+  //console.log('📊 MTBF POR MES:', resultado);
+  return resultado;
+}
+
+//MTTR-------------------------------------------------------------------------------
+MTTRPorEquipo() {
+  const resultadoMap = new Map<string, any>();
+
+  this.data.operaciones.forEach((op: any) => {
+    const modeloEquipo = `${op.n_equipo}`; // Usamos solo el código del equipo
+    const HORAS_TOTALES = 12;
+    let horasMtto = 0;
+    let cantidadFallas = 0; // 🔥 CONTADOR DE FALLAS (eventos de mantenimiento)
+
+    const registrosArray = op.registros;
+    if (!Array.isArray(registrosArray)) return;
+
+    for (const registro of registrosArray) {
+      if (registro.estado !== 'MANTENIMIENTO') continue;
+      
+      // 🔥 Acumular horas de mantenimiento
+      const horas = this.calcularDuracionHoras(
+        registro.hora_inicio,
+        registro.hora_final
+      );
+      horasMtto += horas;
+      
+      // 🔥 CONTAR cada registro de mantenimiento como UNA FALLA
+      cantidadFallas++;
+    }
+
+    // Limitar horasMtto al total disponible
+    horasMtto = Math.min(horasMtto, HORAS_TOTALES);
+
+    if (!resultadoMap.has(modeloEquipo)) {
+      resultadoMap.set(modeloEquipo, {
+        equipo: modeloEquipo,
+        nombre: op.equipo,
+        codigo: op.n_equipo,
+        horasMtto: 0,
+        cantidadFallas: 0,
+        mttr: 0,  // 🔥 MTTR = Horas Mtto / Cantidad Fallas
+        cantidadOperaciones: 0
+      });
+    }
+
+    const item = resultadoMap.get(modeloEquipo);
+    item.horasMtto += horasMtto;
+    item.cantidadFallas += cantidadFallas;
+    item.cantidadOperaciones += 1;
+
+    // 🔥 Calcular MTTR = Horas Mtto / Cantidad Fallas (como SI.ERROR)
+    try {
+      if (item.cantidadFallas > 0) {
+        item.mttr = Number((item.horasMtto / item.cantidadFallas).toFixed(2));
+      } else {
+        item.mttr = 0; // Si no hay fallas, MTTR = 0
+      }
+    } catch (error) {
+      item.mttr = 0; // 🔥 como el SI.ERROR
+    }
+  });
+
+  const resultado = Array.from(resultadoMap.values())
+    .sort((a, b) => b.mttr - a.mttr); // Ordenar por mayor MTTR
+
+  //console.log('📊 MTTR POR EQUIPO:', resultado);
+  return resultado;
+}
+
+//GRAFICO - MTTR POR AÑO
+MTTRPorAnio() {
+  const resultadoMap = new Map<string, any>();
+
+  this.data.operaciones.forEach((op: any) => {
+    if (!op.fecha) return;
+    
+    // 🔥 Extraer el año de la fecha
+    const fecha = new Date(op.fecha);
+    const año = fecha.getFullYear();
+    const clave = `${año}`;
+    
+    const HORAS_TOTALES = 12;
+    let horasMtto = 0;
+    let cantidadFallas = 0;
+
+    const registrosArray = op.registros;
+    if (!Array.isArray(registrosArray)) return;
+
+    for (const registro of registrosArray) {
+      if (registro.estado !== 'MANTENIMIENTO') continue;
+      
+      // 🔥 Acumular horas de mantenimiento
+      const horas = this.calcularDuracionHoras(
+        registro.hora_inicio,
+        registro.hora_final
+      );
+      horasMtto += horas;
+      
+      // 🔥 CONTAR cada registro de mantenimiento como UNA FALLA
+      cantidadFallas++;
+    }
+
+    // Limitar horasMtto al total disponible
+    horasMtto = Math.min(horasMtto, HORAS_TOTALES);
+
+    if (!resultadoMap.has(clave)) {
+      resultadoMap.set(clave, {
+        año: año,
+        horasMtto: 0,
+        cantidadFallas: 0,
+        mttr: 0,
+        cantidadOperaciones: 0,
+        cantidadEquipos: new Set()
+      });
+    }
+
+    const item = resultadoMap.get(clave);
+    item.horasMtto += horasMtto;
+    item.cantidadFallas += cantidadFallas;
+    item.cantidadOperaciones += 1;
+    item.cantidadEquipos.add(`${op.equipo}-${op.n_equipo}`);
+
+    // 🔥 Calcular MTTR = Horas Mtto / Cantidad Fallas (como SI.ERROR)
+    try {
+      if (item.cantidadFallas > 0) {
+        item.mttr = Number((item.horasMtto / item.cantidadFallas).toFixed(2));
+      } else {
+        item.mttr = 0; // Si no hay fallas, MTTR = 0
+      }
+    } catch (error) {
+      item.mttr = 0;
+    }
+  });
+
+  // 🔥 Convertir Set a número y ordenar por año
+  const resultado = Array.from(resultadoMap.values())
+    .map(item => ({
+      ...item,
+      cantidadEquipos: item.cantidadEquipos.size
+    }))
+    .sort((a, b) => a.año - b.año); // Ordenar de menor a mayor año
+
+  //console.log('📊 MTTR POR AÑO:', resultado);
+  return resultado;
+}
+
+//GRAFICO - MTTR POR SEMANA
+MTTRPorSemana() {
+  const resultadoMap = new Map<string, any>();
+
+  this.data.operaciones.forEach((op: any) => {
+    if (!op.fecha) return;
+    
+    // 🔥 Extraer el número de semana de la fecha
+    const numeroSemana = this.obtenerNumeroSemana(op.fecha);
+    const semanaLabel = `SEM ${numeroSemana}`;
+    
+    const HORAS_TOTALES = 12;
+    let horasMtto = 0;
+    let cantidadFallas = 0;
+
+    const registrosArray = op.registros;
+    if (!Array.isArray(registrosArray)) return;
+
+    for (const registro of registrosArray) {
+      if (registro.estado !== 'MANTENIMIENTO') continue;
+      
+      // 🔥 Acumular horas de mantenimiento
+      const horas = this.calcularDuracionHoras(
+        registro.hora_inicio,
+        registro.hora_final
+      );
+      horasMtto += horas;
+      
+      // 🔥 CONTAR cada registro de mantenimiento como UNA FALLA
+      cantidadFallas++;
+    }
+
+    // Limitar horasMtto al total disponible
+    horasMtto = Math.min(horasMtto, HORAS_TOTALES);
+
+    if (!resultadoMap.has(semanaLabel)) {
+      resultadoMap.set(semanaLabel, {
+        semana: semanaLabel,
+        numeroSemana: numeroSemana,
+        horasMtto: 0,
+        cantidadFallas: 0,
+        mttr: 0,
+        cantidadOperaciones: 0,
+        cantidadEquipos: new Set()
+      });
+    }
+
+    const item = resultadoMap.get(semanaLabel);
+    item.horasMtto += horasMtto;
+    item.cantidadFallas += cantidadFallas;
+    item.cantidadOperaciones += 1;
+    item.cantidadEquipos.add(`${op.equipo}-${op.n_equipo}`);
+
+    // 🔥 Calcular MTTR = Horas Mtto / Cantidad Fallas (como SI.ERROR)
+    try {
+      if (item.cantidadFallas > 0) {
+        item.mttr = Number((item.horasMtto / item.cantidadFallas).toFixed(2));
+      } else {
+        item.mttr = 0; // Si no hay fallas, MTTR = 0
+      }
+    } catch (error) {
+      item.mttr = 0;
+    }
+  });
+
+  // 🔥 Convertir Set a número y ordenar por número de semana
+  const resultado = Array.from(resultadoMap.values())
+    .map(item => ({
+      ...item,
+      cantidadEquipos: item.cantidadEquipos.size
+    }))
+    .sort((a, b) => a.numeroSemana - b.numeroSemana); // Ordenar por semana
+
+  //console.log('📊 MTTR POR SEMANA:', resultado);
+  return resultado;
+}
+
+//GRAFICO - MTTR POR MES Y AÑO
+MTTRPorMes() {
+  const resultadoMap = new Map<string, any>();
+
+  // 🔥 Nombres de meses
+  const nombresMeses = [
+    'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
+    'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'
+  ];
+
+  this.data.operaciones.forEach((op: any) => {
+    if (!op.fecha) return;
+
+    // 🔥 Fecha
+    const fecha = new Date(op.fecha);
+    const año = fecha.getFullYear();
+    const mesNumero = fecha.getMonth() + 1;
+    const nombreMes = nombresMeses[mesNumero - 1];
+    const clave = `${año}-${mesNumero.toString().padStart(2, '0')}`;
+
+    const HORAS_TOTALES = 12;
+    let horasMtto = 0;
+    let cantidadFallas = 0;
+
+    const registrosArray = op.registros;
+    if (!Array.isArray(registrosArray)) return;
+
+    for (const registro of registrosArray) {
+      if (registro.estado !== 'MANTENIMIENTO') continue;
+      
+      // 🔥 Acumular horas de mantenimiento
+      const horas = this.calcularDuracionHoras(
+        registro.hora_inicio,
+        registro.hora_final
+      );
+      horasMtto += horas;
+      
+      // 🔥 CONTAR cada registro de mantenimiento como UNA FALLA
+      cantidadFallas++;
+    }
+
+    // Limitar horasMtto al total disponible
+    horasMtto = Math.min(horasMtto, HORAS_TOTALES);
+
+    if (!resultadoMap.has(clave)) {
+      resultadoMap.set(clave, {
+        // 🔥 Datos de fecha
+        mes: nombreMes,
+        año: año,
+        mesNumero: mesNumero,
+        
+        // 🔥 Resultado principal
+        mttr: 0,
+        
+        // 🔥 Datos auxiliares
+        horasMtto: 0,
+        cantidadFallas: 0,
+        cantidadOperaciones: 0,
+        cantidadEquipos: new Set()
+      });
+    }
+
+    const item = resultadoMap.get(clave);
+    item.horasMtto += horasMtto;
+    item.cantidadFallas += cantidadFallas;
+    item.cantidadOperaciones += 1;
+    item.cantidadEquipos.add(`${op.equipo}-${op.n_equipo}`);
+
+    // 🔥 Calcular MTTR = Horas Mtto / Cantidad Fallas
+    if (item.cantidadFallas > 0) {
+      item.mttr = Number((item.horasMtto / item.cantidadFallas).toFixed(2));
+    }
+  });
+
+  // 🔥 Convertir Set a número y ordenar por año y mes
+  const resultado = Array.from(resultadoMap.values())
+    .map(item => ({
+      ...item,
+      cantidadEquipos: item.cantidadEquipos.size
+    }))
+    .sort((a, b) => {
+      if (a.año !== b.año) return a.año - b.año;
+      return a.mesNumero - b.mesNumero;
+    });
+
+  //console.log('📊 MTTR POR MES:', resultado);
+  return resultado;
+}
+
+  // Obtener número de semana del año
+  private getSemanaDelAnio(fecha: Date): number {
+    const inicioAnio = new Date(fecha.getFullYear(), 0, 1);
+    const dias = Math.floor((fecha.getTime() - inicioAnio.getTime()) / (24 * 60 * 60 * 1000));
+    return Math.ceil((dias + inicioAnio.getDay() + 1) / 7);
+  }
+
+  cerrar(): void {
+    this.dialogRef.close();
+  }
+
+  cambiarHoja(hoja: string): void {
+    this.hojaActual = hoja;
+    console.log('Cambiando a hoja:', hoja);
+  }
+
+  DisponibilidadPorGuardia() {
+  const resultadoMap = new Map<string, any>();
+
+  this.data.operaciones.forEach((op: any) => {
     const guardia = op.seccion || 'SIN GUARDIA';
     const key = guardia;
 
@@ -2393,7 +2864,7 @@ RendimientoPorGuardia() {
 
   const CODIGOS_OPERATIVOS = ['101', '102', '105', '106', '108'];
 
-  this.operacionesFiltradas.forEach((op) => {
+  this.data.operaciones.forEach((op: any) => {
     const guardia = op.seccion || 'SIN GUARDIA';
     const key = guardia;
 
@@ -2496,7 +2967,7 @@ MineralGuardia() {
 
   const CODIGOS_OPERATIVOS = ['101', '102', '105', '106', '108'];
 
-  this.operacionesFiltradas.forEach((op) => {
+  this.data.operaciones.forEach((op: any) => {
     const guardia = op.seccion || 'SIN GUARDIA';
 
     const key = guardia;
@@ -2607,7 +3078,7 @@ UtilizacionGuardia() {
 
   const CODIGOS_OPERATIVOS = ['101', '102', '105', '106', '108'];
 
-  this.operacionesFiltradas.forEach((op) => {
+  this.data.operaciones.forEach((op: any) => {
     const guardia = op.seccion || 'SIN GUARDIA';
 
     const key = guardia;
@@ -2690,972 +3161,8 @@ UtilizacionGuardia() {
 
   resultado.sort((a, b) => b.utilizacion - a.utilizacion);
 
-  return resultado;
-}
-
-//
-private readonly CODIGOS_OPERATIVOS = ['101', '102', '105', '106', '108'];
-
-HorasOperativasPorDia() {
-  return this.calcularHorasOperativasPorPeriodo('DIA');
-}
-
-HorasOperativasPorSemana() {
-  return this.calcularHorasOperativasPorPeriodo('SEMANA');
-}
-
-HorasOperativasPorMes() {
-  return this.calcularHorasOperativasPorPeriodo('MES');
-}
-
-private calcularHorasOperativasPorPeriodo(tipo: 'DIA' | 'SEMANA' | 'MES') {
-  const datosPorDia = this.calcularHorasOperativasBasePorDia();
-
-  if (tipo === 'DIA') {
-    return datosPorDia;
-  }
-
-  const resultadoMap = new Map<string, any>();
-
-  datosPorDia.forEach((dia) => {
-    const periodo = obtenerPeriodoDesdeKey(dia.key, tipo);
-
-    if (!periodo) return;
-
-    if (!resultadoMap.has(periodo.key)) {
-      resultadoMap.set(periodo.key, {
-        key: periodo.key,
-        periodo: periodo.label,
-        fechaInicio: periodo.fechaInicio || null,
-        fechaFin: periodo.fechaFin || null,
-        sumaHorasOperativas: 0,
-        horasOperativas: 0,
-        cantidadDias: 0,
-        cantidadOperaciones: 0,
-        cantidadRegistrosOperativos: 0
-      });
-    }
-
-    const item = resultadoMap.get(periodo.key);
-
-    item.sumaHorasOperativas += Number(dia.horasOperativas || 0);
-    item.cantidadDias += 1;
-    item.cantidadOperaciones += Number(dia.cantidadOperaciones || 0);
-    item.cantidadRegistrosOperativos += Number(dia.cantidadRegistrosOperativos || 0);
-  });
-
-  const resultado = Array.from(resultadoMap.values()).map((item) => {
-    item.horasOperativas = item.cantidadDias > 0
-      ? Number((item.sumaHorasOperativas / item.cantidadDias).toFixed(2))
-      : 0;
-
-    item.sumaHorasOperativas = Number(item.sumaHorasOperativas.toFixed(2));
-
-    return item;
-  });
-
-  resultado.sort((a, b) => a.key.localeCompare(b.key));
+  console.log('📊 UTILIZACIÓN POR GUARDIA:', resultado);
 
   return resultado;
 }
-
-private calcularHorasOperativasBasePorDia() {
-  const resultadoMap = new Map<string, any>();
-
-  // Crear todos los días del rango con 0
-  if (this.fechaInicio && this.fechaFin) {
-    const diasRango = generarDiasEntreFechas(this.fechaInicio, this.fechaFin);
-
-    diasRango.forEach((dia) => {
-      resultadoMap.set(dia.key, {
-        key: dia.key,
-        periodo: dia.label,
-
-        // suma total de horas operativas del día
-        sumaHorasOperativas: 0,
-
-        // promedio final que se mostrará en el gráfico
-        horasOperativas: 0,
-
-        cantidadOperaciones: 0,
-        cantidadRegistrosOperativos: 0
-      });
-    });
-  }
-
-  this.operacionesFiltradas.forEach((op) => {
-    const registrosArray = op.registros;
-
-    if (!Array.isArray(registrosArray)) return;
-
-    const fecha = op.fecha;
-
-    if (!fecha) return;
-
-    const periodo = obtenerPeriodo(fecha, 'DIA');
-
-    if (!periodo) return;
-
-    if (!resultadoMap.has(periodo.key)) {
-      resultadoMap.set(periodo.key, {
-        key: periodo.key,
-        periodo: periodo.label,
-        sumaHorasOperativas: 0,
-        horasOperativas: 0,
-        cantidadOperaciones: 0,
-        cantidadRegistrosOperativos: 0
-      });
-    }
-
-    const item = resultadoMap.get(periodo.key);
-
-    let horasOperativasOperacion = 0;
-    let tieneHorasOperativas = false;
-
-    for (const registro of registrosArray) {
-      const codigo = String(registro.codigo || '').trim();
-
-      if (!this.CODIGOS_OPERATIVOS.includes(codigo)) continue;
-
-      const horas = this.calcularDuracionHoras(
-        registro.hora_inicio,
-        registro.hora_final
-      );
-
-      if (!horas || horas <= 0) continue;
-
-      horasOperativasOperacion += horas;
-      item.cantidadRegistrosOperativos += 1;
-      tieneHorasOperativas = true;
-    }
-
-    // Solo cuenta la operación si tuvo horas operativas reales
-    if (tieneHorasOperativas) {
-      item.sumaHorasOperativas += horasOperativasOperacion;
-      item.cantidadOperaciones += 1;
-    }
-  });
-
-  const resultado = Array.from(resultadoMap.values()).map((item) => {
-    if (item.cantidadOperaciones > 0) {
-      item.horasOperativas = Number(
-        (item.sumaHorasOperativas / item.cantidadOperaciones).toFixed(2)
-      );
-    } else {
-      item.horasOperativas = 0;
-    }
-
-    item.sumaHorasOperativas = Number(item.sumaHorasOperativas.toFixed(2));
-
-    return item;
-  });
-
-  resultado.sort((a, b) => a.key.localeCompare(b.key));
-
-  return resultado;
-}
-
-//=========================================
-//HOJA 7
-//|=========================================
-
-//GRAFICO - HORAS DE DEMORA POR CÓDIGO (OPERATIVAS Y NO OPERATIVAS)
-HorasDemoraPorCodigoCompleto() {
-  const resultadoMap = new Map<string, any>();
-
-  // 🔥 Códigos de demora NO OPERATIVAS
-  const codigosDemoraNoOperativa = [
-    '301', '302', '303', '304', '305', '306',
-    '307', '308', '309', '310', '311', '312'
-  ];
-  
-  // 🔥 Códigos de demora OPERATIVAS (problemas con equipos)
-  const codigosDemoraOperativa = [
-  '401', '402', '403', '404', '405', '406',
-  '407', '408', '409', '410', '411', '412'
-];
-  // 🔥 Unir todos los códigos de demora
-  const todosCodigosDemora = [...codigosDemoraNoOperativa, ...codigosDemoraOperativa];
-  
-  // 🔥 Estados que quieres considerar
-  const estadosPermitidos = ['DEMORA'];
-
-  this.operacionesFiltradas.forEach((op) => {
-    const HORAS_TOTALES = 12;
-    
-    const registrosArray = op.registros;
-    if (!Array.isArray(registrosArray)) return;
-
-    for (const registro of registrosArray) {
-      
-      // 🔥 Filtrar por estado
-      const estado = registro.estado || '';
-      if (!estadosPermitidos.includes(estado)) continue;
-      
-      // 🔥 Filtrar por código de demora
-      const codigo = registro.codigo || '';
-      if (!todosCodigosDemora.includes(codigo)) continue;
-      
-      // 🔥 Determinar tipo de demora
-      const tipoDemora = codigosDemoraNoOperativa.includes(codigo) 
-        ? 'NO OPERATIVA' 
-        : 'OPERATIVA';
-      
-      // 🔥 Calcular horas
-      let horas = this.calcularDuracionHoras(
-        registro.hora_inicio,
-        registro.hora_final
-      );
-      
-      horas = Math.min(horas, HORAS_TOTALES);
-      
-      if (!resultadoMap.has(codigo)) {
-        resultadoMap.set(codigo, {
-          codigo: codigo,
-          tipoDemora: tipoDemora,
-          horasDemora: 0,
-          cantidadRegistros: 0,
-          descripcion: this.obtenerDescripcionCompleta(codigo, tipoDemora),
-          equiposRelacionados: new Set()
-        });
-      }
-      
-      const item = resultadoMap.get(codigo);
-      item.horasDemora += horas;
-      item.cantidadRegistros += 1;
-      item.equiposRelacionados.add(`${op.equipo}-${op.n_equipo}`);
-    }
-  });
-  
-  const resultado = Array.from(resultadoMap.values())
-    .map(item => ({
-      ...item,
-      equiposRelacionados: Array.from(item.equiposRelacionados)
-    }))
-    .sort((a, b) => b.horasDemora - a.horasDemora)
-    .map(item => ({
-      ...item,
-      horasDemora: Number(item.horasDemora.toFixed(2))
-    }));
-  
-  //console.log('📊 HORAS DE DEMORA POR CÓDIGO COMPLETO:', resultado);
-  return resultado;
-}
-
-private obtenerDescripcionCompleta(codigo: string, tipoDemora: string): string {
-  const descripciones: { [key: string]: string } = {
-    // OPERATIVAS (equipo)
-    '401': 'ESPERA DE ORDEN DE TRABAJO/EVALUACIÓN GEOMECÁNICA',
-    '402': 'ESPERA POR CONDICIÓN DE LABOR',
-    '403': 'ESPERA DE VOLQUETE',
-    '404': 'ESPERA TRASLADO DE PERSONAL',
-    '405': 'FALTA DE COMBUSTIBLE',
-    '406': 'FALTA DE ILUMINACIÓN',
-    '407': 'FALTA DE OPERADOR',
-    '408': 'FALTA DE VENTILACIÓN',
-    '409': 'OBSTRUCCIÓN DE VÍAS-MATERIAL/EQUIPO',
-    '410': 'STAND BY',
-    '411': 'OTROS',
-    '412': 'SIN ÁREA DE TRABAJO',
-    
-    // NO OPERATIVAS (externas)
-    '301': 'ABASTECIMIENTO DE COMBUSTIBLE',
-    '302': 'CHARLA/REPARTO DE GUARDIA/TRASLADO DE PERSONAL',
-    '303': 'DESPEJE POR VOLADURA',
-    '304': 'INSPECCIÓN DE LA LABOR',
-    '305': 'LAVADO DE EQUIPO',
-    '306': 'LLENADO DE CHECK LIST DEL EQUIPO',
-    '307': 'REFRIGERIO/ALMUERZO',
-    '308': 'PARADA PLANTA',
-    '309': 'PARO SINDICAL',
-    '310': 'OPERADOR NO ENTREGA SU REPORTE',
-    '311': 'INCIDENTE/ACCIDENTE PERSONAL',
-    '312': 'OTROS'
-  };
-  
-  return descripciones[codigo] || `CÓDIGO ${codigo} - ${tipoDemora}`;
-}
-
-
-//=========================================
-//HOJA 8
-//|=========================================
-
-//GRAFICO - MTBF POR EQUIPO (Mean Time Between Failures)
-MTBFPorEquipo() {
-  const resultadoMap = new Map<string, any>();
-
-  this.operacionesFiltradas.forEach((op) => {
-    const modeloEquipo = `${op.n_equipo}`;
-    const HORAS_TOTALES = 12;
-    let horasMtto = 0;
-    let cantidadFallas = 0;
-
-    const registrosArray = op.registros;
-    if (!Array.isArray(registrosArray)) return;
-
-    for (const registro of registrosArray) {
-      if (registro.estado !== 'MANTENIMIENTO') continue;
-      
-      // 🔥 Acumular horas de mantenimiento
-      const horas = this.calcularDuracionHoras(
-        registro.hora_inicio,
-        registro.hora_final
-      );
-      horasMtto += horas;
-      
-      // 🔥 CONTAR cada registro de mantenimiento como UNA FALLA
-      cantidadFallas++;
-    }
-
-    // Limitar horasMtto al total disponible
-    horasMtto = Math.min(horasMtto, HORAS_TOTALES);
-    
-    // 🔥 Calcular Horas de Operación = Horas Totales - Horas Mtto
-    const horasOperacion = HORAS_TOTALES - horasMtto;
-
-    if (!resultadoMap.has(modeloEquipo)) {
-      resultadoMap.set(modeloEquipo, {
-        equipo: modeloEquipo,
-        nombre: op.equipo,
-        codigo: op.n_equipo,
-        horasMtto: 0,
-        horasOperacion: 0,
-        cantidadFallas: 0,
-        mtbf: 0,  // 🔥 MTBF = Horas Operación / (Cantidad Fallas + 1)
-        cantidadOperaciones: 0
-      });
-    }
-
-    const item = resultadoMap.get(modeloEquipo);
-    item.horasMtto += horasMtto;
-    item.horasOperacion += horasOperacion;
-    item.cantidadFallas += cantidadFallas;
-    item.cantidadOperaciones += 1;
-
-    // 🔥 Calcular MTBF = Horas Operación / (Cantidad Fallas + 1) (como SI.ERROR)
-    try {
-      const denominador = item.cantidadFallas + 1;
-      if (denominador > 0) {
-        item.mtbf = Number((item.horasOperacion / denominador).toFixed(2));
-      } else {
-        item.mtbf = 0;
-      }
-    } catch (error) {
-      item.mtbf = 0; // 🔥 como el SI.ERROR
-    }
-  });
-
-  const resultado = Array.from(resultadoMap.values())
-    .sort((a, b) => b.mtbf - a.mtbf); // Ordenar por mayor MTBF
-
-  //console.log('📊 MTBF POR EQUIPO:', resultado);
-  return resultado;
-}
-
-//GRAFICO - MTBF POR AÑO
-MTBFPorAnio() {
-  const resultadoMap = new Map<string, any>();
-
-  this.operacionesFiltradas.forEach((op) => {
-    if (!op.fecha) return;
-    
-    // 🔥 Extraer el año de la fecha
-    const fecha = new Date(op.fecha);
-    const año = fecha.getFullYear();
-    const clave = `${año}`;
-    
-    const HORAS_TOTALES = 12;
-    let horasMtto = 0;
-    let cantidadFallas = 0;
-
-    const registrosArray = op.registros;
-    if (!Array.isArray(registrosArray)) return;
-
-    for (const registro of registrosArray) {
-      if (registro.estado !== 'MANTENIMIENTO') continue;
-      
-      const horas = this.calcularDuracionHoras(
-        registro.hora_inicio,
-        registro.hora_final
-      );
-      horasMtto += horas;
-      cantidadFallas++;
-    }
-
-    // Limitar horasMtto al total disponible
-    horasMtto = Math.min(horasMtto, HORAS_TOTALES);
-    
-    // 🔥 Calcular Horas de Operación
-    const horasOperacion = HORAS_TOTALES - horasMtto;
-
-    if (!resultadoMap.has(clave)) {
-      resultadoMap.set(clave, {
-        año: año,
-        horasMtto: 0,
-        horasOperacion: 0,
-        cantidadFallas: 0,
-        mtbf: 0,
-        cantidadOperaciones: 0,
-        cantidadEquipos: new Set()
-      });
-    }
-
-    const item = resultadoMap.get(clave);
-    item.horasMtto += horasMtto;
-    item.horasOperacion += horasOperacion;
-    item.cantidadFallas += cantidadFallas;
-    item.cantidadOperaciones += 1;
-    item.cantidadEquipos.add(`${op.equipo}-${op.n_equipo}`);
-
-    // 🔥 Calcular MTBF = Horas Operación / (Cantidad Fallas + 1)
-    try {
-      const denominador = item.cantidadFallas + 1;
-      if (denominador > 0) {
-        item.mtbf = Number((item.horasOperacion / denominador).toFixed(2));
-      } else {
-        item.mtbf = 0;
-      }
-    } catch (error) {
-      item.mtbf = 0;
-    }
-  });
-
-  const resultado = Array.from(resultadoMap.values())
-    .map(item => ({
-      ...item,
-      cantidadEquipos: item.cantidadEquipos.size
-    }))
-    .sort((a, b) => a.año - b.año);
-
-  //console.log('📊 MTBF POR AÑO:', resultado);
-  return resultado;
-}
-
-//GRAFICO - MTBF POR SEMANA
-MTBFPorSemana() {
-  const resultadoMap = new Map<string, any>();
-
-  this.operacionesFiltradas.forEach((op) => {
-    if (!op.fecha) return;
-    
-    const numeroSemana = this.obtenerNumeroSemana(op.fecha);
-    const semanaLabel = `SEM ${numeroSemana}`;
-    
-    const HORAS_TOTALES = 12;
-    let horasMtto = 0;
-    let cantidadFallas = 0;
-
-    const registrosArray = op.registros;
-    if (!Array.isArray(registrosArray)) return;
-
-    for (const registro of registrosArray) {
-      if (registro.estado !== 'MANTENIMIENTO') continue;
-      
-      const horas = this.calcularDuracionHoras(
-        registro.hora_inicio,
-        registro.hora_final
-      );
-      horasMtto += horas;
-      cantidadFallas++;
-    }
-
-    horasMtto = Math.min(horasMtto, HORAS_TOTALES);
-    const horasOperacion = HORAS_TOTALES - horasMtto;
-
-    if (!resultadoMap.has(semanaLabel)) {
-      resultadoMap.set(semanaLabel, {
-        semana: semanaLabel,
-        numeroSemana: numeroSemana,
-        horasMtto: 0,
-        horasOperacion: 0,
-        cantidadFallas: 0,
-        mtbf: 0,
-        cantidadOperaciones: 0,
-        cantidadEquipos: new Set()
-      });
-    }
-
-    const item = resultadoMap.get(semanaLabel);
-    item.horasMtto += horasMtto;
-    item.horasOperacion += horasOperacion;
-    item.cantidadFallas += cantidadFallas;
-    item.cantidadOperaciones += 1;
-    item.cantidadEquipos.add(`${op.equipo}-${op.n_equipo}`);
-
-    try {
-      const denominador = item.cantidadFallas + 1;
-      if (denominador > 0) {
-        item.mtbf = Number((item.horasOperacion / denominador).toFixed(2));
-      } else {
-        item.mtbf = 0;
-      }
-    } catch (error) {
-      item.mtbf = 0;
-    }
-  });
-
-  const resultado = Array.from(resultadoMap.values())
-    .map(item => ({
-      ...item,
-      cantidadEquipos: item.cantidadEquipos.size
-    }))
-    .sort((a, b) => a.numeroSemana - b.numeroSemana);
-
-  //console.log('📊 MTBF POR SEMANA:', resultado);
-  return resultado;
-}
-
-//GRAFICO - MTBF POR MES Y AÑO
-MTBFPorMes() {
-  const resultadoMap = new Map<string, any>();
-
-  const nombresMeses = [
-    'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
-    'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'
-  ];
-
-  this.operacionesFiltradas.forEach((op) => {
-    if (!op.fecha) return;
-
-    const fecha = new Date(op.fecha);
-    const año = fecha.getFullYear();
-    const mesNumero = fecha.getMonth() + 1;
-    const nombreMes = nombresMeses[mesNumero - 1];
-    const clave = `${año}-${mesNumero.toString().padStart(2, '0')}`;
-
-    const HORAS_TOTALES = 12;
-    let horasMtto = 0;
-    let cantidadFallas = 0;
-
-    const registrosArray = op.registros;
-    if (!Array.isArray(registrosArray)) return;
-
-    for (const registro of registrosArray) {
-      if (registro.estado !== 'MANTENIMIENTO') continue;
-      
-      const horas = this.calcularDuracionHoras(
-        registro.hora_inicio,
-        registro.hora_final
-      );
-      horasMtto += horas;
-      cantidadFallas++;
-    }
-
-    horasMtto = Math.min(horasMtto, HORAS_TOTALES);
-    const horasOperacion = HORAS_TOTALES - horasMtto;
-
-    if (!resultadoMap.has(clave)) {
-      resultadoMap.set(clave, {
-        mes: nombreMes,
-        año: año,
-        mesNumero: mesNumero,
-        horasMtto: 0,
-        horasOperacion: 0,
-        cantidadFallas: 0,
-        mtbf: 0,
-        cantidadOperaciones: 0,
-        cantidadEquipos: new Set()
-      });
-    }
-
-    const item = resultadoMap.get(clave);
-    item.horasMtto += horasMtto;
-    item.horasOperacion += horasOperacion;
-    item.cantidadFallas += cantidadFallas;
-    item.cantidadOperaciones += 1;
-    item.cantidadEquipos.add(`${op.equipo}-${op.n_equipo}`);
-
-    const denominador = item.cantidadFallas + 1;
-    if (denominador > 0) {
-      item.mtbf = Number((item.horasOperacion / denominador).toFixed(2));
-    }
-  });
-
-  const resultado = Array.from(resultadoMap.values())
-    .map(item => ({
-      ...item,
-      cantidadEquipos: item.cantidadEquipos.size
-    }))
-    .sort((a, b) => {
-      if (a.año !== b.año) return a.año - b.año;
-      return a.mesNumero - b.mesNumero;
-    });
-
-  //console.log('📊 MTBF POR MES:', resultado);
-  return resultado;
-}
-
-//MTTR-------------------------------------------------------------------------------
-MTTRPorEquipo() {
-  const resultadoMap = new Map<string, any>();
-
-  this.operacionesFiltradas.forEach((op) => {
-    const modeloEquipo = `${op.n_equipo}`; // Usamos solo el código del equipo
-    const HORAS_TOTALES = 12;
-    let horasMtto = 0;
-    let cantidadFallas = 0; // 🔥 CONTADOR DE FALLAS (eventos de mantenimiento)
-
-    const registrosArray = op.registros;
-    if (!Array.isArray(registrosArray)) return;
-
-    for (const registro of registrosArray) {
-      if (registro.estado !== 'MANTENIMIENTO') continue;
-      
-      // 🔥 Acumular horas de mantenimiento
-      const horas = this.calcularDuracionHoras(
-        registro.hora_inicio,
-        registro.hora_final
-      );
-      horasMtto += horas;
-      
-      // 🔥 CONTAR cada registro de mantenimiento como UNA FALLA
-      cantidadFallas++;
-    }
-
-    // Limitar horasMtto al total disponible
-    horasMtto = Math.min(horasMtto, HORAS_TOTALES);
-
-    if (!resultadoMap.has(modeloEquipo)) {
-      resultadoMap.set(modeloEquipo, {
-        equipo: modeloEquipo,
-        nombre: op.equipo,
-        codigo: op.n_equipo,
-        horasMtto: 0,
-        cantidadFallas: 0,
-        mttr: 0,  // 🔥 MTTR = Horas Mtto / Cantidad Fallas
-        cantidadOperaciones: 0
-      });
-    }
-
-    const item = resultadoMap.get(modeloEquipo);
-    item.horasMtto += horasMtto;
-    item.cantidadFallas += cantidadFallas;
-    item.cantidadOperaciones += 1;
-
-    // 🔥 Calcular MTTR = Horas Mtto / Cantidad Fallas (como SI.ERROR)
-    try {
-      if (item.cantidadFallas > 0) {
-        item.mttr = Number((item.horasMtto / item.cantidadFallas).toFixed(2));
-      } else {
-        item.mttr = 0; // Si no hay fallas, MTTR = 0
-      }
-    } catch (error) {
-      item.mttr = 0; // 🔥 como el SI.ERROR
-    }
-  });
-
-  const resultado = Array.from(resultadoMap.values())
-    .sort((a, b) => b.mttr - a.mttr); // Ordenar por mayor MTTR
-
-  //console.log('📊 MTTR POR EQUIPO:', resultado);
-  return resultado;
-}
-
-//GRAFICO - MTTR POR AÑO
-MTTRPorAnio() {
-  const resultadoMap = new Map<string, any>();
-
-  this.operacionesFiltradas.forEach((op) => {
-    if (!op.fecha) return;
-    
-    // 🔥 Extraer el año de la fecha
-    const fecha = new Date(op.fecha);
-    const año = fecha.getFullYear();
-    const clave = `${año}`;
-    
-    const HORAS_TOTALES = 12;
-    let horasMtto = 0;
-    let cantidadFallas = 0;
-
-    const registrosArray = op.registros;
-    if (!Array.isArray(registrosArray)) return;
-
-    for (const registro of registrosArray) {
-      if (registro.estado !== 'MANTENIMIENTO') continue;
-      
-      // 🔥 Acumular horas de mantenimiento
-      const horas = this.calcularDuracionHoras(
-        registro.hora_inicio,
-        registro.hora_final
-      );
-      horasMtto += horas;
-      
-      // 🔥 CONTAR cada registro de mantenimiento como UNA FALLA
-      cantidadFallas++;
-    }
-
-    // Limitar horasMtto al total disponible
-    horasMtto = Math.min(horasMtto, HORAS_TOTALES);
-
-    if (!resultadoMap.has(clave)) {
-      resultadoMap.set(clave, {
-        año: año,
-        horasMtto: 0,
-        cantidadFallas: 0,
-        mttr: 0,
-        cantidadOperaciones: 0,
-        cantidadEquipos: new Set()
-      });
-    }
-
-    const item = resultadoMap.get(clave);
-    item.horasMtto += horasMtto;
-    item.cantidadFallas += cantidadFallas;
-    item.cantidadOperaciones += 1;
-    item.cantidadEquipos.add(`${op.equipo}-${op.n_equipo}`);
-
-    // 🔥 Calcular MTTR = Horas Mtto / Cantidad Fallas (como SI.ERROR)
-    try {
-      if (item.cantidadFallas > 0) {
-        item.mttr = Number((item.horasMtto / item.cantidadFallas).toFixed(2));
-      } else {
-        item.mttr = 0; // Si no hay fallas, MTTR = 0
-      }
-    } catch (error) {
-      item.mttr = 0;
-    }
-  });
-
-  // 🔥 Convertir Set a número y ordenar por año
-  const resultado = Array.from(resultadoMap.values())
-    .map(item => ({
-      ...item,
-      cantidadEquipos: item.cantidadEquipos.size
-    }))
-    .sort((a, b) => a.año - b.año); // Ordenar de menor a mayor año
-
-  //console.log('📊 MTTR POR AÑO:', resultado);
-  return resultado;
-}
-
-//GRAFICO - MTTR POR SEMANA
-MTTRPorSemana() {
-  const resultadoMap = new Map<string, any>();
-
-  this.operacionesFiltradas.forEach((op) => {
-    if (!op.fecha) return;
-    
-    // 🔥 Extraer el número de semana de la fecha
-    const numeroSemana = this.obtenerNumeroSemana(op.fecha);
-    const semanaLabel = `SEM ${numeroSemana}`;
-    
-    const HORAS_TOTALES = 12;
-    let horasMtto = 0;
-    let cantidadFallas = 0;
-
-    const registrosArray = op.registros;
-    if (!Array.isArray(registrosArray)) return;
-
-    for (const registro of registrosArray) {
-      if (registro.estado !== 'MANTENIMIENTO') continue;
-      
-      // 🔥 Acumular horas de mantenimiento
-      const horas = this.calcularDuracionHoras(
-        registro.hora_inicio,
-        registro.hora_final
-      );
-      horasMtto += horas;
-      
-      // 🔥 CONTAR cada registro de mantenimiento como UNA FALLA
-      cantidadFallas++;
-    }
-
-    // Limitar horasMtto al total disponible
-    horasMtto = Math.min(horasMtto, HORAS_TOTALES);
-
-    if (!resultadoMap.has(semanaLabel)) {
-      resultadoMap.set(semanaLabel, {
-        semana: semanaLabel,
-        numeroSemana: numeroSemana,
-        horasMtto: 0,
-        cantidadFallas: 0,
-        mttr: 0,
-        cantidadOperaciones: 0,
-        cantidadEquipos: new Set()
-      });
-    }
-
-    const item = resultadoMap.get(semanaLabel);
-    item.horasMtto += horasMtto;
-    item.cantidadFallas += cantidadFallas;
-    item.cantidadOperaciones += 1;
-    item.cantidadEquipos.add(`${op.equipo}-${op.n_equipo}`);
-
-    // 🔥 Calcular MTTR = Horas Mtto / Cantidad Fallas (como SI.ERROR)
-    try {
-      if (item.cantidadFallas > 0) {
-        item.mttr = Number((item.horasMtto / item.cantidadFallas).toFixed(2));
-      } else {
-        item.mttr = 0; // Si no hay fallas, MTTR = 0
-      }
-    } catch (error) {
-      item.mttr = 0;
-    }
-  });
-
-  // 🔥 Convertir Set a número y ordenar por número de semana
-  const resultado = Array.from(resultadoMap.values())
-    .map(item => ({
-      ...item,
-      cantidadEquipos: item.cantidadEquipos.size
-    }))
-    .sort((a, b) => a.numeroSemana - b.numeroSemana); // Ordenar por semana
-
-  //console.log('📊 MTTR POR SEMANA:', resultado);
-  return resultado;
-}
-
-//GRAFICO - MTTR POR MES Y AÑO
-MTTRPorMes() {
-  const resultadoMap = new Map<string, any>();
-
-  // 🔥 Nombres de meses
-  const nombresMeses = [
-    'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
-    'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'
-  ];
-
-  this.operacionesFiltradas.forEach((op) => {
-    if (!op.fecha) return;
-
-    // 🔥 Fecha
-    const fecha = new Date(op.fecha);
-    const año = fecha.getFullYear();
-    const mesNumero = fecha.getMonth() + 1;
-    const nombreMes = nombresMeses[mesNumero - 1];
-    const clave = `${año}-${mesNumero.toString().padStart(2, '0')}`;
-
-    const HORAS_TOTALES = 12;
-    let horasMtto = 0;
-    let cantidadFallas = 0;
-
-    const registrosArray = op.registros;
-    if (!Array.isArray(registrosArray)) return;
-
-    for (const registro of registrosArray) {
-      if (registro.estado !== 'MANTENIMIENTO') continue;
-      
-      // 🔥 Acumular horas de mantenimiento
-      const horas = this.calcularDuracionHoras(
-        registro.hora_inicio,
-        registro.hora_final
-      );
-      horasMtto += horas;
-      
-      // 🔥 CONTAR cada registro de mantenimiento como UNA FALLA
-      cantidadFallas++;
-    }
-
-    // Limitar horasMtto al total disponible
-    horasMtto = Math.min(horasMtto, HORAS_TOTALES);
-
-    if (!resultadoMap.has(clave)) {
-      resultadoMap.set(clave, {
-        // 🔥 Datos de fecha
-        mes: nombreMes,
-        año: año,
-        mesNumero: mesNumero,
-        
-        // 🔥 Resultado principal
-        mttr: 0,
-        
-        // 🔥 Datos auxiliares
-        horasMtto: 0,
-        cantidadFallas: 0,
-        cantidadOperaciones: 0,
-        cantidadEquipos: new Set()
-      });
-    }
-
-    const item = resultadoMap.get(clave);
-    item.horasMtto += horasMtto;
-    item.cantidadFallas += cantidadFallas;
-    item.cantidadOperaciones += 1;
-    item.cantidadEquipos.add(`${op.equipo}-${op.n_equipo}`);
-
-    // 🔥 Calcular MTTR = Horas Mtto / Cantidad Fallas
-    if (item.cantidadFallas > 0) {
-      item.mttr = Number((item.horasMtto / item.cantidadFallas).toFixed(2));
-    }
-  });
-
-  // 🔥 Convertir Set a número y ordenar por año y mes
-  const resultado = Array.from(resultadoMap.values())
-    .map(item => ({
-      ...item,
-      cantidadEquipos: item.cantidadEquipos.size
-    }))
-    .sort((a, b) => {
-      if (a.año !== b.año) return a.año - b.año;
-      return a.mesNumero - b.mesNumero;
-    });
-
-  //console.log('📊 MTTR POR MES:', resultado);
-  return resultado;
-}
-
-//IMPORTAR EXCEL:
-async ImportarExcel() {
-
-  const input = document.createElement('input');
-
-  input.type = 'file';
-
-  input.accept = '.xlsx,.xls';
-
-  input.onchange = async (event: any) => {
-
-    const file = event.target.files[0];
-
-    if (!file) return;
-
-    try {
-
-      this.importandoExcel = true;
-
-      // 🔥 LEER Y MAPEAR
-      const jsonFinal = await this.excelImportService.leerExcel(file);
-
-      console.log('📦 JSON FINAL:', jsonFinal);
-
-      // 🔥 ENVIAR
-      this.operacionesService
-        .crear('carguio', jsonFinal)
-        .subscribe({
-
-          next: (resp) => {
-
-            console.log('✅ Importación exitosa', resp);
-
-            alert('Excel importado correctamente');
-
-            this.cargarOperaciones();
-
-            this.importandoExcel = false;
-          },
-
-          error: (err) => {
-
-            console.error('❌ Error importando', err);
-
-            alert('Error al importar Excel');
-
-            this.importandoExcel = false;
-          }
-        });
-
-    } catch (error) {
-
-      console.error('❌ Error leyendo Excel', error);
-
-      alert('Error leyendo Excel');
-
-      this.importandoExcel = false;
-    }
-  };
-
-  input.click();
-}
-
 }
