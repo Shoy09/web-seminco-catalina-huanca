@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -8,22 +8,11 @@ import { CommonModule } from '@angular/common';
   templateUrl: './mtbf-equipo.component.html',
   styleUrl: './mtbf-equipo.component.css'
 })
-export class MtbfEquipoComponent implements OnInit {
+export class MtbfEquipoComponent implements OnInit, OnChanges {
 
-  // Datos de equipos con MTBF (Mean Time Between Failures - Tiempo Medio Entre Fallas)
-  readonly datosMTBF = [
-    { equipo: 'ST22', mtbf: 245.5 },
-    { equipo: 'ST23', mtbf: 189.3 },
-    { equipo: 'ST24', mtbf: 312.8 },
-    { equipo: 'ST25', mtbf: 156.2 },
-    { equipo: 'ST26', mtbf: 278.4 },
-    { equipo: 'ST27', mtbf: 198.7 },
-    { equipo: 'ST28', mtbf: 334.1 },
-    { equipo: 'ST29', mtbf: 167.9 },
-    { equipo: 'ST30', mtbf: 223.6 },
-    { equipo: 'ST31', mtbf: 145.3 }
-  ];
+  @Input() data: any[] = [];
 
+  datosMTBF: any[] = [];
   displayedData: any[] = [];
   paginatedData: any[] = [];
   
@@ -34,8 +23,41 @@ export class MtbfEquipoComponent implements OnInit {
   pageNumbers: number[] = [];
 
   ngOnInit(): void {
-    // Ordenar datos por MTBF de mayor a menor
-    this.displayedData = [...this.datosMTBF].sort((a, b) => b.mtbf - a.mtbf);
+    this.procesarDatos();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['data']) {
+      this.procesarDatos();
+    }
+  }
+
+  procesarDatos(): void {
+    if (!this.data || this.data.length === 0) {
+      this.datosMTBF = [];
+      this.displayedData = [];
+      this.paginatedData = [];
+      this.totalPages = 1;
+      this.pageNumbers = [];
+      return;
+    }
+
+    // Mapear los datos: usar codigo o equipo como nombre, mtbf como valor
+    this.datosMTBF = this.data
+      .map(item => ({
+        equipo: item.codigo || item.equipo || 'Sin datos',
+        mtbf: item.mtbf || 0,
+        // Guardar datos adicionales para tooltip
+        nombre: item.nombre || '',
+        horasOperacion: item.horasOperacion || 0,
+        horasMtto: item.horasMtto || 0,
+        cantidadFallas: item.cantidadFallas || 0,
+        cantidadOperaciones: item.cantidadOperaciones || 0
+      }))
+      .sort((a, b) => b.mtbf - a.mtbf); // Ordenar de mayor a menor MTBF
+
+    this.displayedData = [...this.datosMTBF];
+    this.currentPage = 1;
     this.calculateTotalPages();
     this.updatePaginatedData();
   }
@@ -60,11 +82,11 @@ export class MtbfEquipoComponent implements OnInit {
   }
 
   get totalMTBF(): number {
-    return this.displayedData.reduce((sum, item) => sum + item.mtbf, 0);
+    return this.displayedData.reduce((sum, item) => sum + (item.mtbf || 0), 0);
   }
 
   get averageMTBF(): number {
-    return this.totalMTBF / this.displayedData.length;
+    return this.displayedData.length > 0 ? this.totalMTBF / this.displayedData.length : 0;
   }
 
   previousPage(): void {

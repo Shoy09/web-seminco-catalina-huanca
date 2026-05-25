@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -27,27 +27,61 @@ echarts.use([
   templateUrl: './mtbf-semanas.component.html',
   styleUrl: './mtbf-semanas.component.css'
 })
-export class MtbfSemanasComponent implements OnInit {
+export class MtbfSemanasComponent implements OnInit, OnChanges {
+
+  @Input() data: any[] = [];
 
   chartOptions: any = {};
 
-  // Datos de MTBF por semana
-  readonly datosMTBFSemanas = [
-    { semana: 'Semana 1', mtbf: 245.5 },
-    { semana: 'Semana 2', mtbf: 268.3 },
-    { semana: 'Semana 3', mtbf: 312.8 },
-  ];
+  datosMtbfSemanas: any[] = [];
 
   ngOnInit(): void {
+    this.procesarDatos();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['data']) {
+      this.procesarDatos();
+    }
+  }
+
+  procesarDatos(): void {
+    if (!this.data || this.data.length === 0) {
+      this.datosMtbfSemanas = [];
+      this.chartOptions = {};
+      return;
+    }
+
+    // Mapear los datos: semana, mtbf como valor
+    // Ordenar por número de semana
+    this.datosMtbfSemanas = this.data
+      .map(item => ({
+        semana: item.semana || `Semana ${item.numeroSemana || '?'}`,
+        numeroSemana: item.numeroSemana || 0,
+        mtbf: item.mtbf || 0,
+        // Guardar datos adicionales para tooltip
+        cantidadEquipos: item.cantidadEquipos || 0,
+        cantidadFallas: item.cantidadFallas || 0,
+        cantidadOperaciones: item.cantidadOperaciones || 0,
+        horasOperacion: item.horasOperacion || 0,
+        horasMtto: item.horasMtto || 0
+      }))
+      .sort((a, b) => a.numeroSemana - b.numeroSemana);
+
     this.actualizarGrafico();
   }
 
   actualizarGrafico(): void {
+    if (!this.datosMtbfSemanas.length) {
+      this.chartOptions = {};
+      return;
+    }
+
     // Nombres de semanas para el eje X
-    const semanas = this.datosMTBFSemanas.map(item => item.semana);
+    const semanas = this.datosMtbfSemanas.map(item => item.semana);
     
     // Valores de MTBF
-    const valores = this.datosMTBFSemanas.map(item => item.mtbf);
+    const valores = this.datosMtbfSemanas.map(item => item.mtbf);
     
     // Calcular máximo y mínimo para escala dinámica
     const maxValor = Math.max(...valores);
@@ -75,18 +109,22 @@ export class MtbfSemanasComponent implements OnInit {
         },
         formatter: (params: any) => {
           const data = params[0];
-          const item = this.datosMTBFSemanas[data.dataIndex];
+          const index = data.dataIndex;
+          const item = this.datosMtbfSemanas[index];
           
-          // Determinar nivel de confiabilidad
+          // Determinar nivel de confiabilidad (MTBF más alto es mejor)
           let nivel = '';
           let colorNivel = '';
-          if (data.value >= 330) {
+          if (item.mtbf === 0) {
+            nivel = 'Sin Datos ⚠️';
+            colorNivel = '#95a5a6';
+          } else if (item.mtbf >= 330) {
             nivel = 'Excelente ✅';
             colorNivel = '#2ecc71';
-          } else if (data.value >= 300) {
+          } else if (item.mtbf >= 300) {
             nivel = 'Bueno 👍';
             colorNivel = '#3498db';
-          } else if (data.value >= 270) {
+          } else if (item.mtbf >= 270) {
             nivel = 'Regular ⚠️';
             colorNivel = '#f39c12';
           } else {
@@ -95,12 +133,20 @@ export class MtbfSemanasComponent implements OnInit {
           }
           
           return `
-            <strong>${item.semana}</strong><br/>
+            <strong>📅 ${item.semana}</strong><br/>
             <hr style="margin: 4px 0;"/>
             <span style="color:#3498db; font-weight:bold;">●</span>
             MTBF: <strong>${data.value.toFixed(1)}</strong> horas<br/>
             <span style="color:${colorNivel}; font-weight:bold;">●</span>
-            Confiabilidad: <strong>${nivel}</strong>
+            Confiabilidad: <strong>${nivel}</strong><br/>
+            <span style="color:#9b59b6; font-weight:bold;">●</span>
+            Equipos: <strong>${item.cantidadEquipos}</strong><br/>
+            <span style="color:#e67e22; font-weight:bold;">●</span>
+            Fallas: <strong>${item.cantidadFallas}</strong><br/>
+            <span style="color:#1abc9c; font-weight:bold;">●</span>
+            Operaciones: <strong>${item.cantidadOperaciones}</strong><br/>
+            <span style="color:#f39c12; font-weight:bold;">●</span>
+            Horas Operación: <strong>${item.horasOperacion}</strong> hrs
           `;
         }
       },
@@ -162,7 +208,7 @@ export class MtbfSemanasComponent implements OnInit {
           data: valores.map((valor) => ({
             value: valor,
             itemStyle: {
-              color: this.getColorByMTBF(valor)
+              color: this.getColorByMtbf(valor)
             }
           })),
           itemStyle: {
@@ -197,11 +243,12 @@ export class MtbfSemanasComponent implements OnInit {
     };
   }
 
-  // Color según el valor del MTBF
-  private getColorByMTBF(valor: number): string {
-    if (valor >= 330) return '#2ecc71';   // Verde - Excelente
-    if (valor >= 300) return '#3498db';   // Azul - Bueno
-    if (valor >= 270) return '#f39c12';   // Naranja - Regular
-    return '#e74c3c';                     // Rojo - Crítico
+  // Color según el valor del MTBF (más alto es mejor)
+  private getColorByMtbf(valor: number): string {
+    if (valor === 0) return '#95a5a6';      // Gris - Sin datos/Sin fallas
+    if (valor >= 330) return '#2ecc71';     // Verde - Excelente
+    if (valor >= 300) return '#3498db';     // Azul - Bueno
+    if (valor >= 270) return '#f39c12';     // Naranja - Regular
+    return '#e74c3c';                        // Rojo - Crítico
   }
 }

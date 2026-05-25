@@ -1,27 +1,31 @@
 <div class="table-container">
-  <h3 class="table-title">MTTE POR EQUIPO</h3>
+  <h3 class="table-title">MTTR POR EQUIPO</h3>
   
   <div class="table-responsive">
     <table class="data-table">
       <thead>
         <tr>
           <th>Equipo</th>
-          <th>mtte (horas)</th>
+          <th>MTTR</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let item of paginatedData">
           <td class="equipo-cell">{{ item.equipo }}</td>
-          <td class="mtte-cell">{{ item.mtte | number:'1.1-1' }}</td>
-        </tr>
-        <tr class="total-row">
-          <td class="total-label"><strong>TOTAL</strong></td>
-          <td class="total-value">
-            <strong>{{ totalmtte | number:'1.1-1' }}</strong>
+          <td class="mttr-cell">
+            {{ item.mttr | number:'1.1-1' }}
+            <span class="mttr-unit"></span>
           </td>
         </tr>
+        <tr class="total-row">
+          <td class="total-label"><strong>TOTAL / PROMEDIO</strong></td>
+          <td class="total-value">
+            <strong>{{ totalMttr | number:'1.1-1' }}</strong>
+            <span class="average">(Prom: {{ averageMttr | number:'1.1-1' }})</span>
+          </td>
+         </tr>
         <tr *ngIf="paginatedData.length === 0">
-          <td colspan="2" class="no-data">No hay datos de mtte registrados</td>
+          <td colspan="2" class="no-data">No hay datos de MTTR registrados</td>
         </tr>
       </tbody>
     </table>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -27,37 +27,70 @@ echarts.use([
   templateUrl: './mttr-semanas.component.html',
   styleUrl: './mttr-semanas.component.css'
 })
-export class MttrSemanasComponent implements OnInit {
+export class MttrSemanasComponent implements OnInit, OnChanges {
+
+  @Input() data: any[] = [];
 
   chartOptions: any = {};
 
-  // Datos de mtte por semana
-  readonly datosmtteSemanas = [
-    { semana: 'Semana 1', mtte: 245.5 },
-    { semana: 'Semana 2', mtte: 268.3 },
-    { semana: 'Semana 3', mtte: 312.8 },
-  ];
+  datosMttrSemanas: any[] = [];
 
   ngOnInit(): void {
+    this.procesarDatos();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['data']) {
+      this.procesarDatos();
+    }
+  }
+
+  procesarDatos(): void {
+    if (!this.data || this.data.length === 0) {
+      this.datosMttrSemanas = [];
+      this.chartOptions = {};
+      return;
+    }
+
+    // Mapear los datos: semana, mttr como valor
+    // Ordenar por número de semana
+    this.datosMttrSemanas = this.data
+      .map(item => ({
+        semana: item.semana || `Semana ${item.numeroSemana || '?'}`,
+        numeroSemana: item.numeroSemana || 0,
+        mttr: item.mttr || 0,
+        // Guardar datos adicionales para tooltip
+        cantidadEquipos: item.cantidadEquipos || 0,
+        cantidadFallas: item.cantidadFallas || 0,
+        cantidadOperaciones: item.cantidadOperaciones || 0,
+        horasMtto: item.horasMtto || 0
+      }))
+      .sort((a, b) => a.numeroSemana - b.numeroSemana);
+
     this.actualizarGrafico();
   }
 
   actualizarGrafico(): void {
+    if (!this.datosMttrSemanas.length) {
+      this.chartOptions = {};
+      return;
+    }
+
     // Nombres de semanas para el eje X
-    const semanas = this.datosmtteSemanas.map(item => item.semana);
+    const semanas = this.datosMttrSemanas.map(item => item.semana);
     
-    // Valores de mtte
-    const valores = this.datosmtteSemanas.map(item => item.mtte);
+    // Valores de MTTR
+    const valores = this.datosMttrSemanas.map(item => item.mttr);
     
     // Calcular máximo y mínimo para escala dinámica
     const maxValor = Math.max(...valores);
     const minValor = Math.min(...valores);
-    const escalaMax = Math.ceil(maxValor / 50) * 50;
-    const escalaMin = Math.floor(minValor / 50) * 50;
+    const escalaMax = Math.ceil(maxValor / 10) * 10;
+    const escalaMin = Math.floor(minValor / 10) * 10;
 
     this.chartOptions = {
       title: {
-        text: 'MTTE POR SEMANA',
+        text: 'MTTR POR SEMANA',
         left: 'center',
         top: 10,
         textStyle: {
@@ -75,18 +108,22 @@ export class MttrSemanasComponent implements OnInit {
         },
         formatter: (params: any) => {
           const data = params[0];
-          const item = this.datosmtteSemanas[data.dataIndex];
+          const index = data.dataIndex;
+          const item = this.datosMttrSemanas[index];
           
-          // Determinar nivel de confiabilidad
+          // Determinar nivel según MTTR (menor es mejor)
           let nivel = '';
           let colorNivel = '';
-          if (data.value >= 330) {
+          if (item.mttr === 0) {
+            nivel = 'Sin Fallas ✅';
+            colorNivel = '#2ecc71';
+          } else if (item.mttr <= 12) {
             nivel = 'Excelente ✅';
             colorNivel = '#2ecc71';
-          } else if (data.value >= 300) {
+          } else if (item.mttr <= 24) {
             nivel = 'Bueno 👍';
             colorNivel = '#3498db';
-          } else if (data.value >= 270) {
+          } else if (item.mttr <= 48) {
             nivel = 'Regular ⚠️';
             colorNivel = '#f39c12';
           } else {
@@ -95,12 +132,20 @@ export class MttrSemanasComponent implements OnInit {
           }
           
           return `
-            <strong>${item.semana}</strong><br/>
+            <strong>📅 ${item.semana}</strong><br/>
             <hr style="margin: 4px 0;"/>
             <span style="color:#3498db; font-weight:bold;">●</span>
-            mtte: <strong>${data.value.toFixed(1)}</strong> horas<br/>
+            MTTR: <strong>${data.value.toFixed(1)}</strong> horas<br/>
             <span style="color:${colorNivel}; font-weight:bold;">●</span>
-            Confiabilidad: <strong>${nivel}</strong>
+            Nivel: <strong>${nivel}</strong><br/>
+            <span style="color:#9b59b6; font-weight:bold;">●</span>
+            Equipos: <strong>${item.cantidadEquipos}</strong><br/>
+            <span style="color:#e67e22; font-weight:bold;">●</span>
+            Fallas: <strong>${item.cantidadFallas}</strong><br/>
+            <span style="color:#1abc9c; font-weight:bold;">●</span>
+            Operaciones: <strong>${item.cantidadOperaciones}</strong><br/>
+            <span style="color:#e74c3c; font-weight:bold;">●</span>
+            Horas Mtto: <strong>${item.horasMtto}</strong> hrs
           `;
         }
       },
@@ -137,7 +182,7 @@ export class MttrSemanasComponent implements OnInit {
 
       yAxis: {
         type: 'value',
-        name: 'mtte (horas)',
+        name: 'MTTR (horas)',
         nameLocation: 'middle',
         nameGap: 45,
         min: escalaMin > 0 ? escalaMin : 0,
@@ -156,13 +201,13 @@ export class MttrSemanasComponent implements OnInit {
 
       series: [
         {
-          name: 'mtte',
+          name: 'MTTR',
           type: 'bar',
           barWidth: '60%',
           data: valores.map((valor) => ({
             value: valor,
             itemStyle: {
-              color: this.getColorBymtte(valor)
+              color: this.getColorByMttr(valor)
             }
           })),
           itemStyle: {
@@ -176,7 +221,7 @@ export class MttrSemanasComponent implements OnInit {
             position: 'top',
             fontWeight: 'bold',
             fontSize: 10,
-            formatter: (params: any) => params.value.toFixed(0),
+            formatter: (params: any) => params.value.toFixed(1),
             color: '#333'
           },
           emphasis: {
@@ -197,11 +242,12 @@ export class MttrSemanasComponent implements OnInit {
     };
   }
 
-  // Color según el valor del mtte
-  private getColorBymtte(valor: number): string {
-    if (valor >= 330) return '#2ecc71';   // Verde - Excelente
-    if (valor >= 300) return '#3498db';   // Azul - Bueno
-    if (valor >= 270) return '#f39c12';   // Naranja - Regular
-    return '#e74c3c';                     // Rojo - Crítico
+  // Color según el valor del MTTR (menor es mejor)
+  private getColorByMttr(valor: number): string {
+    if (valor === 0) return '#2ecc71';      // Verde - Sin fallas
+    if (valor <= 12) return '#2ecc71';      // Verde - Excelente
+    if (valor <= 24) return '#3498db';      // Azul - Bueno
+    if (valor <= 48) return '#f39c12';      // Naranja - Regular
+    return '#e74c3c';                        // Rojo - Crítico
   }
 }
