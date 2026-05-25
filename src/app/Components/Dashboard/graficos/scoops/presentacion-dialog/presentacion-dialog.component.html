@@ -165,6 +165,33 @@
   </div>
 </div>
 
+<!-- HOJA 5: Rankings por Guardia -->
+<div *ngIf="hojaActual === 'hoja5'" class="hoja-content">
+  
+  <!-- Rankings de Guardia (2 en 2) -->
+  <div class="graficos-wrapper two-columns">
+    <div class="graph-card">
+      <app-ranking-disponibilidad-guardia [data]="DataDisponiblidadPorGuardia"></app-ranking-disponibilidad-guardia>
+    </div>
+    
+    <div class="graph-card">
+      <app-mineral-guardia [data]="DataMineralGuardia"></app-mineral-guardia>
+    </div>
+  </div>
+
+  <!-- Rankings de Rendimiento y Utilización (2 en 2) -->
+  <div class="graficos-wrapper two-columns">
+    <div class="graph-card">
+      <app-ranking-rendimiento-guardia [data]="DataRendimientoPorGuardia"></app-ranking-rendimiento-guardia>
+    </div>
+    
+    <div class="graph-card">
+      <app-ranking-utilizacion-guardia [data]="DataUtilizacionGuardia"></app-ranking-utilizacion-guardia>
+    </div>
+  </div>
+
+</div>
+
 <!-- HOJA 6: Pareto No Programadas -->
 <div *ngIf="hojaActual === 'hoja6'" class="hoja-content">
        <!-- Gráfico de ancho completo (1 columna) -->
