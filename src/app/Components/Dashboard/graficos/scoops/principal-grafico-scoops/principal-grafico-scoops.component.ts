@@ -130,9 +130,8 @@ DataprocesarEquiposConCapacidad: any[] = [];
 DataRendimientoPorMes: any[] = [];
 DataRendimientoPorDia: any[] = [];
 DataDisponibilidadPorOperador: any[] = [];
+
 DataRendimientoPorOperador: any[] = [];
-
-
 DataHorasPorObservacion: any[] = [];
 DataHorasDemoraPorCodigoCompleto: any[] = [];
 
@@ -144,6 +143,11 @@ DataMTTRPorEquipo: any[] = [];
 DataMTTRPorAnio: any[] = [];
 DataMTTRPorSemanas: any[] = [];
 DataMTTRPorMes: any[] = [];
+
+DataDisponiblidadPorGuardia: any[] = [];
+DataRendimientoPorGuardia: any[] = [];
+DataMineralGuardia: any[] = [];
+DataUtilizacionGuardia: any[] = [];
 
   estadosProceso: any[] = [];
 vistaPrincipal: boolean = true;
@@ -325,17 +329,13 @@ mapaEstados: Map<string, any> = new Map();
   this.DataRendimientoPorMes = this.RendimientoPorMes();
   this.DataRendimientoPorDia = this.RendimientoPorDia();
   //RANKING OPERADOR
-  this.DataDisponibilidadPorOperador = this.DisponibilidadPorOperador();
-  this.DataRendimientoPorOperador = this.RendimientoPorOperador();
-
-
-  //DIS_PARETO DETALLE
+   //DIS_PARETO DETALLE
   this.DataHorasPorObservacion = this.HorasPorObservacion();
 
   //UTIL_PARETO DETALLE
   this.DataHorasDemoraPorCodigoCompleto = this.HorasDemoraPorCodigoCompleto();
 
-
+  // MTBF - MTTR
   this.DataMTBFPorEquipo = this.MTBFPorEquipo();
   this.DataMTBFPorAnio = this.MTBFPorAnio();
   this.DataMTBFPorSemanas = this.MTBFPorSemana();
@@ -344,6 +344,12 @@ mapaEstados: Map<string, any> = new Map();
   this.DataMTTRPorAnio = this.MTTRPorAnio();
   this.DataMTTRPorSemanas = this.MTTRPorSemana();
   this.DataMTTRPorMes = this.MTTRPorMes();
+
+  // Ranking Guardia
+  this.DataDisponiblidadPorGuardia = this.DisponibilidadPorGuardia();
+  this.DataRendimientoPorGuardia = this.RendimientoPorGuardia();
+  this.DataMineralGuardia = this.MineralGuardia();
+  this.DataUtilizacionGuardia = this.UtilizacionGuardia();
 
 }
 
@@ -2292,6 +2298,386 @@ HorasPorObservacion() {
     }));
   
   //console.log('📊 HORAS POR OBSERVACIÓN:', resultado);
+  return resultado;
+}
+DisponibilidadPorGuardia() {
+  const resultadoMap = new Map<string, any>();
+
+  this.operacionesFiltradas.forEach((op) => {
+    const guardia = op.seccion || 'SIN GUARDIA';
+    const key = guardia;
+
+    const registrosArray = op.registros;
+
+    if (!Array.isArray(registrosArray)) return;
+
+    let horasTotalesOperacion = 0;
+    let horasMttoOperacion = 0;
+
+    for (const registro of registrosArray) {
+      if (!registro.hora_inicio || !registro.hora_final) continue;
+
+      const horas = this.calcularDuracionHoras(
+        registro.hora_inicio,
+        registro.hora_final
+      );
+
+      if (!horas || horas <= 0) continue;
+
+      // Suma todas las horas del registro
+      horasTotalesOperacion += horas;
+
+      // Solo suma como mantenimiento si el estado es MANTENIMIENTO
+      if ((registro.estado || '').trim().toUpperCase() === 'MANTENIMIENTO') {
+        horasMttoOperacion += horas;
+      }
+    }
+
+    if (!resultadoMap.has(key)) {
+      resultadoMap.set(key, {
+        guardia: key,
+        horasTotales: 0,
+        horasMtto: 0,
+        horasOperativas: 0,
+        disponibilidad: 0,
+        cantidadOperaciones: 0
+      });
+    }
+
+    const item = resultadoMap.get(key);
+
+    item.horasTotales += horasTotalesOperacion;
+    item.horasMtto += horasMttoOperacion;
+    item.horasOperativas = item.horasTotales - item.horasMtto;
+    item.cantidadOperaciones += 1;
+  });
+
+  const resultado = Array.from(resultadoMap.values()).map((item) => {
+    if (item.horasTotales > 0) {
+      const disponibilidad =
+        ((item.horasTotales - item.horasMtto) / item.horasTotales) * 100;
+
+      item.disponibilidad = Number(disponibilidad.toFixed(2));
+      item.horasTotales = Number(item.horasTotales.toFixed(2));
+      item.horasMtto = Number(item.horasMtto.toFixed(2));
+      item.horasOperativas = Number(item.horasOperativas.toFixed(2));
+    } else {
+      item.disponibilidad = 0;
+    }
+
+    return item;
+  });
+
+  resultado.sort((a, b) => b.disponibilidad - a.disponibilidad);
+
+  console.log('📊 DISPONIBILIDAD POR GUARDIA:', resultado);
+
+  return resultado;
+}
+RendimientoPorGuardia() {
+  const resultadoMap = new Map<string, any>();
+
+  const CODIGOS_OPERATIVOS = ['101', '102', '105', '106', '108'];
+
+  this.operacionesFiltradas.forEach((op) => {
+    const guardia = op.seccion || 'SIN GUARDIA';
+    const key = guardia;
+
+    const registrosArray = op.registros;
+
+    if (!Array.isArray(registrosArray)) return;
+
+    const codigoEquipo = (op.n_equipo || '').trim().toUpperCase();
+
+    const equipoProceso = this.equiposProceso.find((equipo: any) => {
+      const codigo = (equipo.codigo || '').trim().toUpperCase();
+      const modelo = (equipo.modelo || '').trim().toUpperCase();
+
+      return codigo === codigoEquipo || modelo === codigoEquipo;
+    });
+
+    if (!resultadoMap.has(key)) {
+      resultadoMap.set(key, {
+        guardia: key,
+        horasOperativas: 0,
+        tnTotalAjustado: 0,
+        rendimiento: 0,
+        cantidadOperaciones: 0,
+        cantidadRegistrosProductivos: 0
+      });
+    }
+
+    const item = resultadoMap.get(key);
+
+    item.cantidadOperaciones += 1;
+
+    for (const registro of registrosArray) {
+      const codigo = String(registro.codigo || '').trim();
+
+      if (!CODIGOS_OPERATIVOS.includes(codigo)) continue;
+
+      const horas = this.calcularDuracionHoras(
+        registro.hora_inicio,
+        registro.hora_final
+      );
+
+      if (!horas || horas <= 0) continue;
+
+      item.horasOperativas += horas;
+      item.cantidadRegistrosProductivos += 1;
+
+      const operacion = registro.operacion || {};
+
+      const nCucharas = Number(
+        operacion.n_cucharas ??
+        operacion.num_cucharas ??
+        0
+      );
+
+      const material = String(operacion.material || '')
+        .trim()
+        .toUpperCase();
+
+      let toneladasPorCuchara = 0;
+
+      if (equipoProceso) {
+        if (material === 'MINERAL') {
+          toneladasPorCuchara = Number(equipoProceso.capacidad_tonelada || 0);
+        } else if (material === 'DESMONTE') {
+          toneladasPorCuchara = Number(equipoProceso.capacidad_tonelada_desmonte || 0);
+        }
+      }
+
+      const tnAjustado = nCucharas * toneladasPorCuchara;
+
+      item.tnTotalAjustado += tnAjustado;
+    }
+  });
+
+  const resultado = Array.from(resultadoMap.values()).map((item) => {
+    if (item.horasOperativas > 0) {
+      const rendimiento = item.tnTotalAjustado / item.horasOperativas;
+
+      item.rendimiento = Number(rendimiento.toFixed(2));
+      item.horasOperativas = Number(item.horasOperativas.toFixed(2));
+      item.tnTotalAjustado = Number(item.tnTotalAjustado.toFixed(2));
+    } else {
+      item.rendimiento = 0;
+      item.horasOperativas = 0;
+      item.tnTotalAjustado = Number(item.tnTotalAjustado.toFixed(2));
+    }
+
+    return item;
+  });
+
+  resultado.sort((a, b) => b.rendimiento - a.rendimiento);
+
+  console.log('📊 RENDIMIENTO POR GUARDIA:', resultado);
+
+  return resultado;
+}
+
+MineralGuardia() {
+  const resultadoMap = new Map<string, any>();
+
+  const CODIGOS_OPERATIVOS = ['101', '102', '105', '106', '108'];
+
+  this.operacionesFiltradas.forEach((op) => {
+    const guardia = op.seccion || 'SIN GUARDIA';
+
+    const key = guardia;
+
+    const registrosArray = op.registros;
+
+    if (!Array.isArray(registrosArray)) return;
+
+    const codigoEquipo = String(op.n_equipo || '')
+      .trim()
+      .toUpperCase();
+
+    const modeloEquipo = String(op.modelo_equipo || '')
+      .trim()
+      .toUpperCase();
+
+    const equipoProceso = this.equiposProceso.find((equipo: any) => {
+      const codigo = String(equipo.codigo || '').trim().toUpperCase();
+      const modelo = String(equipo.modelo || '').trim().toUpperCase();
+
+      return (
+        codigo === codigoEquipo ||
+        modelo === codigoEquipo ||
+        modelo === modeloEquipo
+      );
+    });
+
+    if (!resultadoMap.has(key)) {
+      resultadoMap.set(key, {
+        guardia,
+        tnMineralAjustado: 0,
+        horasOperativasMineral: 0,
+        cantidadCucharasMineral: 0,
+        cantidadOperaciones: 0,
+        cantidadRegistrosMineral: 0
+      });
+    }
+
+    const item = resultadoMap.get(key);
+
+    item.cantidadOperaciones += 1;
+
+    for (const registro of registrosArray) {
+      const codigo = String(registro.codigo || '').trim();
+
+      if (!CODIGOS_OPERATIVOS.includes(codigo)) continue;
+
+      const operacion = registro.operacion || {};
+
+      const material = String(operacion.material || '')
+        .trim()
+        .toUpperCase();
+
+      if (material !== 'MINERAL') continue;
+
+      const horas = this.calcularDuracionHoras(
+        registro.hora_inicio,
+        registro.hora_final
+      );
+
+      if (!horas || horas <= 0) continue;
+
+      const nCucharas = Number(
+        operacion.n_cucharas ??
+        operacion.num_cucharas ??
+        0
+      );
+
+      let toneladasPorCuchara = 0;
+
+      if (equipoProceso) {
+        toneladasPorCuchara = Number(equipoProceso.capacidad_tonelada || 0);
+      }
+
+      const tnMineral = nCucharas * toneladasPorCuchara;
+
+      item.tnMineralAjustado += tnMineral;
+      item.horasOperativasMineral += horas;
+      item.cantidadCucharasMineral += nCucharas;
+      item.cantidadRegistrosMineral += 1;
+    }
+  });
+
+  const resultado = Array.from(resultadoMap.values()).map((item) => {
+    item.tnMineralAjustado = Number(item.tnMineralAjustado.toFixed(2));
+    item.horasOperativasMineral = Number(item.horasOperativasMineral.toFixed(2));
+
+    if (item.horasOperativasMineral > 0) {
+      item.rendimientoMineral = Number(
+        (item.tnMineralAjustado / item.horasOperativasMineral).toFixed(2)
+      );
+    } else {
+      item.rendimientoMineral = 0;
+    }
+
+    return item;
+  });
+
+  resultado.sort((a, b) => b.tnMineralAjustado - a.tnMineralAjustado);
+
+  console.log('📊 MINERAL POR GUARDIA:', resultado);
+
+  return resultado;
+}
+
+UtilizacionGuardia() {
+  const resultadoMap = new Map<string, any>();
+
+  const CODIGOS_OPERATIVOS = ['101', '102', '105', '106', '108'];
+
+  this.operacionesFiltradas.forEach((op) => {
+    const guardia = op.seccion || 'SIN GUARDIA';
+
+    const key = guardia;
+
+    const registrosArray = op.registros;
+
+    if (!Array.isArray(registrosArray)) return;
+
+    if (!resultadoMap.has(key)) {
+      resultadoMap.set(key, {
+        guardia,
+        horasTotales: 0,
+        horasMtto: 0,
+        horasDisponibles: 0,
+        horasOperativas: 0,
+        utilizacion: 0,
+        cantidadOperaciones: 0,
+        cantidadRegistrosOperativos: 0,
+        cantidadRegistrosMtto: 0
+      });
+    }
+
+    const item = resultadoMap.get(key);
+
+    item.cantidadOperaciones += 1;
+
+    for (const registro of registrosArray) {
+      if (!registro.hora_inicio || !registro.hora_final) continue;
+
+      const horas = this.calcularDuracionHoras(
+        registro.hora_inicio,
+        registro.hora_final
+      );
+
+      if (!horas || horas <= 0) continue;
+
+      const estado = String(registro.estado || '')
+        .trim()
+        .toUpperCase();
+
+      const codigo = String(registro.codigo || '')
+        .trim();
+
+      // SUMA(HORAS): todas las horas de todos los registros
+      item.horasTotales += horas;
+
+      // SUMA(HRS MANTENIMIENTO)
+      if (estado === 'MANTENIMIENTO') {
+        item.horasMtto += horas;
+        item.cantidadRegistrosMtto += 1;
+      }
+
+      // SUMA(HRS OPERATIVAS): solo códigos productivos
+      if (CODIGOS_OPERATIVOS.includes(codigo)) {
+        item.horasOperativas += horas;
+        item.cantidadRegistrosOperativos += 1;
+      }
+    }
+  });
+
+  const resultado = Array.from(resultadoMap.values()).map((item) => {
+    item.horasDisponibles = item.horasTotales - item.horasMtto;
+
+    if (item.horasDisponibles > 0) {
+      const utilizacion =
+        (item.horasOperativas / item.horasDisponibles) * 100;
+
+      item.utilizacion = Number(utilizacion.toFixed(2));
+    } else {
+      item.utilizacion = 0;
+    }
+
+    item.horasTotales = Number(item.horasTotales.toFixed(2));
+    item.horasMtto = Number(item.horasMtto.toFixed(2));
+    item.horasDisponibles = Number(item.horasDisponibles.toFixed(2));
+    item.horasOperativas = Number(item.horasOperativas.toFixed(2));
+
+    return item;
+  });
+
+  resultado.sort((a, b) => b.utilizacion - a.utilizacion);
+
+  console.log('📊 UTILIZACIÓN POR GUARDIA:', resultado);
+
   return resultado;
 }
 
