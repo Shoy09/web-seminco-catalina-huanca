@@ -424,8 +424,6 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
 
     resultado.sort((a, b) => b.disponibilidad - a.disponibilidad);
 
-    console.log('📊 DISPONIBILIDAD POR EQUIPO:', resultado);
-
     return resultado;
   }
 
@@ -437,22 +435,20 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
   }
 
   DisponibilidadPorSemana() {
-    return this.calcularPromedioDisponibilidadPorPeriodoVisual('SEMANA');
+    return this.calcularDisponibilidadPorPeriodoVisual('SEMANA');
   }
 
   DisponibilidadPorMes() {
-    return this.calcularPromedioDisponibilidadPorPeriodoVisual('MES');
+    return this.calcularDisponibilidadPorPeriodoVisual('MES');
   }
 
-  private calcularPromedioDisponibilidadPorPeriodoVisual(
-    tipo: 'SEMANA' | 'MES',
-  ) {
+  private calcularDisponibilidadPorPeriodoVisual(tipo: 'SEMANA' | 'MES') {
     const resultadoMap = this.crearPeriodosVisiblesDisponibilidad(tipo);
 
     // Usa operacionesOriginal para que fechaInicio y fechaFin NO afecten el cálculo
+    // Solo se filtra por turno, si corresponde
     const dataCalculo = this.filtrarSoloPorTurno(this.operacionesOriginal);
 
-    // Primero calculamos disponibilidad por día con toda la data original
     const datosPorDia = this.calcularDisponibilidadBasePorDia(
       dataCalculo,
       false,
@@ -463,7 +459,7 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
 
       if (!periodo) return;
 
-      // Solo se muestran semanas/meses dentro del rango visual seleccionado
+      // Solo muestra semanas/meses dentro del rango visual seleccionado
       if (!resultadoMap.has(periodo.key)) return;
 
       const item = resultadoMap.get(periodo.key);
@@ -475,24 +471,17 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
       item.cantidadOperaciones += Number(dia.cantidadOperaciones || 0);
       item.cantidadRegistros += Number(dia.cantidadRegistros || 0);
       item.cantidadRegistrosMtto += Number(dia.cantidadRegistrosMtto || 0);
-
-      // Promedio de disponibilidad diaria
-      if (dia.horasTotales > 0) {
-        item.sumaDisponibilidad += Number(dia.disponibilidad || 0);
-        item.cantidadDiasConDatos += 1;
-      }
     });
 
     const resultado = Array.from(resultadoMap.values()).map((item) => {
-      if (item.cantidadDiasConDatos > 0) {
+      if (item.horasTotales > 0) {
         item.disponibilidad = Number(
-          (item.sumaDisponibilidad / item.cantidadDiasConDatos).toFixed(2),
+          ((item.horasDisponibles / item.horasTotales) * 100).toFixed(2),
         );
       } else {
         item.disponibilidad = 0;
       }
 
-      item.sumaDisponibilidad = Number(item.sumaDisponibilidad.toFixed(2));
       item.horasTotales = Number(item.horasTotales.toFixed(2));
       item.horasMtto = Number(item.horasMtto.toFixed(2));
       item.horasDisponibles = Number(item.horasDisponibles.toFixed(2));
@@ -501,6 +490,8 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
     });
 
     resultado.sort((a, b) => String(a.key).localeCompare(String(b.key)));
+
+    console.log(`📊 DISPONIBILIDAD POR ${tipo} - VISUAL:`, resultado);
 
     return resultado;
   }
@@ -526,15 +517,12 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
           fechaInicio: periodo.fechaInicio || null,
           fechaFin: periodo.fechaFin || null,
 
-          sumaDisponibilidad: 0,
-          disponibilidad: 0,
-
-          cantidadDiasRango: 0,
-          cantidadDiasConDatos: 0,
-
           horasTotales: 0,
           horasMtto: 0,
           horasDisponibles: 0,
+          disponibilidad: 0,
+
+          cantidadDiasRango: 0,
 
           cantidadOperaciones: 0,
           cantidadRegistros: 0,
@@ -554,6 +542,8 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
   ) {
     const resultadoMap = new Map<string, any>();
 
+    // Solo para DisponibilidadPorDia:
+    // crea todos los días del rango seleccionado, incluso si no tienen data
     if (crearRangoVisual && this.fechaInicio && this.fechaFin) {
       const diasRango = generarDiasEntreFechas(this.fechaInicio, this.fechaFin);
 
@@ -621,9 +611,11 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
           .trim()
           .toUpperCase();
 
+        // SUMA(HORAS)
         item.horasTotales += horas;
         item.cantidadRegistros += 1;
 
+        // SUMA(HRS MANTENIMIENTO)
         if (estado === 'MANTENIMIENTO') {
           item.horasMtto += horas;
           item.cantidadRegistrosMtto += 1;
