@@ -27,14 +27,14 @@ echarts.use([
 ]);
 
 @Component({
-  selector: 'app-disponibilidad-semana',
+  selector: 'app-disponibilidad-dia',
   standalone: true,
   imports: [NgxEchartsDirective],
   providers: [provideEchartsCore({ echarts })],
-  templateUrl: './disponibilidad-semana.component.html',
-  styleUrl: './disponibilidad-semana.component.css',
+  templateUrl: './disponibilidad-dia.component.html',
+  styleUrl: './disponibilidad-dia.component.css',
 })
-export class DisponibilidadSemanaComponent implements OnChanges {
+export class DisponibilidadDiaComponent implements OnChanges {
   // 🔥 DATA DINÁMICA
   @Input() data: any[] = [];
 
@@ -56,18 +56,78 @@ export class DisponibilidadSemanaComponent implements OnChanges {
       String(a.key).localeCompare(String(b.key)),
     );
 
-    const semanas = datosOrdenados.map((item) => item.periodo);
+    const xAxisLabels = datosOrdenados.map((item) => {
+      const partes = String(item.key || '').split('-');
+
+      const anio = partes[0];
+      const mes = partes[1];
+      const dia = partes[2];
+
+      return {
+        value: item.key,
+        periodo: item.periodo,
+        dia,
+        mes,
+        anio,
+        nombreMes: this.obtenerNombreMes(Number(mes)),
+      };
+    });
 
     const valores = datosOrdenados.map((item) =>
       Number(item.disponibilidad || 0),
     );
 
-    const porcentajeVisible =
-      semanas.length > 6 ? (6 / semanas.length) * 100 : 100;
+    const graphics: any[] = [];
+
+    const mesesPosiciones = new Map<string, any>();
+
+    let mesActual = '';
+    let inicio = 0;
+
+    for (let i = 0; i < xAxisLabels.length; i++) {
+      const item = xAxisLabels[i];
+
+      if (item.nombreMes !== mesActual) {
+        if (mesActual !== '') {
+          mesesPosiciones.set(mesActual, {
+            start: inicio,
+            end: i - 1,
+          });
+        }
+
+        mesActual = item.nombreMes;
+        inicio = i;
+      }
+    }
+
+    if (mesActual !== '') {
+      mesesPosiciones.set(mesActual, {
+        start: inicio,
+        end: xAxisLabels.length - 1,
+      });
+    }
+
+    mesesPosiciones.forEach((pos: any, mes: string) => {
+      const centro = (pos.start + pos.end + 1) / 2;
+
+      graphics.push({
+        type: 'text',
+        left: `${centro * (100 / xAxisLabels.length)}%`,
+        bottom: 8,
+        style: {
+          text: mes,
+          fill: '#333',
+          fontSize: 12,
+          fontWeight: 'bold',
+          fontFamily: 'Arial',
+        },
+        z: 100,
+      });
+    });
 
     this.chartOptions = {
       title: {
-        text: 'DISPONIBILIDAD POR SEMANA',
+        text: 'DISPONIBILIDAD POR DÍA',
         left: 'center',
         top: 10,
         textStyle: {
@@ -93,8 +153,7 @@ export class DisponibilidadSemanaComponent implements OnChanges {
           const horasDisponibles = Number(item.horasDisponibles || 0);
 
           return `
-          <strong>Semana ${item.periodo}</strong><br/>
-          Rango: ${item.fechaInicio || '-'} al ${item.fechaFin || '-'}<br/>
+          <strong>${item.periodo}</strong><br/>
           Disponibilidad: <b>${disponibilidad.toFixed(2)}%</b><br/>
           Horas totales: ${horasTotales.toFixed(2)} h<br/>
           Horas mantenimiento: ${horasMtto.toFixed(2)} h<br/>
@@ -109,25 +168,34 @@ export class DisponibilidadSemanaComponent implements OnChanges {
       grid: {
         left: '8%',
         right: '5%',
-        top: '20%',
+        top: '22%',
         bottom: '25%',
         containLabel: true,
       },
 
       xAxis: {
         type: 'category',
-        data: semanas,
+        data: xAxisLabels.map((item) => item.value),
+
         axisLabel: {
+          show: true,
           interval: 0,
-          fontSize: 10,
+          margin: 18,
+          fontSize: 11,
           fontWeight: 'bold',
           color: '#333',
+          formatter: (value: string) => {
+            const partes = String(value).split('-');
+            return partes[2] || value;
+          },
         },
+
         axisLine: {
           lineStyle: {
             color: '#666',
           },
         },
+
         axisTick: {
           alignWithLabel: true,
         },
@@ -142,8 +210,8 @@ export class DisponibilidadSemanaComponent implements OnChanges {
         max: 100,
         interval: 20,
         axisLabel: {
+          fontSize: 9,
           formatter: '{value}%',
-          fontSize: 10,
         },
         splitLine: {
           lineStyle: {
@@ -159,7 +227,7 @@ export class DisponibilidadSemanaComponent implements OnChanges {
           show: true,
           xAxisIndex: 0,
           start: 0,
-          end: porcentajeVisible,
+          end: xAxisLabels.length > 10 ? 35 : 100,
           height: 18,
           bottom: 25,
         },
@@ -167,7 +235,7 @@ export class DisponibilidadSemanaComponent implements OnChanges {
           type: 'inside',
           xAxisIndex: 0,
           start: 0,
-          end: porcentajeVisible,
+          end: xAxisLabels.length > 10 ? 35 : 100,
         },
       ],
 
@@ -175,7 +243,7 @@ export class DisponibilidadSemanaComponent implements OnChanges {
         {
           name: 'Disponibilidad',
           type: 'bar',
-          barWidth: '55%',
+          barWidth: '50%',
 
           data: valores.map((valor) => ({
             value: valor,
@@ -186,8 +254,8 @@ export class DisponibilidadSemanaComponent implements OnChanges {
           })),
 
           itemStyle: {
-            borderRadius: [6, 6, 0, 0],
-            shadowColor: 'rgba(0,0,0,0.2)',
+            borderRadius: [5, 5, 0, 0],
+            shadowColor: 'rgba(0, 0, 0, 0.2)',
             shadowBlur: 6,
             shadowOffsetY: 2,
           },
@@ -195,11 +263,11 @@ export class DisponibilidadSemanaComponent implements OnChanges {
           label: {
             show: true,
             position: 'top',
+            fontWeight: 'bold',
+            fontSize: 11,
             formatter: (params: any) => {
               return `${Number(params.value).toFixed(2)}%`;
             },
-            fontWeight: 'bold',
-            fontSize: 11,
             color: '#333',
           },
 
@@ -207,18 +275,44 @@ export class DisponibilidadSemanaComponent implements OnChanges {
             focus: 'series',
             itemStyle: {
               shadowBlur: 10,
-              shadowColor: 'rgba(0,0,0,0.3)',
+              shadowOffsetX: 0,
+              shadowColor: 'rgba(0, 0, 0, 0.3)',
             },
           },
 
           showBackground: true,
 
           backgroundStyle: {
-            color: 'rgba(180,180,180,0.1)',
+            color: 'rgba(180, 180, 180, 0.1)',
             borderRadius: 5,
           },
         },
       ],
+
+      graphic: graphics,
     };
+  }
+
+  // =====================================
+  // MES
+  // =====================================
+
+  obtenerNombreMes(numeroMes: number): string {
+    const meses = [
+      'ENERO',
+      'FEBRERO',
+      'MARZO',
+      'ABRIL',
+      'MAYO',
+      'JUNIO',
+      'JULIO',
+      'AGOSTO',
+      'SEPTIEMBRE',
+      'OCTUBRE',
+      'NOVIEMBRE',
+      'DICIEMBRE',
+    ];
+
+    return meses[numeroMes - 1] || '';
   }
 }
