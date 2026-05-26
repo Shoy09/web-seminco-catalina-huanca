@@ -20,6 +20,7 @@ import {
 import { DisponibilidadDiaComponent } from '../../scoops/Graficos components/Disponibilidad/disponibilidad-dia/disponibilidad-dia.component';
 import { DisponibilidadSemanaComponent } from '../../scoops/Graficos components/Disponibilidad/disponibilidad-semana/disponibilidad-semana.component';
 import { DisponibilidadMesComponent } from '../../scoops/Graficos components/Disponibilidad/disponibilidad-mes/disponibilidad-mes.component';
+import { DisponibilidadEquipoComponent } from '../../scoops/Graficos components/Disponibilidad/disponibilidad-equipo/disponibilidad-equipo.component';
 
 @Component({
   selector: 'app-principal-grafico-horizontal',
@@ -30,6 +31,7 @@ import { DisponibilidadMesComponent } from '../../scoops/Graficos components/Dis
     DisponibilidadDiaComponent,
     DisponibilidadSemanaComponent,
     DisponibilidadMesComponent,
+    DisponibilidadEquipoComponent,
   ],
   templateUrl: './principal-grafico-horizontal.component.html',
   styleUrl: './principal-grafico-horizontal.component.css',
@@ -300,6 +302,11 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
   procesarTodo() {
     if (!this.operacionesFiltradas.length || !this.planesMensuales.length)
       return;
+
+    this.DataDisponibilidadPorEquipo = this.DisponibilidadPorEquipo();
+    this.DataDisponibilidadPorDia = this.DisponibilidadPorDia();
+    this.DataDisponibilidadPorSemana = this.DisponibilidadPorSemana();
+    this.DataDisponibilidadPorMes = this.DisponibilidadPorMes();
 
     //console.log('🔥 DATA DISPAROS EQUIPO:', this.dataDisparosEquipo);
   }

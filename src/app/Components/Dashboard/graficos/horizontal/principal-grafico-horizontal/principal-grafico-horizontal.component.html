@@ -39,6 +39,7 @@
 
 <div class="graficos-container" *ngIf="vistaPrincipal">
 
+  <app-disponibilidad-equipo [data]="DataDisponibilidadPorEquipo" data-page="1" />
   <app-disponibilidad-dia [data]="DataDisponibilidadPorDia" data-page="1" />
   <app-disponibilidad-semana [data]="DataDisponibilidadPorSemana" data-page="1" />
   <app-disponibilidad-mes [data]="DataDisponibilidadPorMes" data-page="1" />
