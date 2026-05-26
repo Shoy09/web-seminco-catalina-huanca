@@ -26,6 +26,9 @@ import { UtilizacionDiaMesComponent } from '../../scoops/Graficos components/Uti
 import { UtilizacionSemanaComponent } from '../../scoops/Graficos components/Utilizacion/utilizacion-semana/utilizacion-semana.component';
 import { UtilizacionMesComponent } from '../../scoops/Graficos components/Utilizacion/utilizacion-mes/utilizacion-mes.component';
 import { RendimientoEquipoComponent } from '../../Graficos components/Rendimiento/rendimiento-equipo/rendimiento-equipo.component';
+import { RendimientoDiaComponent } from "../../Graficos components/Rendimiento/rendimiento-dia/rendimiento-dia.component";
+import { RendimientoSemanaComponent } from '../../Graficos components/Rendimiento/rendimiento-semana/rendimiento-semana.component';
+import { RendimientoMesComponent } from '../../Graficos components/Rendimiento/rendimiento-mes/rendimiento-mes.component';
 
 @Component({
   selector: 'app-principal-grafico-horizontal',
@@ -42,7 +45,11 @@ import { RendimientoEquipoComponent } from '../../Graficos components/Rendimient
     UtilizacionSemanaComponent,
     UtilizacionMesComponent,
     RendimientoEquipoComponent,
-  ],
+    RendimientoDiaComponent,
+    RendimientoSemanaComponent,
+    RendimientoMesComponent
+
+],
   templateUrl: './principal-grafico-horizontal.component.html',
   styleUrl: './principal-grafico-horizontal.component.css',
 })
@@ -180,6 +187,9 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
   DataUtilizacionPorMes: any[] = [];
 
   DataRendimientoPorEquipo: any[] = [];
+  DataRendimientoPorDia: any[] = [];
+  DataRendimientoPorSemana: any[] = [];
+  DataRendimientoPorMes: any[] = [];
 
   constructor(
     private planMensualService: PlanMensualService,
@@ -342,6 +352,10 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
     this.DataUtilizacionPorMes = this.UtilizacionPorMes();
 
     this.DataRendimientoPorEquipo = this.RendimientoPorEquipo();
+
+    this.DataRendimientoPorDia = this.RendimientoPorDia();
+    this.DataRendimientoPorSemana = this.RendimientoPorSemana();
+    this.DataRendimientoPorMes = this.RendimientoPorMes();
 
     //console.log('🔥 DATA DISPAROS EQUIPO:', this.dataDisparosEquipo);
   }
@@ -1120,6 +1134,257 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
     resultado.sort((a, b) => b.rendimiento - a.rendimiento);
 
     console.log('📊 RENDIMIENTO POR EQUIPO JUMBO:', resultado);
+
+    return resultado;
+  }
+
+  RendimientoPorDia() {
+    return this.calcularRendimientoBasePorDia(this.operacionesFiltradas, true);
+  }
+
+  RendimientoPorSemana() {
+    return this.calcularRendimientoPorPeriodoVisual('SEMANA');
+  }
+
+  RendimientoPorMes() {
+    return this.calcularRendimientoPorPeriodoVisual('MES');
+  }
+
+  private calcularRendimientoPorPeriodoVisual(tipo: 'SEMANA' | 'MES') {
+    const resultadoMap = this.crearPeriodosVisiblesRendimiento(tipo);
+
+    // Usa operacionesOriginal para que fechaInicio y fechaFin solo afecten la visualización
+    const dataCalculo = this.filtrarSoloPorTurno(this.operacionesOriginal);
+
+    const datosPorDia = this.calcularRendimientoBasePorDia(dataCalculo, false);
+
+    datosPorDia.forEach((dia) => {
+      const periodo = obtenerPeriodoDesdeKey(dia.key, tipo);
+
+      if (!periodo) return;
+
+      // Solo muestra semanas/meses dentro del rango visual seleccionado
+      if (!resultadoMap.has(periodo.key)) return;
+
+      const item = resultadoMap.get(periodo.key);
+
+      item.metrosPerforados += Number(dia.metrosPerforados || 0);
+      item.horasOperativas += Number(dia.horasOperativas || 0);
+
+      item.cantidadOperaciones += Number(dia.cantidadOperaciones || 0);
+      item.cantidadRegistros += Number(dia.cantidadRegistros || 0);
+      item.cantidadRegistrosOperativos += Number(
+        dia.cantidadRegistrosOperativos || 0,
+      );
+
+      item.talProd += Number(dia.talProd || 0);
+      item.talRimados += Number(dia.talRimados || 0);
+      item.talAlivio += Number(dia.talAlivio || 0);
+      item.talRepaso += Number(dia.talRepaso || 0);
+      item.totalTaladros += Number(dia.totalTaladros || 0);
+
+      if (dia.horasOperativas > 0) {
+        item.cantidadDiasConDatos += 1;
+      }
+    });
+
+    const resultado = Array.from(resultadoMap.values()).map((item) => {
+      if (item.horasOperativas > 0) {
+        item.rendimiento = Number(
+          (item.metrosPerforados / item.horasOperativas).toFixed(2),
+        );
+      } else {
+        item.rendimiento = 0;
+      }
+
+      item.metrosPerforados = Number(item.metrosPerforados.toFixed(2));
+      item.horasOperativas = Number(item.horasOperativas.toFixed(2));
+
+      return item;
+    });
+
+    resultado.sort((a, b) => String(a.key).localeCompare(String(b.key)));
+
+    return resultado;
+  }
+  private crearPeriodosVisiblesRendimiento(tipo: 'SEMANA' | 'MES') {
+    const resultadoMap = new Map<string, any>();
+
+    if (!this.fechaInicio || !this.fechaFin) {
+      return resultadoMap;
+    }
+
+    const diasRango = generarDiasEntreFechas(this.fechaInicio, this.fechaFin);
+
+    diasRango.forEach((dia) => {
+      const periodo = obtenerPeriodoDesdeKey(dia.key, tipo);
+
+      if (!periodo) return;
+
+      if (!resultadoMap.has(periodo.key)) {
+        resultadoMap.set(periodo.key, {
+          key: periodo.key,
+          periodo: periodo.label,
+          anio: periodo.anio || null,
+          fechaInicio: periodo.fechaInicio || null,
+          fechaFin: periodo.fechaFin || null,
+
+          metrosPerforados: 0,
+          horasOperativas: 0,
+          rendimiento: 0,
+
+          cantidadDiasRango: 0,
+          cantidadDiasConDatos: 0,
+
+          cantidadOperaciones: 0,
+          cantidadRegistros: 0,
+          cantidadRegistrosOperativos: 0,
+
+          talProd: 0,
+          talRimados: 0,
+          talAlivio: 0,
+          talRepaso: 0,
+          totalTaladros: 0,
+        });
+      }
+
+      const item = resultadoMap.get(periodo.key);
+      item.cantidadDiasRango += 1;
+    });
+
+    return resultadoMap;
+  }
+  private calcularRendimientoBasePorDia(
+    dataOperaciones: OperacionBase[],
+    crearRangoVisual: boolean,
+  ) {
+    const resultadoMap = new Map<string, any>();
+
+    if (crearRangoVisual && this.fechaInicio && this.fechaFin) {
+      const diasRango = generarDiasEntreFechas(this.fechaInicio, this.fechaFin);
+
+      diasRango.forEach((dia) => {
+        resultadoMap.set(dia.key, {
+          key: dia.key,
+          periodo: dia.label,
+
+          metrosPerforados: 0,
+          horasOperativas: 0,
+          rendimiento: 0,
+
+          cantidadOperaciones: 0,
+          cantidadRegistros: 0,
+          cantidadRegistrosOperativos: 0,
+
+          talProd: 0,
+          talRimados: 0,
+          talAlivio: 0,
+          talRepaso: 0,
+          totalTaladros: 0,
+        });
+      });
+    }
+
+    dataOperaciones.forEach((op) => {
+      const registrosArray = op.registros;
+
+      if (!Array.isArray(registrosArray)) return;
+
+      const fecha = op.fecha;
+
+      if (!fecha) return;
+
+      const periodo = obtenerPeriodo(fecha, 'DIA');
+
+      if (!periodo) return;
+
+      if (!resultadoMap.has(periodo.key)) {
+        resultadoMap.set(periodo.key, {
+          key: periodo.key,
+          periodo: periodo.label,
+
+          metrosPerforados: 0,
+          horasOperativas: 0,
+          rendimiento: 0,
+
+          cantidadOperaciones: 0,
+          cantidadRegistros: 0,
+          cantidadRegistrosOperativos: 0,
+
+          talProd: 0,
+          talRimados: 0,
+          talAlivio: 0,
+          talRepaso: 0,
+          totalTaladros: 0,
+        });
+      }
+
+      const item = resultadoMap.get(periodo.key);
+
+      item.cantidadOperaciones += 1;
+
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+
+        if (!this.CODIGOS_OPERATIVOS_JUMBO.includes(codigo)) continue;
+
+        if (!registro.hora_inicio || !registro.hora_final) continue;
+
+        const horas = this.calcularDuracionHoras(
+          registro.hora_inicio,
+          registro.hora_final,
+        );
+
+        if (!horas || horas <= 0) continue;
+
+        const operacion = registro.operacion || {};
+
+        const talProd = this.convertirNumero(operacion.tal_prod);
+        const talRimados = this.convertirNumero(operacion.tal_rimados);
+        const talAlivio = this.convertirNumero(operacion.tal_alivio);
+        const talRepaso = this.convertirNumero(operacion.tal_repaso);
+
+        const longBarrasPies = this.convertirNumero(operacion.long_barras);
+
+        // Si num_barras viene vacío, se asume 1
+        const numBarras = this.convertirNumero(operacion.num_barras, 1);
+
+        const totalTaladros = talProd + talRimados + talAlivio + talRepaso;
+
+        const longBarrasMetros = longBarrasPies * 0.3048;
+
+        const metrosRegistro = totalTaladros * longBarrasMetros * numBarras;
+
+        item.metrosPerforados += metrosRegistro;
+        item.horasOperativas += horas;
+
+        item.talProd += talProd;
+        item.talRimados += talRimados;
+        item.talAlivio += talAlivio;
+        item.talRepaso += talRepaso;
+        item.totalTaladros += totalTaladros;
+
+        item.cantidadRegistros += 1;
+        item.cantidadRegistrosOperativos += 1;
+      }
+    });
+
+    const resultado = Array.from(resultadoMap.values()).map((item) => {
+      if (item.horasOperativas > 0) {
+        item.rendimiento = Number(
+          (item.metrosPerforados / item.horasOperativas).toFixed(2),
+        );
+      } else {
+        item.rendimiento = 0;
+      }
+
+      item.metrosPerforados = Number(item.metrosPerforados.toFixed(2));
+      item.horasOperativas = Number(item.horasOperativas.toFixed(2));
+
+      return item;
+    });
+
+    resultado.sort((a, b) => String(a.key).localeCompare(String(b.key)));
 
     return resultado;
   }
