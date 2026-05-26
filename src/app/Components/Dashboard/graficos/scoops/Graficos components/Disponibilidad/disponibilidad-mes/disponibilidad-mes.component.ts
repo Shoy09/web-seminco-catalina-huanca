@@ -1,14 +1,6 @@
-import {
-  Component,
-  Input,
-  OnChanges,
-  SimpleChanges
-} from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 
-import {
-  NgxEchartsDirective,
-  provideEchartsCore
-} from 'ngx-echarts';
+import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 
 import * as echarts from 'echarts/core';
 
@@ -18,7 +10,8 @@ import {
   TitleComponent,
   TooltipComponent,
   GridComponent,
-  ToolboxComponent
+  ToolboxComponent,
+  DataZoomComponent,
 } from 'echarts/components';
 
 import { CanvasRenderer } from 'echarts/renderers';
@@ -29,7 +22,8 @@ echarts.use([
   TooltipComponent,
   GridComponent,
   ToolboxComponent,
-  CanvasRenderer
+  DataZoomComponent,
+  CanvasRenderer,
 ]);
 
 @Component({
@@ -38,173 +32,197 @@ echarts.use([
   imports: [NgxEchartsDirective],
   providers: [provideEchartsCore({ echarts })],
   templateUrl: './disponibilidad-mes.component.html',
-  styleUrl: './disponibilidad-mes.component.css'
+  styleUrl: './disponibilidad-mes.component.css',
 })
-export class DisponibilidadMesComponent
-implements OnChanges {
-
+export class DisponibilidadMesComponent implements OnChanges {
   // 🔥 DATA DINÁMICA
   @Input() data: any[] = [];
 
   chartOptions: any = {};
 
   ngOnChanges(changes: SimpleChanges): void {
-
     if (changes['data']) {
       this.actualizarGrafico();
     }
   }
 
   actualizarGrafico(): void {
+    if (!this.data || this.data.length === 0) {
+      this.chartOptions = {};
+      return;
+    }
 
-    if (!this.data?.length) return;
-
-    // 🔥 convertir número -> nombre mes
-    const meses = this.data.map(item =>
-      this.obtenerNombreMes(item.mes)
+    const datosOrdenados = [...this.data].sort((a, b) =>
+      String(a.key).localeCompare(String(b.key)),
     );
 
-    // 🔥 disponibilidad
-    const valores = this.data.map(item =>
-      item.disponibilidad
+    const meses = datosOrdenados.map((item) => item.periodo);
+
+    const valores = datosOrdenados.map((item) =>
+      Number(item.disponibilidad || 0),
     );
+
+    const porcentajeVisible = meses.length > 6 ? (6 / meses.length) * 100 : 100;
 
     this.chartOptions = {
-
       title: {
         text: 'DISPONIBILIDAD POR MES',
         left: 'center',
         top: 10,
-
         textStyle: {
           fontSize: 16,
           fontWeight: 'bold',
-          color: '#333'
-        }
+          color: '#333',
+          fontFamily: 'Arial',
+        },
       },
 
       tooltip: {
-
         trigger: 'axis',
-
         axisPointer: {
-          type: 'shadow'
+          type: 'shadow',
         },
-
         formatter: (params: any) => {
-
           const data = params[0];
+          const item = datosOrdenados[data.dataIndex];
 
-          const item =
-            this.data[data.dataIndex];
+          const disponibilidad = Number(item.disponibilidad || 0);
+          const horasTotales = Number(item.horasTotales || 0);
+          const horasMtto = Number(item.horasMtto || 0);
+          const horasDisponibles = Number(item.horasDisponibles || 0);
 
           return `
-            <strong>
-              ${this.obtenerNombreMes(item.mes)}
-              ${item.año}
-            </strong><br/>
-
-            Disponibilidad:
-            <b>${item.disponibilidad}%</b><br/>
-
-            Horas Totales:
-            ${item.horasTotales}h<br/>
-
-            Horas MTTO:
-            ${item.horasMtto}h<br/>
-
-            Registros:
-            ${item.cantidadPartes}
-          `;
-        }
+          <strong>${item.periodo} ${item.anio || ''}</strong><br/>
+          Disponibilidad: <b>${disponibilidad.toFixed(2)}%</b><br/>
+          Horas totales: ${horasTotales.toFixed(2)} h<br/>
+          Horas mantenimiento: ${horasMtto.toFixed(2)} h<br/>
+          Horas disponibles: ${horasDisponibles.toFixed(2)} h<br/>
+          Operaciones: ${item.cantidadOperaciones || 0}<br/>
+          Registros: ${item.cantidadRegistros || 0}<br/>
+          Registros MTTO: ${item.cantidadRegistrosMtto || 0}
+        `;
+        },
       },
 
       grid: {
-        left: '5%',
+        left: '8%',
         right: '5%',
-        top: '18%',
-        bottom: '15%',
-        containLabel: true
+        top: '20%',
+        bottom: '25%',
+        containLabel: true,
       },
 
       xAxis: {
-
         type: 'category',
-
         data: meses,
-
         axisLabel: {
           interval: 0,
           rotate: 35,
           fontSize: 10,
-          fontWeight: 'bold'
-        }
+          fontWeight: 'bold',
+          color: '#333',
+        },
+        axisLine: {
+          lineStyle: {
+            color: '#666',
+          },
+        },
+        axisTick: {
+          alignWithLabel: true,
+        },
       },
 
       yAxis: {
-
         type: 'value',
-
+        name: 'Porcentaje (%)',
+        nameLocation: 'middle',
+        nameGap: 45,
         min: 0,
         max: 100,
-
+        interval: 20,
         axisLabel: {
-          formatter: '{value}%'
+          formatter: '{value}%',
+          fontSize: 10,
         },
-
         splitLine: {
           lineStyle: {
-            type: 'dashed'
-          }
-        }
+            type: 'dashed',
+            color: '#ccc',
+          },
+        },
       },
+
+      dataZoom: [
+        {
+          type: 'slider',
+          show: true,
+          xAxisIndex: 0,
+          start: 0,
+          end: porcentajeVisible,
+          height: 18,
+          bottom: 25,
+        },
+        {
+          type: 'inside',
+          xAxisIndex: 0,
+          start: 0,
+          end: porcentajeVisible,
+        },
+      ],
 
       series: [
         {
-
           name: 'Disponibilidad',
-
           type: 'bar',
+          barWidth: '55%',
 
-          barWidth: '60%',
-
-          data: valores.map(valor => ({
-
+          data: valores.map((valor) => ({
             value: valor,
-
             itemStyle: {
-
               color:
-                valor >= 90
-                  ? '#27ae60'
-                  : valor >= 75
-                  ? '#f1c40f'
-                  : '#e74c3c'
-            }
+                valor >= 90 ? '#27ae60' : valor >= 75 ? '#f1c40f' : '#e74c3c',
+            },
           })),
 
           itemStyle: {
-            borderRadius: [6, 6, 0, 0]
+            borderRadius: [6, 6, 0, 0],
+            shadowColor: 'rgba(0,0,0,0.2)',
+            shadowBlur: 6,
+            shadowOffsetY: 2,
           },
 
           label: {
             show: true,
             position: 'top',
-            formatter: '{c}%',
-            fontWeight: 'bold'
+            formatter: (params: any) => {
+              return `${Number(params.value).toFixed(2)}%`;
+            },
+            fontWeight: 'bold',
+            fontSize: 11,
+            color: '#333',
           },
 
           emphasis: {
-            focus: 'series'
-          }
-        }
-      ]
+            focus: 'series',
+            itemStyle: {
+              shadowBlur: 10,
+              shadowColor: 'rgba(0,0,0,0.3)',
+            },
+          },
+
+          showBackground: true,
+
+          backgroundStyle: {
+            color: 'rgba(180,180,180,0.1)',
+            borderRadius: 5,
+          },
+        },
+      ],
     };
   }
 
   // 🔥 convertir número a nombre mes
   obtenerNombreMes(numeroMes: number): string {
-
     const meses = [
       'ENERO',
       'FEBRERO',
@@ -217,7 +235,7 @@ implements OnChanges {
       'SEPTIEMBRE',
       'OCTUBRE',
       'NOVIEMBRE',
-      'DICIEMBRE'
+      'DICIEMBRE',
     ];
 
     return meses[numeroMes - 1] || 'SIN MES';

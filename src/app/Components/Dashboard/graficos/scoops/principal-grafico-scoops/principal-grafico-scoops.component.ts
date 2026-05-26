@@ -9,7 +9,7 @@ import jsPDF from 'jspdf';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EstadoService } from '../../../../../services/estado.service';
-import { DisponibilidadDiaMesComponent } from '../Graficos components/Disponibilidad/disponibilidad-dia-mes/disponibilidad-dia-mes.component';
+import { DisponibilidadDiaComponent } from '../Graficos components/Disponibilidad/disponibilidad-dia/disponibilidad-dia.component';
 import { DisponibilidadEquipoComponent } from '../Graficos components/Disponibilidad/disponibilidad-equipo/disponibilidad-equipo.component';
 import { DisponibilidadEstadoComponent } from '../Graficos components/Disponibilidad/disponibilidad-estado/disponibilidad-estado.component';
 import { DisponibilidadGuardiaComponent } from '../Graficos components/Disponibilidad/disponibilidad-guardia/disponibilidad-guardia.component';
@@ -68,7 +68,7 @@ import { generarDiasEntreFechas, MESES_CORTOS, obtenerPeriodo, obtenerPeriodoDes
     DisponibilidadMesComponent,
     DisponibilidadGuardiaComponent,
     DisponibilidadEstadoComponent,
-    DisponibilidadDiaMesComponent,
+    DisponibilidadDiaComponent,
     RendimientoGeneralComponent,
     RendimientoGuardiaComponent,
     RendimientoSeccionLaborComponent,
@@ -126,7 +126,7 @@ DataDisponibilidadPorEquipo: any[] = [];
 DataDisponibilidadPorSemana: any[] = [];
 DataDisponibilidadPorMes: any[] = [];
 DataHorasMantenimientoPorCodigo: any[] = [];
-DataDisponibilidadPorDiaMes: any[] = [];
+DataDisponibilidadPorDia: any[] = [];
 DataDisponibilidadPorSeccion: any[] = [];
 DataUtilizacionPorEquipo: any[] = [];
 DataUtilizacionPorSemana: any[] = [];
@@ -330,7 +330,7 @@ mapaEstados: Map<string, any> = new Map();
   this.DataDisponibilidadPorSemana = this.DisponibilidadPorSemana();
   this.DataDisponibilidadPorMes = this.DisponibilidadPorMes();
   this.DataHorasMantenimientoPorCodigo = this.HorasMantenimientoPorCodigo();
-  this.DataDisponibilidadPorDiaMes = this.DisponibilidadPorDiaMes();
+  this.DataDisponibilidadPorDia = this.DisponibilidadPorDia();
   this.DataDisponibilidadPorSeccion = this.DisponibilidadPorSeccion();
   //UTILIZACION
   this.DataUtilizacionPorEquipo = this.UtilizacionPorEquipo();
@@ -568,86 +568,7 @@ private calcularDuracionHoras(
   return Number(((fin - inicio) / 60).toFixed(2));
 }
 
-//GRAFICO 2 - DISPONIBILIDAD POR SEMANA
 
-DisponibilidadPorSemana() {
-
-  const resultadoMap = new Map<string, any>();
-
-  this.operacionesFiltradas.forEach((op) => {
-
-    const HORAS_TOTALES = 12;
-
-    let horasMtto = 0;
-
-    const registrosArray = op.registros;
-
-    if (!Array.isArray(registrosArray)) return;
-
-    // 🔥 calcular semana desde fecha
-    const numeroSemana = this.obtenerNumeroSemana(op.fecha);
-
-    const semanaLabel = `SEM ${numeroSemana}`;
-
-    // 🔥 recorrer registros
-    for (const registro of registrosArray) {
-
-      if (registro.estado !== 'MANTENIMIENTO') continue;
-
-      const horas = this.calcularDuracionHoras(
-        registro.hora_inicio,
-        registro.hora_final
-      );
-
-      horasMtto += horas;
-    }
-
-    horasMtto = Math.min(horasMtto, HORAS_TOTALES);
-
-    // 🔥 crear semana si no existe
-    if (!resultadoMap.has(semanaLabel)) {
-
-      resultadoMap.set(semanaLabel, {
-        semana: semanaLabel,
-        numeroSemana,
-        horasTotales: 0,
-        horasMtto: 0,
-        disponibilidad: 0,
-        cantidadPartes: 0
-      });
-    }
-
-    const item = resultadoMap.get(semanaLabel);
-
-    item.horasTotales += HORAS_TOTALES;
-    item.horasMtto += horasMtto;
-    item.cantidadPartes += 1;
-
-    // 🔥 tipo SI.ERROR
-    const disponibilidadCalculada =
-      item.horasTotales > 0
-        ? (
-            (item.horasTotales - item.horasMtto) /
-            item.horasTotales
-          )
-        : 0;
-
-    item.disponibilidad = Number(
-      (disponibilidadCalculada * 100).toFixed(2)
-    );
-  });
-
-  // 🔥 ordenar semanas
-  const resultado = Array.from(resultadoMap.values())
-    .sort((a, b) => a.numeroSemana - b.numeroSemana);
-
-  // console.log(
-  //   '📊 DISPONIBILIDAD POR SEMANA:',
-  //   resultado
-  // );
-
-  return resultado;
-}
 
 private obtenerNumeroSemana(fecha: string): number {
 
@@ -669,67 +590,7 @@ private obtenerNumeroSemana(fecha: string): number {
   return Math.ceil((dias + inicioAnio.getDay() + 1) / 7);
 }
 
-//GRAFICO 3 - DISPONIBILIDAD POR MES
-  DisponibilidadPorMes() {
-  const resultadoMap = new Map<string, any>();
 
-  this.operacionesFiltradas.forEach((op) => {
-    const HORAS_TOTALES = 12;
-    let horasMtto = 0;
-    const registrosArray = op.registros;
-
-    if (!Array.isArray(registrosArray) || !op.fecha) return;
-
-    // 🔥 obtener año y mes
-    const fecha = new Date(op.fecha);
-    const año = fecha.getFullYear();
-    const mes = fecha.getMonth() + 1;
-    const clave = `${año}-${mes.toString().padStart(2, '0')}`;
-
-    // 🔥 calcular horas mantenimiento
-    for (const registro of registrosArray) {
-      if (registro.estado !== 'MANTENIMIENTO') continue;
-      horasMtto += this.calcularDuracionHoras(
-        registro.hora_inicio,
-        registro.hora_final
-      );
-    }
-
-    horasMtto = Math.min(horasMtto, HORAS_TOTALES);
-
-    // 🔥 inicializar o actualizar
-    if (!resultadoMap.has(clave)) {
-      resultadoMap.set(clave, {
-        periodo: clave,
-        año,
-        mes,
-        horasTotales: 0,
-        horasMtto: 0,
-        disponibilidad: 0,
-        cantidadPartes: 0
-      });
-    }
-
-    const item = resultadoMap.get(clave);
-    item.horasTotales += HORAS_TOTALES;
-    item.horasMtto += horasMtto;
-    item.cantidadPartes += 1;
-
-    // 🔥 calcular disponibilidad (SI.ERROR)
-    item.disponibilidad = item.horasTotales > 0
-      ? Number((((item.horasTotales - item.horasMtto) / item.horasTotales) * 100).toFixed(2))
-      : 0;
-  });
-
-  const resultado = Array.from(resultadoMap.values())
-    .sort((a, b) => {
-      if (a.año !== b.año) return a.año - b.año;
-      return a.mes - b.mes;
-    });
-
-  //console.log('📊 DISPONIBILIDAD POR MES:', resultado);
-  return resultado;
-}
 
 //GRAFICO 4  FALTA
 
@@ -802,147 +663,155 @@ HorasMantenimientoPorCodigo() {
 }
 
 //GRAFICO 6
-DisponibilidadPorDiaMes() {
+DisponibilidadPorDia() {
+    return this.calcularDisponibilidadPorPeriodo('DIA');
+}
 
+//GRAFICO 2 - DISPONIBILIDAD POR SEMANA
+
+DisponibilidadPorSemana() {
+  return this.calcularDisponibilidadPorPeriodo('SEMANA');
+}
+
+//GRAFICO 3 - DISPONIBILIDAD POR MES
+DisponibilidadPorMes() {
+  return this.calcularDisponibilidadPorPeriodo('MES');
+}
+
+private calcularDisponibilidadPorPeriodo(tipo: 'DIA' | 'SEMANA' | 'MES') {
   const resultadoMap = new Map<string, any>();
 
+  // Crear todos los días del rango seleccionado
+  if (this.fechaInicio && this.fechaFin) {
+    const diasRango = generarDiasEntreFechas(this.fechaInicio, this.fechaFin);
+
+    diasRango.forEach((dia) => {
+      let periodo: any = null;
+
+      if (tipo === 'DIA') {
+        periodo = {
+          key: dia.key,
+          label: dia.label,
+        };
+      } else {
+        periodo = obtenerPeriodoDesdeKey(dia.key, tipo);
+      }
+
+      if (!periodo) return;
+
+      if (!resultadoMap.has(periodo.key)) {
+        resultadoMap.set(periodo.key, {
+          key: periodo.key,
+          periodo: periodo.label,
+          anio: periodo.anio || null,
+          fechaInicio: periodo.fechaInicio || null,
+          fechaFin: periodo.fechaFin || null,
+
+          horasTotales: 0,
+          horasMtto: 0,
+          horasDisponibles: 0,
+          disponibilidad: 0,
+
+          cantidadOperaciones: 0,
+          cantidadRegistros: 0,
+          cantidadRegistrosMtto: 0,
+        });
+      }
+    });
+  }
+
   this.operacionesFiltradas.forEach((op) => {
-
-    if (!op.fecha) return;
-
-    const HORAS_TOTALES = 12;
-
-    let horasMtto = 0;
-
     const registrosArray = op.registros;
 
     if (!Array.isArray(registrosArray)) return;
 
-    // =====================================
-    // FECHA
-    // =====================================
+    const fecha = op.fecha;
 
-    const fecha = new Date(op.fecha);
+    if (!fecha) return;
 
-    const año = fecha.getFullYear();
+    let periodo: any = null;
 
-    const mesNumero =
-      fecha.getMonth() + 1;
-
-    const dia =
-      fecha.getDate();
-
-    // 🔥 clave única día
-    const clave =
-      `${año}-${mesNumero}-${dia}`;
-
-    // =====================================
-    // HORAS MTTO
-    // =====================================
-
-    for (const registro of registrosArray) {
-
-      if (
-        registro.estado !== 'MANTENIMIENTO'
-      ) continue;
-
-      horasMtto +=
-        this.calcularDuracionHoras(
-          registro.hora_inicio,
-          registro.hora_final
-        );
+    if (tipo === 'DIA') {
+      periodo = obtenerPeriodo(fecha, 'DIA');
+    } else {
+      periodo = obtenerPeriodo(fecha, tipo);
     }
 
-    horasMtto = Math.min(
-      horasMtto,
-      HORAS_TOTALES
-    );
+    if (!periodo) return;
 
-    // =====================================
-    // CREAR
-    // =====================================
-
-    if (!resultadoMap.has(clave)) {
-
-      resultadoMap.set(clave, {
-
-        año,
-
-        mes: mesNumero,
-
-        dia,
+    if (!resultadoMap.has(periodo.key)) {
+      resultadoMap.set(periodo.key, {
+        key: periodo.key,
+        periodo: periodo.label,
+        anio: periodo.anio || null,
+        fechaInicio: periodo.fechaInicio || null,
+        fechaFin: periodo.fechaFin || null,
 
         horasTotales: 0,
-
         horasMtto: 0,
-
+        horasDisponibles: 0,
         disponibilidad: 0,
 
-        cantidadPartes: 0
+        cantidadOperaciones: 0,
+        cantidadRegistros: 0,
+        cantidadRegistrosMtto: 0,
       });
     }
 
-    const item = resultadoMap.get(clave);
+    const item = resultadoMap.get(periodo.key);
 
-    item.horasTotales += HORAS_TOTALES;
+    item.cantidadOperaciones += 1;
 
-    item.horasMtto += horasMtto;
+    for (const registro of registrosArray) {
+      if (!registro.hora_inicio || !registro.hora_final) continue;
 
-    item.cantidadPartes += 1;
+      const horas = this.calcularDuracionHoras(
+        registro.hora_inicio,
+        registro.hora_final,
+      );
 
-    // =====================================
-    // DISPONIBILIDAD
-    // =====================================
+      if (!horas || horas <= 0) continue;
 
-    item.disponibilidad =
-      item.horasTotales > 0
-        ? Number(
-            (
-              (
-                (
-                  item.horasTotales -
-                  item.horasMtto
-                ) /
-                item.horasTotales
-              ) * 100
-            ).toFixed(2)
-          )
-        : 0;
+      const estado = String(registro.estado || '')
+        .trim()
+        .toUpperCase();
+
+      // SUMA(HORAS)
+      item.horasTotales += horas;
+      item.cantidadRegistros += 1;
+
+      // SUMA(HRS MANTENIMIENTO)
+      if (estado === 'MANTENIMIENTO') {
+        item.horasMtto += horas;
+        item.cantidadRegistrosMtto += 1;
+      }
+    }
   });
 
-  // =====================================
-  // ARRAY
-  // =====================================
+  const resultado = Array.from(resultadoMap.values()).map((item) => {
+    item.horasDisponibles = item.horasTotales - item.horasMtto;
 
-  const resultado =
-    Array.from(resultadoMap.values())
+    if (item.horasTotales > 0) {
+      const disponibilidad =
+        (item.horasDisponibles / item.horasTotales) * 100;
 
-    .sort((a, b) => {
+      item.disponibilidad = Number(disponibilidad.toFixed(2));
+    } else {
+      item.disponibilidad = 0;
+    }
 
-      const fechaA =
-        new Date(
-          a.año,
-          a.mes - 1,
-          a.dia
-        ).getTime();
+    item.horasTotales = Number(item.horasTotales.toFixed(2));
+    item.horasMtto = Number(item.horasMtto.toFixed(2));
+    item.horasDisponibles = Number(item.horasDisponibles.toFixed(2));
 
-      const fechaB =
-        new Date(
-          b.año,
-          b.mes - 1,
-          b.dia
-        ).getTime();
+    return item;
+  });
 
-      return fechaA - fechaB;
-    });
-
-  // console.log(
-  //   '📊 DISPONIBILIDAD POR DIA/MES:',
-  //   resultado
-  // );
+  resultado.sort((a, b) => a.key.localeCompare(b.key));
 
   return resultado;
 }
+
 
 DisponibilidadPorSeccion() {
   const resultadoMap = new Map<string, any>();

@@ -6,7 +6,6 @@ import { DisponibilidadEquipoComponent } from "../Graficos components/Disponibil
 import { DisponibilidadMesComponent } from "../Graficos components/Disponibilidad/disponibilidad-mes/disponibilidad-mes.component";
 import { DisponibilidadGuardiaComponent } from "../Graficos components/Disponibilidad/disponibilidad-guardia/disponibilidad-guardia.component";
 import { DisponibilidadEstadoComponent } from "../Graficos components/Disponibilidad/disponibilidad-estado/disponibilidad-estado.component";
-import { DisponibilidadDiaMesComponent } from "../Graficos components/Disponibilidad/disponibilidad-dia-mes/disponibilidad-dia-mes.component";
 import { UtilizacionEquipoComponent } from "../Graficos components/Utilizacion/utilizacion-equipo/utilizacion-equipo.component";
 import { UtilizacionSemanaComponent } from "../Graficos components/Utilizacion/utilizacion-semana/utilizacion-semana.component";
 import { UtilizacionMesComponent } from "../Graficos components/Utilizacion/utilizacion-mes/utilizacion-mes.component";
@@ -37,10 +36,11 @@ import { RendimientoRankingGuardiaComponent } from "../Graficos components/Ranki
 import { UtilizacionRankingGuardiaComponent } from "../Graficos components/Ranking Guardia/utilizacion-guardia/utilizacion-guardia.component";
 import { ToneladasRangoHoraComponent } from "../horas/toneladas-rango-hora/toneladas-rango-hora.component";
 import { TablaToneladasEquipoComponent } from "../horas/tabla-toneladas-equipo/tabla-toneladas-equipo.component";
+import { DisponibilidadDiaComponent } from '../Graficos components/Disponibilidad/disponibilidad-dia/disponibilidad-dia.component';
 
 @Component({
   selector: 'app-presentacion-dialog',
-  imports: [CommonModule, DisponibilidadSemanaComponent, DisponibilidadEquipoComponent, DisponibilidadMesComponent, DisponibilidadGuardiaComponent, DisponibilidadEstadoComponent, DisponibilidadDiaMesComponent, UtilizacionEquipoComponent, UtilizacionSemanaComponent, UtilizacionMesComponent, UtilizacionGuardiaComponent, HorasDemoraCodigoComponent, UtilizacionDiaMesComponent, RendimientoGeneralComponent, RendimientoGuardiaComponent, RendimientoSeccionLaborComponent, RendimientoMesAnoComponent, TopEquiposComponent, RendimientoDiaMesComponent, RankingOperadorUtilizacionComponent, RankingOperadorRendimientoComponent, ParetoNoProgramadasComponent, DiagramaParetoComponent, MtbfEquipoComponent, MtbfAnoComponent, MtbfSemanasComponent, MtbfMesComponent, MttrEquipoComponent, MttrAnoComponent, MttrSemanasComponent, MttrMesComponent, DisponibilidadRankingGuardiaComponent, MineralRankingGuardiaComponent, RendimientoRankingGuardiaComponent, UtilizacionRankingGuardiaComponent, ToneladasRangoHoraComponent, TablaToneladasEquipoComponent],
+  imports: [CommonModule, DisponibilidadSemanaComponent, DisponibilidadEquipoComponent, DisponibilidadMesComponent, DisponibilidadGuardiaComponent, DisponibilidadEstadoComponent, DisponibilidadDiaComponent, UtilizacionEquipoComponent, UtilizacionSemanaComponent, UtilizacionMesComponent, UtilizacionGuardiaComponent, HorasDemoraCodigoComponent, UtilizacionDiaMesComponent, RendimientoGeneralComponent, RendimientoGuardiaComponent, RendimientoSeccionLaborComponent, RendimientoMesAnoComponent, TopEquiposComponent, RendimientoDiaMesComponent, RankingOperadorUtilizacionComponent, RankingOperadorRendimientoComponent, ParetoNoProgramadasComponent, DiagramaParetoComponent, MtbfEquipoComponent, MtbfAnoComponent, MtbfSemanasComponent, MtbfMesComponent, MttrEquipoComponent, MttrAnoComponent, MttrSemanasComponent, MttrMesComponent, DisponibilidadRankingGuardiaComponent, MineralRankingGuardiaComponent, RendimientoRankingGuardiaComponent, UtilizacionRankingGuardiaComponent, ToneladasRangoHoraComponent, TablaToneladasEquipoComponent],
   templateUrl: './presentacion-dialog.component.html',
   styleUrl: './presentacion-dialog.component.css'
 })
