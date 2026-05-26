@@ -21,41 +21,43 @@
 
     <!-- Botones a la derecha -->
     <div class="nav-buttons">
-      <button class="nav-btn" [class.active]="hojaActual === 'hoja1'" (click)="cambiarHoja('hoja1')">
-        📊 Disponibilidad
-      </button>
-      <button class="nav-btn" [class.active]="hojaActual === 'hoja2'" (click)="cambiarHoja('hoja2')">
-        📋 Utilizacion
-      </button>
-      <button class="nav-btn" [class.active]="hojaActual === 'hoja3'" (click)="cambiarHoja('hoja3')">
-        📈 Rendimiento
-      </button>
-      <button class="nav-btn" [class.active]="hojaActual === 'hoja4'" (click)="cambiarHoja('hoja4')">
-        📉 Ranking Operador
-      </button>
-      <button class="nav-btn" [class.active]="hojaActual === 'hoja5'" (click)="cambiarHoja('hoja5')">
-        📉 Ranking Guardia
-      </button>
-      <button class="nav-btn" [class.active]="hojaActual === 'hoja6'" (click)="cambiarHoja('hoja6')">
-    🎯 Dis Pareto Detalle
+  <button class="nav-btn" [class.active]="hojaActual === 'hoja1'" (click)="cambiarHoja('hoja1')">
+    🚜 Horas
+  </button>
+  <button class="nav-btn" [class.active]="hojaActual === 'hoja2'" (click)="cambiarHoja('hoja2')">
+    📊 Disponibilidad
+  </button>
+  <button class="nav-btn" [class.active]="hojaActual === 'hoja3'" (click)="cambiarHoja('hoja3')">
+    📋 Utilización
+  </button>
+  <button class="nav-btn" [class.active]="hojaActual === 'hoja4'" (click)="cambiarHoja('hoja4')">
+    📈 Rendimiento
+  </button>
+  <button class="nav-btn" [class.active]="hojaActual === 'hoja5'" (click)="cambiarHoja('hoja5')">
+    📉 Ranking Operador
+  </button>
+  <button class="nav-btn" [class.active]="hojaActual === 'hoja6'" (click)="cambiarHoja('hoja6')">
+    🏆 Ranking Guardia
   </button>
   <button class="nav-btn" [class.active]="hojaActual === 'hoja7'" (click)="cambiarHoja('hoja7')">
-    📊 Dis Pareto Detalle
+    🎯 Dis Pareto Detalle
   </button>
   <button class="nav-btn" [class.active]="hojaActual === 'hoja8'" (click)="cambiarHoja('hoja8')">
-    🔧 MTBF
+    📊 Util Pareto Detalle
   </button>
   <button class="nav-btn" [class.active]="hojaActual === 'hoja9'" (click)="cambiarHoja('hoja9')">
+    ⏱️ MTBF
+  </button>
+  <button class="nav-btn" [class.active]="hojaActual === 'hoja10'" (click)="cambiarHoja('hoja10')">
     🔧 MTTR
   </button>
-
-    </div>
+</div>
   </div>
 
   <!-- CONTENIDO DE LAS HOJAS -->
   
   <!-- HOJA 1: Disponibilidad -->
-  <div *ngIf="hojaActual === 'hoja1'" class="hoja-content">
+  <div *ngIf="hojaActual === 'hoja2'" class="hoja-content">
     <div class="graficos-wrapper">
       <div class="graph-card">
         <app-disponibilidad-equipo [data]="DataDisponibilidadPorEquipo"></app-disponibilidad-equipo>
@@ -84,7 +86,7 @@
   </div>
 
   <!-- HOJA 2: Utilización -->
-  <div *ngIf="hojaActual === 'hoja2'" class="hoja-content">
+  <div *ngIf="hojaActual === 'hoja3'" class="hoja-content">
     <div class="graficos-wrapper">
       <div class="graph-card">
         <app-utilizacion-equipo [data]="DataUtilizacionPorEquipo"></app-utilizacion-equipo>
@@ -113,7 +115,7 @@
   </div>
 
   <!-- HOJA 3: Rendimiento (si tienes datos) -->
-    <div *ngIf="hojaActual === 'hoja3'" class="hoja-content">
+    <div *ngIf="hojaActual === 'hoja4'" class="hoja-content">
     
     <!-- Gráfico de ancho completo (1 columna) -->
     <div class="graficos-wrapper one-column">
@@ -151,7 +153,7 @@
   </div>
 
   <!-- HOJA 4: Ranking Operador -->
-<div *ngIf="hojaActual === 'hoja4'" class="hoja-content">
+<div *ngIf="hojaActual === 'hoja5'" class="hoja-content">
   
   <!-- Ranking de operadores (2 en 2) -->
   <div class="graficos-wrapper two-columns">
@@ -166,7 +168,7 @@
 </div>
 
 <!-- HOJA 5: Rankings por Guardia -->
-<div *ngIf="hojaActual === 'hoja5'" class="hoja-content">
+<div *ngIf="hojaActual === 'hoja6'" class="hoja-content">
   
   <!-- Rankings de Guardia (2 en 2) -->
   <div class="graficos-wrapper two-columns">
@@ -193,7 +195,7 @@
 </div>
 
 <!-- HOJA 6: Pareto No Programadas -->
-<div *ngIf="hojaActual === 'hoja6'" class="hoja-content">
+<div *ngIf="hojaActual === 'hoja7'" class="hoja-content">
        <!-- Gráfico de ancho completo (1 columna) -->
   <div class="graficos-wrapper one-column-full">
     <div class="graph-card">
@@ -203,7 +205,7 @@
 </div>
 
 <!-- HOJA 7: Diagrama Pareto -->
-<div *ngIf="hojaActual === 'hoja7'" class="hoja-content">
+<div *ngIf="hojaActual === 'hoja8'" class="hoja-content">
 
   <!-- Gráfico de ancho completo (1 columna) -->
   <div class="graficos-wrapper one-column-full">
@@ -215,7 +217,7 @@
 </div>
 
 <!-- HOJA 8: MTBF (Mean Time Between Failures) -->
-<div *ngIf="hojaActual === 'hoja8'" class="hoja-content">
+<div *ngIf="hojaActual === 'hoja9'" class="hoja-content">
   
   <!-- MTBF por Equipo y por Año (2 en 2) -->
   <div class="graficos-wrapper two-columns">
@@ -242,7 +244,7 @@
 </div>
 
 <!-- HOJA 9: MTTR (Mean Time To Repair) -->
-<div *ngIf="hojaActual === 'hoja9'" class="hoja-content">
+<div *ngIf="hojaActual === 'hoja10'" class="hoja-content">
   
   <!-- MTTR por Equipo y por Año (2 en 2) -->
   <div class="graficos-wrapper two-columns">
@@ -263,6 +265,28 @@
     
     <div class="graph-card">
       <app-mttr-mes [data]="DataMTTRPorMes"></app-mttr-mes>
+    </div>
+  </div>
+
+</div>
+
+<!-- HOJA 10: Toneladas por Rango de Hora y por Equipo -->
+<div *ngIf="hojaActual === 'hoja1'" class="hoja-content">
+  
+  <!-- Gráfico de Toneladas por Rango de Hora (1 columna - alto completo) -->
+  <div class="graficos-wrapper one-column-full">
+    <div class="graph-card">
+      <app-toneladas-rango-hora [data]="DataToneladasPorHora"></app-toneladas-rango-hora>
+    </div>
+  </div>
+
+  <!-- Tabla de Toneladas por Equipo y Rango de Hora (1 columna - alto completo) -->
+  <div class="graficos-wrapper one-column-full">
+    <div class="graph-card">
+      <app-tabla-toneladas-equipo 
+        [data]="DataToneladasPorEquipoYRangoHora" 
+        [turno]="turnoAplicado">
+      </app-tabla-toneladas-equipo>
     </div>
   </div>
 

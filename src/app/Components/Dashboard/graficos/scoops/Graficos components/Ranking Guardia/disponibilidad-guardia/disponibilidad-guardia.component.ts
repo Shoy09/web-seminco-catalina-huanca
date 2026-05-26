@@ -51,7 +51,7 @@ export class DisponibilidadRankingGuardiaComponent
   }
 
   procesarDatos(): void {
-    console.log('DATA DISPONIBILIDAD GUARDIA:', this.data);
+    //consolele.log('DATA DISPONIBILIDAD GUARDIA:', this.data);
 
     if (!this.data || this.data.length === 0) {
       this.chartOptions = {};

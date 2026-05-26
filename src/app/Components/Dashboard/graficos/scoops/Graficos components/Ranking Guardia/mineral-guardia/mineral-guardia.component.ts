@@ -44,7 +44,7 @@ export class MineralRankingGuardiaComponent implements OnInit, OnChanges {
   }
 
   procesarDatos(): void {
-    console.log('DATA MINERAL GUARDIA:', this.data);
+    //console.log('DATA MINERAL GUARDIA:', this.data);
 
     if (!this.data || this.data.length === 0) {
       this.chartOptions = {};

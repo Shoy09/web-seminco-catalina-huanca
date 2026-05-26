@@ -44,7 +44,7 @@ export class UtilizacionRankingGuardiaComponent implements OnInit, OnChanges {
   }
 
   procesarDatos(): void {
-    console.log('DATA UTILIZACIÓN GUARDIA:', this.data);
+    //console.log('DATA UTILIZACIÓN GUARDIA:', this.data);
 
     if (!this.data || this.data.length === 0) {
       this.chartOptions = {};

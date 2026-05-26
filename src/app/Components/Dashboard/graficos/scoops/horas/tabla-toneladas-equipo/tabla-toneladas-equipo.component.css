@@ -1,0 +1,109 @@
+.tabla-container {
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  overflow-x: auto;
+}
+
+.tabla-header {
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.tabla-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+.turno-info {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.turno-info strong {
+  color: #3498db;
+}
+
+.tabla-responsive {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.tabla-toneladas {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  min-width: 600px;
+}
+
+.tabla-toneladas th,
+.tabla-toneladas td {
+  border: 1px solid #ddd;
+  padding: 8px 10px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.tabla-toneladas th {
+  background: #f5f5f5;
+  font-weight: bold;
+  color: #333;
+  position: sticky;
+  top: 0;
+}
+
+.tabla-toneladas .fijo {
+  position: sticky;
+  left: 0;
+  background: #f5f5f5;
+  font-weight: bold;
+  text-align: left;
+}
+
+.tabla-toneladas tbody tr:hover {
+  background: #f9f9f9;
+}
+
+.tabla-toneladas .total-col,
+.tabla-toneladas .total-cell {
+  background: #f0f7ff;
+  font-weight: bold;
+}
+
+.tabla-toneladas .gran-total {
+  background: #e8f4f8;
+  font-weight: bold;
+}
+
+/* 🔥 Colores de fondo según valor */
+.bg-red-100 {
+  background-color: #fee2e2 !important;
+}
+
+.bg-orange-100 {
+  background-color: #ffedd5 !important;
+}
+
+.bg-yellow-50 {
+  background-color: #fefce8 !important;
+}
+
+.bg-green-50 {
+  background-color: #f0fdf4 !important;
+}
+
+.sin-datos {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+  font-size: 14px;
+}

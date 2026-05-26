@@ -44,7 +44,7 @@ export class RendimientoRankingGuardiaComponent implements OnInit, OnChanges {
   }
 
   procesarDatos(): void {
-    console.log('DATA RENDIMIENTO GUARDIA:', this.data);
+    //console.log('DATA RENDIMIENTO GUARDIA:', this.data);
 
     if (!this.data || this.data.length === 0) {
       this.chartOptions = {};

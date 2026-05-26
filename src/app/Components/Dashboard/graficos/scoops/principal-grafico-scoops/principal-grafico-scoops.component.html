@@ -44,9 +44,12 @@
 </button> -->
 
 
-</div>
+</div> 
 
 <div class="graficos-container" *ngIf="vistaPrincipal">
+  <!-- <app-toneladas-rango-hora class="full-width" [data]="DataToneladasPorHora"></app-toneladas-rango-hora>
+  <app-tabla-toneladas-equipo class="full-width" [data]="DataToneladasPorEquipoYRangoHora" [turno]="turnoSeleccionado"></app-tabla-toneladas-equipo>
+   -->
   <!-- Hoja 1 pdf -->
 <app-disponibilidad-equipo class="third-width" [data]="DataDisponibilidadPorEquipo" ></app-disponibilidad-equipo>
 <app-disponibilidad-semana class="third-width" [data]="DataDisponibilidadPorSemana"></app-disponibilidad-semana>
@@ -85,6 +88,7 @@
 
 
 <app-pareto-no-programadas class="full-width" [data]="DataHorasPorObservacion"></app-pareto-no-programadas>
+
 
 <app-diagrama-pareto class="full-width" [data]="DataHorasDemoraPorCodigoCompleto"></app-diagrama-pareto>
 
