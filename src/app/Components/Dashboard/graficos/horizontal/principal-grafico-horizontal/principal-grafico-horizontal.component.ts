@@ -437,19 +437,22 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
   }
 
   DisponibilidadPorSemana() {
-    return this.calcularDisponibilidadPorPeriodoVisual('SEMANA');
+    return this.calcularPromedioDisponibilidadPorPeriodoVisual('SEMANA');
   }
 
   DisponibilidadPorMes() {
-    return this.calcularDisponibilidadPorPeriodoVisual('MES');
+    return this.calcularPromedioDisponibilidadPorPeriodoVisual('MES');
   }
-  private calcularDisponibilidadPorPeriodoVisual(tipo: 'SEMANA' | 'MES') {
+
+  private calcularPromedioDisponibilidadPorPeriodoVisual(
+    tipo: 'SEMANA' | 'MES',
+  ) {
     const resultadoMap = this.crearPeriodosVisiblesDisponibilidad(tipo);
 
     // Usa operacionesOriginal para que fechaInicio y fechaFin NO afecten el cálculo
-    // Solo se filtra por turno, si corresponde
     const dataCalculo = this.filtrarSoloPorTurno(this.operacionesOriginal);
 
+    // Primero calculamos disponibilidad por día con toda la data original
     const datosPorDia = this.calcularDisponibilidadBasePorDia(
       dataCalculo,
       false,
@@ -460,7 +463,7 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
 
       if (!periodo) return;
 
-      // Solo muestra semanas/meses dentro del rango visual seleccionado
+      // Solo se muestran semanas/meses dentro del rango visual seleccionado
       if (!resultadoMap.has(periodo.key)) return;
 
       const item = resultadoMap.get(periodo.key);
@@ -472,17 +475,24 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
       item.cantidadOperaciones += Number(dia.cantidadOperaciones || 0);
       item.cantidadRegistros += Number(dia.cantidadRegistros || 0);
       item.cantidadRegistrosMtto += Number(dia.cantidadRegistrosMtto || 0);
+
+      // Promedio de disponibilidad diaria
+      if (dia.horasTotales > 0) {
+        item.sumaDisponibilidad += Number(dia.disponibilidad || 0);
+        item.cantidadDiasConDatos += 1;
+      }
     });
 
     const resultado = Array.from(resultadoMap.values()).map((item) => {
-      if (item.horasTotales > 0) {
+      if (item.cantidadDiasConDatos > 0) {
         item.disponibilidad = Number(
-          ((item.horasDisponibles / item.horasTotales) * 100).toFixed(2),
+          (item.sumaDisponibilidad / item.cantidadDiasConDatos).toFixed(2),
         );
       } else {
         item.disponibilidad = 0;
       }
 
+      item.sumaDisponibilidad = Number(item.sumaDisponibilidad.toFixed(2));
       item.horasTotales = Number(item.horasTotales.toFixed(2));
       item.horasMtto = Number(item.horasMtto.toFixed(2));
       item.horasDisponibles = Number(item.horasDisponibles.toFixed(2));
@@ -491,8 +501,6 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
     });
 
     resultado.sort((a, b) => String(a.key).localeCompare(String(b.key)));
-
-    console.log(`📊 DISPONIBILIDAD POR ${tipo} - VISUAL:`, resultado);
 
     return resultado;
   }
@@ -518,12 +526,15 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
           fechaInicio: periodo.fechaInicio || null,
           fechaFin: periodo.fechaFin || null,
 
-          horasTotales: 0,
-          horasMtto: 0,
-          horasDisponibles: 0,
+          sumaDisponibilidad: 0,
           disponibilidad: 0,
 
           cantidadDiasRango: 0,
+          cantidadDiasConDatos: 0,
+
+          horasTotales: 0,
+          horasMtto: 0,
+          horasDisponibles: 0,
 
           cantidadOperaciones: 0,
           cantidadRegistros: 0,
@@ -538,114 +549,110 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
     return resultadoMap;
   }
   private calcularDisponibilidadBasePorDia(
-  dataOperaciones: OperacionBase[],
-  crearRangoVisual: boolean
-) {
-  const resultadoMap = new Map<string, any>();
+    dataOperaciones: OperacionBase[],
+    crearRangoVisual: boolean,
+  ) {
+    const resultadoMap = new Map<string, any>();
 
-  // Solo para DisponibilidadPorDia:
-  // crea todos los días del rango seleccionado, incluso si no tienen data
-  if (crearRangoVisual && this.fechaInicio && this.fechaFin) {
-    const diasRango = generarDiasEntreFechas(this.fechaInicio, this.fechaFin);
+    if (crearRangoVisual && this.fechaInicio && this.fechaFin) {
+      const diasRango = generarDiasEntreFechas(this.fechaInicio, this.fechaFin);
 
-    diasRango.forEach((dia) => {
-      resultadoMap.set(dia.key, {
-        key: dia.key,
-        periodo: dia.label,
+      diasRango.forEach((dia) => {
+        resultadoMap.set(dia.key, {
+          key: dia.key,
+          periodo: dia.label,
 
-        horasTotales: 0,
-        horasMtto: 0,
-        horasDisponibles: 0,
-        disponibilidad: 0,
+          horasTotales: 0,
+          horasMtto: 0,
+          horasDisponibles: 0,
+          disponibilidad: 0,
 
-        cantidadOperaciones: 0,
-        cantidadRegistros: 0,
-        cantidadRegistrosMtto: 0,
-      });
-    });
-  }
-
-  dataOperaciones.forEach((op) => {
-    const registrosArray = op.registros;
-
-    if (!Array.isArray(registrosArray)) return;
-
-    const fecha = op.fecha;
-
-    if (!fecha) return;
-
-    const periodo = obtenerPeriodo(fecha, 'DIA');
-
-    if (!periodo) return;
-
-    if (!resultadoMap.has(periodo.key)) {
-      resultadoMap.set(periodo.key, {
-        key: periodo.key,
-        periodo: periodo.label,
-
-        horasTotales: 0,
-        horasMtto: 0,
-        horasDisponibles: 0,
-        disponibilidad: 0,
-
-        cantidadOperaciones: 0,
-        cantidadRegistros: 0,
-        cantidadRegistrosMtto: 0,
+          cantidadOperaciones: 0,
+          cantidadRegistros: 0,
+          cantidadRegistrosMtto: 0,
+        });
       });
     }
 
-    const item = resultadoMap.get(periodo.key);
+    dataOperaciones.forEach((op) => {
+      const registrosArray = op.registros;
 
-    item.cantidadOperaciones += 1;
+      if (!Array.isArray(registrosArray)) return;
 
-    for (const registro of registrosArray) {
-      if (!registro.hora_inicio || !registro.hora_final) continue;
+      const fecha = op.fecha;
 
-      const horas = this.calcularDuracionHoras(
-        registro.hora_inicio,
-        registro.hora_final
-      );
+      if (!fecha) return;
 
-      if (!horas || horas <= 0) continue;
+      const periodo = obtenerPeriodo(fecha, 'DIA');
 
-      const estado = String(registro.estado || '')
-        .trim()
-        .toUpperCase();
+      if (!periodo) return;
 
-      // SUMA(HORAS)
-      item.horasTotales += horas;
-      item.cantidadRegistros += 1;
+      if (!resultadoMap.has(periodo.key)) {
+        resultadoMap.set(periodo.key, {
+          key: periodo.key,
+          periodo: periodo.label,
 
-      // SUMA(HRS MANTENIMIENTO)
-      if (estado === 'MANTENIMIENTO') {
-        item.horasMtto += horas;
-        item.cantidadRegistrosMtto += 1;
+          horasTotales: 0,
+          horasMtto: 0,
+          horasDisponibles: 0,
+          disponibilidad: 0,
+
+          cantidadOperaciones: 0,
+          cantidadRegistros: 0,
+          cantidadRegistrosMtto: 0,
+        });
       }
-    }
-  });
 
-  const resultado = Array.from(resultadoMap.values()).map((item) => {
-    item.horasDisponibles = item.horasTotales - item.horasMtto;
+      const item = resultadoMap.get(periodo.key);
 
-    if (item.horasTotales > 0) {
-      item.disponibilidad = Number(
-        ((item.horasDisponibles / item.horasTotales) * 100).toFixed(2)
-      );
-    } else {
-      item.disponibilidad = 0;
-    }
+      item.cantidadOperaciones += 1;
 
-    item.horasTotales = Number(item.horasTotales.toFixed(2));
-    item.horasMtto = Number(item.horasMtto.toFixed(2));
-    item.horasDisponibles = Number(item.horasDisponibles.toFixed(2));
+      for (const registro of registrosArray) {
+        if (!registro.hora_inicio || !registro.hora_final) continue;
 
-    return item;
-  });
+        const horas = this.calcularDuracionHoras(
+          registro.hora_inicio,
+          registro.hora_final,
+        );
 
-  resultado.sort((a, b) => String(a.key).localeCompare(String(b.key)));
+        if (!horas || horas <= 0) continue;
 
-  return resultado;
-}
+        const estado = String(registro.estado || '')
+          .trim()
+          .toUpperCase();
+
+        item.horasTotales += horas;
+        item.cantidadRegistros += 1;
+
+        if (estado === 'MANTENIMIENTO') {
+          item.horasMtto += horas;
+          item.cantidadRegistrosMtto += 1;
+        }
+      }
+    });
+
+    const resultado = Array.from(resultadoMap.values()).map((item) => {
+      item.horasDisponibles = item.horasTotales - item.horasMtto;
+
+      if (item.horasTotales > 0) {
+        item.disponibilidad = Number(
+          ((item.horasDisponibles / item.horasTotales) * 100).toFixed(2),
+        );
+      } else {
+        item.disponibilidad = 0;
+      }
+
+      item.horasTotales = Number(item.horasTotales.toFixed(2));
+      item.horasMtto = Number(item.horasMtto.toFixed(2));
+      item.horasDisponibles = Number(item.horasDisponibles.toFixed(2));
+
+      return item;
+    });
+
+    resultado.sort((a, b) => String(a.key).localeCompare(String(b.key)));
+
+    return resultado;
+  }
 
   calcularDuracionHoras(horaInicio: string, horaFinal: string): number {
     if (!horaInicio || !horaFinal) return 0;
