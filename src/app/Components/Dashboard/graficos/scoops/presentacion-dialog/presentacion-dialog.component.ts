@@ -3304,7 +3304,7 @@ ToneladasPorRangoHoraCompleto(turno: string = '') {
       if (!codigosPermitidos.includes(codigo)) continue;
       if (registro.estado !== 'OPERATIVO') continue;
 
-      const rangoHora = obtenerRangoHora(registro.hora_inicio);
+      const rangoHora = obtenerRangoHora(registro.hora_final);
       
       // 🔥 Saltar si el rango no está en la lista
       if (!rangosHora.includes(rangoHora)) continue;
@@ -3513,7 +3513,7 @@ ToneladasPorEquipoYRangoHora(turno: string = '') {
       if (!codigosPermitidos.includes(codigo)) continue;
       if (registro.estado !== 'OPERATIVO') continue;
 
-      const rangoHora = obtenerRangoHora(registro.hora_inicio);
+      const rangoHora = obtenerRangoHora(registro.hora_final);
       
       // 🔥 Saltar si el rango no está en la lista del turno
       if (!rangosHora.includes(rangoHora)) continue;

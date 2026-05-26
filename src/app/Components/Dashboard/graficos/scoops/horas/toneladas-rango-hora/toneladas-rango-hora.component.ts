@@ -79,10 +79,10 @@ export class ToneladasRangoHoraComponent implements OnInit, OnChanges {
 
     // 🔥 Colores para cada tipo de material
     const colores = {
-      mineral: '#2ecc71',      // Verde
-      desmonte: '#f39c12',     // Naranja
-      relave: '#9b59b6',       // Morado
-      relleno: '#3498db'       // Azul
+      mineral: '#9df6c2',      // Verde
+      desmonte: '#1eff7c',     // Naranja
+      relave: '#2ecc71',       // Morado
+      relleno: '#2ecc71'       // Azul
     };
 
     this.chartOptions = {
@@ -148,7 +148,7 @@ export class ToneladasRangoHoraComponent implements OnInit, OnChanges {
         type: 'category',
         data: rangos,
         axisLabel: {
-          fontSize: 9,           // 🔥 Texto más pequeño
+          fontSize: 14,           // 🔥 Texto más pequeño
           fontWeight: 'normal',  // 🔥 Normal en lugar de bold
           color: '#2c3e50',
           fontFamily: 'Arial',
@@ -265,7 +265,7 @@ export class ToneladasRangoHoraComponent implements OnInit, OnChanges {
             show: true,
             position: 'top',
             fontWeight: 'bold',
-            fontSize: 10,
+            fontSize: 12,
             formatter: (params: any) => {
               const total = totales[params.dataIndex];
               return total > 0 ? total.toFixed(0) + 't' : '';

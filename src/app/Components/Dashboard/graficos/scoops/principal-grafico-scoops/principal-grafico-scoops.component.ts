@@ -373,7 +373,7 @@ mapaEstados: Map<string, any> = new Map();
 
 
   // this.DataToneladasPorHora = this.ToneladasPorRangoHoraCompleto() 
-  // this.DataToneladasPorEquipoYRangoHora = this.ToneladasPorEquipoYRangoHora(this.turnoSeleccionado);
+   //this.DataToneladasPorEquipoYRangoHora = this.ToneladasPorEquipoYRangoHora(this.turnoSeleccionado);
   this.dataHorasOperativasDia = this.HorasOperativasPorDia();
   this.dataHorasOperativasSemana = this.HorasOperativasPorSemana();
   this.dataHorasOperativasMes = this.HorasOperativasPorMes();
@@ -3726,7 +3726,6 @@ ToneladasPorRangoHoraCompleto(turno: string = '') {
 }
 
 //GRAFICO - TONELADAS POR EQUIPO Y RANGO DE HORA
-//GRAFICO - TONELADAS POR EQUIPO Y RANGO DE HORA (CON RANGOS AJUSTADOS)
 ToneladasPorEquipoYRangoHora(turno: string = '') {
   const resultadoMap = new Map<string, any>();
 
@@ -3846,7 +3845,7 @@ ToneladasPorEquipoYRangoHora(turno: string = '') {
       if (!codigosPermitidos.includes(codigo)) continue;
       if (registro.estado !== 'OPERATIVO') continue;
 
-      const rangoHora = obtenerRangoHora(registro.hora_inicio);
+      const rangoHora = obtenerRangoHora(registro.hora_final);
       
       // 🔥 Saltar si el rango no está en la lista del turno
       if (!rangosHora.includes(rangoHora)) continue;
