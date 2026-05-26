@@ -3625,4 +3625,5 @@ ToneladasPorEquipoYRangoHora(turno: string = '') {
   console.log(`📊 TONELADAS POR EQUIPO Y RANGO DE HORA (Turno: ${turno || 'TODOS'}):`, resultado);
   return resultado;
 }
+
 }
