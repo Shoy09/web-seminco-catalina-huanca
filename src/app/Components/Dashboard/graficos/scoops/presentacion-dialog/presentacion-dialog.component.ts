@@ -202,7 +202,7 @@ isFullscreen: boolean = false;
   this.DataMineralGuardia = this.MineralGuardia();
   this.DataUtilizacionGuardia = this.UtilizacionGuardia();
 
-   this.DataToneladasPorHora = this.ToneladasPorRangoHoraCompleto() 
+   this.DataToneladasPorHora = this.ToneladasPorRangoHoraCompleto(this.turnoAplicado) 
   this.DataToneladasPorEquipoYRangoHora = this.ToneladasPorEquipoYRangoHora(this.turnoAplicado);
   }
 
@@ -3306,7 +3306,7 @@ ToneladasPorRangoHoraCompleto(turno: string = '') {
 
       const rangoHora = obtenerRangoHora(registro.hora_final);
       
-      // 🔥 Saltar si el rango no está en la lista
+      // 🔥 Saltar si el rango no está en la lista del turno
       if (!rangosHora.includes(rangoHora)) continue;
       
       const n_cucharas = registro.operacion?.n_cucharas;

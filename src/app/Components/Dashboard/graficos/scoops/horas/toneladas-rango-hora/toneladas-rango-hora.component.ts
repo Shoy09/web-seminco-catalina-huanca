@@ -33,61 +33,105 @@ echarts.use([
 export class ToneladasRangoHoraComponent implements OnInit, OnChanges {
 
   @Input() data: any[] = [];
+  @Input() turno: string = ''; // 'DÍA', 'NOCHE' o ''
 
   chartOptions: any = {};
+
+  // 🔥 Rangos de hora según el turno
+  private rangosPorTurno: { [key: string]: string[] } = {
+    'DÍA': [
+      '06:00 - 07:00', '07:00 - 08:00', '08:00 - 09:00', '09:00 - 10:00', 
+      '10:00 - 11:00', '11:00 - 12:00', '12:00 - 13:00', '13:00 - 14:00', 
+      '14:00 - 15:00', '15:00 - 16:00', '16:00 - 17:00', '17:00 - 18:00'
+    ],
+    'NOCHE': [
+      '18:00 - 19:00', '19:00 - 20:00', '20:00 - 21:00', '21:00 - 22:00', 
+      '22:00 - 23:00', '23:00 - 00:00', '00:00 - 01:00', '01:00 - 02:00', 
+      '02:00 - 03:00', '03:00 - 04:00', '04:00 - 05:00', '05:00 - 06:00'
+    ],
+    '': [ // TODOS los turnos
+      '06:00 - 07:00', '07:00 - 08:00', '08:00 - 09:00', '09:00 - 10:00', 
+      '10:00 - 11:00', '11:00 - 12:00', '12:00 - 13:00', '13:00 - 14:00', 
+      '14:00 - 15:00', '15:00 - 16:00', '16:00 - 17:00', '17:00 - 18:00',
+      '18:00 - 19:00', '19:00 - 20:00', '20:00 - 21:00', '21:00 - 22:00', 
+      '22:00 - 23:00', '23:00 - 00:00', '00:00 - 01:00', '01:00 - 02:00', 
+      '02:00 - 03:00', '03:00 - 04:00', '04:00 - 05:00', '05:00 - 06:00'
+    ]
+  };
 
   ngOnInit(): void {
     this.procesarDatos();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data']) {
+    if (changes['data'] || changes['turno']) {
       this.procesarDatos();
     }
   }
 
   procesarDatos(): void {
+    // 🔥 Obtener los rangos completos según el turno
+    const rangosCompletos = this.rangosPorTurno[this.turno] || this.rangosPorTurno[''];
+    
     if (!this.data || this.data.length === 0) {
-      this.chartOptions = {};
+      // Mostrar gráfico con todos los rangos pero con valores en cero
+      this.actualizarGraficoConRangosCompletos(rangosCompletos, []);
       return;
     }
 
-    this.actualizarGrafico();
+    this.actualizarGraficoConRangosCompletos(rangosCompletos, this.data);
   }
 
-  actualizarGrafico(): void {
-    if (!this.data.length) {
-      this.chartOptions = {};
-      return;
-    }
+  actualizarGraficoConRangosCompletos(rangosCompletos: string[], datosOriginales: any[]): void {
+    // 🔥 Crear un mapa de datos por rango para fácil acceso
+    const datosPorRango = new Map<string, any>();
+    datosOriginales.forEach(item => {
+      datosPorRango.set(item.rangoHora, item);
+    });
 
-    // 🔥 Rangos de hora para el eje X
-    const rangos = this.data.map(item => item.rangoHora);
-    
-    // 🔥 Valores por tipo de material
-    const mineral = this.data.map(item => item.mineral || 0);
-    const desmonte = this.data.map(item => item.desmonte || 0);
-    const relave = this.data.map(item => item.relave || 0);
-    const relleno = this.data.map(item => item.relleno || 0);
-    
-    // 🔥 Totales por rango (para mostrar arriba de la barra)
-    const totales = this.data.map(item => item.total || 0);
-    
+    // 🔥 Construir los arrays alineados con los rangos completos
+    const rangos: string[] = [];
+    const mineral: number[] = [];
+    const desmonte: number[] = [];
+    const relave: number[] = [];
+    const relleno: number[] = [];
+    const totales: number[] = [];
+
+    rangosCompletos.forEach(rango => {
+      rangos.push(rango);
+      
+      if (datosPorRango.has(rango)) {
+        const item = datosPorRango.get(rango);
+        mineral.push(item.mineral || 0);
+        desmonte.push(item.desmonte || 0);
+        relave.push(item.relave || 0);
+        relleno.push(item.relleno || 0);
+        totales.push(item.total || 0);
+      } else {
+        // Si no hay datos para este rango, poner ceros
+        mineral.push(0);
+        desmonte.push(0);
+        relave.push(0);
+        relleno.push(0);
+        totales.push(0);
+      }
+    });
+
     // 🔥 Calcular máximo para escala dinámica
-    const maxTotal = Math.max(...totales);
-    const escalaMax = Math.ceil(maxTotal / 100) * 100;
+    const maxTotal = Math.max(...totales, 0);
+    const escalaMax = maxTotal > 0 ? Math.ceil(maxTotal / 100) * 100 : 100;
 
     // 🔥 Colores para cada tipo de material
     const colores = {
-      mineral: '#9df6c2',      // Verde
-      desmonte: '#1eff7c',     // Naranja
-      relave: '#2ecc71',       // Morado
-      relleno: '#2ecc71'       // Azul
+      mineral: '#9df6c2',      // Verde claro
+      desmonte: '#1eff7c',     // Verde brillante
+      relave: '#2ecc71',       // Verde
+      relleno: '#27ae60'       // Verde oscuro
     };
 
     this.chartOptions = {
       title: {
-        text: 'TONELADAS POR RANGO DE HORA',
+        text: `TONELADAS POR RANGO DE HORA ${this.turno ? `- TURNO ${this.turno}` : '- TODOS LOS TURNOS'}`,
         left: 'center',
         top: 10,
         textStyle: {
@@ -105,7 +149,14 @@ export class ToneladasRangoHoraComponent implements OnInit, OnChanges {
         },
         formatter: (params: any) => {
           const rango = params[0].axisValue;
-          const total = totales[params[0].dataIndex];
+          const index = params[0].dataIndex;
+          const total = totales[index];
+          
+          if (total === 0) {
+            return `<strong>📊 ${rango}</strong><br/>
+              <hr style="margin: 5px 0;"/>
+              <strong>Sin producción</strong>`;
+          }
           
           let tooltipText = `<strong>📊 ${rango}</strong><br/>
             <hr style="margin: 5px 0;"/>
@@ -148,11 +199,11 @@ export class ToneladasRangoHoraComponent implements OnInit, OnChanges {
         type: 'category',
         data: rangos,
         axisLabel: {
-          fontSize: 14,           // 🔥 Texto más pequeño
-          fontWeight: 'normal',  // 🔥 Normal en lugar de bold
+          fontSize: 11,           // 🔥 Tamaño ajustado para 24 rangos
+          fontWeight: 'normal',
           color: '#2c3e50',
           fontFamily: 'Arial',
-          rotate: 0,             // 🔥 Horizontal (sin rotación)
+          rotate: 0,             // 🔥 Rotar 45 grados si hay muchos rangos
           interval: 0,
           margin: 10
         },
@@ -168,6 +219,7 @@ export class ToneladasRangoHoraComponent implements OnInit, OnChanges {
 
       yAxis: {
         type: 'value',
+        name: 'Toneladas',
         nameLocation: 'middle',
         nameGap: 45,
         min: 0,
@@ -265,7 +317,7 @@ export class ToneladasRangoHoraComponent implements OnInit, OnChanges {
             show: true,
             position: 'top',
             fontWeight: 'bold',
-            fontSize: 12,
+            fontSize: 11,
             formatter: (params: any) => {
               const total = totales[params.dataIndex];
               return total > 0 ? total.toFixed(0) + 't' : '';
