@@ -25,6 +25,7 @@ import { UtilizacionEquipoComponent } from '../../scoops/Graficos components/Uti
 import { UtilizacionDiaMesComponent } from '../../scoops/Graficos components/Utilizacion/app-utilizacion-dia-mes/app-utilizacion-dia-mes.component';
 import { UtilizacionSemanaComponent } from '../../scoops/Graficos components/Utilizacion/utilizacion-semana/utilizacion-semana.component';
 import { UtilizacionMesComponent } from '../../scoops/Graficos components/Utilizacion/utilizacion-mes/utilizacion-mes.component';
+import { RendimientoEquipoComponent } from '../../Graficos components/Rendimiento/rendimiento-equipo/rendimiento-equipo.component';
 
 @Component({
   selector: 'app-principal-grafico-horizontal',
@@ -40,6 +41,7 @@ import { UtilizacionMesComponent } from '../../scoops/Graficos components/Utiliz
     UtilizacionDiaMesComponent,
     UtilizacionSemanaComponent,
     UtilizacionMesComponent,
+    RendimientoEquipoComponent,
   ],
   templateUrl: './principal-grafico-horizontal.component.html',
   styleUrl: './principal-grafico-horizontal.component.css',
@@ -157,6 +159,15 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
   estadosProceso: any[] = [];
 
   private readonly CODIGOS_OPERATIVOS = ['101', '102', '105', '106', '108'];
+  private readonly CODIGOS_OPERATIVOS_JUMBO = [
+    '101',
+    '102',
+    '103',
+    '104',
+    '105',
+    '106',
+    '107',
+  ];
 
   DataDisponibilidadPorEquipo: any[] = [];
   DataDisponibilidadPorDia: any[] = [];
@@ -167,6 +178,8 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
   DataUtilizacionPorDia: any[] = [];
   DataUtilizacionPorSemana: any[] = [];
   DataUtilizacionPorMes: any[] = [];
+
+  DataRendimientoPorEquipo: any[] = [];
 
   constructor(
     private planMensualService: PlanMensualService,
@@ -327,6 +340,8 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
     this.DataUtilizacionPorDia = this.UtilizacionPorDia();
     this.DataUtilizacionPorSemana = this.UtilizacionPorSemana();
     this.DataUtilizacionPorMes = this.UtilizacionPorMes();
+
+    this.DataRendimientoPorEquipo = this.RendimientoPorEquipo();
 
     //console.log('🔥 DATA DISPAROS EQUIPO:', this.dataDisparosEquipo);
   }
@@ -997,5 +1012,124 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
       if (this.turnoAplicado && op.turno !== this.turnoAplicado) return false;
       return true;
     });
+  }
+
+  RendimientoPorEquipo() {
+    const resultadoMap = new Map<string, any>();
+
+    this.operacionesFiltradas.forEach((op) => {
+      const equipo = op.equipo || 'SIN EQUIPO';
+      const nEquipo = op.n_equipo || op.modelo_equipo || 'SIN N° EQUIPO';
+
+      const key = nEquipo;
+
+      const registrosArray = op.registros;
+
+      if (!Array.isArray(registrosArray)) return;
+
+      if (!resultadoMap.has(key)) {
+        resultadoMap.set(key, {
+          equipo,
+          n_equipo: nEquipo,
+
+          metrosPerforados: 0,
+          horasOperativas: 0,
+          rendimiento: 0,
+
+          cantidadOperaciones: 0,
+          cantidadRegistros: 0,
+          cantidadRegistrosOperativos: 0,
+
+          talProd: 0,
+          talRimados: 0,
+          talAlivio: 0,
+          talRepaso: 0,
+
+          totalTaladros: 0,
+          totalBarras: 0,
+        });
+      }
+
+      const item = resultadoMap.get(key);
+
+      item.cantidadOperaciones += 1;
+
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+
+        if (!this.CODIGOS_OPERATIVOS_JUMBO.includes(codigo)) continue;
+
+        if (!registro.hora_inicio || !registro.hora_final) continue;
+
+        const horas = this.calcularDuracionHoras(
+          registro.hora_inicio,
+          registro.hora_final,
+        );
+
+        if (!horas || horas <= 0) continue;
+
+        const operacion = registro.operacion || {};
+
+        const talProd = this.convertirNumero(operacion.tal_prod);
+        const talRimados = this.convertirNumero(operacion.tal_rimados);
+        const talAlivio = this.convertirNumero(operacion.tal_alivio);
+        const talRepaso = this.convertirNumero(operacion.tal_repaso);
+
+        const longBarrasPies = this.convertirNumero(operacion.long_barras);
+
+        // Si viene vacío, asumimos 1 barra
+        const numBarras = this.convertirNumero(operacion.num_barras, 1);
+
+        const totalTaladros = talProd + talRimados + talAlivio + talRepaso;
+
+        const longBarrasMetros = longBarrasPies * 0.3048;
+
+        const metrosRegistro = totalTaladros * longBarrasMetros * numBarras;
+
+        item.metrosPerforados += metrosRegistro;
+        item.horasOperativas += horas;
+
+        item.talProd += talProd;
+        item.talRimados += talRimados;
+        item.talAlivio += talAlivio;
+        item.talRepaso += talRepaso;
+
+        item.totalTaladros += totalTaladros;
+        item.totalBarras += numBarras;
+
+        item.cantidadRegistros += 1;
+        item.cantidadRegistrosOperativos += 1;
+      }
+    });
+
+    const resultado = Array.from(resultadoMap.values()).map((item) => {
+      if (item.horasOperativas > 0) {
+        item.rendimiento = Number(
+          (item.metrosPerforados / item.horasOperativas).toFixed(2),
+        );
+      } else {
+        item.rendimiento = 0;
+      }
+
+      item.metrosPerforados = Number(item.metrosPerforados.toFixed(2));
+      item.horasOperativas = Number(item.horasOperativas.toFixed(2));
+
+      return item;
+    });
+
+    resultado.sort((a, b) => b.rendimiento - a.rendimiento);
+
+    console.log('📊 RENDIMIENTO POR EQUIPO JUMBO:', resultado);
+
+    return resultado;
+  }
+  private convertirNumero(valor: any, valorDefault: number = 0): number {
+    if (valor === null || valor === undefined || valor === '') {
+      return valorDefault;
+    }
+
+    const numero = Number(valor);
+
+    return isNaN(numero) ? valorDefault : numero;
   }
 }
