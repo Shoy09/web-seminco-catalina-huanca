@@ -430,75 +430,83 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
   }
 
   DisponibilidadPorDia() {
-    return this.calcularDisponibilidadPorPeriodo('DIA');
+    return this.calcularDisponibilidadBasePorDia(
+      this.operacionesFiltradas,
+      true,
+    );
   }
 
   DisponibilidadPorSemana() {
-    return this.calcularDisponibilidadPorPeriodo('SEMANA');
+    return this.calcularDisponibilidadPorPeriodoVisual('SEMANA');
   }
 
   DisponibilidadPorMes() {
-    return this.calcularDisponibilidadPorPeriodo('MES');
+    return this.calcularDisponibilidadPorPeriodoVisual('MES');
   }
+  private calcularDisponibilidadPorPeriodoVisual(tipo: 'SEMANA' | 'MES') {
+    const resultadoMap = this.crearPeriodosVisiblesDisponibilidad(tipo);
 
-  private calcularDisponibilidadPorPeriodo(tipo: 'DIA' | 'SEMANA' | 'MES') {
+    // Usa operacionesOriginal para que fechaInicio y fechaFin NO afecten el cálculo
+    // Solo se filtra por turno, si corresponde
+    const dataCalculo = this.filtrarSoloPorTurno(this.operacionesOriginal);
+
+    const datosPorDia = this.calcularDisponibilidadBasePorDia(
+      dataCalculo,
+      false,
+    );
+
+    datosPorDia.forEach((dia) => {
+      const periodo = obtenerPeriodoDesdeKey(dia.key, tipo);
+
+      if (!periodo) return;
+
+      // Solo muestra semanas/meses dentro del rango visual seleccionado
+      if (!resultadoMap.has(periodo.key)) return;
+
+      const item = resultadoMap.get(periodo.key);
+
+      item.horasTotales += Number(dia.horasTotales || 0);
+      item.horasMtto += Number(dia.horasMtto || 0);
+      item.horasDisponibles += Number(dia.horasDisponibles || 0);
+
+      item.cantidadOperaciones += Number(dia.cantidadOperaciones || 0);
+      item.cantidadRegistros += Number(dia.cantidadRegistros || 0);
+      item.cantidadRegistrosMtto += Number(dia.cantidadRegistrosMtto || 0);
+    });
+
+    const resultado = Array.from(resultadoMap.values()).map((item) => {
+      if (item.horasTotales > 0) {
+        item.disponibilidad = Number(
+          ((item.horasDisponibles / item.horasTotales) * 100).toFixed(2),
+        );
+      } else {
+        item.disponibilidad = 0;
+      }
+
+      item.horasTotales = Number(item.horasTotales.toFixed(2));
+      item.horasMtto = Number(item.horasMtto.toFixed(2));
+      item.horasDisponibles = Number(item.horasDisponibles.toFixed(2));
+
+      return item;
+    });
+
+    resultado.sort((a, b) => String(a.key).localeCompare(String(b.key)));
+
+    console.log(`📊 DISPONIBILIDAD POR ${tipo} - VISUAL:`, resultado);
+
+    return resultado;
+  }
+  private crearPeriodosVisiblesDisponibilidad(tipo: 'SEMANA' | 'MES') {
     const resultadoMap = new Map<string, any>();
 
-    // Crear todos los días del rango seleccionado
-    if (this.fechaInicio && this.fechaFin) {
-      const diasRango = generarDiasEntreFechas(this.fechaInicio, this.fechaFin);
-
-      diasRango.forEach((dia) => {
-        let periodo: any = null;
-
-        if (tipo === 'DIA') {
-          periodo = {
-            key: dia.key,
-            label: dia.label,
-          };
-        } else {
-          periodo = obtenerPeriodoDesdeKey(dia.key, tipo);
-        }
-
-        if (!periodo) return;
-
-        if (!resultadoMap.has(periodo.key)) {
-          resultadoMap.set(periodo.key, {
-            key: periodo.key,
-            periodo: periodo.label,
-            anio: periodo.anio || null,
-            fechaInicio: periodo.fechaInicio || null,
-            fechaFin: periodo.fechaFin || null,
-
-            horasTotales: 0,
-            horasMtto: 0,
-            horasDisponibles: 0,
-            disponibilidad: 0,
-
-            cantidadOperaciones: 0,
-            cantidadRegistros: 0,
-            cantidadRegistrosMtto: 0,
-          });
-        }
-      });
+    if (!this.fechaInicio || !this.fechaFin) {
+      return resultadoMap;
     }
 
-    this.operacionesFiltradas.forEach((op) => {
-      const registrosArray = op.registros;
+    const diasRango = generarDiasEntreFechas(this.fechaInicio, this.fechaFin);
 
-      if (!Array.isArray(registrosArray)) return;
-
-      const fecha = op.fecha;
-
-      if (!fecha) return;
-
-      let periodo: any = null;
-
-      if (tipo === 'DIA') {
-        periodo = obtenerPeriodo(fecha, 'DIA');
-      } else {
-        periodo = obtenerPeriodo(fecha, tipo);
-      }
+    diasRango.forEach((dia) => {
+      const periodo = obtenerPeriodoDesdeKey(dia.key, tipo);
 
       if (!periodo) return;
 
@@ -515,6 +523,8 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
           horasDisponibles: 0,
           disponibilidad: 0,
 
+          cantidadDiasRango: 0,
+
           cantidadOperaciones: 0,
           cantidadRegistros: 0,
           cantidadRegistrosMtto: 0,
@@ -522,58 +532,120 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
       }
 
       const item = resultadoMap.get(periodo.key);
-
-      item.cantidadOperaciones += 1;
-
-      for (const registro of registrosArray) {
-        if (!registro.hora_inicio || !registro.hora_final) continue;
-
-        const horas = this.calcularDuracionHoras(
-          registro.hora_inicio,
-          registro.hora_final,
-        );
-
-        if (!horas || horas <= 0) continue;
-
-        const estado = String(registro.estado || '')
-          .trim()
-          .toUpperCase();
-
-        // SUMA(HORAS)
-        item.horasTotales += horas;
-        item.cantidadRegistros += 1;
-
-        // SUMA(HRS MANTENIMIENTO)
-        if (estado === 'MANTENIMIENTO') {
-          item.horasMtto += horas;
-          item.cantidadRegistrosMtto += 1;
-        }
-      }
+      item.cantidadDiasRango += 1;
     });
 
-    const resultado = Array.from(resultadoMap.values()).map((item) => {
-      item.horasDisponibles = item.horasTotales - item.horasMtto;
-
-      if (item.horasTotales > 0) {
-        const disponibilidad =
-          (item.horasDisponibles / item.horasTotales) * 100;
-
-        item.disponibilidad = Number(disponibilidad.toFixed(2));
-      } else {
-        item.disponibilidad = 0;
-      }
-
-      item.horasTotales = Number(item.horasTotales.toFixed(2));
-      item.horasMtto = Number(item.horasMtto.toFixed(2));
-      item.horasDisponibles = Number(item.horasDisponibles.toFixed(2));
-
-      return item;
-    });
-
-    resultado.sort((a, b) => a.key.localeCompare(b.key));
-
-    return resultado;
+    return resultadoMap;
   }
+  private calcularDisponibilidadBasePorDia(
+  dataOperaciones: OperacionBase[],
+  crearRangoVisual: boolean
+) {
+  const resultadoMap = new Map<string, any>();
+
+  // Solo para DisponibilidadPorDia:
+  // crea todos los días del rango seleccionado, incluso si no tienen data
+  if (crearRangoVisual && this.fechaInicio && this.fechaFin) {
+    const diasRango = generarDiasEntreFechas(this.fechaInicio, this.fechaFin);
+
+    diasRango.forEach((dia) => {
+      resultadoMap.set(dia.key, {
+        key: dia.key,
+        periodo: dia.label,
+
+        horasTotales: 0,
+        horasMtto: 0,
+        horasDisponibles: 0,
+        disponibilidad: 0,
+
+        cantidadOperaciones: 0,
+        cantidadRegistros: 0,
+        cantidadRegistrosMtto: 0,
+      });
+    });
+  }
+
+  dataOperaciones.forEach((op) => {
+    const registrosArray = op.registros;
+
+    if (!Array.isArray(registrosArray)) return;
+
+    const fecha = op.fecha;
+
+    if (!fecha) return;
+
+    const periodo = obtenerPeriodo(fecha, 'DIA');
+
+    if (!periodo) return;
+
+    if (!resultadoMap.has(periodo.key)) {
+      resultadoMap.set(periodo.key, {
+        key: periodo.key,
+        periodo: periodo.label,
+
+        horasTotales: 0,
+        horasMtto: 0,
+        horasDisponibles: 0,
+        disponibilidad: 0,
+
+        cantidadOperaciones: 0,
+        cantidadRegistros: 0,
+        cantidadRegistrosMtto: 0,
+      });
+    }
+
+    const item = resultadoMap.get(periodo.key);
+
+    item.cantidadOperaciones += 1;
+
+    for (const registro of registrosArray) {
+      if (!registro.hora_inicio || !registro.hora_final) continue;
+
+      const horas = this.calcularDuracionHoras(
+        registro.hora_inicio,
+        registro.hora_final
+      );
+
+      if (!horas || horas <= 0) continue;
+
+      const estado = String(registro.estado || '')
+        .trim()
+        .toUpperCase();
+
+      // SUMA(HORAS)
+      item.horasTotales += horas;
+      item.cantidadRegistros += 1;
+
+      // SUMA(HRS MANTENIMIENTO)
+      if (estado === 'MANTENIMIENTO') {
+        item.horasMtto += horas;
+        item.cantidadRegistrosMtto += 1;
+      }
+    }
+  });
+
+  const resultado = Array.from(resultadoMap.values()).map((item) => {
+    item.horasDisponibles = item.horasTotales - item.horasMtto;
+
+    if (item.horasTotales > 0) {
+      item.disponibilidad = Number(
+        ((item.horasDisponibles / item.horasTotales) * 100).toFixed(2)
+      );
+    } else {
+      item.disponibilidad = 0;
+    }
+
+    item.horasTotales = Number(item.horasTotales.toFixed(2));
+    item.horasMtto = Number(item.horasMtto.toFixed(2));
+    item.horasDisponibles = Number(item.horasDisponibles.toFixed(2));
+
+    return item;
+  });
+
+  resultado.sort((a, b) => String(a.key).localeCompare(String(b.key)));
+
+  return resultado;
+}
 
   calcularDuracionHoras(horaInicio: string, horaFinal: string): number {
     if (!horaInicio || !horaFinal) return 0;
