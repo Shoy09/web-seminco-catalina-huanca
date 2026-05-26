@@ -30,254 +30,40 @@
   <button class="nav-btn" [class.active]="hojaActual === 'hoja3'" (click)="cambiarHoja('hoja3')">
     🔧 Demonte
   </button>
-  <button class="nav-btn" [class.active]="hojaActual === 'hoja4'" (click)="cambiarHoja('hoja4')">
-    📈 Rendimiento
-  </button>
-  <button class="nav-btn" [class.active]="hojaActual === 'hoja5'" (click)="cambiarHoja('hoja5')">
-    📉 Ranking Operador
-  </button>
-  <button class="nav-btn" [class.active]="hojaActual === 'hoja6'" (click)="cambiarHoja('hoja6')">
-    🏆 Ranking Guardia
-  </button>
-  <button class="nav-btn" [class.active]="hojaActual === 'hoja7'" (click)="cambiarHoja('hoja7')">
-    🎯 Dis Pareto Detalle
-  </button>
-  <button class="nav-btn" [class.active]="hojaActual === 'hoja8'" (click)="cambiarHoja('hoja8')">
-    📊 Util Pareto Detalle
-  </button>
-  <button class="nav-btn" [class.active]="hojaActual === 'hoja9'" (click)="cambiarHoja('hoja9')">
-    ⏱️ MTBF
-  </button>
-  <button class="nav-btn" [class.active]="hojaActual === 'hoja10'" (click)="cambiarHoja('hoja10')">
-    🔧 MTTR
-  </button>
-  <button class="nav-btn" [class.active]="hojaActual === 'hoja11'" (click)="cambiarHoja('hoja11')">
+    <button class="nav-btn" [class.active]="hojaActual === 'hoja4'" (click)="cambiarHoja('hoja4')">
     📊 Disponibilidad
   </button>
-  <button class="nav-btn" [class.active]="hojaActual === 'hoja12'" (click)="cambiarHoja('hoja12')">
+  <button class="nav-btn" [class.active]="hojaActual === 'hoja5'" (click)="cambiarHoja('hoja5')">
     📋 Utilización
   </button>
+  <button class="nav-btn" [class.active]="hojaActual === 'hoja6'" (click)="cambiarHoja('hoja6')">
+    📈 Rendimiento
+  </button>
+  <button class="nav-btn" [class.active]="hojaActual === 'hoja7'" (click)="cambiarHoja('hoja7')">
+    📉 Ranking Operador
+  </button>
+  <button class="nav-btn" [class.active]="hojaActual === 'hoja8'" (click)="cambiarHoja('hoja8')">
+    🏆 Ranking Guardia
+  </button>
+  <button class="nav-btn" [class.active]="hojaActual === 'hoja9'" (click)="cambiarHoja('hoja9')">
+    🎯 Dis Pareto Detalle
+  </button>
+  <button class="nav-btn" [class.active]="hojaActual === 'hoja10'" (click)="cambiarHoja('hoja10')">
+    📊 Util Pareto Detalle
+  </button>
+  <button class="nav-btn" [class.active]="hojaActual === 'hoja11'" (click)="cambiarHoja('hoja11')">
+    ⏱️ MTBF
+  </button>
+  <button class="nav-btn" [class.active]="hojaActual === 'hoja12'" (click)="cambiarHoja('hoja12')">
+    🔧 MTTR
+  </button>
+
 </div>
   </div>
 
   <!-- CONTENIDO DE LAS HOJAS -->
-  
-  <!-- HOJA 1: Disponibilidad -->
-  <div *ngIf="hojaActual === 'hoja4'" class="hoja-content">
-    <div class="graficos-wrapper">
-      <div class="graph-card">
-        <app-disponibilidad-equipo [data]="DataDisponibilidadPorEquipo"></app-disponibilidad-equipo>
-      </div>
-      
-      <div class="graph-card">
-        <app-disponibilidad-semana [data]="DataDisponibilidadPorSemana"></app-disponibilidad-semana>
-      </div>
-      
-      <div class="graph-card">
-        <app-disponibilidad-mes [data]="DataDisponibilidadPorMes"></app-disponibilidad-mes>
-      </div>
-      
-      <div class="graph-card">
-        <app-disponibilidad-guardia [data]="DataDisponibilidadPorSeccion"></app-disponibilidad-guardia>
-      </div>
-      
-      <div class="graph-card">
-        <app-disponibilidad-estado [data]="DataHorasMantenimientoPorCodigo"></app-disponibilidad-estado>
-      </div>
-      
-      <div class="graph-card">
-        <app-disponibilidad-dia [data]="DataDisponibilidadPorDiaMes"></app-disponibilidad-dia>
-      </div>
-    </div>
-  </div>
 
-  <!-- HOJA 2: Utilización -->
-  <div *ngIf="hojaActual === 'hoja5'" class="hoja-content">
-    <div class="graficos-wrapper">
-      <div class="graph-card">
-        <app-utilizacion-equipo [data]="DataUtilizacionPorEquipo"></app-utilizacion-equipo>
-      </div>
-      
-      <div class="graph-card">
-        <app-utilizacion-semana [data]="DataUtilizacionPorSemana"></app-utilizacion-semana>
-      </div>
-      
-      <div class="graph-card">
-        <app-utilizacion-mes [data]="DataUtilizacionPorMes"></app-utilizacion-mes>
-      </div>
-      
-      <div class="graph-card">
-        <app-utilizacion-guardia [data]="DataUtilizacionPorSeccionDetallada"></app-utilizacion-guardia>
-      </div>
-      
-      <div class="graph-card">
-        <app-horas-demora-codigo [data]="DataHorasDemoraPorCodigo"></app-horas-demora-codigo>
-      </div>
-      
-      <div class="graph-card">
-        <app-utilizacion-dia-mes [data]="DataUtilizacionPorDia"></app-utilizacion-dia-mes>
-      </div>
-    </div>
-  </div>
-
-  <!-- HOJA 3: Rendimiento (si tienes datos) -->
-    <div *ngIf="hojaActual === 'hoja6'" class="hoja-content">
-    
-    <!-- Gráfico de ancho completo (1 columna) -->
-    <div class="graficos-wrapper one-column">
-      <div class="graph-card">
-        <app-rendimiento-general [data]="DataprocesarEquiposConCapacidad"></app-rendimiento-general>
-      </div>
-    </div>
-
-    <!-- Gráficos de 3 en 3 -->
-    <div class="graficos-wrapper three-columns">
-      <div class="graph-card">
-        <app-rendimiento-guardia [data]="DataRendimientoPorSeccionDetallado"></app-rendimiento-guardia>
-      </div>
-      
-      <div class="graph-card">
-        <app-rendimiento-seccion-labor [data]="DataprocesarEquiposConCapacidad"></app-rendimiento-seccion-labor>
-      </div>
-      
-      <div class="graph-card">
-        <app-rendimiento-mes-ano [data]="DataRendimientoPorMes"></app-rendimiento-mes-ano>
-      </div>
-    </div>
-
-    <!-- Gráficos de 2 en 2 -->
-    <div class="graficos-wrapper two-columns">
-      <div class="graph-card">
-        <app-top-equipos [data]="DataprocesarEquiposConCapacidad"></app-top-equipos>
-      </div>
-      
-      <div class="graph-card">
-        <app-rendimiento-dia-mes [data]="DataRendimientoPorDia"></app-rendimiento-dia-mes>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- HOJA 4: Ranking Operador -->
-<div *ngIf="hojaActual === 'hoja7'" class="hoja-content">
-  
-  <!-- Ranking de operadores (2 en 2) -->
-  <div class="graficos-wrapper two-columns">
-    <div class="graph-card">
-      <app-ranking-operador-utilizacion [data]="DataDisponibilidadPorOperador"></app-ranking-operador-utilizacion>
-    </div>
-    
-    <div class="graph-card">
-      <app-ranking-operador-rendimiento [data]="DataRendimientoPorOperador"></app-ranking-operador-rendimiento>
-    </div>
-  </div>
-</div>
-
-<!-- HOJA 5: Rankings por Guardia -->
-<div *ngIf="hojaActual === 'hoja8'" class="hoja-content">
-  
-  <!-- Rankings de Guardia (2 en 2) -->
-  <div class="graficos-wrapper two-columns">
-    <div class="graph-card">
-      <app-ranking-disponibilidad-guardia [data]="DataDisponiblidadPorGuardia"></app-ranking-disponibilidad-guardia>
-    </div>
-    
-    <div class="graph-card">
-      <app-mineral-guardia [data]="DataMineralGuardia"></app-mineral-guardia>
-    </div>
-  </div>
-
-  <!-- Rankings de Rendimiento y Utilización (2 en 2) -->
-  <div class="graficos-wrapper two-columns">
-    <div class="graph-card">
-      <app-ranking-rendimiento-guardia [data]="DataRendimientoPorGuardia"></app-ranking-rendimiento-guardia>
-    </div>
-    
-    <div class="graph-card">
-      <app-ranking-utilizacion-guardia [data]="DataUtilizacionGuardia"></app-ranking-utilizacion-guardia>
-    </div>
-  </div>
-
-</div>
-
-<!-- HOJA 6: Pareto No Programadas -->
-<div *ngIf="hojaActual === 'hoja9'" class="hoja-content">
-       <!-- Gráfico de ancho completo (1 columna) -->
-  <div class="graficos-wrapper one-column-full">
-    <div class="graph-card">
-      <app-pareto-no-programadas [data]="DataHorasPorObservacion"></app-pareto-no-programadas>
-    </div>
-  </div>
-</div>
-
-<!-- HOJA 7: Diagrama Pareto -->
-<div *ngIf="hojaActual === 'hoja10'" class="hoja-content">
-
-  <!-- Gráfico de ancho completo (1 columna) -->
-  <div class="graficos-wrapper one-column-full">
-    <div class="graph-card">
-      <app-diagrama-pareto [data]="DataHorasDemoraPorCodigoCompleto"></app-diagrama-pareto>
-    </div>
-  </div>
-
-</div>
-
-<!-- HOJA 8: MTBF (Mean Time Between Failures) -->
-<div *ngIf="hojaActual === 'hoj11'" class="hoja-content">
-  
-  <!-- MTBF por Equipo y por Año (2 en 2) -->
-  <div class="graficos-wrapper two-columns">
-    <div class="graph-card">
-      <app-mtbf-equipo [data]="DataMTBFPorEquipo"></app-mtbf-equipo>
-    </div>
-    
-    <div class="graph-card">
-      <app-mtbf-ano [data]="DataMTBFPorAnio"></app-mtbf-ano>
-    </div>
-  </div>
-
-  <!-- MTBF por Semanas y por Mes (2 en 2) -->
-  <div class="graficos-wrapper two-columns">
-    <div class="graph-card">
-      <app-mtbf-semanas [data]="DataMTBFPorSemanas"></app-mtbf-semanas>
-    </div>
-    
-    <div class="graph-card">
-      <app-mtbf-mes [data]="DataMTBFPorMes"></app-mtbf-mes>
-    </div>
-  </div>
-
-</div>
-
-<!-- HOJA 9: MTTR (Mean Time To Repair) -->
-<div *ngIf="hojaActual === 'hoja12'" class="hoja-content">
-  
-  <!-- MTTR por Equipo y por Año (2 en 2) -->
-  <div class="graficos-wrapper two-columns">
-    <div class="graph-card">
-      <app-mttr-equipo [data]="DataMTTRPorEquipo"></app-mttr-equipo>
-    </div>
-    
-    <div class="graph-card">
-      <app-mttr-ano [data]="DataMTTRPorAnio"></app-mttr-ano>
-    </div>
-  </div>
-
-  <!-- MTTR por Semanas y por Mes (2 en 2) -->
-  <div class="graficos-wrapper two-columns">
-    <div class="graph-card">
-      <app-mttr-semanas [data]="DataMTTRPorSemanas"></app-mttr-semanas>
-    </div>
-    
-    <div class="graph-card">
-      <app-mttr-mes [data]="DataMTTRPorMes"></app-mttr-mes>
-    </div>
-  </div>
-
-</div>
-
-<!-- HOJA 10: Toneladas por Rango de Hora y por Equipo -->
-<div *ngIf="hojaActual === 'hoja1'" class="hoja-content">
+  <div *ngIf="hojaActual === 'hoja1'" class="hoja-content">
   
   <!-- Gráfico de Toneladas por Rango de Hora (1 columna - alto completo) -->
   <div class="graficos-wrapper one-column-full">
@@ -339,6 +125,213 @@
   </div>
 
 </div>
+
+    <div *ngIf="hojaActual === 'hoja4'" class="hoja-content">
+    <div class="graficos-wrapper">
+      <div class="graph-card">
+        <app-disponibilidad-equipo [data]="DataDisponibilidadPorEquipo"></app-disponibilidad-equipo>
+      </div>
+      
+      <div class="graph-card">
+        <app-disponibilidad-semana [data]="DataDisponibilidadPorSemana"></app-disponibilidad-semana>
+      </div>
+      
+      <div class="graph-card">
+        <app-disponibilidad-mes [data]="DataDisponibilidadPorMes"></app-disponibilidad-mes>
+      </div>
+      
+      <div class="graph-card">
+        <app-disponibilidad-guardia [data]="DataDisponibilidadPorSeccion"></app-disponibilidad-guardia>
+      </div>
+      
+      <div class="graph-card">
+        <app-disponibilidad-estado [data]="DataHorasMantenimientoPorCodigo"></app-disponibilidad-estado>
+      </div>
+      
+      <div class="graph-card">
+        <app-disponibilidad-dia [data]="DataDisponibilidadPorDiaMes"></app-disponibilidad-dia>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="hojaActual === 'hoja5'" class="hoja-content">
+    <div class="graficos-wrapper">
+      <div class="graph-card">
+        <app-utilizacion-equipo [data]="DataUtilizacionPorEquipo"></app-utilizacion-equipo>
+      </div>
+      
+      <div class="graph-card">
+        <app-utilizacion-semana [data]="DataUtilizacionPorSemana"></app-utilizacion-semana>
+      </div>
+      
+      <div class="graph-card">
+        <app-utilizacion-mes [data]="DataUtilizacionPorMes"></app-utilizacion-mes>
+      </div>
+      
+      <div class="graph-card">
+        <app-utilizacion-guardia [data]="DataUtilizacionPorSeccionDetallada"></app-utilizacion-guardia>
+      </div>
+      
+      <div class="graph-card">
+        <app-horas-demora-codigo [data]="DataHorasDemoraPorCodigo"></app-horas-demora-codigo>
+      </div>
+      
+      <div class="graph-card">
+        <app-utilizacion-dia-mes [data]="DataUtilizacionPorDia"></app-utilizacion-dia-mes>
+      </div>
+    </div>
+  </div>
+
+    <div *ngIf="hojaActual === 'hoja6'" class="hoja-content">
+    
+    <!-- Gráfico de ancho completo (1 columna) -->
+    <div class="graficos-wrapper one-column">
+      <div class="graph-card">
+        <app-rendimiento-general [data]="DataprocesarEquiposConCapacidad"></app-rendimiento-general>
+      </div>
+    </div>
+
+    <!-- Gráficos de 3 en 3 -->
+    <div class="graficos-wrapper three-columns">
+      <div class="graph-card">
+        <app-rendimiento-guardia [data]="DataRendimientoPorSeccionDetallado"></app-rendimiento-guardia>
+      </div>
+      
+      <div class="graph-card">
+        <app-rendimiento-seccion-labor [data]="DataprocesarEquiposConCapacidad"></app-rendimiento-seccion-labor>
+      </div>
+      
+      <div class="graph-card">
+        <app-rendimiento-mes-ano [data]="DataRendimientoPorMes"></app-rendimiento-mes-ano>
+      </div>
+    </div>
+
+    <!-- Gráficos de 2 en 2 -->
+    <div class="graficos-wrapper two-columns">
+      <div class="graph-card">
+        <app-top-equipos [data]="DataprocesarEquiposConCapacidad"></app-top-equipos>
+      </div>
+      
+      <div class="graph-card">
+        <app-rendimiento-dia-mes [data]="DataRendimientoPorDia"></app-rendimiento-dia-mes>
+      </div>
+    </div>
+
+  </div>
+
+<div *ngIf="hojaActual === 'hoja7'" class="hoja-content">
+  
+  <!-- Ranking de operadores (2 en 2) -->
+  <div class="graficos-wrapper two-columns">
+    <div class="graph-card">
+      <app-ranking-operador-utilizacion [data]="DataDisponibilidadPorOperador"></app-ranking-operador-utilizacion>
+    </div>
+    
+    <div class="graph-card">
+      <app-ranking-operador-rendimiento [data]="DataRendimientoPorOperador"></app-ranking-operador-rendimiento>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="hojaActual === 'hoja8'" class="hoja-content">
+  
+  <!-- Rankings de Guardia (2 en 2) -->
+  <div class="graficos-wrapper two-columns">
+    <div class="graph-card">
+      <app-ranking-disponibilidad-guardia [data]="DataDisponiblidadPorGuardia"></app-ranking-disponibilidad-guardia>
+    </div>
+    
+    <div class="graph-card">
+      <app-mineral-guardia [data]="DataMineralGuardia"></app-mineral-guardia>
+    </div>
+  </div>
+
+  <!-- Rankings de Rendimiento y Utilización (2 en 2) -->
+  <div class="graficos-wrapper two-columns">
+    <div class="graph-card">
+      <app-ranking-rendimiento-guardia [data]="DataRendimientoPorGuardia"></app-ranking-rendimiento-guardia>
+    </div>
+    
+    <div class="graph-card">
+      <app-ranking-utilizacion-guardia [data]="DataUtilizacionGuardia"></app-ranking-utilizacion-guardia>
+    </div>
+  </div>
+
+</div>
+
+<div *ngIf="hojaActual === 'hoja9'" class="hoja-content">
+       <!-- Gráfico de ancho completo (1 columna) -->
+  <div class="graficos-wrapper one-column-full">
+    <div class="graph-card">
+      <app-pareto-no-programadas [data]="DataHorasPorObservacion"></app-pareto-no-programadas>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="hojaActual === 'hoja10'" class="hoja-content">
+
+  <!-- Gráfico de ancho completo (1 columna) -->
+  <div class="graficos-wrapper one-column-full">
+    <div class="graph-card">
+      <app-diagrama-pareto [data]="DataHorasDemoraPorCodigoCompleto"></app-diagrama-pareto>
+    </div>
+  </div>
+
+</div>
+
+<div *ngIf="hojaActual === 'hoja11'" class="hoja-content">
+  
+  <!-- MTBF por Equipo y por Año (2 en 2) -->
+  <div class="graficos-wrapper two-columns">
+    <div class="graph-card">
+      <app-mtbf-equipo [data]="DataMTBFPorEquipo"></app-mtbf-equipo>
+    </div>
+    
+    <div class="graph-card">
+      <app-mtbf-ano [data]="DataMTBFPorAnio"></app-mtbf-ano>
+    </div>
+  </div>
+
+  <!-- MTBF por Semanas y por Mes (2 en 2) -->
+  <div class="graficos-wrapper two-columns">
+    <div class="graph-card">
+      <app-mtbf-semanas [data]="DataMTBFPorSemanas"></app-mtbf-semanas>
+    </div>
+    
+    <div class="graph-card">
+      <app-mtbf-mes [data]="DataMTBFPorMes"></app-mtbf-mes>
+    </div>
+  </div>
+
+</div>
+
+<div *ngIf="hojaActual === 'hoja12'" class="hoja-content">
+  
+  <!-- MTTR por Equipo y por Año (2 en 2) -->
+  <div class="graficos-wrapper two-columns">
+    <div class="graph-card">
+      <app-mttr-equipo [data]="DataMTTRPorEquipo"></app-mttr-equipo>
+    </div>
+    
+    <div class="graph-card">
+      <app-mttr-ano [data]="DataMTTRPorAnio"></app-mttr-ano>
+    </div>
+  </div>
+
+  <!-- MTTR por Semanas y por Mes (2 en 2) -->
+  <div class="graficos-wrapper two-columns">
+    <div class="graph-card">
+      <app-mttr-semanas [data]="DataMTTRPorSemanas"></app-mttr-semanas>
+    </div>
+    
+    <div class="graph-card">
+      <app-mttr-mes [data]="DataMTTRPorMes"></app-mttr-mes>
+    </div>
+  </div>
+
+</div>
+
+
 
 
 
