@@ -1,35 +1,35 @@
 <div class="tabla-container">
   <!-- 🔥 Título -->
   <div class="tabla-header">
-    <h3>TONELADAS POR EQUIPO Y RANGO DE HORA</h3>
+    <h3>TONELADAS MINERAL POR LABOR Y RANGO DE HORA</h3>
     <p class="turno-info">Turno: <strong>{{ turno || 'TODOS' }}</strong></p>
   </div>
 
   <!-- 🔥 Tabla -->
-  <div class="tabla-responsive" *ngIf="rangosHora.length > 0 && equipos.length > 0">
+  <div class="tabla-responsive" *ngIf="rangosHora.length > 0 && laborInicios.length > 0">
     <table class="tabla-toneladas">
       <thead>
         <tr>
           <th class="fijo">Rango de Hora</th>
-          <th *ngFor="let equipo of equipos">{{ equipo }}</th>
+          <th *ngFor="let labor of laborInicios">{{ labor }}</th>
           <th class="total-col">Total x Hora</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let rango of rangosHora">
           <td class="fijo">{{ rango }}</td>
-          <td *ngFor="let equipo of equipos" 
-              [class]="getColorPorValor(matrizToneladas[rango][equipo])">
-            {{ formatNumber(matrizToneladas[rango][equipo]) }}
+          <td *ngFor="let labor of laborInicios" 
+              [class]="getColorPorValor(matrizToneladas[rango][labor])">
+            {{ formatNumber(matrizToneladas[rango][labor]) }}
           </td>
           <td class="total-cell">{{ formatNumber(totalesPorRango[rango]) }}</td>
         </tr>
       </tbody>
       <tfoot>
         <tr>
-          <td class="fijo"><strong>TOTAL x EQUIPO</strong></td>
-          <td *ngFor="let equipo of equipos">
-            <strong>{{ formatNumber(totalesPorEquipo[equipo]) }}</strong>
+          <td class="fijo"><strong>TOTAL x LABOR</strong></td>
+          <td *ngFor="let labor of laborInicios">
+            <strong>{{ formatNumber(totalesPorLabor[labor]) }}</strong>
           </td>
           <td class="total-cell gran-total">
             <strong>{{ formatNumber(granTotal) }}</strong>
@@ -40,7 +40,7 @@
   </div>
 
   <!-- 🔥 Mensaje cuando no hay datos -->
-  <div *ngIf="rangosHora.length === 0 || equipos.length === 0" class="sin-datos">
+  <div *ngIf="rangosHora.length === 0 || laborInicios.length === 0" class="sin-datos">
     <p>No hay datos disponibles para el turno {{ turno || 'seleccionado' }}</p>
   </div>
 </div>

@@ -2,13 +2,13 @@ import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-tabla-toneladas-equipo-mineral',
+  selector: 'app-tabla-toneladas-equipo-desmo',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './tabla-toneladas-equipo.component.html',
   styleUrl: './tabla-toneladas-equipo.component.css'
 })
-export class TablaToneladasEquipoMineralComponent implements OnChanges {
+export class TablaToneladasEquipoDesmoComponent implements OnChanges {
 
   @Input() data: any[] = []; // Datos de ToneladasPorLaborYRangoHora
   @Input() turno: string = ''; // 'DÍA' o 'NOCHE'
@@ -18,7 +18,7 @@ export class TablaToneladasEquipoMineralComponent implements OnChanges {
   laborInicios: string[] = [];
   matrizToneladas: { [rango: string]: { [labor: string]: number } } = {};
   
-  // 🔥 Totales por labor y por rango (solo mineral)
+  // 🔥 Totales por labor y por rango (desmonte + relave + relleno)
   totalesPorLabor: { [labor: string]: number } = {};
   totalesPorRango: { [rango: string]: number } = {};
   granTotal: number = 0;
@@ -82,21 +82,24 @@ export class TablaToneladasEquipoMineralComponent implements OnChanges {
       });
     });
     
-    // 🔥 Llenar matriz con los datos (SOLO MINERAL)
+    // 🔥 Llenar matriz con los datos (SUMA DE DESMONTE + RELAVE + RELLENO)
     this.data.forEach(laborData => {
       const labor = laborData.labor;
       
       if (!laborData.rangos || !Array.isArray(laborData.rangos)) return;
       
       laborData.rangos.forEach((rangoData: any) => {
-        const rango = rangoData.rangoHora; // Ahora es el formato original directamente
-        const mineralValue = rangoData.mineral || 0;
+        const rango = rangoData.rangoHora;
+        // Sumar los tres materiales
+        const otrosValue = (rangoData.desmonte || 0) + 
+                          (rangoData.relave || 0) + 
+                          (rangoData.relleno || 0);
         
         // Verificar si el rango existe en nuestra matriz
         if (this.matrizToneladas[rango] && this.matrizToneladas[rango][labor] !== undefined) {
-          this.matrizToneladas[rango][labor] = mineralValue;
-          this.totalesPorLabor[labor] += mineralValue;
-          this.totalesPorRango[rango] += mineralValue;
+          this.matrizToneladas[rango][labor] = otrosValue;
+          this.totalesPorLabor[labor] += otrosValue;
+          this.totalesPorRango[rango] += otrosValue;
         }
       });
     });
@@ -156,12 +159,13 @@ export class TablaToneladasEquipoMineralComponent implements OnChanges {
     return valor.toFixed(1);
   }
 
-  // 🔥 Métodos auxiliares para el template
-  getTotalMineralPorLabor(labor: string): number {
+  // 🔥 Método para obtener el total de otros materiales por labor
+  getTotalOtrosPorLabor(labor: string): number {
     return this.totalesPorLabor[labor] || 0;
   }
 
-  getTotalMineralPorRango(rango: string): number {
+  // 🔥 Método para obtener el total de otros materiales por rango
+  getTotalOtrosPorRango(rango: string): number {
     return this.totalesPorRango[rango] || 0;
   }
 }

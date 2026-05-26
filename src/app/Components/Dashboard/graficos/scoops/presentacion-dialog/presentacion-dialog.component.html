@@ -25,10 +25,10 @@
     🚜 Horas
   </button>
   <button class="nav-btn" [class.active]="hojaActual === 'hoja2'" (click)="cambiarHoja('hoja2')">
-    📊 Disponibilidad
+    🔧 Mineral
   </button>
   <button class="nav-btn" [class.active]="hojaActual === 'hoja3'" (click)="cambiarHoja('hoja3')">
-    📋 Utilización
+    🔧 Demonte
   </button>
   <button class="nav-btn" [class.active]="hojaActual === 'hoja4'" (click)="cambiarHoja('hoja4')">
     📈 Rendimiento
@@ -51,13 +51,19 @@
   <button class="nav-btn" [class.active]="hojaActual === 'hoja10'" (click)="cambiarHoja('hoja10')">
     🔧 MTTR
   </button>
+  <button class="nav-btn" [class.active]="hojaActual === 'hoja11'" (click)="cambiarHoja('hoja11')">
+    📊 Disponibilidad
+  </button>
+  <button class="nav-btn" [class.active]="hojaActual === 'hoja12'" (click)="cambiarHoja('hoja12')">
+    📋 Utilización
+  </button>
 </div>
   </div>
 
   <!-- CONTENIDO DE LAS HOJAS -->
   
   <!-- HOJA 1: Disponibilidad -->
-  <div *ngIf="hojaActual === 'hoja2'" class="hoja-content">
+  <div *ngIf="hojaActual === 'hoja4'" class="hoja-content">
     <div class="graficos-wrapper">
       <div class="graph-card">
         <app-disponibilidad-equipo [data]="DataDisponibilidadPorEquipo"></app-disponibilidad-equipo>
@@ -86,7 +92,7 @@
   </div>
 
   <!-- HOJA 2: Utilización -->
-  <div *ngIf="hojaActual === 'hoja3'" class="hoja-content">
+  <div *ngIf="hojaActual === 'hoja5'" class="hoja-content">
     <div class="graficos-wrapper">
       <div class="graph-card">
         <app-utilizacion-equipo [data]="DataUtilizacionPorEquipo"></app-utilizacion-equipo>
@@ -115,7 +121,7 @@
   </div>
 
   <!-- HOJA 3: Rendimiento (si tienes datos) -->
-    <div *ngIf="hojaActual === 'hoja4'" class="hoja-content">
+    <div *ngIf="hojaActual === 'hoja6'" class="hoja-content">
     
     <!-- Gráfico de ancho completo (1 columna) -->
     <div class="graficos-wrapper one-column">
@@ -153,7 +159,7 @@
   </div>
 
   <!-- HOJA 4: Ranking Operador -->
-<div *ngIf="hojaActual === 'hoja5'" class="hoja-content">
+<div *ngIf="hojaActual === 'hoja7'" class="hoja-content">
   
   <!-- Ranking de operadores (2 en 2) -->
   <div class="graficos-wrapper two-columns">
@@ -168,7 +174,7 @@
 </div>
 
 <!-- HOJA 5: Rankings por Guardia -->
-<div *ngIf="hojaActual === 'hoja6'" class="hoja-content">
+<div *ngIf="hojaActual === 'hoja8'" class="hoja-content">
   
   <!-- Rankings de Guardia (2 en 2) -->
   <div class="graficos-wrapper two-columns">
@@ -195,7 +201,7 @@
 </div>
 
 <!-- HOJA 6: Pareto No Programadas -->
-<div *ngIf="hojaActual === 'hoja7'" class="hoja-content">
+<div *ngIf="hojaActual === 'hoja9'" class="hoja-content">
        <!-- Gráfico de ancho completo (1 columna) -->
   <div class="graficos-wrapper one-column-full">
     <div class="graph-card">
@@ -205,7 +211,7 @@
 </div>
 
 <!-- HOJA 7: Diagrama Pareto -->
-<div *ngIf="hojaActual === 'hoja8'" class="hoja-content">
+<div *ngIf="hojaActual === 'hoja10'" class="hoja-content">
 
   <!-- Gráfico de ancho completo (1 columna) -->
   <div class="graficos-wrapper one-column-full">
@@ -217,7 +223,7 @@
 </div>
 
 <!-- HOJA 8: MTBF (Mean Time Between Failures) -->
-<div *ngIf="hojaActual === 'hoja9'" class="hoja-content">
+<div *ngIf="hojaActual === 'hoj11'" class="hoja-content">
   
   <!-- MTBF por Equipo y por Año (2 en 2) -->
   <div class="graficos-wrapper two-columns">
@@ -244,7 +250,7 @@
 </div>
 
 <!-- HOJA 9: MTTR (Mean Time To Repair) -->
-<div *ngIf="hojaActual === 'hoja10'" class="hoja-content">
+<div *ngIf="hojaActual === 'hoja12'" class="hoja-content">
   
   <!-- MTTR por Equipo y por Año (2 en 2) -->
   <div class="graficos-wrapper two-columns">
@@ -291,6 +297,50 @@
   </div>
 
 </div>
+
+<div *ngIf="hojaActual === 'hoja2'" class="hoja-content">
+  
+  <!-- Gráfico de Toneladas por Rango de Hora (1 columna - alto completo) -->
+  <div class="graficos-wrapper one-column-full">
+    <div class="graph-card">
+      <app-toneladas-rango-hora-mineral [data]="DataToneladasPorHora" [turno]="turnoAplicado"></app-toneladas-rango-hora-mineral>
+    </div>
+  </div>
+
+  <!-- Tabla de Toneladas por Equipo y Rango de Hora (1 columna - alto completo) -->
+  <div class="graficos-wrapper one-column-full">
+    <div class="graph-card">
+      <app-tabla-toneladas-equipo-mineral
+        [data]="DataToneladasPorEquipoYRangoHora" 
+        [turno]="turnoAplicado">
+      </app-tabla-toneladas-equipo-mineral>
+    </div>
+  </div>
+
+</div>
+
+<div *ngIf="hojaActual === 'hoja3'" class="hoja-content">
+  
+  <!-- Gráfico de Toneladas por Rango de Hora (1 columna - alto completo) -->
+  <div class="graficos-wrapper one-column-full">
+    <div class="graph-card">
+      <app-toneladas-rango-hora-desmo [data]="DataToneladasPorHora" [turno]="turnoAplicado"></app-toneladas-rango-hora-desmo>
+    </div>
+  </div>
+
+  <!-- Tabla de Toneladas por Equipo y Rango de Hora (1 columna - alto completo) -->
+  <div class="graficos-wrapper one-column-full">
+    <div class="graph-card">
+      <app-tabla-toneladas-equipo-desmo
+        [data]="DataToneladasPorEquipoYRangoHora" 
+        [turno]="turnoAplicado">
+      </app-tabla-toneladas-equipo-desmo>
+    </div>
+  </div>
+
+</div>
+
+
 
   <!-- Footer con acciones -->
   <div class="dialog-footer">

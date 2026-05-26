@@ -10,16 +10,16 @@ import { CommonModule } from '@angular/common';
 })
 export class TablaToneladasEquipoComponent implements OnChanges {
 
-  @Input() data: any[] = []; // Datos de ToneladasPorEquipoYRangoHora
+  @Input() data: any[] = []; // Datos de ToneladasPorLaborYRangoHora
   @Input() turno: string = ''; // 'DÍA' o 'NOCHE'
 
   // 🔥 Datos para la tabla
   rangosHora: string[] = [];
-  equipos: string[] = [];
-  matrizToneladas: { [rango: string]: { [equipo: string]: number } } = {};
+  laborInicios: string[] = [];
+  matrizToneladas: { [rango: string]: { [labor: string]: number } } = {};
   
-  // 🔥 Totales por equipo y por rango
-  totalesPorEquipo: { [equipo: string]: number } = {};
+  // 🔥 Totales por labor y por rango
+  totalesPorLabor: { [labor: string]: number } = {};
   totalesPorRango: { [rango: string]: number } = {};
   granTotal: number = 0;
 
@@ -35,65 +35,73 @@ export class TablaToneladasEquipoComponent implements OnChanges {
       return;
     }
 
-    // 🔥 Definir rangos de hora según el turno
+    // 🔥 Definir rangos de hora según el turno (formato original)
     if (this.turno === 'DÍA') {
       this.rangosHora = [
-        '06:00 - 07:00', '07:00 - 08:00', '08:00 - 09:00', '09:00 - 10:00', '10:00 - 11:00', '11:00 - 12:00',
-        '12:00 - 13:00', '13:00 - 14:00', '14:00 - 15:00', '15:00 - 16:00', '16:00 - 17:00',
-        '17:00 - 18:00', '18:00 - 19:00'
+        '06:00 - 07:00', '07:00 - 08:00', '08:00 - 09:00', '09:00 - 10:00', 
+        '10:00 - 11:00', '11:00 - 12:00', '12:00 - 13:00', '13:00 - 14:00', 
+        '14:00 - 15:00', '15:00 - 16:00', '16:00 - 17:00', '17:00 - 18:00'
       ];
     } else if (this.turno === 'NOCHE') {
       this.rangosHora = [
-        '18:00 - 19:00','19:00 - 20:00', '20:00 - 21:00', '21:00 - 22:00', '22:00 - 23:00', '23:00 - 00:00',
-        '00:00 - 01:00', '01:00 - 02:00', '02:00 - 03:00', '03:00 - 04:00', '04:00 - 05:00',
-        '05:00 - 06:00', '06:00 - 07:00'
+        '18:00 - 19:00', '19:00 - 20:00', '20:00 - 21:00', '21:00 - 22:00', 
+        '22:00 - 23:00', '23:00 - 00:00', '00:00 - 01:00', '01:00 - 02:00', 
+        '02:00 - 03:00', '03:00 - 04:00', '04:00 - 05:00', '05:00 - 06:00'
       ];
     } else {
-      this.rangosHora = [];
+      // Todos los turnos - 24 rangos
+      this.rangosHora = [
+        '06:00 - 07:00', '07:00 - 08:00', '08:00 - 09:00', '09:00 - 10:00', 
+        '10:00 - 11:00', '11:00 - 12:00', '12:00 - 13:00', '13:00 - 14:00', 
+        '14:00 - 15:00', '15:00 - 16:00', '16:00 - 17:00', '17:00 - 18:00',
+        '18:00 - 19:00', '19:00 - 20:00', '20:00 - 21:00', '21:00 - 22:00', 
+        '22:00 - 23:00', '23:00 - 00:00', '00:00 - 01:00', '01:00 - 02:00', 
+        '02:00 - 03:00', '03:00 - 04:00', '04:00 - 05:00', '05:00 - 06:00'
+      ];
     }
 
-    // 🔥 Obtener lista de equipos únicos
-    this.equipos = this.data.map(item => item.codigoEquipo).sort();
+    // 🔥 Obtener lista de labor inicios únicos
+    this.laborInicios = this.data.map(item => item.labor).sort();
     
     // 🔥 Inicializar matrices
     this.matrizToneladas = {};
-    this.totalesPorEquipo = {};
+    this.totalesPorLabor = {};
     this.totalesPorRango = {};
     
-    // Inicializar totales por equipo
-    this.equipos.forEach(equipo => {
-      this.totalesPorEquipo[equipo] = 0;
+    // Inicializar totales por labor
+    this.laborInicios.forEach(labor => {
+      this.totalesPorLabor[labor] = 0;
     });
     
     // Inicializar matriz y totales por rango
     this.rangosHora.forEach(rango => {
       this.matrizToneladas[rango] = {};
       this.totalesPorRango[rango] = 0;
-      this.equipos.forEach(equipo => {
-        this.matrizToneladas[rango][equipo] = 0;
+      this.laborInicios.forEach(labor => {
+        this.matrizToneladas[rango][labor] = 0;
       });
     });
     
     // 🔥 Llenar matriz con los datos
-    this.data.forEach(equipoData => {
-      const equipo = equipoData.codigoEquipo;
+    this.data.forEach(laborData => {
+      const labor = laborData.labor;
       
-      if (!equipoData.rangos || !Array.isArray(equipoData.rangos)) return;
+      if (!laborData.rangos || !Array.isArray(laborData.rangos)) return;
       
-      equipoData.rangos.forEach((rangoData: any) => {
+      laborData.rangos.forEach((rangoData: any) => {
         const rango = rangoData.rangoHora;
-        const total = rangoData.total;
+        const total = rangoData.total; // O usa mineral/desmonte según necesites
         
-        if (this.matrizToneladas[rango] && this.matrizToneladas[rango][equipo] !== undefined) {
-          this.matrizToneladas[rango][equipo] = total;
-          this.totalesPorEquipo[equipo] += total;
+        if (this.matrizToneladas[rango] && this.matrizToneladas[rango][labor] !== undefined) {
+          this.matrizToneladas[rango][labor] = total;
+          this.totalesPorLabor[labor] += total;
           this.totalesPorRango[rango] += total;
         }
       });
     });
     
     // 🔥 Calcular gran total
-    this.granTotal = Object.values(this.totalesPorEquipo).reduce((sum, val) => sum + val, 0);
+    this.granTotal = Object.values(this.totalesPorLabor).reduce((sum, val) => sum + val, 0);
     
     // Redondear todos los valores a 2 decimales
     this.redondearValores();
@@ -101,17 +109,17 @@ export class TablaToneladasEquipoComponent implements OnChanges {
 
   limpiarTabla(): void {
     this.rangosHora = [];
-    this.equipos = [];
+    this.laborInicios = [];
     this.matrizToneladas = {};
-    this.totalesPorEquipo = {};
+    this.totalesPorLabor = {};
     this.totalesPorRango = {};
     this.granTotal = 0;
   }
 
   redondearValores(): void {
-    // Redondear totales por equipo
-    Object.keys(this.totalesPorEquipo).forEach(equipo => {
-      this.totalesPorEquipo[equipo] = Number(this.totalesPorEquipo[equipo].toFixed(2));
+    // Redondear totales por labor
+    Object.keys(this.totalesPorLabor).forEach(labor => {
+      this.totalesPorLabor[labor] = Number(this.totalesPorLabor[labor].toFixed(2));
     });
     
     // Redondear totales por rango
@@ -121,9 +129,9 @@ export class TablaToneladasEquipoComponent implements OnChanges {
     
     // Redondear matriz
     this.rangosHora.forEach(rango => {
-      this.equipos.forEach(equipo => {
-        if (this.matrizToneladas[rango] && this.matrizToneladas[rango][equipo]) {
-          this.matrizToneladas[rango][equipo] = Number(this.matrizToneladas[rango][equipo].toFixed(2));
+      this.laborInicios.forEach(labor => {
+        if (this.matrizToneladas[rango] && this.matrizToneladas[rango][labor]) {
+          this.matrizToneladas[rango][labor] = Number(this.matrizToneladas[rango][labor].toFixed(2));
         }
       });
     });
@@ -138,12 +146,21 @@ export class TablaToneladasEquipoComponent implements OnChanges {
     if (valor > 300) return 'bg-orange-100';
     if (valor > 150) return 'bg-yellow-50';
     if (valor > 50) return 'bg-green-50';
-    return '';
+    return 'bg-blue-50';
   }
 
   // 🔥 Método para formatear números
   formatNumber(valor: number): string {
     if (valor === 0) return '-';
     return valor.toFixed(1);
+  }
+
+  // 🔥 Métodos auxiliares para el template
+  getTotalPorLabor(labor: string): number {
+    return this.totalesPorLabor[labor] || 0;
+  }
+
+  getTotalPorRango(rango: string): number {
+    return this.totalesPorRango[rango] || 0;
   }
 }

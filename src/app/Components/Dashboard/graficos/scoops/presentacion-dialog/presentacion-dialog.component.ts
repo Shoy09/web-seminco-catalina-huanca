@@ -37,10 +37,14 @@ import { RendimientoRankingGuardiaComponent } from "../Graficos components/Ranki
 import { UtilizacionRankingGuardiaComponent } from "../Graficos components/Ranking Guardia/utilizacion-guardia/utilizacion-guardia.component";
 import { ToneladasRangoHoraComponent } from "../horas/toneladas-rango-hora/toneladas-rango-hora.component";
 import { TablaToneladasEquipoComponent } from "../horas/tabla-toneladas-equipo/tabla-toneladas-equipo.component";
+import { ToneladasRangoHoraMineralComponent } from "../horas/Materiales/Mineral/toneladas-rango-hora/toneladas-rango-hora.component";
+import { TablaToneladasEquipoMineralComponent } from "../horas/Materiales/Mineral/tabla-toneladas-equipo/tabla-toneladas-equipo.component";
+import { ToneladasRangoHoraDesmoComponent } from "../horas/Materiales/Desmonte/toneladas-rango-hora/toneladas-rango-hora.component";
+import { TablaToneladasEquipoDesmoComponent } from "../horas/Materiales/Desmonte/tabla-toneladas-equipo/tabla-toneladas-equipo.component";
 
 @Component({
   selector: 'app-presentacion-dialog',
-  imports: [CommonModule, DisponibilidadSemanaComponent, DisponibilidadEquipoComponent, DisponibilidadMesComponent, DisponibilidadGuardiaComponent, DisponibilidadEstadoComponent, DisponibilidadDiaMesComponent, UtilizacionEquipoComponent, UtilizacionSemanaComponent, UtilizacionMesComponent, UtilizacionGuardiaComponent, HorasDemoraCodigoComponent, UtilizacionDiaMesComponent, RendimientoGeneralComponent, RendimientoGuardiaComponent, RendimientoSeccionLaborComponent, RendimientoMesAnoComponent, TopEquiposComponent, RendimientoDiaMesComponent, RankingOperadorUtilizacionComponent, RankingOperadorRendimientoComponent, ParetoNoProgramadasComponent, DiagramaParetoComponent, MtbfEquipoComponent, MtbfAnoComponent, MtbfSemanasComponent, MtbfMesComponent, MttrEquipoComponent, MttrAnoComponent, MttrSemanasComponent, MttrMesComponent, DisponibilidadRankingGuardiaComponent, MineralRankingGuardiaComponent, RendimientoRankingGuardiaComponent, UtilizacionRankingGuardiaComponent, ToneladasRangoHoraComponent, TablaToneladasEquipoComponent],
+  imports: [CommonModule, DisponibilidadSemanaComponent, DisponibilidadEquipoComponent, DisponibilidadMesComponent, DisponibilidadGuardiaComponent, DisponibilidadEstadoComponent, DisponibilidadDiaMesComponent, UtilizacionEquipoComponent, UtilizacionSemanaComponent, UtilizacionMesComponent, UtilizacionGuardiaComponent, HorasDemoraCodigoComponent, UtilizacionDiaMesComponent, RendimientoGeneralComponent, RendimientoGuardiaComponent, RendimientoSeccionLaborComponent, RendimientoMesAnoComponent, TopEquiposComponent, RendimientoDiaMesComponent, RankingOperadorUtilizacionComponent, RankingOperadorRendimientoComponent, ParetoNoProgramadasComponent, DiagramaParetoComponent, MtbfEquipoComponent, MtbfAnoComponent, MtbfSemanasComponent, MtbfMesComponent, MttrEquipoComponent, MttrAnoComponent, MttrSemanasComponent, MttrMesComponent, DisponibilidadRankingGuardiaComponent, MineralRankingGuardiaComponent, RendimientoRankingGuardiaComponent, UtilizacionRankingGuardiaComponent, ToneladasRangoHoraComponent, TablaToneladasEquipoComponent, ToneladasRangoHoraMineralComponent, TablaToneladasEquipoMineralComponent, ToneladasRangoHoraDesmoComponent, TablaToneladasEquipoDesmoComponent],
   templateUrl: './presentacion-dialog.component.html',
   styleUrl: './presentacion-dialog.component.css'
 })
@@ -95,14 +99,14 @@ isFullscreen: boolean = false;
   public dialogRef: MatDialogRef<PresentacionDialogComponent>,
   @Inject(MAT_DIALOG_DATA) public data: any
 ) {
-  console.log('Datos recibidos en el diálogo:', data);
+  //console.log('Datos recibidos en el diálogo:', data);
   
   // 🔥 Extraer turnoAplicado de los datos recibidos
   this.turnoAplicado = data.turnoAplicado || '';
   
   // Extraer equiposProceso de los datos recibidos
   this.equiposProceso = data.equipos || [];
-  console.log('Equipos proceso:', this.equiposProceso);
+  //console.log('Equipos proceso:', this.equiposProceso);
 }
 
     ngOnInit(): void {
@@ -203,7 +207,7 @@ isFullscreen: boolean = false;
   this.DataUtilizacionGuardia = this.UtilizacionGuardia();
 
    this.DataToneladasPorHora = this.ToneladasPorRangoHoraCompleto(this.turnoAplicado) 
-  this.DataToneladasPorEquipoYRangoHora = this.ToneladasPorEquipoYRangoHora(this.turnoAplicado);
+  this.DataToneladasPorEquipoYRangoHora = this.ToneladasPorLaborYRangoHora(this.turnoAplicado);
   }
 
 //=========================================
@@ -258,7 +262,7 @@ isFullscreen: boolean = false;
   });
 
   const resultado = Array.from(resultadoMap.values());
-  // console.log('📊 DISPONIBILIDAD POR EQUIPO:', resultado);
+  //console.log('📊 DISPONIBILIDAD POR EQUIPO:', resultado);
   return resultado;
 }
 
@@ -356,7 +360,7 @@ DisponibilidadPorSemana() {
   const resultado = Array.from(resultadoMap.values())
     .sort((a, b) => a.numeroSemana - b.numeroSemana);
 
-  // console.log(
+  //console.log(
   //   '📊 DISPONIBILIDAD POR SEMANA:',
   //   resultado
   // );
@@ -508,7 +512,7 @@ HorasMantenimientoPorCodigo() {
       horas: Number(item.horas.toFixed(2))
     }));
 
-  // console.log(
+  //console.log(
   //   '📊 HORAS MTTO POR CODIGO:',
   //   resultado
   // );
@@ -651,7 +655,7 @@ DisponibilidadPorDiaMes() {
       return fechaA - fechaB;
     });
 
-  // console.log(
+  //console.log(
   //   '📊 DISPONIBILIDAD POR DIA/MES:',
   //   resultado
   // );
@@ -789,7 +793,7 @@ UtilizacionPorEquipo() {
   });
 
   const resultado = Array.from(resultadoMap.values());
-  // console.log('📊 UTILIZACIÓN POR EQUIPO:', resultado);
+  //console.log('📊 UTILIZACIÓN POR EQUIPO:', resultado);
   return resultado;
 }
 
@@ -875,7 +879,7 @@ UtilizacionPorSemana() {
   const resultado = Array.from(resultadoMap.values())
     .sort((a, b) => a.numeroSemana - b.numeroSemana);
 
-  // console.log('📊 UTILIZACIÓN POR SEMANA:', resultado);
+  //console.log('📊 UTILIZACIÓN POR SEMANA:', resultado);
   return resultado;
 }
 
@@ -955,7 +959,7 @@ UtilizacionPorMes() {
       return a.mes - b.mes;
     });
 
-  // console.log('📊 UTILIZACIÓN POR MES:', resultado);
+  //console.log('📊 UTILIZACIÓN POR MES:', resultado);
   return resultado;
 }
 
@@ -1029,7 +1033,7 @@ HorasDemoraPorCodigo() {
       horasDemora: Number(item.horasDemora.toFixed(2))
     }));
   
-  // console.log('📊 HORAS DE DEMORA POR CÓDIGO:', resultado);
+  //console.log('📊 HORAS DE DEMORA POR CÓDIGO:', resultado);
   return resultado;
 }
 
@@ -1163,7 +1167,7 @@ UtilizacionPorDia() {
       return fechaA - fechaB;
     });
 
-  // console.log('📊 UTILIZACIÓN POR DÍA:', resultado);
+  //console.log('📊 UTILIZACIÓN POR DÍA:', resultado);
   return resultado;
 }
 
@@ -2795,7 +2799,7 @@ MTTRPorMes() {
 
   cambiarHoja(hoja: string): void {
     this.hojaActual = hoja;
-    console.log('Cambiando a hoja:', hoja);
+    //console.log('Cambiando a hoja:', hoja);
   }
 
   DisponibilidadPorGuardia() {
@@ -2970,7 +2974,7 @@ RendimientoPorGuardia() {
 
   resultado.sort((a, b) => b.rendimiento - a.rendimiento);
 
-  console.log('📊 RENDIMIENTO POR GUARDIA:', resultado);
+ //console.log('📊 RENDIMIENTO POR GUARDIA:', resultado);
 
   return resultado;
 }
@@ -3081,7 +3085,7 @@ MineralGuardia() {
 
   resultado.sort((a, b) => b.tnMineralAjustado - a.tnMineralAjustado);
 
-  console.log('📊 MINERAL POR GUARDIA:', resultado);
+ //console.log('📊 MINERAL POR GUARDIA:', resultado);
 
   return resultado;
 }
@@ -3174,7 +3178,7 @@ UtilizacionGuardia() {
 
   resultado.sort((a, b) => b.utilizacion - a.utilizacion);
 
-  console.log('📊 UTILIZACIÓN POR GUARDIA:', resultado);
+ //console.log('📊 UTILIZACIÓN POR GUARDIA:', resultado);
 
   return resultado;
 }
@@ -3393,8 +3397,7 @@ ToneladasPorRangoHoraCompleto(turno: string = '') {
 }
 
 //GRAFICO - TONELADAS POR EQUIPO Y RANGO DE HORA
-//GRAFICO - TONELADAS POR EQUIPO Y RANGO DE HORA (CON RANGOS AJUSTADOS)
-ToneladasPorEquipoYRangoHora(turno: string = '') {
+ToneladasPorLaborYRangoHora(turno: string = '') {
   const resultadoMap = new Map<string, any>();
 
   const codigosPermitidos = ['101', '102', '105', '106', '108'];
@@ -3465,7 +3468,7 @@ ToneladasPorEquipoYRangoHora(turno: string = '') {
       return 'SIN HORA';
     }
     
-    // TODOS los rangos (sin filtro de turno)
+    // TODOS los rangos
     if (hora >= 6 && hora < 7) return '06:00 - 07:00';
     if (hora >= 7 && hora < 8) return '07:00 - 08:00';
     if (hora >= 8 && hora < 9) return '08:00 - 09:00';
@@ -3497,7 +3500,6 @@ ToneladasPorEquipoYRangoHora(turno: string = '') {
     // 🔥 Filtrar por turno si es necesario
     if (turno && op.turno !== turno) return;
     
-    const codigoEquipo = op.n_equipo;
     const equipoEncontrado = this.equiposProceso.find(
       equipo => equipo.nombre === op.equipo && equipo.codigo === op.n_equipo
     );
@@ -3512,6 +3514,11 @@ ToneladasPorEquipoYRangoHora(turno: string = '') {
       const codigo = registro.codigo?.toString() || '';
       if (!codigosPermitidos.includes(codigo)) continue;
       if (registro.estado !== 'OPERATIVO') continue;
+
+      // 🔥 Obtener labor_inicio
+      const laborInicio = registro.operacion?.labor_inicio || 'SIN LABOR';
+      // Si está vacío, usar 'SIN LABOR'
+      const claveLabor = laborInicio.trim() === '' ? 'SIN LABOR' : laborInicio.trim();
 
       const rangoHora = obtenerRangoHora(registro.hora_final);
       
@@ -3546,11 +3553,12 @@ ToneladasPorEquipoYRangoHora(turno: string = '') {
       
       const toneladas = cucharas * capacidadUsada;
       
-      const clave = `${codigoEquipo}|${rangoHora}`;
+      // 🔥 Clave compuesta: labor_inicio | rangoHora
+      const clave = `${claveLabor}|${rangoHora}`;
       
       if (!resultadoMap.has(clave)) {
         resultadoMap.set(clave, {
-          codigoEquipo: codigoEquipo,
+          labor: claveLabor,
           rangoHora: rangoHora,
           mineral: 0,
           desmonte: 0,
@@ -3584,22 +3592,22 @@ ToneladasPorEquipoYRangoHora(turno: string = '') {
     }
   });
 
-  // 🔥 Convertir a array y agrupar por equipo
-  const resultadoPorEquipo = new Map<string, any>();
+  // 🔥 Convertir a array y agrupar por labor
+  const resultadoPorLabor = new Map<string, any>();
   
   Array.from(resultadoMap.values()).forEach(item => {
-    const equipo = item.codigoEquipo;
+    const labor = item.labor;
     
-    if (!resultadoPorEquipo.has(equipo)) {
-      resultadoPorEquipo.set(equipo, {
-        codigoEquipo: equipo,
+    if (!resultadoPorLabor.has(labor)) {
+      resultadoPorLabor.set(labor, {
+        labor: labor,
         turno: turno || 'TODOS',
         rangos: []
       });
     }
     
-    const equipoItem = resultadoPorEquipo.get(equipo);
-    equipoItem.rangos.push({
+    const laborItem = resultadoPorLabor.get(labor);
+    laborItem.rangos.push({
       rangoHora: item.rangoHora,
       mineral: Number(item.mineral.toFixed(2)),
       desmonte: Number(item.desmonte.toFixed(2)),
@@ -3611,7 +3619,7 @@ ToneladasPorEquipoYRangoHora(turno: string = '') {
     });
     
     // Ordenar rangos por hora
-    equipoItem.rangos.sort((a: any, b: any) => {
+    laborItem.rangos.sort((a: any, b: any) => {
       const indexA = rangosHora.indexOf(a.rangoHora);
       const indexB = rangosHora.indexOf(b.rangoHora);
       return indexA - indexB;
@@ -3619,10 +3627,10 @@ ToneladasPorEquipoYRangoHora(turno: string = '') {
   });
   
   // 🔥 Convertir a array final
-  const resultado = Array.from(resultadoPorEquipo.values())
-    .sort((a, b) => a.codigoEquipo.localeCompare(b.codigoEquipo));
+  const resultado = Array.from(resultadoPorLabor.values())
+    .sort((a, b) => a.labor.localeCompare(b.labor));
   
-  console.log(`📊 TONELADAS POR EQUIPO Y RANGO DE HORA (Turno: ${turno || 'TODOS'}):`, resultado);
+  console.log(`📊 TONELADAS POR LABOR Y RANGO DE HORA (Turno: ${turno || 'TODOS'}):`, resultado);
   return resultado;
 }
 

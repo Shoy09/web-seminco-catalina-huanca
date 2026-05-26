@@ -23,14 +23,14 @@ echarts.use([
 ]);
 
 @Component({
-  selector: 'app-toneladas-rango-hora-mineral',
+  selector: 'app-toneladas-rango-hora-desmo',
   standalone: true,
   imports: [NgxEchartsDirective, CommonModule],
   providers: [provideEchartsCore({ echarts })],
   templateUrl: './toneladas-rango-hora.component.html',
   styleUrl: './toneladas-rango-hora.component.css'
 })
-export class ToneladasRangoHoraMineralComponent implements OnInit, OnChanges {
+export class ToneladasRangoHoraDesmoComponent implements OnInit, OnChanges {
 
   @Input() data: any[] = [];
   @Input() turno: string = ''; // 'DÍA', 'NOCHE' o ''
@@ -88,9 +88,11 @@ export class ToneladasRangoHoraMineralComponent implements OnInit, OnChanges {
       datosPorRango.set(item.rangoHora, item);
     });
 
-    // 🔥 Construir los arrays alineados con los rangos completos (SOLO MINERAL)
+    // 🔥 Construir los arrays alineados con los rangos completos (SOLO DESMONTE, RELAVE, RELLENO)
     const rangos: string[] = [];
-    const mineral: number[] = [];
+    const desmonte: number[] = [];
+    const relave: number[] = [];
+    const relleno: number[] = [];
     const totales: number[] = [];
 
     rangosCompletos.forEach(rango => {
@@ -98,11 +100,17 @@ export class ToneladasRangoHoraMineralComponent implements OnInit, OnChanges {
       
       if (datosPorRango.has(rango)) {
         const item = datosPorRango.get(rango);
-        const mineralVal = item.mineral || 0;  // Tomar mineral
-        mineral.push(mineralVal);
-        totales.push(mineralVal);  // Total es solo mineral
+        const desmonteVal = item.desmonte || 0;
+        const relaveVal = item.relave || 0;
+        const rellenoVal = item.relleno || 0;
+        desmonte.push(desmonteVal);
+        relave.push(relaveVal);
+        relleno.push(rellenoVal);
+        totales.push(desmonteVal + relaveVal + rellenoVal);
       } else {
-        mineral.push(0);
+        desmonte.push(0);
+        relave.push(0);
+        relleno.push(0);
         totales.push(0);
       }
     });
@@ -110,6 +118,13 @@ export class ToneladasRangoHoraMineralComponent implements OnInit, OnChanges {
     // 🔥 Calcular máximo para escala dinámica
     const maxTotal = Math.max(...totales, 0);
     const escalaMax = maxTotal > 0 ? Math.ceil(maxTotal / 100) * 100 : 100;
+
+    // 🔥 Colores para cada tipo de material
+    const colores = {
+      desmonte: '#1eff7c',     // Verde brillante
+      relave: '#2ecc71',       // Verde
+      relleno: '#27ae60'       // Verde oscuro
+    };
 
     // 🔥 Ajustar bottom del grid según cantidad de rangos
     const gridBottom = rangos.length > 12 ? '12%' : '8%';
@@ -119,7 +134,7 @@ export class ToneladasRangoHoraMineralComponent implements OnInit, OnChanges {
 
     this.chartOptions = {
       title: {
-        text: `TONELADAS DE MINERAL POR RANGO DE HORA ${this.turno ? `- TURNO ${this.turno}` : '- TODOS LOS TURNOS'}`,
+        text: `TONELADAS DE DESMONTE, RELAVE Y RELLENO POR RANGO DE HORA ${this.turno ? `- TURNO ${this.turno}` : '- TODOS LOS TURNOS'}`,
         left: 'center',
         top: 10,
         textStyle: {
@@ -137,22 +152,33 @@ export class ToneladasRangoHoraMineralComponent implements OnInit, OnChanges {
         },
         formatter: (params: any) => {
           const rango = params[0].axisValue;
-          const valor = params[0].value;
+          const total = totales[params[0].dataIndex];
           
-          if (valor === 0) {
+          if (total === 0) {
             return `<strong>📊 ${rango}</strong><br/>
               <hr style="margin: 5px 0;"/>
-              <strong>Sin producción de mineral</strong>`;
+              <strong>Sin producción</strong>`;
           }
           
-          return `<strong>📊 ${rango}</strong><br/>
+          let tooltipText = `<strong>📊 ${rango}</strong><br/>
             <hr style="margin: 5px 0;"/>
-            <strong>Mineral: ${valor.toFixed(2)} ton</strong>`;
+            <strong>Total: ${total.toFixed(2)} ton</strong><br/><br/>`;
+          
+          // Mostrar cada material con su valor
+          params.forEach((param: any) => {
+            if (param.value > 0) {
+              const porcentaje = ((param.value / total) * 100).toFixed(1);
+              tooltipText += `<span style="display:inline-block; width:12px; height:12px; background-color:${param.color}; border-radius:2px; margin-right:8px;"></span>
+                <strong>${param.seriesName}:</strong> ${param.value.toFixed(2)} ton (${porcentaje}%)<br/>`;
+            }
+          });
+          
+          return tooltipText;
         }
       },
 
       legend: {
-        data: ['MINERAL'],
+        data: ['DESMONTE', 'RELAVE', 'RELLENO'],
         top: 40,
         left: 'center',
         itemWidth: 25,
@@ -179,7 +205,7 @@ export class ToneladasRangoHoraMineralComponent implements OnInit, OnChanges {
           fontWeight: 'normal',
           color: '#2c3e50',
           fontFamily: 'Arial, sans-serif',
-          rotate: rotateAngle,
+          rotate: rotateAngle,    // Rotar solo si hay 24 rangos
           interval: 0,
           margin: 10
         },
@@ -213,16 +239,59 @@ export class ToneladasRangoHoraMineralComponent implements OnInit, OnChanges {
 
       series: [
         {
-          name: 'MINERAL',
+          name: 'DESMONTE',
           type: 'bar',
-          barWidth: '70%',
-          data: mineral,
+          stack: 'total',
+          barWidth: '60%',
+          data: desmonte,
           itemStyle: {
-            color: '#9df6c2',  // Verde claro para mineral
-            borderRadius: [4, 4, 0, 0],
+            color: colores.desmonte,
+            borderRadius: [0, 0, 0, 0],
             shadowColor: 'rgba(0, 0, 0, 0.1)',
             shadowBlur: 4,
             shadowOffsetY: 1
+          },
+          label: {
+            show: false
+          },
+          emphasis: {
+            focus: 'series',
+            itemStyle: {
+              shadowBlur: 8,
+              shadowColor: 'rgba(0, 0, 0, 0.3)'
+            }
+          }
+        },
+        {
+          name: 'RELAVE',
+          type: 'bar',
+          stack: 'total',
+          barWidth: '60%',
+          data: relave,
+          itemStyle: {
+            color: colores.relave,
+            borderRadius: [0, 0, 0, 0]
+          },
+          label: {
+            show: false
+          },
+          emphasis: {
+            focus: 'series',
+            itemStyle: {
+              shadowBlur: 8,
+              shadowColor: 'rgba(0, 0, 0, 0.3)'
+            }
+          }
+        },
+        {
+          name: 'RELLENO',
+          type: 'bar',
+          stack: 'total',
+          barWidth: '60%',
+          data: relleno,
+          itemStyle: {
+            color: colores.relleno,
+            borderRadius: [4, 4, 0, 0]
           },
           label: {
             show: true,
@@ -230,7 +299,8 @@ export class ToneladasRangoHoraMineralComponent implements OnInit, OnChanges {
             fontWeight: 'bold',
             fontSize: 11,
             formatter: (params: any) => {
-              return params.value > 0 ? params.value.toFixed(0) + 't' : '';
+              const total = totales[params.dataIndex];
+              return total > 0 ? total.toFixed(0) + 't' : '';
             },
             color: '#333'
           },
