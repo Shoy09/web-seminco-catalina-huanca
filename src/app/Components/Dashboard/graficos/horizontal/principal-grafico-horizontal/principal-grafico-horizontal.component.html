@@ -27,9 +27,9 @@
     Quitar filtro
   </button>
 
-  <button class="btn-aplicar" (click)="generarPDF()">
+  <!-- <button class="btn-aplicar" (click)="generarPDF()">
   Exportar PDF
-</button>
+</button> -->
 
 <!-- <button class="btn-aplicar" (click)="toggleVista()">
   {{ vistaPrincipal ? 'Ver gráfico de linea' : 'Gráficos principales' }}
@@ -39,51 +39,7 @@
 
 <div class="graficos-container" *ngIf="vistaPrincipal">
 
-<!-- Hoja 1 pdf -->
-  <app-resumen class="full-width" [data]="resumen" data-page="1"></app-resumen>
 
-  <app-disparos-equipo  [data]="dataDisparosEquipo" data-page="1"></app-disparos-equipo>
-  <app-disparos-dia [data]="dataDisparosDia" data-page="1"></app-disparos-dia>
-
-  <app-rendimiento-equipo [data]="dataIndicadoresEquipo" data-page="1"></app-rendimiento-equipo>
-  <app-demoras-operativas [data]="dataDemorasOperativas" data-page="1"></app-demoras-operativas>
- <!-- Hoja 2 pdf -->
-  <app-horas-no-operativas [data]="dataHorasNoOperativas" data-page="2"></app-horas-no-operativas>
-  <app-horas-de-mantenimiento  [data]="dataHorasMantenimiento" data-page="2"></app-horas-de-mantenimiento>
-
-  <app-metros-perforados-disparo  [data]="dataMetrosDisparoFR" data-page="2"></app-metros-perforados-disparo>
-  <app-perforado-equipo  [data]="dataMetrosDisparoFR" data-page="2"></app-perforado-equipo>
-
-  <app-mhr-equipo [data]="dataMhrEquipo" data-page="2"></app-mhr-equipo>
-  <app-horometros-jumbos [data]="dataHorometrosJumbos" data-page="2"></app-horometros-jumbos>
-   <!-- Hoja 3 pdf -->
-  <app-total-horometros  [data]="dataHorometrosJumbos" data-page="3"></app-total-horometros>
-  <app-horas-primera-perforacion class="full-width" [data]="dataProcesoLaborFR" data-page="3"></app-horas-primera-perforacion>
-
-  <app-avance-fase [data]="dataAvanceFase" data-page="3"></app-avance-fase>
-  <app-disparos-tipo-perforacion  [data]="dataTipoPerforacion" data-page="3"></app-disparos-tipo-perforacion>
-  
-  <app-promedio-estados-echarts [data]="datosGraficoEstados" data-page="3"></app-promedio-estados-echarts>
-  <!-- Hoja 4 pdf -->
-  <app-detalle-perforacion class="full-width" [data]="dataPercusionConMetrosJumbos" data-page="4"></app-detalle-perforacion>
-  <app-detalle-disparos class="full-width" [data]="datadetalleDisparos" data-page="4"></app-detalle-disparos>
- <!-- Hoja 5 pdf -->
-  <app-mejores-operadores class="full-width" [data]="dataFrPorOperadorTurno" data-page="5"></app-mejores-operadores>
-  <app-ranking-operador [data]="dataFrPorOperadorTurno" data-page="5"></app-ranking-operador>
-
-  <app-observaciones class="full-width" [data]="dataLaborFRDetallado" data-page="5"></app-observaciones>
- <!-- Hoja 6 pdf -->
-<app-scatter-turnos 
-  *ngIf="turnoAplicado === '' || turnoAplicado === 'DÍA'"
-  class="full-width"
-  [data]="dataHorasNumericas" data-page="6">
-</app-scatter-turnos>
-
-<app-scatter-turnos-noche 
-  *ngIf="turnoAplicado === '' || turnoAplicado === 'NOCHE'"
-  class="full-width"
-  [data]="dataHorasNumericas" data-page="6">
-</app-scatter-turnos-noche>
 
 </div>
 
