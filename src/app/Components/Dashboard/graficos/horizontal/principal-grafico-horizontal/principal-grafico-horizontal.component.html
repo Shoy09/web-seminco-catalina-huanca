@@ -67,6 +67,18 @@
 
   <app-ranking-operador-utilizacion [data]="DataRankingOperadorUtilizacion" titulo="RANKING UTILIZACIÓN POR OPERADOR - JUMBOS" />
 
+  <app-mtbf-equipo [data]="DataMTBFPorEquipo" unidad="h" titulo="MTBF POR EQUIPO - JUMBOS" />
+  <app-mttr-equipo [data]="DataMTTRPorEquipo" unidad="h" titulo="MTTR POR EQUIPO - JUMBOS" />
+
+  <app-mtbf-semanas [data]="DataMTBFPorSemana" unidad="h" titulo="MTBF POR SEMANA - JUMBOS" />
+  <app-mtbf-mes [data]="DataMTBFPorMes" unidad="h" titulo="MTBF POR MES - JUMBOS" />
+  <app-mtbf-ano [data]="DataMTBFPorAnio" unidad="h" titulo="MTBF POR AÑO - JUMBOS" />
+
+  <app-mttr-semanas [data]="DataMTTRPorSemana" unidad="h" titulo="MTTR POR SEMANA - JUMBOS" />
+  <app-mttr-mes [data]="DataMTTRPorMes" unidad="h" titulo="MTTR POR MES - JUMBOS" />
+  <app-mttr-ano [data]="DataMTTRPorAnio" unidad="h" titulo="MTTR POR AÑO - JUMBOS" />
+
+
 </div>
 
 <div class="graficos-container" *ngIf="!vistaPrincipal">
