@@ -4,7 +4,9 @@ import { PlanMensualService } from '../../../../../services/plan-mensual.service
 import { FechasPlanMensualService } from '../../../../../services/fechas-plan-mensual.service';
 import { OperacionesService } from '../../../../../services/operaciones.service';
 
-import { OperacionBase } from '../../../../../models/OperacionBase.models';
+import {
+  OperacionBaseJumbo,
+} from '../../../../../models/OperacionBase.models';
 import { PlanMensual } from '../../../../../models/plan-mensual.model';
 import { FormsModule } from '@angular/forms';
 import jsPDF from 'jspdf';
@@ -61,8 +63,8 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
   mes!: string;
 
   // DATA ORIGINAL (sin filtrar)
-  operacionesOriginal: OperacionBase[] = [];
-  operacionesFiltradas: OperacionBase[] = [];
+  operacionesOriginal: OperacionBaseJumbo[] = [];
+  operacionesFiltradas: OperacionBaseJumbo[] = [];
   planesMensuales: PlanMensual[] = [];
 
   // 🔥 DATA FINAL PARA LOS GRAFICOS
@@ -364,10 +366,7 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
         item.cantidadRegistros += 1;
 
         // SUMA(HRS MANTENIMIENTO)
-        if (
-          estado === 'MANTENIMIENTO' ||
-          this.esCodigoMantenimiento(codigo)
-        ) {
+        if (estado === 'MANTENIMIENTO' || this.esCodigoMantenimiento(codigo)) {
           item.horasMtto += horas;
           item.cantidadRegistrosMtto += 1;
         }
@@ -506,7 +505,7 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
     return resultadoMap;
   }
   private calcularDisponibilidadBasePorDia(
-    dataOperaciones: OperacionBase[],
+    dataOperaciones: OperacionBaseJumbo[],
     crearRangoVisual: boolean,
   ) {
     const resultadoMap = new Map<string, any>();
@@ -587,10 +586,7 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
         item.cantidadRegistros += 1;
 
         // SUMA(HRS MANTENIMIENTO)
-        if (
-          estado === 'MANTENIMIENTO' ||
-          this.esCodigoMantenimiento(codigo)
-        ) {
+        if (estado === 'MANTENIMIENTO' || this.esCodigoMantenimiento(codigo)) {
           item.horasMtto += horas;
           item.cantidadRegistrosMtto += 1;
         }
@@ -686,10 +682,7 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
         item.cantidadRegistros += 1;
 
         // SUMA(HRS MANTENIMIENTO)
-        if (
-          estado === 'MANTENIMIENTO' ||
-          this.esCodigoMantenimiento(codigo)
-        ) {
+        if (estado === 'MANTENIMIENTO' || this.esCodigoMantenimiento(codigo)) {
           item.horasMtto += horas;
           item.cantidadRegistrosMtto += 1;
         }
@@ -799,7 +792,7 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
     return resultado;
   }
   private calcularUtilizacionBasePorDia(
-    dataOperaciones: OperacionBase[],
+    dataOperaciones: OperacionBaseJumbo[],
     usarRangoFechas: boolean,
   ) {
     const resultadoMap = new Map<string, any>();
@@ -881,10 +874,7 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
         item.horasTotales += horas;
         item.cantidadRegistros += 1;
 
-        if (
-          estado === 'MANTENIMIENTO' ||
-          this.esCodigoMantenimiento(codigo)
-        ) {
+        if (estado === 'MANTENIMIENTO' || this.esCodigoMantenimiento(codigo)) {
           item.horasMtto += horas;
           item.cantidadRegistrosMtto += 1;
         }
@@ -968,7 +958,7 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
 
     return resultadoMap;
   }
-  private filtrarSoloPorTurno(data: OperacionBase[]) {
+  private filtrarSoloPorTurno(data: OperacionBaseJumbo[]) {
     return data.filter((op) => {
       if (this.turnoAplicado && op.turno !== this.turnoAplicado) return false;
       return true;
@@ -1200,7 +1190,7 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
     return resultadoMap;
   }
   private calcularRendimientoBasePorDia(
-    dataOperaciones: OperacionBase[],
+    dataOperaciones: OperacionBaseJumbo[],
     crearRangoVisual: boolean,
   ) {
     const resultadoMap = new Map<string, any>();
@@ -1474,18 +1464,17 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
     );
   }
   private esCodigoMantenimiento(codigo: string): boolean {
-  const estado = this.obtenerEstadoPorCodigo(codigo);
+    const estado = this.obtenerEstadoPorCodigo(codigo);
 
-  if (!estado) return false;
+    if (!estado) return false;
 
-  const estadoPrincipal = this.normalizarTexto(estado.estado_principal);
-  const categoria = this.normalizarTexto(estado.categoria);
+    const estadoPrincipal = this.normalizarTexto(estado.estado_principal);
+    const categoria = this.normalizarTexto(estado.categoria);
 
-  return (
-    estadoPrincipal === 'MANTENIMIENTO' ||
-    categoria.includes('MANTENIMIENTO')
-  );
-}
+    return (
+      estadoPrincipal === 'MANTENIMIENTO' || categoria.includes('MANTENIMIENTO')
+    );
+  }
 
   private normalizarTexto(valor: any): string {
     return String(valor || '')
@@ -1545,7 +1534,6 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
 
         const observacion = String(
           registro.operacion?.observaciones ||
-            registro.observaciones ||
             'SIN OBSERVACIÓN',
         )
           .trim()
