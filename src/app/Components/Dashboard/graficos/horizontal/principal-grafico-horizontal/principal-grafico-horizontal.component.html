@@ -63,12 +63,9 @@
   <app-utilizacion-guardia [data]="DataUtilizacionPorGuardia" data-page="1" />
   <app-rendimiento-guardia [data]="DataRendimientoPorGuardia" data-page="1" />
 
-  <app-ranking-operador-utilizacion [data]="DataRankingOperadorUtilizacion" data-page="1" />
-  <app-ranking-operador-rendimiento
-  [data]="DataRankingOperadorRendimiento"
-  unidad="m/h"
-  titulo="RANKING RENDIMIENTO POR OPERADOR - JUMBOS">
-</app-ranking-operador-rendimiento>
+  <app-ranking-operador-rendimiento [data]="DataRankingOperadorRendimiento" unidad="m/h" titulo="RANKING RENDIMIENTO POR OPERADOR - JUMBOS" />
+
+  <app-ranking-operador-utilizacion [data]="DataRankingOperadorUtilizacion" titulo="RANKING UTILIZACIÓN POR OPERADOR - JUMBOS" />
 
 </div>
 

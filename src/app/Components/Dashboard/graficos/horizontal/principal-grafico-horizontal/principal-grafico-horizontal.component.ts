@@ -34,8 +34,8 @@ import { ParetoDisponibilidadComponent } from '../Graficos components/Pareto/par
 import { DisponibilidadGuardiaComponent } from '../../scoops/Graficos components/Disponibilidad/disponibilidad-guardia/disponibilidad-guardia.component';
 import { UtilizacionGuardiaComponent } from '../../scoops/Graficos components/Utilizacion/utilizacion-guardia/utilizacion-guardia.component';
 import { RendimientoGuardiaComponent } from '../../scoops/Graficos components/Rendimiento/rendimiento-guardia/rendimiento-guardia.component';
-import { RankingOperadorUtilizacionComponent } from '../../scoops/Graficos components/Ranking operador/ranking-operador-utilizacion/ranking-operador-utilizacion.component';
 import { RankingOperadorRendimientoComponent } from '../Graficos components/Rendimiento/ranking-operador-rendimiento/ranking-operador-rendimiento.component';
+import { RankingOperadorUtilizacionComponent } from '../Graficos components/Utilizacion/ranking-operador-utilizacion/ranking-operador-utilizacion.component';
 
 @Component({
   selector: 'app-principal-grafico-horizontal',
@@ -60,8 +60,8 @@ import { RankingOperadorRendimientoComponent } from '../Graficos components/Rend
     DisponibilidadGuardiaComponent,
     UtilizacionGuardiaComponent,
     RendimientoGuardiaComponent,
-    RankingOperadorUtilizacionComponent,
     RankingOperadorRendimientoComponent,
+    RankingOperadorUtilizacionComponent,
   ],
   templateUrl: './principal-grafico-horizontal.component.html',
   styleUrl: './principal-grafico-horizontal.component.css',
@@ -1990,8 +1990,6 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
     });
 
     resultado.sort((a, b) => b.utilizacion - a.utilizacion);
-
-    console.log('📊 RANKING UTILIZACIÓN POR OPERADOR:', resultado);
 
     return resultado;
   }
