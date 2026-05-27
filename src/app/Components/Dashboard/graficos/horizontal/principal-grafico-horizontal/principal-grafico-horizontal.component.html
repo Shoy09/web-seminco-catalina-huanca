@@ -59,6 +59,17 @@
   <app-pareto-utilizacion  [data]="DataParetoUtilizacionJumbos" data-page="1" />
   <app-pareto-disponibilidad [data]="DataParetoDisponibilidadJumbos" data-page="1" />
 
+  <app-disponibilidad-guardia [data]="DataDisponibilidadPorGuardia" data-page="1" />
+  <app-utilizacion-guardia [data]="DataUtilizacionPorGuardia" data-page="1" />
+  <app-rendimiento-guardia [data]="DataRendimientoPorGuardia" data-page="1" />
+
+  <app-ranking-operador-utilizacion [data]="DataRankingOperadorUtilizacion" data-page="1" />
+  <app-ranking-operador-rendimiento
+  [data]="DataRankingOperadorRendimiento"
+  unidad="m/h"
+  titulo="RANKING RENDIMIENTO POR OPERADOR - JUMBOS">
+</app-ranking-operador-rendimiento>
+
 </div>
 
 <div class="graficos-container" *ngIf="!vistaPrincipal">
