@@ -1,0 +1,60 @@
+<div class="dialog-container" [class.fullscreen]="isFullscreen">
+  <!-- Header con información de filtros -->
+  <div class="dialog-header">
+    <h2>Dashboard de Operaciones</h2>
+    <div class="header-buttons">
+      <button class="fullscreen-btn" (click)="toggleFullscreen()" [title]="isFullscreen ? 'Salir pantalla completa' : 'Pantalla completa'">
+        {{ isFullscreen ? '🗗' : '🗖' }}
+      </button>
+      <button class="close-btn" (click)="cerrar()">✕</button>
+    </div>
+  </div>
+
+  <div class="nav-bar">
+    <!-- Filtros a la izquierda -->
+    <div class="filtros-resumen">
+      <span class="filtro-badge">Turno: {{ data.turnoAplicado || 'Todos' }}</span>
+      <span class="filtro-badge">Fecha Inicio: {{ data.fechaInicio || 'Sin filtro' }}</span>
+      <span class="filtro-badge">Fecha Fin: {{ data.fechaFin || 'Sin filtro' }}</span>
+      <span class="filtro-badge">Total Registros: {{ data.operaciones?.length || 0 }}</span>
+    </div>
+
+    <!-- Botones a la derecha -->
+    <div class="nav-buttons">
+  <button class="nav-btn" [class.active]="hojaActual === 'hoja1'" (click)="cambiarHoja('hoja1')">
+    🚜 Horas
+  </button>
+
+
+</div>
+  </div>
+
+  <!-- CONTENIDO DE LAS HOJAS -->
+
+  <div *ngIf="hojaActual === 'hoja1'" class="hoja-content">
+  
+  <div class="graficos-wrapper one-column-full">
+    <div class="graph-card">
+      <app-metros-perforados-rango-hora [data]="DataMetrosPerforadosPorHora" [turno]="turnoAplicado"></app-metros-perforados-rango-hora>
+    </div>
+  </div>
+
+  <!-- Tabla de Metros Perforados por Equipo y Rango de Hora (1 columna - alto completo) -->
+  <div class="graficos-wrapper one-column-full">
+    <div class="graph-card">
+      <app-tabla-metros-perforados-equipo 
+        [data]="DataMetrosPerforadosPorLaborYRangoHora" 
+        [turno]="turnoAplicado">
+      </app-tabla-metros-perforados-equipo>
+    </div>
+  </div>
+
+</div>
+
+
+
+  <!-- Footer con acciones -->
+  <div class="dialog-footer">
+    <button class="btn-secundario" (click)="cerrar()">Cerrar</button>
+  </div>
+</div>

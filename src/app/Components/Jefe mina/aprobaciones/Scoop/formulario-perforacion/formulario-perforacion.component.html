@@ -15,53 +15,17 @@
 
     <div class="validation-error" *ngIf="formularioInvalido">
       <i class="fas fa-exclamation-triangle"></i>
-      Complete los campos obligatorios de Ubicación (*).
+      Complete los campos obligatorios (*).
     </div>
 
     <form class="perf-form">
-      <!-- SECCIÓN UBICACIÓN (siempre visible) -->
+      <!-- SECCIÓN UBICACIÓN DE INICIO -->
       <fieldset class="form-section">
         <legend class="section-legend">
           <i class="fas fa-map-marker-alt icon"></i> Ubicación de Inicio
           <span class="required-star" *ngIf="mostrarCamposCompletos">*</span>
         </legend>
         <div class="row-inputs">
-          <div class="input-field">
-            <label class="field-label">
-              <i class="fas fa-layer-group label-icon"></i>
-              Nivel <span class="required-star" *ngIf="mostrarCamposCompletos">*</span>
-            </label>
-            <input
-              type="text"
-              class="perf-input"
-              placeholder="Ej: 1400"
-              [(ngModel)]="datosPerforacion.ubicacion.nivel_inicio"
-              name="nivel_inicio"
-              list="nivelesList"
-            />
-            <datalist id="nivelesList">
-              <option *ngFor="let n of niveles" [value]="n"></option>
-            </datalist>
-          </div>
-          
-          <div class="input-field">
-            <label class="field-label">
-              <i class="fas fa-screwdriver-wrench label-icon"></i>
-              Tipo Labor <span class="required-star" *ngIf="mostrarCamposCompletos">*</span>
-            </label>
-            <input
-              type="text"
-              class="perf-input"
-              placeholder="Ej: SN, RAMPA, GALERIA"
-              [(ngModel)]="datosPerforacion.ubicacion.tipo_labor_inicio"
-              name="tipo_labor_inicio"
-              list="tiposLaborList"
-            />
-            <datalist id="tiposLaborList">
-              <option *ngFor="let t of tiposLabor" [value]="t"></option>
-            </datalist>
-          </div>
-          
           <div class="input-field">
             <label class="field-label">
               <i class="fas fa-warehouse label-icon"></i>
@@ -71,7 +35,7 @@
               type="text"
               class="perf-input"
               placeholder="Ej: 7022"
-              [(ngModel)]="datosPerforacion.ubicacion.labor_inicio"
+              [(ngModel)]="datosPerforacion.labor_inicio"
               name="labor_inicio"
               list="laboresList"
             />
@@ -79,65 +43,72 @@
               <option *ngFor="let l of labores" [value]="l"></option>
             </datalist>
           </div>
-          
+        </div>
+      </fieldset>
+
+            <!-- SECCIÓN UBICACIÓN DESTINO -->
+      <fieldset class="form-section" *ngIf="mostrarCamposCompletos">
+        <legend class="section-legend">
+          <i class="fas fa-location-dot icon"></i> Ubicación de Destino
+          <span class="required-star">*</span>
+        </legend>
+
+        <div class="row-inputs">
           <div class="input-field">
             <label class="field-label">
-              <i class="fas fa-code-branch label-icon"></i>
-              Ala
+              <i class="fas fa-truck label-icon"></i>
+              Destino
             </label>
             <input
               type="text"
               class="perf-input"
-              placeholder="Ej: 3S, NORTE, SUR"
-              [(ngModel)]="datosPerforacion.ubicacion.ala_inicio"
-              name="ala_inicio"
-              list="alasList"
+              placeholder="Ej: Caja negra, VOLQUETE"
+              [(ngModel)]="datosPerforacion.ubicacion_destino"
+              name="ubicacion_destino"
+              list="ubicacionesDestinoList"
             />
-            <datalist id="alasList">
-              <option *ngFor="let a of alas" [value]="a"></option>
+            <datalist id="ubicacionesDestinoList">
+              <option *ngFor="let u of ubicacionesDestino" [value]="u"></option>
+            </datalist>
+          </div>
+        </div>
+
+        <!-- Número de Volquete (solo si destino es VOLQUETE) -->
+        <div class="row-inputs" *ngIf="datosPerforacion.ubicacion_destino === 'VOLQUETE'">
+          <div class="input-field">
+            <label class="field-label">
+              <i class="fas fa-hashtag label-icon"></i>
+              N° Volquete
+            </label>
+            <input
+              type="text"
+              class="perf-input"
+              placeholder="Número de volquete"
+              [(ngModel)]="datosPerforacion.numero_volquete"
+              name="numero_volquete"
+              list="volquetesList"
+            />
+            <datalist id="volquetesList">
+              <option *ngFor="let v of volquetes" [value]="v"></option>
             </datalist>
           </div>
         </div>
       </fieldset>
 
-      <!-- SECCIÓN UBICACIÓN DESTINO -->
-<fieldset class="form-section" *ngIf="mostrarCamposCompletos">
-  <legend class="section-legend">
-    <i class="fas fa-map-marker-alt icon"></i> Ubicación de Destino
-  </legend>
 
-  <div class="row-inputs">
-    <div class="input-field">
-      <label class="field-label">
-        <i class="fas fa-location-dot label-icon"></i>
-        Destino
-      </label>
-      <input
-        type="text"
-        class="perf-input"
-        placeholder="Ej: Caja negra"
-        [(ngModel)]="datosPerforacion.ubicacion_destino"
-        name="ubicacion_destino"
-        list="ubicacionesDestinoList"
-      />
-      <datalist id="ubicacionesDestinoList">
-        <option *ngFor="let u of ubicacionesDestino" [value]="u"></option>
-      </datalist>
-    </div>
-  </div>
-</fieldset>
-
-      <!-- SECCIÓN DATOS OPERACIÓN -->
+      <!-- SECCIÓN DATOS DE OPERACIÓN -->
+<!-- SECCIÓN DATOS DE OPERACIÓN -->
 <fieldset class="form-section" *ngIf="mostrarCamposCompletos">
   <legend class="section-legend">
     <i class="fas fa-chart-line icon"></i> Datos de Operación
   </legend>
 
+  <!-- N° Cucharas y Tipo de Material en la misma fila -->
   <div class="row-inputs">
     <div class="input-field">
       <label class="field-label">
         <i class="fas fa-cubes label-icon"></i>
-        N° Cucharas
+        N° Cucharas <span class="required-star">*</span>
       </label>
       <input
         type="number"
@@ -147,10 +118,27 @@
         name="n_cucharas"
       />
     </div>
+
+    <div class="input-field">
+      <label class="field-label">
+        <i class="fas fa-gem label-icon"></i>
+        Tipo de Material
+      </label>
+      <select 
+        class="perf-input"
+        [(ngModel)]="datosPerforacion.material"
+        name="material"
+        (change)="resetMaterialCounters(datosPerforacion.material)">
+        <option value="">Seleccione un material</option>
+        <option *ngFor="let m of materiales" [value]="m">{{ m }}</option>
+      </select>
+    </div>
   </div>
+
 </fieldset>
 
-      <!-- SECCIÓN OBSERVACIONES (siempre visible) -->
+
+      <!-- SECCIÓN OBSERVACIONES -->
       <fieldset class="form-section">
         <legend class="section-legend">
           <i class="fas fa-comment icon"></i> Observaciones

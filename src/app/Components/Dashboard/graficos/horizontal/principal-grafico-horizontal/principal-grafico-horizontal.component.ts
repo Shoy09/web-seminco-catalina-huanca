@@ -21,6 +21,8 @@ import { DisponibilidadDiaComponent } from '../../scoops/Graficos components/Dis
 import { DisponibilidadSemanaComponent } from '../../scoops/Graficos components/Disponibilidad/disponibilidad-semana/disponibilidad-semana.component';
 import { DisponibilidadMesComponent } from '../../scoops/Graficos components/Disponibilidad/disponibilidad-mes/disponibilidad-mes.component';
 import { DisponibilidadEquipoComponent } from '../../scoops/Graficos components/Disponibilidad/disponibilidad-equipo/disponibilidad-equipo.component';
+import { PresentacionHorizontalDialogComponent } from '../presentacion-dialog/presentacion-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-principal-grafico-horizontal',
@@ -158,6 +160,7 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
     private fechasPlanMensualService: FechasPlanMensualService,
     private operacionesService: OperacionesService,
     private estadoService: EstadoService,
+    private dialog: MatDialog,
   ) {}
 
   ngOnInit(): void {
@@ -566,4 +569,30 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
 
     return (fin - inicio) / 60; // en horas
   }
+
+  Presentacion() {
+    if (!this.operacionesFiltradas || this.operacionesFiltradas.length === 0) {
+      console.warn('No hay datos filtrados para mostrar');
+      return;
+    }
+  
+    const dialogRef = this.dialog.open(PresentacionHorizontalDialogComponent, {
+      width: '1800px',
+      maxHeight: '90vh',
+      data: {
+        operaciones: this.operacionesFiltradas,
+        turnoAplicado: this.turnoAplicado,
+        fechaInicio: this.fechaInicio,
+        fechaFin: this.fechaFin,
+      },
+      disableClose: false,
+      autoFocus: true
+    });
+  
+    // Opcional: Escuchar cuando se cierre el diálogo
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('Diálogo cerrado', result);
+    });
+  }
+  
 }

@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
-import { BarChart } from 'echarts/charts';
+import { BarChart, LineChart } from 'echarts/charts';
 import {
   TitleComponent,
   TooltipComponent,
@@ -12,8 +12,10 @@ import {
 import { CanvasRenderer } from 'echarts/renderers';
 import { CommonModule } from '@angular/common';
 
+// 🔥 Registramos LineChart también
 echarts.use([
   BarChart,
+  LineChart,
   TitleComponent,
   TooltipComponent,
   GridComponent,
@@ -33,11 +35,17 @@ echarts.use([
 export class ToneladasRangoHoraComponent implements OnInit, OnChanges {
 
   @Input() data: any[] = [];
-  @Input() turno: string = ''; // 'DÍA', 'NOCHE' o ''
+  @Input() turno: string = '';
 
   chartOptions: any = {};
+  
+  totalesMateriales = {
+    mineral: 0,
+    desmonte: 0,
+    relave: 0,
+    relleno: 0
+  };
 
-  // 🔥 Rangos de hora según el turno
   private rangosPorTurno: { [key: string]: string[] } = {
     'DÍA': [
       '06:00 - 07:00', '07:00 - 08:00', '08:00 - 09:00', '09:00 - 10:00', 
@@ -49,7 +57,7 @@ export class ToneladasRangoHoraComponent implements OnInit, OnChanges {
       '22:00 - 23:00', '23:00 - 00:00', '00:00 - 01:00', '01:00 - 02:00', 
       '02:00 - 03:00', '03:00 - 04:00', '04:00 - 05:00', '05:00 - 06:00'
     ],
-    '': [ // TODOS los turnos
+    '': [
       '06:00 - 07:00', '07:00 - 08:00', '08:00 - 09:00', '09:00 - 10:00', 
       '10:00 - 11:00', '11:00 - 12:00', '12:00 - 13:00', '13:00 - 14:00', 
       '14:00 - 15:00', '15:00 - 16:00', '16:00 - 17:00', '17:00 - 18:00',
@@ -70,26 +78,44 @@ export class ToneladasRangoHoraComponent implements OnInit, OnChanges {
   }
 
   procesarDatos(): void {
-    // 🔥 Obtener los rangos completos según el turno
+    this.calcularTotalesMateriales();
     const rangosCompletos = this.rangosPorTurno[this.turno] || this.rangosPorTurno[''];
     
     if (!this.data || this.data.length === 0) {
-      // Mostrar gráfico con todos los rangos pero con valores en cero
       this.actualizarGraficoConRangosCompletos(rangosCompletos, []);
       return;
     }
 
     this.actualizarGraficoConRangosCompletos(rangosCompletos, this.data);
   }
+  
+  calcularTotalesMateriales(): void {
+    if (!this.data || this.data.length === 0) {
+      this.totalesMateriales = { mineral: 0, desmonte: 0, relave: 0, relleno: 0 };
+      return;
+    }
+    
+    this.totalesMateriales = {
+      mineral: this.data.reduce((sum, item) => sum + (item.mineral || 0), 0),
+      desmonte: this.data.reduce((sum, item) => sum + (item.desmonte || 0), 0),
+      relave: this.data.reduce((sum, item) => sum + (item.relave || 0), 0),
+      relleno: this.data.reduce((sum, item) => sum + (item.relleno || 0), 0)
+    };
+  }
+
+  get totalGeneral(): number {
+    return this.totalesMateriales.mineral + 
+           this.totalesMateriales.desmonte + 
+           this.totalesMateriales.relave + 
+           this.totalesMateriales.relleno;
+  }
 
   actualizarGraficoConRangosCompletos(rangosCompletos: string[], datosOriginales: any[]): void {
-    // 🔥 Crear un mapa de datos por rango para fácil acceso
     const datosPorRango = new Map<string, any>();
     datosOriginales.forEach(item => {
       datosPorRango.set(item.rangoHora, item);
     });
 
-    // 🔥 Construir los arrays alineados con los rangos completos
     const rangos: string[] = [];
     const mineral: number[] = [];
     const desmonte: number[] = [];
@@ -108,7 +134,6 @@ export class ToneladasRangoHoraComponent implements OnInit, OnChanges {
         relleno.push(item.relleno || 0);
         totales.push(item.total || 0);
       } else {
-        // Si no hay datos para este rango, poner ceros
         mineral.push(0);
         desmonte.push(0);
         relave.push(0);
@@ -117,16 +142,25 @@ export class ToneladasRangoHoraComponent implements OnInit, OnChanges {
       }
     });
 
-    // 🔥 Calcular máximo para escala dinámica
-    const maxTotal = Math.max(...totales, 0);
-    const escalaMax = maxTotal > 0 ? Math.ceil(maxTotal / 100) * 100 : 100;
+    // 🔥 Calcular línea acumulativa
+    const acumulativo: number[] = [];
+    let sumaAcumulada = 0;
+    for (let i = 0; i < totales.length; i++) {
+      sumaAcumulada += totales[i];
+      acumulativo.push(sumaAcumulada);
+    }
 
-    // 🔥 Colores para cada tipo de material
+    const maxTotal = Math.max(...totales, 0);
+    const maxAcumulado = Math.max(...acumulativo, 0);
+    const escalaMax = Math.max(maxTotal, maxAcumulado) > 0 
+      ? Math.ceil(Math.max(maxTotal, maxAcumulado) / 100) * 100 
+      : 100;
+
     const colores = {
-      mineral: '#9df6c2',      // Verde claro
-      desmonte: '#1eff7c',     // Verde brillante
-      relave: '#2ecc71',       // Verde
-      relleno: '#27ae60'       // Verde oscuro
+      mineral: '#9df6c2',
+      desmonte: '#1eff7c',
+      relave: '#2ecc71',
+      relleno: '#27ae60'
     };
 
     this.chartOptions = {
@@ -151,8 +185,9 @@ export class ToneladasRangoHoraComponent implements OnInit, OnChanges {
           const rango = params[0].axisValue;
           const index = params[0].dataIndex;
           const total = totales[index];
+          const acumulado = acumulativo[index];
           
-          if (total === 0) {
+          if (total === 0 && acumulado === 0) {
             return `<strong>📊 ${rango}</strong><br/>
               <hr style="margin: 5px 0;"/>
               <strong>Sin producción</strong>`;
@@ -160,11 +195,11 @@ export class ToneladasRangoHoraComponent implements OnInit, OnChanges {
           
           let tooltipText = `<strong>📊 ${rango}</strong><br/>
             <hr style="margin: 5px 0;"/>
-            <strong>Total: ${total.toFixed(2)} ton</strong><br/><br/>`;
+            <strong>Total hora: ${total.toFixed(2)} ton</strong><br/>
+            <strong style="color: #ff6b6b;">📈 Acumulado: ${acumulado.toFixed(2)} ton</strong><br/><br/>`;
           
-          // Mostrar cada material con su valor
           params.forEach((param: any) => {
-            if (param.value > 0) {
+            if (param.seriesName !== 'ACUMULADO' && param.value > 0) {
               const porcentaje = ((param.value / total) * 100).toFixed(1);
               tooltipText += `<span style="display:inline-block; width:12px; height:12px; background-color:${param.color}; border-radius:2px; margin-right:8px;"></span>
                 <strong>${param.seriesName}:</strong> ${param.value.toFixed(2)} ton (${porcentaje}%)<br/>`;
@@ -176,7 +211,7 @@ export class ToneladasRangoHoraComponent implements OnInit, OnChanges {
       },
 
       legend: {
-        data: ['MINERAL', 'DESMONTE', 'RELAVE', 'RELLENO'],
+        data: ['MINERAL', 'DESMONTE', 'RELAVE', 'RELLENO', 'ACUMULADO'],
         top: 40,
         left: 'center',
         itemWidth: 25,
@@ -199,11 +234,11 @@ export class ToneladasRangoHoraComponent implements OnInit, OnChanges {
         type: 'category',
         data: rangos,
         axisLabel: {
-          fontSize: 11,           // 🔥 Tamaño ajustado para 24 rangos
+          fontSize: 11,
           fontWeight: 'normal',
           color: '#2c3e50',
           fontFamily: 'Arial',
-          rotate: 0,             // 🔥 Rotar 45 grados si hay muchos rangos
+          rotate: 0,
           interval: 0,
           margin: 10
         },
@@ -259,7 +294,8 @@ export class ToneladasRangoHoraComponent implements OnInit, OnChanges {
               shadowBlur: 8,
               shadowColor: 'rgba(0, 0, 0, 0.3)'
             }
-          }
+          },
+          z: 1  // 🔥 Prioridad baja
         },
         {
           name: 'DESMONTE',
@@ -280,7 +316,8 @@ export class ToneladasRangoHoraComponent implements OnInit, OnChanges {
               shadowBlur: 8,
               shadowColor: 'rgba(0, 0, 0, 0.3)'
             }
-          }
+          },
+          z: 1  // 🔥 Prioridad baja
         },
         {
           name: 'RELAVE',
@@ -301,7 +338,8 @@ export class ToneladasRangoHoraComponent implements OnInit, OnChanges {
               shadowBlur: 8,
               shadowColor: 'rgba(0, 0, 0, 0.3)'
             }
-          }
+          },
+          z: 1  // 🔥 Prioridad baja
         },
         {
           name: 'RELLENO',
@@ -317,12 +355,18 @@ export class ToneladasRangoHoraComponent implements OnInit, OnChanges {
             show: true,
             position: 'top',
             fontWeight: 'bold',
-            fontSize: 11,
+            fontSize: 12,
             formatter: (params: any) => {
               const total = totales[params.dataIndex];
-              return total > 0 ? total.toFixed(0) + 't' : '';
+              return total > 0 ? total.toFixed(0) + ' t' : '';
             },
-            color: '#333'
+            color: '#2c3e50',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            padding: [2, 6, 2, 6],
+            borderRadius: 4,
+            borderColor: '#ddd',
+            borderWidth: 1,
+            z: 100  // 🔥 Prioridad MUY ALTA - siempre visible
           },
           emphasis: {
             focus: 'series',
@@ -330,9 +374,64 @@ export class ToneladasRangoHoraComponent implements OnInit, OnChanges {
               shadowBlur: 8,
               shadowColor: 'rgba(0, 0, 0, 0.3)'
             }
+          },
+          z: 2  // 🔥 Prioridad media-alta para las barras
+        },
+        // 🔥 Línea acumulativa con menor prioridad
+        {
+          name: 'ACUMULADO',
+          type: 'line',
+          data: acumulativo,
+          symbol: 'circle',
+          symbolSize: 6,
+          lineStyle: {
+            color: '#ff6b6b',
+            width: 3,
+            type: 'solid',
+            shadowColor: 'rgba(0, 0, 0, 0.2)',
+            shadowBlur: 6
+          },
+          itemStyle: {
+            color: '#ff6b6b',
+            borderColor: '#fff',
+            borderWidth: 2
+          },
+          label: {
+            show: false  // Etiquetas ocultas normalmente
+          },
+          smooth: false,
+          z: 0,  // 🔥 Prioridad MÁS BAJA - la línea queda detrás de las barras
+          emphasis: {
+            focus: 'series',
+            scale: true,
+            label: {
+              show: true,
+              position: 'top',
+              formatter: (params: any) => {
+                return params.value.toFixed(0) + ' t';
+              },
+              fontSize: 10,
+              fontWeight: 'bold',
+              color: '#ff6b6b',
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              padding: [2, 6, 2, 6],
+              borderRadius: 4,
+              borderColor: '#ff6b6b',
+              borderWidth: 1,
+              z: 50  // Prioridad media en hover
+            }
+          },
+          tooltip: {
+            valueFormatter: (value: any) => value?.toFixed(2) + ' ton (acumulado)'
           }
         }
-      ]
+      ],
+      
+      // 🔥 Configuración de z-index global
+      graphic: {
+        type: 'group',
+        z: 100
+      }
     };
   }
 }
