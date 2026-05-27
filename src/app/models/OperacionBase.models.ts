@@ -1,5 +1,6 @@
 import { OperacionJumbo } from './OperacionJumbo';
 import { OperacionScoop } from './OperacionScoop';
+import { OperacionSostenimiento } from './OperacionSostenimiento';
 import { OperacionTLargos } from './OperacionTLargos';
 
 export interface OperacionBase<TOperacion = TipoOperacionRegistro> {
@@ -47,9 +48,11 @@ export interface Registro<TOperacion = TipoOperacionRegistro> {
 export type TipoOperacionRegistro =
   | OperacionJumbo
   | OperacionScoop
-  | OperacionTLargos;
+  | OperacionTLargos
+  | OperacionSostenimiento;
 
   export type OperacionBaseJumbo = OperacionBase<OperacionJumbo>;
   export type OperacionBaseScoop = OperacionBase<OperacionScoop>;
   export type OperacionBaseTLargos = OperacionBase<OperacionTLargos>;
+  export type OperacionBaseSostenimiento = OperacionBase<OperacionSostenimiento>;
 

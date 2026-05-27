@@ -14,10 +14,9 @@ export class ApiService {
   constructor(private readonly http: HttpClient) {}
 
   // Obtener datos
-  getDatos(endpoint: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${endpoint}`);
+  getDatos<T = any>(endpoint: string): Observable<T> {
+    return this.http.get<T>(`${this.apiUrl}/${endpoint}`);
   }
-
   // Enviar datos con POST
   postDatos(endpoint: string, data: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/${endpoint}`, data);

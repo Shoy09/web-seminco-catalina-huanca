@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { OperacionBase } from '../../../../../models/OperacionBase.models';
+import { OperacionBaseScoop } from '../../../../../models/OperacionBase.models';
 import { PlanProduccion } from '../../../../../models/plan_produccion.model';
 import { PlanMensualService } from '../../../../../services/plan-mensual.service';
 import { FechasPlanMensualService } from '../../../../../services/fechas-plan-mensual.service';
@@ -111,8 +111,8 @@ export class PrincipalGraficoScoopsComponent implements OnInit {
   mes!: string;
 
   // DATA ORIGINAL (sin filtrar)
-  operacionesOriginal: OperacionBase[] = [];
-  operacionesFiltradas: OperacionBase[] = [];
+  operacionesOriginal: OperacionBaseScoop[] = [];
+  operacionesFiltradas: OperacionBaseScoop[] = [];
   planesMensuales: PlanProduccion[] = [];
 
   fechaInicio: string = '';
@@ -511,7 +511,7 @@ mapaEstados: Map<string, any> = new Map();
       
       const horas = this.calcularDuracionHoras(
         registro.hora_inicio,
-        registro.hora_final
+        registro.hora_final!
       );
       horasMtto += horas;
     }
@@ -620,7 +620,7 @@ HorasMantenimientoPorCodigo() {
       const horas =
         this.calcularDuracionHoras(
           registro.hora_inicio,
-          registro.hora_final
+          registro.hora_final!
         );
 
       // 🔥 crear item
@@ -771,7 +771,7 @@ HorasMantenimientoPorCodigo() {
     return resultadoMap;
   }
   private calcularDisponibilidadBasePorDia(
-    dataOperaciones: OperacionBase[],
+    dataOperaciones: OperacionBaseScoop[],
     crearRangoVisual: boolean,
   ) {
     const resultadoMap = new Map<string, any>();
@@ -897,7 +897,7 @@ DisponibilidadPorSeccion() {
 
       const horas = this.calcularDuracionHoras(
         registro.hora_inicio,
-        registro.hora_final
+        registro.hora_final!
       );
 
       horasMtto += horas;
@@ -958,7 +958,7 @@ UtilizacionPorEquipo() {
     for (const registro of registrosArray) {
       const horas = this.calcularDuracionHoras(
         registro.hora_inicio,
-        registro.hora_final
+        registro.hora_final!
       );
 
       // 🔥 Acumular horas de MANTENIMIENTO
@@ -1055,7 +1055,7 @@ HorasDemoraPorCodigo() {
       // 🔥 Calcular horas de demora
       let horasDemora = this.calcularDuracionHoras(
         registro.hora_inicio,
-        registro.hora_final
+        registro.hora_final!
       );
       
       // 🔥 Limitar horas al total disponible (máximo 12 por operación)
@@ -1187,7 +1187,7 @@ private obtenerDescripcionDemora(codigo: string): string {
     return resultado;
   }
   private calcularUtilizacionBasePorDia(
-    dataOperaciones: OperacionBase[],
+    dataOperaciones: OperacionBaseScoop[],
     usarRangoFechas: boolean,
   ) {
     const resultadoMap = new Map<string, any>();
@@ -1353,7 +1353,7 @@ private obtenerDescripcionDemora(codigo: string): string {
 
     return resultadoMap;
   }
-  private filtrarSoloPorTurno(data: OperacionBase[]) {
+  private filtrarSoloPorTurno(data: OperacionBaseScoop[]) {
     return data.filter((op) => {
       if (this.turnoAplicado && op.turno !== this.turnoAplicado) return false;
       return true;
@@ -1379,7 +1379,7 @@ UtilizacionPorSeccionDetallada() {
     for (const registro of registrosArray) {
       const horas = this.calcularDuracionHoras(
         registro.hora_inicio,
-        registro.hora_final
+        registro.hora_final!
       );
 
       if (registro.estado === 'MANTENIMIENTO') {
@@ -1478,7 +1478,7 @@ RendimientoPorSeccionDetallado() {
 
       const horas = this.calcularDuracionHoras(
         registro.hora_inicio,
-        registro.hora_final
+        registro.hora_final!
       );
       horasOperativas += horas;
 
@@ -1595,7 +1595,7 @@ RendimientoPorEquipo() {
       // 🔥 Horas operativas
       const horas = this.calcularDuracionHoras(
         registro.hora_inicio,
-        registro.hora_final
+        registro.hora_final!
       );
 
       horasOperativas += horas;
@@ -1737,7 +1737,7 @@ RendimientoPorMes() {
       // 🔥 Horas operativas
       const horas = this.calcularDuracionHoras(
         registro.hora_inicio,
-        registro.hora_final
+        registro.hora_final!
       );
 
       horasOperativas += horas;
@@ -1893,7 +1893,7 @@ RendimientoPorDia() {
       // 🔥 Horas operativas
       const horas = this.calcularDuracionHoras(
         registro.hora_inicio,
-        registro.hora_final
+        registro.hora_final!
       );
 
       horasOperativas += horas;
@@ -1982,7 +1982,7 @@ DisponibilidadPorOperador() {
       if (registro.estado !== 'MANTENIMIENTO') continue;
       const horas = this.calcularDuracionHoras(
         registro.hora_inicio,
-        registro.hora_final
+        registro.hora_final!
       );
       horasMtto += horas;
     }
@@ -2064,7 +2064,7 @@ RendimientoPorOperador() {
       // 🔥 Horas operativas
       const horas = this.calcularDuracionHoras(
         registro.hora_inicio,
-        registro.hora_final
+        registro.hora_final!
       );
       horasOperativas += horas;
 
@@ -2189,7 +2189,7 @@ HorasPorObservacion() {
       // 🔥 Calcular horas
       let horas = this.calcularDuracionHoras(
         registro.hora_inicio,
-        registro.hora_final
+        registro.hora_final!
       );
       
       // 🔥 Limitar horas al total disponible (máximo 12 por operación)
@@ -2352,7 +2352,7 @@ RendimientoPorGuardia() {
 
       const horas = this.calcularDuracionHoras(
         registro.hora_inicio,
-        registro.hora_final
+        registro.hora_final!
       );
 
       if (!horas || horas <= 0) continue;
@@ -2474,7 +2474,7 @@ MineralGuardia() {
 
       const horas = this.calcularDuracionHoras(
         registro.hora_inicio,
-        registro.hora_final
+        registro.hora_final!
       );
 
       if (!horas || horas <= 0) continue;
@@ -2664,7 +2664,7 @@ HorasDemoraPorCodigoCompleto() {
       // 🔥 Calcular horas
       let horas = this.calcularDuracionHoras(
         registro.hora_inicio,
-        registro.hora_final
+        registro.hora_final!
       );
       
       horas = Math.min(horas, HORAS_TOTALES);
@@ -2760,7 +2760,7 @@ MTBFPorEquipo() {
       // 🔥 Acumular horas de mantenimiento
       const horas = this.calcularDuracionHoras(
         registro.hora_inicio,
-        registro.hora_final
+        registro.hora_final!
       );
       horasMtto += horas;
       
@@ -2837,7 +2837,7 @@ MTBFPorAnio() {
       
       const horas = this.calcularDuracionHoras(
         registro.hora_inicio,
-        registro.hora_final
+        registro.hora_final!
       );
       horasMtto += horas;
       cantidadFallas++;
@@ -2914,7 +2914,7 @@ MTBFPorSemana() {
       
       const horas = this.calcularDuracionHoras(
         registro.hora_inicio,
-        registro.hora_final
+        registro.hora_final!
       );
       horasMtto += horas;
       cantidadFallas++;
@@ -2996,7 +2996,7 @@ MTBFPorMes() {
       
       const horas = this.calcularDuracionHoras(
         registro.hora_inicio,
-        registro.hora_final
+        registro.hora_final!
       );
       horasMtto += horas;
       cantidadFallas++;
@@ -3065,7 +3065,7 @@ MTTRPorEquipo() {
       // 🔥 Acumular horas de mantenimiento
       const horas = this.calcularDuracionHoras(
         registro.hora_inicio,
-        registro.hora_final
+        registro.hora_final!
       );
       horasMtto += horas;
       
@@ -3137,7 +3137,7 @@ MTTRPorAnio() {
       // 🔥 Acumular horas de mantenimiento
       const horas = this.calcularDuracionHoras(
         registro.hora_inicio,
-        registro.hora_final
+        registro.hora_final!
       );
       horasMtto += horas;
       
@@ -3213,7 +3213,7 @@ MTTRPorSemana() {
       // 🔥 Acumular horas de mantenimiento
       const horas = this.calcularDuracionHoras(
         registro.hora_inicio,
-        registro.hora_final
+        registro.hora_final!
       );
       horasMtto += horas;
       
@@ -3299,7 +3299,7 @@ MTTRPorMes() {
       // 🔥 Acumular horas de mantenimiento
       const horas = this.calcularDuracionHoras(
         registro.hora_inicio,
-        registro.hora_final
+        registro.hora_final!
       );
       horasMtto += horas;
       
@@ -3753,7 +3753,7 @@ ToneladasPorEquipoYRangoHora(turno: string = '') {
       if (!codigosPermitidos.includes(codigo)) continue;
       if (registro.estado !== 'OPERATIVO') continue;
 
-      const rangoHora = obtenerRangoHora(registro.hora_final);
+      const rangoHora = obtenerRangoHora(registro.hora_final!);
       
       // 🔥 Saltar si el rango no está en la lista del turno
       if (!rangosHora.includes(rangoHora)) continue;
@@ -3991,7 +3991,7 @@ private calcularHorasOperativasBasePorDia() {
 
       const horas = this.calcularDuracionHoras(
         registro.hora_inicio,
-        registro.hora_final
+        registro.hora_final!
       );
 
       if (!horas || horas <= 0) continue;
