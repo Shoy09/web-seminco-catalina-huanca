@@ -166,7 +166,7 @@ validarCambios() {
     // 🔥 PAYLOAD DINÁMICO (SE AGREGA APROBACION)
     const payload: any = {
       ...nuevaRaw,
-
+      registros: JSON.stringify(nuevaRaw.registros),
       [campoObservacion]: JSON.stringify(original),
 
       revisado: revisionActual + 1,
