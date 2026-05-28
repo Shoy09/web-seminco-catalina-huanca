@@ -15,6 +15,7 @@ import {
 } from 'echarts/components';
 
 import { CanvasRenderer } from 'echarts/renderers';
+import { CHART_COLORS, colorPorUtilizacion } from '../../../../../../../shared/chart-theme';
 
 echarts.use([
   BarChart,
@@ -77,8 +78,7 @@ export class RankingOperadorUtilizacionComponent implements OnChanges {
         textStyle: {
           fontSize: 14,
           fontWeight: 'bold',
-          color: '#333',
-          fontFamily: 'Arial',
+          color: CHART_COLORS.grey,
         },
       },
 
@@ -191,14 +191,7 @@ export class RankingOperadorUtilizacionComponent implements OnChanges {
           data: valores.map((valor) => ({
             value: valor,
             itemStyle: {
-              color:
-                valor >= 85
-                  ? '#2980b9'
-                  : valor >= 70
-                  ? '#27ae60'
-                  : valor >= 50
-                  ? '#f1c40f'
-                  : '#e74c3c',
+              color: colorPorUtilizacion(valor),
             },
           })),
 

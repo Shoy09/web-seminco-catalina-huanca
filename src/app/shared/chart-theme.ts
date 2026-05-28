@@ -71,7 +71,8 @@ export const CHART_PALETTE = [
 
 export const CHART_PARETO = {
   bar: CHART_COLORS.catalinaGreen,
-  line: CHART_COLORS.highlightOrange,
+  line: CHART_COLORS.black,
+  symbol: CHART_COLORS.black,
 };
 
 export const CHART_KPI_COLORS = {
@@ -90,22 +91,31 @@ export function colorPorDisponibilidad(valor: number): string {
 }
 
 export function colorPorUtilizacion(valor: number): string {
-  if (valor >= 85) return CHART_COLORS.forestGreen;
-  if (valor >= 70) return CHART_COLORS.catalinaGreen;
-  if (valor >= 50) return CHART_COLORS.highlightOrange;
-  return CHART_COLORS.danger;
+  if (valor >= 90) return CHART_TINTS.catalinaGreen[100];
+  if (valor >= 75) return CHART_TINTS.catalinaGreen[75];
+  if (valor >= 50) return CHART_TINTS.catalinaGreen[50];
+  return CHART_TINTS.catalinaGreen[25];
 }
 
-export function colorPorRendimiento(): string {
-  return CHART_COLORS.catalinaGreen;
+export function colorPorRendimiento(valor: number): string {
+  if (valor >= 100) return CHART_TINTS.catalinaGreen[100];
+  if (valor >= 70) return CHART_TINTS.catalinaGreen[75];
+  if (valor >= 40) return CHART_TINTS.catalinaGreen[50];
+  return CHART_TINTS.catalinaGreen[25];
 }
 
-export function colorPorMTTR(): string {
-  return CHART_COLORS.highlightOrange;
+export function colorPorMTTR(valor: number): string {
+  if (valor >= 100) return CHART_TINTS.highlightOrange[100];
+  if (valor >= 75) return CHART_TINTS.highlightOrange[75];
+  if (valor >= 50) return CHART_TINTS.highlightOrange[50];
+  return CHART_TINTS.highlightOrange[25];
 }
 
-export function colorPorMTBF(): string {
-  return CHART_COLORS.forestGreen;
+export function colorPorMTBF(valor: number): string {
+  if (valor >= 100) return CHART_TINTS.forestGreen[100];
+  if (valor >= 75) return CHART_TINTS.forestGreen[75];
+  if (valor >= 50) return CHART_TINTS.forestGreen[50];
+  return CHART_TINTS.forestGreen[25];
 }
 
 export const CHART_TEXT_STYLE = {
