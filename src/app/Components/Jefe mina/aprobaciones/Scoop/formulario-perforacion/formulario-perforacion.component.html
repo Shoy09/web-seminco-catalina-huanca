@@ -72,27 +72,6 @@
             </datalist>
           </div>
         </div>
-
-        <!-- Número de Volquete (solo si destino es VOLQUETE) -->
-        <div class="row-inputs" *ngIf="datosPerforacion.ubicacion_destino === 'VOLQUETE'">
-          <div class="input-field">
-            <label class="field-label">
-              <i class="fas fa-hashtag label-icon"></i>
-              N° Volquete
-            </label>
-            <input
-              type="text"
-              class="perf-input"
-              placeholder="Número de volquete"
-              [(ngModel)]="datosPerforacion.numero_volquete"
-              name="numero_volquete"
-              list="volquetesList"
-            />
-            <datalist id="volquetesList">
-              <option *ngFor="let v of volquetes" [value]="v"></option>
-            </datalist>
-          </div>
-        </div>
       </fieldset>
 
 
