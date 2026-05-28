@@ -1,4 +1,5 @@
 <div class="dashboard-container">
+
   <!-- Columna izquierda: Gráfico -->
   <div class="grafico-columna">
     <div 
@@ -8,53 +9,94 @@
       class="grafico-echarts">
     </div>
   </div>
-  
-  <!-- Columna derecha: Totales compactos -->
-  <div class="totales-columna">
-    <div class="totales-header">
-      <h4>📊 TOTAL POR TIPO DE PERFORACIÓN</h4>
-      <div class="totales-stats" *ngIf="tiposPerforacion.length > 0">
-        <span class="badge">{{ tiposPerforacion.length }} tipos</span>
-        <span class="badge" *ngIf="tiposPerforacion.length > maxItemsMostrar">
-          Mostrando {{ verTodos ? tiposPerforacion.length : maxItemsMostrar }} de {{ tiposPerforacion.length }}
-        </span>
+
+  <!-- Columna derecha -->
+<!-- Columna derecha -->
+<div class="sidebar-columna">
+
+  <div class="contenedor-inferior">
+
+    <!-- TOTAL POR TIPO -->
+    <div class="totales-columna">
+
+      <div class="totales-header">
+        <h4>📊 TOTAL POR TIPO DE PERFORACIÓN</h4>
       </div>
-    </div>
-    
-    <div class="totales-lista">
-      <!-- Generar dinámicamente cada tipo de perforación -->
-      <div *ngFor="let tipo of tiposPerforacionMostrados; let i = index" 
-           class="total-item" 
-           [style.border-left-color]="coloresBase[i % coloresBase.length]">
-        <div class="total-item-info">
-          <span class="total-item-nombre">{{ tipo }}</span>
-          <span class="total-item-valor">{{ totalesPorTipo[tipo] | number:'1.2-2' }} m</span>
-        </div>
-        <div class="total-item-progreso">
-          <div class="progreso-bar" 
-               [style.width]="(totalesPorTipo[tipo] / totalGeneral * 100) + '%'"
-               [style.backgroundColor]="coloresBase[i % coloresBase.length]">
+
+      <div class="totales-lista">
+        <div *ngFor="let tipo of tiposPerforacionFiltrados" 
+             class="total-item">
+
+          <div class="total-item-info">
+            <span class="total-item-nombre">
+              {{ tipo }}
+            </span>
+
+            <span class="total-item-valor">
+              {{ totalesPorTipo[tipo] | number:'1.2-2' }} m
+            </span>
           </div>
-        </div>
-        <div class="total-item-porcentaje">
-          {{ (totalesPorTipo[tipo] / totalGeneral * 100) | number:'1.1-1' }}%
+
         </div>
       </div>
-      
-      <!-- Mostrar mensaje si hay más tipos no visibles -->
-      <div *ngIf="tiposPerforacion.length > maxItemsMostrar" class="mas-tipos">
-        <span>+ {{ tiposPerforacion.length - (verTodos ? 0 : maxItemsMostrar) }} tipos {{ verTodos ? 'visibles' : 'más' }}</span>
-        <button class="ver-mas-btn" (click)="toggleVerTodos()">
-          {{ verTodos ? 'Ver menos' : 'Ver todos' }}
-        </button>
+
+      <div class="total-general">
+  <span class="total-general-label">
+    TOTAL GENERAL
+  </span>
+
+  <strong class="total-general-value">
+    {{ totalGeneral | number:'1.2-2' }} m
+  </strong>
+</div>
+
+    </div>
+
+    <!-- TOTAL POR EQUIPO -->
+    <div class="equipos-columna">
+
+      <div class="totales-header">
+        <h4>🚜 TOTAL POR EQUIPO</h4>
       </div>
+
+      <div class="totales-lista">
+
+  <div
+    *ngFor="let equipo of equiposFiltrados"
+    class="total-item">
+
+    <div class="total-item-info">
+
+      <span class="total-item-nombre">
+        {{ equipo }}
+      </span>
+
+      <span class="total-item-valor">
+        {{ totalesPorEquipo[equipo] | number:'1.2-2' }} m
+      </span>
+
     </div>
-    
-    <div class="total-general">
-      <span>TOTAL GENERAL</span>
-      <strong>{{ totalGeneral | number:'1.2-2' }} m</strong>
-    </div>
+
   </div>
+
+</div>
+
+<div class="total-general">
+  <span class="total-general-label">
+    TOTAL EQUIPOS
+  </span>
+
+  <strong class="total-general-value">
+    {{ totalGeneral | number:'1.2-2' }} m
+  </strong>
+</div>
+
+    </div>
+
+  </div>
+
+</div>
+
 </div>
 
 <div *ngIf="!data?.length" class="sin-datos">

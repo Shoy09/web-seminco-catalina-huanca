@@ -292,6 +292,7 @@ MetrosPerforadosPorRangoHoraCompleto(turno: string = '') {
         .toUpperCase()
         .trim();
 
+        const nEquipo = op.n_equipo || 'SIN EQUIPO';
       // 🔥 Calcular metros perforados
       const sumaTaladros =
         talAlivio + talProd + talRimados;
@@ -304,10 +305,13 @@ MetrosPerforadosPorRangoHoraCompleto(turno: string = '') {
       // 🔥 Inicializar rango si no existe
       if (!resultadoMap.has(rangoHora)) {
         const nuevoItem: any = {
-          rangoHora,
-          total: 0,
-          cantidadRegistros: 0
-        };
+  rangoHora,
+  total: 0,
+  cantidadRegistros: 0,
+
+  // 🔥 NUEVO
+  equipos: {}
+};
 
         // Inicializar tipos
         tiposPerforacion.forEach(tipo => {
@@ -329,6 +333,12 @@ MetrosPerforadosPorRangoHoraCompleto(turno: string = '') {
 
       item.total += metrosPerforados;
       item.cantidadRegistros += 1;
+      // 🔥 ACUMULAR POR EQUIPO
+if (!item.equipos[nEquipo]) {
+  item.equipos[nEquipo] = 0;
+}
+
+item.equipos[nEquipo] += metrosPerforados;
     }
   });
 
@@ -350,6 +360,13 @@ MetrosPerforadosPorRangoHoraCompleto(turno: string = '') {
       });
 
       item.total = Number(item.total.toFixed(2));
+
+      // 🔥 REDONDEAR EQUIPOS
+Object.keys(item.equipos).forEach(equipo => {
+  item.equipos[equipo] = Number(
+    item.equipos[equipo].toFixed(2)
+  );
+});
 
       return item;
     });

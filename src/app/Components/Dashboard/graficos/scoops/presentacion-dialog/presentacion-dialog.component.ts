@@ -3194,17 +3194,36 @@ ToneladasPorRangoHoraCompleto(turno: string = '') {
   let obtenerRangoHora: (horaStr: string) => string;
 
   if (turno === 'DÍA') {
-    // DÍA: 06:00 - 18:00 (12 rangos de 1 hora)
+    // DÍA: 06:00 - 18:00
     rangosHora = [
-      '06:00 - 07:00', '07:00 - 08:00', '08:00 - 09:00', '09:00 - 10:00', '10:00 - 11:00', 
-      '11:00 - 12:00', '12:00 - 13:00', '13:00 - 14:00', '14:00 - 15:00', '15:00 - 16:00',
-      '16:00 - 17:00', '17:00 - 18:00'
+      '06:00 - 07:00',
+      '07:00 - 08:00',
+      '08:00 - 09:00',
+      '09:00 - 10:00',
+      '10:00 - 11:00',
+      '11:00 - 12:00',
+      '12:00 - 13:00',
+      '13:00 - 14:00',
+      '14:00 - 15:00',
+      '15:00 - 16:00',
+      '16:00 - 17:00',
+      '17:00 - 18:00'
     ];
-    
+
     obtenerRangoHora = (horaStr: string): string => {
       if (!horaStr) return 'SIN HORA';
-      const [hora] = horaStr.split(':').map(Number);
-      
+
+      let [hora, minutos] = horaStr
+        .split(':')
+        .map(Number);
+
+      // 🔥 Si termina exacto en :00
+      // pertenece al rango anterior
+      if (minutos === 0) {
+        hora = hora === 0 ? 23 : hora - 1;
+        minutos = 59;
+      }
+
       if (hora >= 6 && hora < 7) return '06:00 - 07:00';
       if (hora >= 7 && hora < 8) return '07:00 - 08:00';
       if (hora >= 8 && hora < 9) return '08:00 - 09:00';
@@ -3217,21 +3236,41 @@ ToneladasPorRangoHoraCompleto(turno: string = '') {
       if (hora >= 15 && hora < 16) return '15:00 - 16:00';
       if (hora >= 16 && hora < 17) return '16:00 - 17:00';
       if (hora >= 17 && hora < 18) return '17:00 - 18:00';
+
       return 'SIN HORA';
     };
   } 
   else if (turno === 'NOCHE') {
-    // NOCHE: 18:00 - 06:00 (12 rangos de 1 hora)
+    // NOCHE: 18:00 - 06:00
     rangosHora = [
-      '18:00 - 19:00', '19:00 - 20:00', '20:00 - 21:00', '21:00 - 22:00', '22:00 - 23:00',
-      '23:00 - 00:00', '00:00 - 01:00', '01:00 - 02:00', '02:00 - 03:00', '03:00 - 04:00',
-      '04:00 - 05:00', '05:00 - 06:00'
+      '18:00 - 19:00',
+      '19:00 - 20:00',
+      '20:00 - 21:00',
+      '21:00 - 22:00',
+      '22:00 - 23:00',
+      '23:00 - 00:00',
+      '00:00 - 01:00',
+      '01:00 - 02:00',
+      '02:00 - 03:00',
+      '03:00 - 04:00',
+      '04:00 - 05:00',
+      '05:00 - 06:00'
     ];
-    
+
     obtenerRangoHora = (horaStr: string): string => {
       if (!horaStr) return 'SIN HORA';
-      const [hora] = horaStr.split(':').map(Number);
-      
+
+      let [hora, minutos] = horaStr
+        .split(':')
+        .map(Number);
+
+      // 🔥 Si termina exacto en :00
+      // pertenece al rango anterior
+      if (minutos === 0) {
+        hora = hora === 0 ? 23 : hora - 1;
+        minutos = 59;
+      }
+
       if (hora >= 18 && hora < 19) return '18:00 - 19:00';
       if (hora >= 19 && hora < 20) return '19:00 - 20:00';
       if (hora >= 20 && hora < 21) return '20:00 - 21:00';
@@ -3244,23 +3283,53 @@ ToneladasPorRangoHoraCompleto(turno: string = '') {
       if (hora >= 3 && hora < 4) return '03:00 - 04:00';
       if (hora >= 4 && hora < 5) return '04:00 - 05:00';
       if (hora >= 5 && hora < 6) return '05:00 - 06:00';
+
       return 'SIN HORA';
     };
   }
   else {
-    // TODOS los rangos (24 horas)
+    // TODOS
     rangosHora = [
-      '06:00 - 07:00', '07:00 - 08:00', '08:00 - 09:00', '09:00 - 10:00', '10:00 - 11:00', 
-      '11:00 - 12:00', '12:00 - 13:00', '13:00 - 14:00', '14:00 - 15:00', '15:00 - 16:00',
-      '16:00 - 17:00', '17:00 - 18:00', '18:00 - 19:00', '19:00 - 20:00', '20:00 - 21:00',
-      '21:00 - 22:00', '22:00 - 23:00', '23:00 - 00:00', '00:00 - 01:00', '01:00 - 02:00',
-      '02:00 - 03:00', '03:00 - 04:00', '04:00 - 05:00', '05:00 - 06:00'
+      '06:00 - 07:00',
+      '07:00 - 08:00',
+      '08:00 - 09:00',
+      '09:00 - 10:00',
+      '10:00 - 11:00',
+      '11:00 - 12:00',
+      '12:00 - 13:00',
+      '13:00 - 14:00',
+      '14:00 - 15:00',
+      '15:00 - 16:00',
+      '16:00 - 17:00',
+      '17:00 - 18:00',
+      '18:00 - 19:00',
+      '19:00 - 20:00',
+      '20:00 - 21:00',
+      '21:00 - 22:00',
+      '22:00 - 23:00',
+      '23:00 - 00:00',
+      '00:00 - 01:00',
+      '01:00 - 02:00',
+      '02:00 - 03:00',
+      '03:00 - 04:00',
+      '04:00 - 05:00',
+      '05:00 - 06:00'
     ];
-    
+
     obtenerRangoHora = (horaStr: string): string => {
       if (!horaStr) return 'SIN HORA';
-      const [hora] = horaStr.split(':').map(Number);
-      
+
+      let [hora, minutos] = horaStr
+        .split(':')
+        .map(Number);
+
+      // 🔥 Si termina exacto en :00
+      // pertenece al rango anterior
+      if (minutos === 0) {
+        hora = hora === 0 ? 23 : hora - 1;
+        minutos = 59;
+      }
+
       if (hora >= 6 && hora < 7) return '06:00 - 07:00';
       if (hora >= 7 && hora < 8) return '07:00 - 08:00';
       if (hora >= 8 && hora < 9) return '08:00 - 09:00';
@@ -3285,65 +3354,93 @@ ToneladasPorRangoHoraCompleto(turno: string = '') {
       if (hora >= 3 && hora < 4) return '03:00 - 04:00';
       if (hora >= 4 && hora < 5) return '04:00 - 05:00';
       if (hora >= 5 && hora < 6) return '05:00 - 06:00';
+
       return 'SIN HORA';
     };
   }
 
   this.data.operaciones.forEach((op: any) => {
-    // 🔥 Filtrar por turno si es necesario
+    // 🔥 Filtrar por turno
     if (turno && op.turno !== turno) return;
-    
+
     const equipoEncontrado = this.equiposProceso.find(
-      equipo => equipo.nombre === op.equipo && equipo.codigo === op.n_equipo
+      equipo =>
+        equipo.nombre === op.equipo &&
+        equipo.codigo === op.n_equipo
     );
 
-    const capacidadTonelada = Number(equipoEncontrado?.capacidad_tonelada) || 0;
-    const capacidadToneladaDesmonte = Number(equipoEncontrado?.capacidad_tonelada_desmonte) || 0;
+    const capacidadTonelada =
+      Number(equipoEncontrado?.capacidad_tonelada) || 0;
+
+    const capacidadToneladaDesmonte =
+      Number(
+        equipoEncontrado?.capacidad_tonelada_desmonte
+      ) || 0;
 
     const registrosArray = op.registros;
+
     if (!Array.isArray(registrosArray)) return;
 
     for (const registro of registrosArray) {
       const codigo = registro.codigo?.toString() || '';
+
       if (!codigosPermitidos.includes(codigo)) continue;
+
       if (registro.estado !== 'OPERATIVO') continue;
 
-      const rangoHora = obtenerRangoHora(registro.hora_final);
-      
-      // 🔥 Saltar si el rango no está en la lista del turno
+      const rangoHora = obtenerRangoHora(
+        registro.hora_final
+      );
+
+      // 🔥 Validar rango
       if (!rangosHora.includes(rangoHora)) continue;
-      
-      const n_cucharas = registro.operacion?.n_cucharas;
-      if (!n_cucharas || isNaN(Number(n_cucharas))) continue;
-      
+
+      const n_cucharas =
+        registro.operacion?.n_cucharas;
+
+      if (
+        !n_cucharas ||
+        isNaN(Number(n_cucharas))
+      ) continue;
+
       const cucharas = Number(n_cucharas);
-      const material = (registro.operacion?.material || '').toUpperCase().trim();
-      
+
+      const material = (
+        registro.operacion?.material || ''
+      )
+        .toUpperCase()
+        .trim();
+
       let tipoMaterial = '';
       let capacidadUsada = 0;
-      
+
+      // 🔥 NO modificar lógica toneladas
       if (material === 'MINERAL') {
         tipoMaterial = 'mineral';
         capacidadUsada = capacidadTonelada;
       } else if (material === 'DESMONTE') {
         tipoMaterial = 'desmonte';
-        capacidadUsada = capacidadToneladaDesmonte;
+        capacidadUsada =
+          capacidadToneladaDesmonte;
       } else if (material === 'RELAVE') {
         tipoMaterial = 'relave';
-        capacidadUsada = capacidadToneladaDesmonte;
+        capacidadUsada =
+          capacidadToneladaDesmonte;
       } else if (material === 'RELLENO') {
         tipoMaterial = 'relleno';
-        capacidadUsada = capacidadToneladaDesmonte;
+        capacidadUsada =
+          capacidadToneladaDesmonte;
       } else {
         tipoMaterial = 'otros';
         capacidadUsada = capacidadTonelada;
       }
-      
-      const toneladas = cucharas * capacidadUsada;
-      
+
+      const toneladas =
+        cucharas * capacidadUsada;
+
       if (!resultadoMap.has(rangoHora)) {
         resultadoMap.set(rangoHora, {
-          rangoHora: rangoHora,
+          rangoHora,
           mineral: 0,
           desmonte: 0,
           relave: 0,
@@ -3353,33 +3450,47 @@ ToneladasPorRangoHoraCompleto(turno: string = '') {
           cantidadRegistros: 0
         });
       }
-      
+
       const item = resultadoMap.get(rangoHora);
+
       switch (tipoMaterial) {
         case 'mineral':
           item.mineral += toneladas;
           break;
+
         case 'desmonte':
           item.desmonte += toneladas;
           break;
+
         case 'relave':
           item.relave += toneladas;
           break;
+
         case 'relleno':
           item.relleno += toneladas;
           break;
+
         default:
           item.otros += toneladas;
       }
+
       item.total += toneladas;
       item.cantidadRegistros += 1;
     }
   });
 
-  const resultado = Array.from(resultadoMap.values())
+  const resultado = Array.from(
+    resultadoMap.values()
+  )
     .sort((a, b) => {
-      const indexA = rangosHora.indexOf(a.rangoHora);
-      const indexB = rangosHora.indexOf(b.rangoHora);
+      const indexA = rangosHora.indexOf(
+        a.rangoHora
+      );
+
+      const indexB = rangosHora.indexOf(
+        b.rangoHora
+      );
+
       return indexA - indexB;
     })
     .map(item => ({
@@ -3392,7 +3503,13 @@ ToneladasPorRangoHoraCompleto(turno: string = '') {
       total: Number(item.total.toFixed(2))
     }));
 
-  console.log(`📊 TONELADAS POR RANGO DE HORA (Turno: ${turno || 'TODOS'}):`, resultado);
+  console.log(
+    `📊 TONELADAS POR RANGO DE HORA (Turno: ${
+      turno || 'TODOS'
+    }):`,
+    resultado
+  );
+
   return resultado;
 }
 
@@ -3404,102 +3521,55 @@ ToneladasPorLaborYRangoHora(turno: string = '') {
 
   // 🔥 Rangos de hora según el turno
   let rangosHora: string[] = [];
-  
+
   if (turno === 'DÍA') {
-    // DÍA: 06:00 - 18:00 (12 rangos de 1 hora)
     rangosHora = [
-      '06:00 - 07:00', '07:00 - 08:00', '08:00 - 09:00', '09:00 - 10:00', '10:00 - 11:00', 
-      '11:00 - 12:00', '12:00 - 13:00', '13:00 - 14:00', '14:00 - 15:00', '15:00 - 16:00',
-      '16:00 - 17:00', '17:00 - 18:00'
+      '06:00 - 07:00', '07:00 - 08:00', '08:00 - 09:00', '09:00 - 10:00',
+      '10:00 - 11:00', '11:00 - 12:00', '12:00 - 13:00', '13:00 - 14:00',
+      '14:00 - 15:00', '15:00 - 16:00', '16:00 - 17:00', '17:00 - 18:00'
     ];
   } else if (turno === 'NOCHE') {
-    // NOCHE: 18:00 - 06:00 (12 rangos de 1 hora)
     rangosHora = [
-      '18:00 - 19:00', '19:00 - 20:00', '20:00 - 21:00', '21:00 - 22:00', '22:00 - 23:00',
-      '23:00 - 00:00', '00:00 - 01:00', '01:00 - 02:00', '02:00 - 03:00', '03:00 - 04:00',
-      '04:00 - 05:00', '05:00 - 06:00'
+      '18:00 - 19:00', '19:00 - 20:00', '20:00 - 21:00', '21:00 - 22:00',
+      '22:00 - 23:00', '23:00 - 00:00', '00:00 - 01:00', '01:00 - 02:00',
+      '02:00 - 03:00', '03:00 - 04:00', '04:00 - 05:00', '05:00 - 06:00'
     ];
   } else {
-    // TODOS los rangos (24 horas)
     rangosHora = [
-      '06:00 - 07:00', '07:00 - 08:00', '08:00 - 09:00', '09:00 - 10:00', '10:00 - 11:00', 
-      '11:00 - 12:00', '12:00 - 13:00', '13:00 - 14:00', '14:00 - 15:00', '15:00 - 16:00',
-      '16:00 - 17:00', '17:00 - 18:00', '18:00 - 19:00', '19:00 - 20:00', '20:00 - 21:00',
-      '21:00 - 22:00', '22:00 - 23:00', '23:00 - 00:00', '00:00 - 01:00', '01:00 - 02:00',
+      '06:00 - 07:00', '07:00 - 08:00', '08:00 - 09:00', '09:00 - 10:00',
+      '10:00 - 11:00', '11:00 - 12:00', '12:00 - 13:00', '13:00 - 14:00',
+      '14:00 - 15:00', '15:00 - 16:00', '16:00 - 17:00', '17:00 - 18:00',
+      '18:00 - 19:00', '19:00 - 20:00', '20:00 - 21:00', '21:00 - 22:00',
+      '22:00 - 23:00', '23:00 - 00:00', '00:00 - 01:00', '01:00 - 02:00',
       '02:00 - 03:00', '03:00 - 04:00', '04:00 - 05:00', '05:00 - 06:00'
     ];
   }
 
+  // 🔥 FIX:
+  // Si la hora exacta es 10:00 debe caer en 09:00 - 10:00
+  // Solo se resta 1 minuto cuando minuto === 0
   const obtenerRangoHora = (horaStr: string): string => {
     if (!horaStr) return 'SIN HORA';
-    const [hora] = horaStr.split(':').map(Number);
-    
-    // DÍA: 06:00 - 18:00
-    if (turno === 'DÍA') {
-      if (hora >= 6 && hora < 7) return '06:00 - 07:00';
-      if (hora >= 7 && hora < 8) return '07:00 - 08:00';
-      if (hora >= 8 && hora < 9) return '08:00 - 09:00';
-      if (hora >= 9 && hora < 10) return '09:00 - 10:00';
-      if (hora >= 10 && hora < 11) return '10:00 - 11:00';
-      if (hora >= 11 && hora < 12) return '11:00 - 12:00';
-      if (hora >= 12 && hora < 13) return '12:00 - 13:00';
-      if (hora >= 13 && hora < 14) return '13:00 - 14:00';
-      if (hora >= 14 && hora < 15) return '14:00 - 15:00';
-      if (hora >= 15 && hora < 16) return '15:00 - 16:00';
-      if (hora >= 16 && hora < 17) return '16:00 - 17:00';
-      if (hora >= 17 && hora < 18) return '17:00 - 18:00';
-      return 'SIN HORA';
+
+    let [hora, minuto] = horaStr.split(':').map(Number);
+
+    if (minuto === 0) {
+      minuto = 59;
+      hora = hora === 0 ? 23 : hora - 1;
     }
-    
-    // NOCHE: 18:00 - 06:00
-    if (turno === 'NOCHE') {
-      if (hora >= 18 && hora < 19) return '18:00 - 19:00';
-      if (hora >= 19 && hora < 20) return '19:00 - 20:00';
-      if (hora >= 20 && hora < 21) return '20:00 - 21:00';
-      if (hora >= 21 && hora < 22) return '21:00 - 22:00';
-      if (hora >= 22 && hora < 23) return '22:00 - 23:00';
-      if (hora >= 23) return '23:00 - 00:00';
-      if (hora >= 0 && hora < 1) return '00:00 - 01:00';
-      if (hora >= 1 && hora < 2) return '01:00 - 02:00';
-      if (hora >= 2 && hora < 3) return '02:00 - 03:00';
-      if (hora >= 3 && hora < 4) return '03:00 - 04:00';
-      if (hora >= 4 && hora < 5) return '04:00 - 05:00';
-      if (hora >= 5 && hora < 6) return '05:00 - 06:00';
-      return 'SIN HORA';
-    }
-    
-    // TODOS los rangos
-    if (hora >= 6 && hora < 7) return '06:00 - 07:00';
-    if (hora >= 7 && hora < 8) return '07:00 - 08:00';
-    if (hora >= 8 && hora < 9) return '08:00 - 09:00';
-    if (hora >= 9 && hora < 10) return '09:00 - 10:00';
-    if (hora >= 10 && hora < 11) return '10:00 - 11:00';
-    if (hora >= 11 && hora < 12) return '11:00 - 12:00';
-    if (hora >= 12 && hora < 13) return '12:00 - 13:00';
-    if (hora >= 13 && hora < 14) return '13:00 - 14:00';
-    if (hora >= 14 && hora < 15) return '14:00 - 15:00';
-    if (hora >= 15 && hora < 16) return '15:00 - 16:00';
-    if (hora >= 16 && hora < 17) return '16:00 - 17:00';
-    if (hora >= 17 && hora < 18) return '17:00 - 18:00';
-    if (hora >= 18 && hora < 19) return '18:00 - 19:00';
-    if (hora >= 19 && hora < 20) return '19:00 - 20:00';
-    if (hora >= 20 && hora < 21) return '20:00 - 21:00';
-    if (hora >= 21 && hora < 22) return '21:00 - 22:00';
-    if (hora >= 22 && hora < 23) return '22:00 - 23:00';
-    if (hora >= 23) return '23:00 - 00:00';
-    if (hora >= 0 && hora < 1) return '00:00 - 01:00';
-    if (hora >= 1 && hora < 2) return '01:00 - 02:00';
-    if (hora >= 2 && hora < 3) return '02:00 - 03:00';
-    if (hora >= 3 && hora < 4) return '03:00 - 04:00';
-    if (hora >= 4 && hora < 5) return '04:00 - 05:00';
-    if (hora >= 5 && hora < 6) return '05:00 - 06:00';
-    return 'SIN HORA';
+
+    const horaInicio = hora;
+    const horaFin = (hora + 1) % 24;
+
+    const formatear = (h: number) => h.toString().padStart(2, '0');
+
+    return `${formatear(horaInicio)}:00 - ${formatear(horaFin)}:00`;
   };
 
   this.data.operaciones.forEach((op: any) => {
     // 🔥 Filtrar por turno si es necesario
     if (turno && op.turno !== turno) return;
-    
+
     const equipoEncontrado = this.equiposProceso.find(
       equipo => equipo.nombre === op.equipo && equipo.codigo === op.n_equipo
     );
@@ -3512,28 +3582,33 @@ ToneladasPorLaborYRangoHora(turno: string = '') {
 
     for (const registro of registrosArray) {
       const codigo = registro.codigo?.toString() || '';
+
       if (!codigosPermitidos.includes(codigo)) continue;
       if (registro.estado !== 'OPERATIVO') continue;
 
       // 🔥 Obtener labor_inicio
       const laborInicio = registro.operacion?.labor_inicio || 'SIN LABOR';
-      // Si está vacío, usar 'SIN LABOR'
-      const claveLabor = laborInicio.trim() === '' ? 'SIN LABOR' : laborInicio.trim();
+      const claveLabor =
+        laborInicio.trim() === '' ? 'SIN LABOR' : laborInicio.trim();
 
       const rangoHora = obtenerRangoHora(registro.hora_final);
-      
-      // 🔥 Saltar si el rango no está en la lista del turno
+
+      // 🔥 Validar que pertenezca al turno
       if (!rangosHora.includes(rangoHora)) continue;
-      
+
       const n_cucharas = registro.operacion?.n_cucharas;
+
       if (!n_cucharas || isNaN(Number(n_cucharas))) continue;
-      
+
       const cucharas = Number(n_cucharas);
-      const material = (registro.operacion?.material || '').toUpperCase().trim();
-      
+
+      const material = (
+        registro.operacion?.material || ''
+      ).toUpperCase().trim();
+
       let tipoMaterial = '';
       let capacidadUsada = 0;
-      
+
       if (material === 'MINERAL') {
         tipoMaterial = 'mineral';
         capacidadUsada = capacidadTonelada;
@@ -3550,12 +3625,12 @@ ToneladasPorLaborYRangoHora(turno: string = '') {
         tipoMaterial = 'otros';
         capacidadUsada = capacidadTonelada;
       }
-      
+
       const toneladas = cucharas * capacidadUsada;
-      
-      // 🔥 Clave compuesta: labor_inicio | rangoHora
+
+      // 🔥 Clave compuesta: labor | rangoHora
       const clave = `${claveLabor}|${rangoHora}`;
-      
+
       if (!resultadoMap.has(clave)) {
         resultadoMap.set(clave, {
           labor: claveLabor,
@@ -3569,35 +3644,41 @@ ToneladasPorLaborYRangoHora(turno: string = '') {
           cantidadRegistros: 0
         });
       }
-      
+
       const item = resultadoMap.get(clave);
+
       switch (tipoMaterial) {
         case 'mineral':
           item.mineral += toneladas;
           break;
+
         case 'desmonte':
           item.desmonte += toneladas;
           break;
+
         case 'relave':
           item.relave += toneladas;
           break;
+
         case 'relleno':
           item.relleno += toneladas;
           break;
+
         default:
           item.otros += toneladas;
       }
+
       item.total += toneladas;
       item.cantidadRegistros += 1;
     }
   });
 
-  // 🔥 Convertir a array y agrupar por labor
+  // 🔥 Agrupar por labor
   const resultadoPorLabor = new Map<string, any>();
-  
+
   Array.from(resultadoMap.values()).forEach(item => {
     const labor = item.labor;
-    
+
     if (!resultadoPorLabor.has(labor)) {
       resultadoPorLabor.set(labor, {
         labor: labor,
@@ -3605,8 +3686,9 @@ ToneladasPorLaborYRangoHora(turno: string = '') {
         rangos: []
       });
     }
-    
+
     const laborItem = resultadoPorLabor.get(labor);
+
     laborItem.rangos.push({
       rangoHora: item.rangoHora,
       mineral: Number(item.mineral.toFixed(2)),
@@ -3617,20 +3699,25 @@ ToneladasPorLaborYRangoHora(turno: string = '') {
       total: Number(item.total.toFixed(2)),
       cantidadRegistros: item.cantidadRegistros
     });
-    
-    // Ordenar rangos por hora
+
+    // 🔥 Ordenar rangos por hora
     laborItem.rangos.sort((a: any, b: any) => {
       const indexA = rangosHora.indexOf(a.rangoHora);
       const indexB = rangosHora.indexOf(b.rangoHora);
+
       return indexA - indexB;
     });
   });
-  
-  // 🔥 Convertir a array final
+
+  // 🔥 Resultado final
   const resultado = Array.from(resultadoPorLabor.values())
     .sort((a, b) => a.labor.localeCompare(b.labor));
-  
-  console.log(`📊 TONELADAS POR LABOR Y RANGO DE HORA (Turno: ${turno || 'TODOS'}):`, resultado);
+
+  console.log(
+    `📊 TONELADAS POR LABOR Y RANGO DE HORA (Turno: ${turno || 'TODOS'}):`,
+    resultado
+  );
+
   return resultado;
 }
 

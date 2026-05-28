@@ -44,6 +44,9 @@ export class MetrosPerforadosRangoHoraComponent implements OnInit, OnChanges {
   totalesPorTipo: { [key: string]: number } = {};
   tiposPerforacion: string[] = [];
 
+  totalesPorEquipo: { [key: string]: number } = {};
+equipos: string[] = [];
+
    maxItemsMostrar: number = 5; // Cambia este valor según necesites (5, 6, etc.)
   verTodos: boolean = false;
 
@@ -85,9 +88,73 @@ export class MetrosPerforadosRangoHoraComponent implements OnInit, OnChanges {
     }
   }
 
+  // Filtra los tipos que tienen metros > 0
+get tiposPerforacionFiltrados(): string[] {
+  return this.tiposPerforacion.filter(tipo => (this.totalesPorTipo[tipo] || 0) > 0);
+}
+
+get equiposFiltrados(): string[] {
+
+  return this.equipos.filter(
+    equipo =>
+      (this.totalesPorEquipo[equipo] || 0) > 0
+  );
+
+}
+
+extraerEquipos(): void {
+  const equiposSet = new Set<string>();
+
+  if (this.data && this.data.length > 0) {
+
+    this.data.forEach(item => {
+
+      if (item.equipos) {
+
+        Object.keys(item.equipos).forEach(equipo => {
+          equiposSet.add(equipo);
+        });
+
+      }
+
+    });
+
+  }
+
+  this.equipos = Array.from(equiposSet).sort();
+}
+
+calcularTotalesPorEquipo(): void {
+
+  this.totalesPorEquipo = {};
+
+  if (this.data && this.data.length > 0) {
+
+    this.equipos.forEach(equipo => {
+
+      this.totalesPorEquipo[equipo] =
+        this.data.reduce((sum, item) => {
+
+          const valor =
+            item.equipos?.[equipo] || 0;
+
+          return sum + valor;
+
+        }, 0);
+
+    });
+
+  }
+
+}
+
   procesarDatos(): void {
     this.extraerTiposPerforacion();
     this.calcularTotalesPorTipo();
+    
+     this.extraerEquipos();
+  this.calcularTotalesPorEquipo();
+
     const rangosCompletos = this.rangosPorTurno[this.turno] || this.rangosPorTurno[''];
     
     if (!this.data || this.data.length === 0) {
