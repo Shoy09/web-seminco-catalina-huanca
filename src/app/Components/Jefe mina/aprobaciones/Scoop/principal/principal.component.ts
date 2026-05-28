@@ -159,6 +159,8 @@ validarCambios() {
     const payload: any = {
       ...nuevaRaw,
 
+      registros: JSON.stringify(nuevaRaw.registros),
+
       tipo_equipo: JSON.stringify(
         this.normalizarTipoEquipo(this.cardData.tiposEquipo)
       ),
