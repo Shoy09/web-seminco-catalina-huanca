@@ -105,17 +105,17 @@ export function colorPorRendimiento(valor: number): string {
 }
 
 export function colorPorMTTR(valor: number): string {
-  if (valor >= 100) return CHART_TINTS.highlightOrange[100];
-  if (valor >= 75) return CHART_TINTS.highlightOrange[75];
-  if (valor >= 50) return CHART_TINTS.highlightOrange[50];
-  return CHART_TINTS.highlightOrange[25];
+  if (valor >= 100) return CHART_TINTS.catalinaGreen[100];
+  if (valor >= 75) return CHART_TINTS.catalinaGreen[75];
+  if (valor >= 50) return CHART_TINTS.catalinaGreen[50];
+  return CHART_TINTS.catalinaGreen[25];
 }
 
 export function colorPorMTBF(valor: number): string {
-  if (valor >= 100) return CHART_TINTS.forestGreen[100];
-  if (valor >= 75) return CHART_TINTS.forestGreen[75];
-  if (valor >= 50) return CHART_TINTS.forestGreen[50];
-  return CHART_TINTS.forestGreen[25];
+  if (valor >= 100) return CHART_TINTS.catalinaGreen[100];
+  if (valor >= 75) return CHART_TINTS.catalinaGreen[75];
+  if (valor >= 50) return CHART_TINTS.catalinaGreen[50];
+  return CHART_TINTS.catalinaGreen[25];
 }
 
 export const CHART_TEXT_STYLE = {

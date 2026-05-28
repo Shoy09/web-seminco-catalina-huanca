@@ -9,6 +9,7 @@ import {
   ToolboxComponent
 } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
+import { CHART_BACKGROUND_BAR, CHART_BAR_SHADOW, CHART_COLORS, CHART_SPLIT_LINE, colorPorMTTR } from '../../../../../../../../shared/chart-theme';
 
 echarts.use([
   BarChart,
@@ -70,184 +71,184 @@ export class MttrSemanasComponent implements OnInit, OnChanges {
     this.actualizarGrafico();
   }
 
-  actualizarGrafico(): void {
-    if (!this.datosMttrSemanas.length) {
-      this.chartOptions = {};
-      return;
-    }
+ actualizarGrafico(): void {
+  if (!this.data || this.data.length === 0) {
+    this.chartOptions = {};
+    return;
+  }
 
-    // Nombres de semanas para el eje X
-    const semanas = this.datosMttrSemanas.map(item => item.semana);
-    
-    // Valores de MTTR
-    const valores = this.datosMttrSemanas.map(item => item.mttr);
-    
-    // Calcular máximo y mínimo para escala dinámica
-    const maxValor = Math.max(...valores);
-    const minValor = Math.min(...valores);
-    const escalaMax = Math.ceil(maxValor / 10) * 10;
-    const escalaMin = Math.floor(minValor / 10) * 10;
+  const datosOrdenados = [...this.data].sort((a, b) =>
+    String(a.key).localeCompare(String(b.key))
+  );
 
-    this.chartOptions = {
-      title: {
-        text: 'MTTR POR SEMANA',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 14,
-          fontWeight: 'bold',
-          color: '#333',
-          fontFamily: 'Arial'
-        }
+  const semanas = datosOrdenados.map((item) => item.periodo);
+
+  const valores = datosOrdenados.map((item) =>
+    Number(item.mttr || 0)
+  );
+
+  const maxValor = Math.max(...valores, 1);
+  const escalaMax = Math.ceil(maxValor / 10) * 10;
+
+  const porcentajeVisible =
+    semanas.length > 8 ? (8 / semanas.length) * 100 : 100;
+
+  this.chartOptions = {
+    title: {
+      text: 'MTTR POR SEMANA',
+      left: 'center',
+      top: 10,
+      textStyle: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        color: CHART_COLORS.grey,
+        fontFamily: 'Arial',
       },
+    },
 
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          type: 'shadow'
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'shadow',
+      },
+      formatter: (params: any) => {
+        const data = params[0];
+        const item = datosOrdenados[data.dataIndex];
+
+        const mttr = Number(item.mttr || 0);
+        const mtbf = Number(item.mtbf || 0);
+        const horasTotales = Number(item.horasTotales || 0);
+        const horasMttoCorrectivo = Number(item.horasMttoCorrectivo || 0);
+        const horasSinMttoCorrectivo = Number(item.horasSinMttoCorrectivo || 0);
+
+        let nivel = '';
+        if (mttr === 0) nivel = 'Sin fallas';
+        else if (mttr <= 12) nivel = 'Excelente';
+        else if (mttr <= 24) nivel = 'Bueno';
+        else if (mttr <= 48) nivel = 'Regular';
+        else nivel = 'Crítico';
+
+        return `
+          <strong>Semana ${item.periodo}</strong><br/>
+          Rango: ${item.fechaInicio || '-'} al ${item.fechaFin || '-'}<br/>
+          <hr style="margin: 5px 0"/>
+          MTTR: <b>${mttr.toFixed(2)} h</b><br/>
+          MTBF: ${mtbf.toFixed(2)} h<br/>
+          Nivel: <b>${nivel}</b><br/>
+          Horas totales: ${horasTotales.toFixed(2)} h<br/>
+          Hrs. Mtto. Correctivo: ${horasMttoCorrectivo.toFixed(2)} h<br/>
+          Hrs. sin Mtto. Correctivo: ${horasSinMttoCorrectivo.toFixed(2)} h<br/>
+          Fallas: ${item.fallas || 0}<br/>
+          Registros: ${item.cantidadRegistros || 0}<br/>
+          Registros Mtto. Correctivo: ${item.cantidadRegistrosMttoCorrectivo || 0}
+        `;
+      },
+    },
+
+    grid: {
+      left: '8%',
+      right: '8%',
+      top: '18%',
+      bottom: '22%',
+      containLabel: true,
+    },
+
+    xAxis: {
+      type: 'category',
+      data: semanas,
+      axisLabel: {
+        interval: 0,
+        rotate: semanas.length > 8 ? 35 : 0,
+        fontSize: 10,
+        fontWeight: 'bold',
+        color: CHART_COLORS.grey,
+        fontFamily: 'Arial',
+      },
+      axisLine: {
+        lineStyle: {
+          color: CHART_COLORS.axis,
         },
-        formatter: (params: any) => {
-          const data = params[0];
-          const index = data.dataIndex;
-          const item = this.datosMttrSemanas[index];
-          
-          // Determinar nivel según MTTR (menor es mejor)
-          let nivel = '';
-          let colorNivel = '';
-          if (item.mttr === 0) {
-            nivel = 'Sin Fallas ✅';
-            colorNivel = '#2ecc71';
-          } else if (item.mttr <= 12) {
-            nivel = 'Excelente ✅';
-            colorNivel = '#2ecc71';
-          } else if (item.mttr <= 24) {
-            nivel = 'Bueno 👍';
-            colorNivel = '#3498db';
-          } else if (item.mttr <= 48) {
-            nivel = 'Regular ⚠️';
-            colorNivel = '#f39c12';
-          } else {
-            nivel = 'Crítico 🔧';
-            colorNivel = '#e74c3c';
-          }
-          
-          return `
-            <strong>📅 ${item.semana}</strong><br/>
-            <hr style="margin: 4px 0;"/>
-            <span style="color:#3498db; font-weight:bold;">●</span>
-            MTTR: <strong>${data.value.toFixed(1)}</strong> horas<br/>
-            <span style="color:${colorNivel}; font-weight:bold;">●</span>
-            Nivel: <strong>${nivel}</strong><br/>
-            <span style="color:#9b59b6; font-weight:bold;">●</span>
-            Equipos: <strong>${item.cantidadEquipos}</strong><br/>
-            <span style="color:#e67e22; font-weight:bold;">●</span>
-            Fallas: <strong>${item.cantidadFallas}</strong><br/>
-            <span style="color:#1abc9c; font-weight:bold;">●</span>
-            Operaciones: <strong>${item.cantidadOperaciones}</strong><br/>
-            <span style="color:#e74c3c; font-weight:bold;">●</span>
-            Horas Mtto: <strong>${item.horasMtto}</strong> hrs
-          `;
-        }
       },
-
-      grid: {
-        left: '8%',
-        right: '8%',
-        top: '15%',
-        bottom: '12%',
-        containLabel: true
+      axisTick: {
+        alignWithLabel: true,
       },
+    },
 
-      xAxis: {
-        type: 'category',
-        data: semanas,
-        axisLabel: {
-          fontSize: 10,
-          fontWeight: 'bold',
-          color: '#2c3e50',
-          fontFamily: 'Arial',
-          rotate: 0,
-          interval: 0,
-          lineHeight: 18
-        },
-        axisLine: {
-          lineStyle: {
-            color: '#666'
-          }
-        },
-        axisTick: {
-          show: false
-        }
+    yAxis: {
+      type: 'value',
+      name: 'MTTR (horas)',
+      nameLocation: 'middle',
+      nameGap: 45,
+      min: 0,
+      max: escalaMax,
+      axisLabel: {
+        formatter: '{value} h',
+        fontSize: 10,
+        color: CHART_COLORS.grey,
       },
+      splitLine: CHART_SPLIT_LINE,
+    },
 
-      yAxis: {
-        type: 'value',
-        name: 'MTTR (horas)',
-        nameLocation: 'middle',
-        nameGap: 45,
-        min: escalaMin > 0 ? escalaMin : 0,
-        max: escalaMax,
-        axisLabel: {
-          fontSize: 10,
-          formatter: '{value}'
-        },
-        splitLine: {
-          lineStyle: {
-            type: 'dashed',
-            color: '#ccc'
-          }
-        }
+    dataZoom: [
+      {
+        type: 'slider',
+        show: semanas.length > 8,
+        xAxisIndex: 0,
+        start: 0,
+        end: porcentajeVisible,
+        height: 18,
+        bottom: 25,
       },
+      {
+        type: 'inside',
+        xAxisIndex: 0,
+        start: 0,
+        end: porcentajeVisible,
+      },
+    ],
 
-      series: [
-        {
-          name: 'MTTR',
-          type: 'bar',
-          barWidth: '60%',
-          data: valores.map((valor) => ({
-            value: valor,
-            itemStyle: {
-              color: this.getColorByMttr(valor)
-            }
-          })),
+    series: [
+      {
+        name: 'MTTR',
+        type: 'bar',
+        barWidth: '55%',
+
+        data: valores.map((valor) => ({
+          value: valor,
           itemStyle: {
-            borderRadius: [6, 6, 0, 0],
-            shadowColor: 'rgba(0, 0, 0, 0.2)',
-            shadowBlur: 6,
-            shadowOffsetY: 2
+            color: colorPorMTTR(valor),
           },
-          label: {
-            show: true,
-            position: 'top',
-            fontWeight: 'bold',
-            fontSize: 10,
-            formatter: (params: any) => params.value.toFixed(1),
-            color: '#333'
-          },
-          emphasis: {
-            focus: 'series',
-            itemStyle: {
-              shadowBlur: 10,
-              shadowOffsetY: 0,
-              shadowColor: 'rgba(0, 0, 0, 0.3)'
-            }
-          },
-          showBackground: true,
-          backgroundStyle: {
-            color: 'rgba(180, 180, 180, 0.1)',
-            borderRadius: 6
-          }
-        }
-      ]
-    };
-  }
+        })),
 
-  // Color según el valor del MTTR (menor es mejor)
-  private getColorByMttr(valor: number): string {
-    if (valor === 0) return '#2ecc71';      // Verde - Sin fallas
-    if (valor <= 12) return '#2ecc71';      // Verde - Excelente
-    if (valor <= 24) return '#3498db';      // Azul - Bueno
-    if (valor <= 48) return '#f39c12';      // Naranja - Regular
-    return '#e74c3c';                        // Rojo - Crítico
-  }
+        itemStyle: {
+          borderRadius: [6, 6, 0, 0],
+          ...CHART_BAR_SHADOW,
+        },
+
+        label: {
+          show: true,
+          position: 'top',
+          formatter: (params: any) => {
+            return `${Number(params.value).toFixed(2)} h`;
+          },
+          fontWeight: 'bold',
+          fontSize: 10,
+          color: CHART_COLORS.grey,
+        },
+
+        emphasis: {
+          focus: 'series',
+          itemStyle: {
+            shadowBlur: 10,
+            shadowColor: 'rgba(0,0,0,0.3)',
+          },
+        },
+
+        showBackground: true,
+        backgroundStyle: CHART_BACKGROUND_BAR,
+      },
+    ],
+  };
+}
+  
 }

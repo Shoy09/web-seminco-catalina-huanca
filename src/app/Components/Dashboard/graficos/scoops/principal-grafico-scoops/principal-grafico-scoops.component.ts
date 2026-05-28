@@ -55,7 +55,7 @@ import { TablaToneladasEquipoComponent } from "../horas/tabla-toneladas-equipo/t
 import { HorasOperativasDiaComponent } from '../Graficos components/HorasOperativas/horas-operativas-dia/horas-operativas-dia.component';
 import { HorasOperativasMesComponent } from '../Graficos components/HorasOperativas/horas-operativas-mes/horas-operativas-mes.component';
 import { HorasOperativasSemanaComponent } from '../Graficos components/HorasOperativas/horas-operativas-semana/horas-operativas-semana.component';
-import { generarDiasEntreFechas, MESES_CORTOS, obtenerPeriodo, obtenerPeriodoDesdeKey, obtenerRangoSemanaISO, obtenerSemanaISO, parseFechaLocal } from '../../../../../utils/fecha-utils';
+import { generarDiasEntreFechas, MESES_CORTOS, obtenerPeriodo, obtenerPeriodoDesdeKey, obtenerRangoSemanaISO, obtenerSemanaISO, parseFechaLocal, parseFechaSimple } from '../../../../../utils/fecha-utils';
 
 
 @Component({
@@ -353,11 +353,11 @@ mapaEstados: Map<string, any> = new Map();
 
   // MTBF - MTTR
   this.DataMTBFPorEquipo = this.MTBFPorEquipo();
-  this.DataMTBFPorAnio = this.MTBFPorAnio();
+  this.DataMTBFPorAnio = this.MTBFPorAño();
   this.DataMTBFPorSemanas = this.MTBFPorSemana();
   this.DataMTBFPorMes = this.MTBFPorMes();
   this.DataMTTRPorEquipo = this.MTTRPorEquipo();
-  this.DataMTTRPorAnio = this.MTTRPorAnio();
+  this.DataMTTRPorAnio = this.MTTRPorAño();
   this.DataMTTRPorSemanas = this.MTTRPorSemana();
   this.DataMTTRPorMes = this.MTTRPorMes();
 
@@ -2742,618 +2742,368 @@ private obtenerDescripcionCompleta(codigo: string, tipoDemora: string): string {
 //|=========================================
 
 //GRAFICO - MTBF POR EQUIPO (Mean Time Between Failures)
-MTBFPorEquipo() {
-  const resultadoMap = new Map<string, any>();
+  MTTRPorEquipo() {
+    const resultadoMap = new Map<string, any>();
 
-  this.operacionesFiltradas.forEach((op) => {
-    const modeloEquipo = `${op.n_equipo}`;
-    const HORAS_TOTALES = 12;
-    let horasMtto = 0;
-    let cantidadFallas = 0;
+    this.operacionesFiltradas.forEach((op) => {
+      const equipo = op.equipo || 'SIN EQUIPO';
+      const nEquipo = op.n_equipo || 'SIN N° EQUIPO';
+      const modeloEquipo = op.modelo_equipo || nEquipo;
 
-    const registrosArray = op.registros;
-    if (!Array.isArray(registrosArray)) return;
+      const key = modeloEquipo;
 
-    for (const registro of registrosArray) {
-      if (registro.estado !== 'MANTENIMIENTO') continue;
-      
-      // 🔥 Acumular horas de mantenimiento
-      const horas = this.calcularDuracionHoras(
-        registro.hora_inicio,
-        registro.hora_final!
-      );
-      horasMtto += horas;
-      
-      // 🔥 CONTAR cada registro de mantenimiento como UNA FALLA
-      cantidadFallas++;
-    }
+      const registrosArray = op.registros;
 
-    // Limitar horasMtto al total disponible
-    horasMtto = Math.min(horasMtto, HORAS_TOTALES);
-    
-    // 🔥 Calcular Horas de Operación = Horas Totales - Horas Mtto
-    const horasOperacion = HORAS_TOTALES - horasMtto;
+      if (!Array.isArray(registrosArray)) return;
 
-    if (!resultadoMap.has(modeloEquipo)) {
-      resultadoMap.set(modeloEquipo, {
-        equipo: modeloEquipo,
-        nombre: op.equipo,
-        codigo: op.n_equipo,
-        horasMtto: 0,
-        horasOperacion: 0,
-        cantidadFallas: 0,
-        mtbf: 0,  // 🔥 MTBF = Horas Operación / (Cantidad Fallas + 1)
-        cantidadOperaciones: 0
-      });
-    }
+      if (!resultadoMap.has(key)) {
+        resultadoMap.set(key, {
+          equipo,
+          n_equipo: nEquipo,
+          modelo_equipo: modeloEquipo,
 
-    const item = resultadoMap.get(modeloEquipo);
-    item.horasMtto += horasMtto;
-    item.horasOperacion += horasOperacion;
-    item.cantidadFallas += cantidadFallas;
-    item.cantidadOperaciones += 1;
+          horasMttoCorrectivo: 0,
+          fallas: 0,
+          mttr: 0,
 
-    // 🔥 Calcular MTBF = Horas Operación / (Cantidad Fallas + 1) (como SI.ERROR)
-    try {
-      const denominador = item.cantidadFallas + 1;
-      if (denominador > 0) {
-        item.mtbf = Number((item.horasOperacion / denominador).toFixed(2));
-      } else {
-        item.mtbf = 0;
+          cantidadOperaciones: 0,
+          cantidadRegistros: 0,
+          cantidadRegistrosMttoCorrectivo: 0,
+        });
       }
-    } catch (error) {
-      item.mtbf = 0; // 🔥 como el SI.ERROR
-    }
-  });
 
-  const resultado = Array.from(resultadoMap.values())
-    .sort((a, b) => b.mtbf - a.mtbf); // Ordenar por mayor MTBF
+      const item = resultadoMap.get(key);
 
-  //console.log('📊 MTBF POR EQUIPO:', resultado);
-  return resultado;
-}
+      item.cantidadOperaciones += 1;
 
-//GRAFICO - MTBF POR AÑO
-MTBFPorAnio() {
-  const resultadoMap = new Map<string, any>();
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+        const estado = String(registro.estado || '')
+          .trim()
+          .toUpperCase();
 
-  this.operacionesFiltradas.forEach((op) => {
-    if (!op.fecha) return;
-    
-    // 🔥 Extraer el año de la fecha
-    const fecha = new Date(op.fecha);
-    const año = fecha.getFullYear();
-    const clave = `${año}`;
-    
-    const HORAS_TOTALES = 12;
-    let horasMtto = 0;
-    let cantidadFallas = 0;
+        if (!registro.hora_inicio || !registro.hora_final) continue;
 
-    const registrosArray = op.registros;
-    if (!Array.isArray(registrosArray)) return;
+        const horas = this.calcularDuracionHoras(
+          registro.hora_inicio,
+          registro.hora_final,
+        );
 
-    for (const registro of registrosArray) {
-      if (registro.estado !== 'MANTENIMIENTO') continue;
-      
-      const horas = this.calcularDuracionHoras(
-        registro.hora_inicio,
-        registro.hora_final!
-      );
-      horasMtto += horas;
-      cantidadFallas++;
-    }
+        if (!horas || horas <= 0) continue;
 
-    // Limitar horasMtto al total disponible
-    horasMtto = Math.min(horasMtto, HORAS_TOTALES);
-    
-    // 🔥 Calcular Horas de Operación
-    const horasOperacion = HORAS_TOTALES - horasMtto;
+        item.cantidadRegistros += 1;
 
-    if (!resultadoMap.has(clave)) {
-      resultadoMap.set(clave, {
-        año: año,
-        horasMtto: 0,
-        horasOperacion: 0,
-        cantidadFallas: 0,
-        mtbf: 0,
-        cantidadOperaciones: 0,
-        cantidadEquipos: new Set()
-      });
-    }
+        if (this.esMantenimientoCorrectivo(codigo)) {
+          item.horasMttoCorrectivo += horas;
 
-    const item = resultadoMap.get(clave);
-    item.horasMtto += horasMtto;
-    item.horasOperacion += horasOperacion;
-    item.cantidadFallas += cantidadFallas;
-    item.cantidadOperaciones += 1;
-    item.cantidadEquipos.add(`${op.equipo}-${op.n_equipo}`);
+          // Cada registro de mantenimiento correctivo cuenta como una falla
+          item.fallas += 1;
 
-    // 🔥 Calcular MTBF = Horas Operación / (Cantidad Fallas + 1)
-    try {
-      const denominador = item.cantidadFallas + 1;
-      if (denominador > 0) {
-        item.mtbf = Number((item.horasOperacion / denominador).toFixed(2));
-      } else {
-        item.mtbf = 0;
+          item.cantidadRegistrosMttoCorrectivo += 1;
+        }
       }
-    } catch (error) {
-      item.mtbf = 0;
-    }
-  });
-
-  const resultado = Array.from(resultadoMap.values())
-    .map(item => ({
-      ...item,
-      cantidadEquipos: item.cantidadEquipos.size
-    }))
-    .sort((a, b) => a.año - b.año);
-
-  //console.log('📊 MTBF POR AÑO:', resultado);
-  return resultado;
-}
-
-//GRAFICO - MTBF POR SEMANA
-MTBFPorSemana() {
-  const resultadoMap = new Map<string, any>();
-
-  this.operacionesFiltradas.forEach((op) => {
-    if (!op.fecha) return;
-    
-    const numeroSemana = this.obtenerNumeroSemana(op.fecha);
-    const semanaLabel = `SEM ${numeroSemana}`;
-    
-    const HORAS_TOTALES = 12;
-    let horasMtto = 0;
-    let cantidadFallas = 0;
-
-    const registrosArray = op.registros;
-    if (!Array.isArray(registrosArray)) return;
-
-    for (const registro of registrosArray) {
-      if (registro.estado !== 'MANTENIMIENTO') continue;
-      
-      const horas = this.calcularDuracionHoras(
-        registro.hora_inicio,
-        registro.hora_final!
-      );
-      horasMtto += horas;
-      cantidadFallas++;
-    }
-
-    horasMtto = Math.min(horasMtto, HORAS_TOTALES);
-    const horasOperacion = HORAS_TOTALES - horasMtto;
-
-    if (!resultadoMap.has(semanaLabel)) {
-      resultadoMap.set(semanaLabel, {
-        semana: semanaLabel,
-        numeroSemana: numeroSemana,
-        horasMtto: 0,
-        horasOperacion: 0,
-        cantidadFallas: 0,
-        mtbf: 0,
-        cantidadOperaciones: 0,
-        cantidadEquipos: new Set()
-      });
-    }
-
-    const item = resultadoMap.get(semanaLabel);
-    item.horasMtto += horasMtto;
-    item.horasOperacion += horasOperacion;
-    item.cantidadFallas += cantidadFallas;
-    item.cantidadOperaciones += 1;
-    item.cantidadEquipos.add(`${op.equipo}-${op.n_equipo}`);
-
-    try {
-      const denominador = item.cantidadFallas + 1;
-      if (denominador > 0) {
-        item.mtbf = Number((item.horasOperacion / denominador).toFixed(2));
-      } else {
-        item.mtbf = 0;
-      }
-    } catch (error) {
-      item.mtbf = 0;
-    }
-  });
-
-  const resultado = Array.from(resultadoMap.values())
-    .map(item => ({
-      ...item,
-      cantidadEquipos: item.cantidadEquipos.size
-    }))
-    .sort((a, b) => a.numeroSemana - b.numeroSemana);
-
-  //console.log('📊 MTBF POR SEMANA:', resultado);
-  return resultado;
-}
-
-//GRAFICO - MTBF POR MES Y AÑO
-MTBFPorMes() {
-  const resultadoMap = new Map<string, any>();
-
-  const nombresMeses = [
-    'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
-    'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'
-  ];
-
-  this.operacionesFiltradas.forEach((op) => {
-    if (!op.fecha) return;
-
-    const fecha = new Date(op.fecha);
-    const año = fecha.getFullYear();
-    const mesNumero = fecha.getMonth() + 1;
-    const nombreMes = nombresMeses[mesNumero - 1];
-    const clave = `${año}-${mesNumero.toString().padStart(2, '0')}`;
-
-    const HORAS_TOTALES = 12;
-    let horasMtto = 0;
-    let cantidadFallas = 0;
-
-    const registrosArray = op.registros;
-    if (!Array.isArray(registrosArray)) return;
-
-    for (const registro of registrosArray) {
-      if (registro.estado !== 'MANTENIMIENTO') continue;
-      
-      const horas = this.calcularDuracionHoras(
-        registro.hora_inicio,
-        registro.hora_final!
-      );
-      horasMtto += horas;
-      cantidadFallas++;
-    }
-
-    horasMtto = Math.min(horasMtto, HORAS_TOTALES);
-    const horasOperacion = HORAS_TOTALES - horasMtto;
-
-    if (!resultadoMap.has(clave)) {
-      resultadoMap.set(clave, {
-        mes: nombreMes,
-        año: año,
-        mesNumero: mesNumero,
-        horasMtto: 0,
-        horasOperacion: 0,
-        cantidadFallas: 0,
-        mtbf: 0,
-        cantidadOperaciones: 0,
-        cantidadEquipos: new Set()
-      });
-    }
-
-    const item = resultadoMap.get(clave);
-    item.horasMtto += horasMtto;
-    item.horasOperacion += horasOperacion;
-    item.cantidadFallas += cantidadFallas;
-    item.cantidadOperaciones += 1;
-    item.cantidadEquipos.add(`${op.equipo}-${op.n_equipo}`);
-
-    const denominador = item.cantidadFallas + 1;
-    if (denominador > 0) {
-      item.mtbf = Number((item.horasOperacion / denominador).toFixed(2));
-    }
-  });
-
-  const resultado = Array.from(resultadoMap.values())
-    .map(item => ({
-      ...item,
-      cantidadEquipos: item.cantidadEquipos.size
-    }))
-    .sort((a, b) => {
-      if (a.año !== b.año) return a.año - b.año;
-      return a.mesNumero - b.mesNumero;
     });
 
-  //console.log('📊 MTBF POR MES:', resultado);
-  return resultado;
-}
-
-//MTTR-------------------------------------------------------------------------------
-MTTRPorEquipo() {
-  const resultadoMap = new Map<string, any>();
-
-  this.operacionesFiltradas.forEach((op) => {
-    const modeloEquipo = `${op.n_equipo}`; // Usamos solo el código del equipo
-    const HORAS_TOTALES = 12;
-    let horasMtto = 0;
-    let cantidadFallas = 0; // 🔥 CONTADOR DE FALLAS (eventos de mantenimiento)
-
-    const registrosArray = op.registros;
-    if (!Array.isArray(registrosArray)) return;
-
-    for (const registro of registrosArray) {
-      if (registro.estado !== 'MANTENIMIENTO') continue;
-      
-      // 🔥 Acumular horas de mantenimiento
-      const horas = this.calcularDuracionHoras(
-        registro.hora_inicio,
-        registro.hora_final!
-      );
-      horasMtto += horas;
-      
-      // 🔥 CONTAR cada registro de mantenimiento como UNA FALLA
-      cantidadFallas++;
-    }
-
-    // Limitar horasMtto al total disponible
-    horasMtto = Math.min(horasMtto, HORAS_TOTALES);
-
-    if (!resultadoMap.has(modeloEquipo)) {
-      resultadoMap.set(modeloEquipo, {
-        equipo: modeloEquipo,
-        nombre: op.equipo,
-        codigo: op.n_equipo,
-        horasMtto: 0,
-        cantidadFallas: 0,
-        mttr: 0,  // 🔥 MTTR = Horas Mtto / Cantidad Fallas
-        cantidadOperaciones: 0
-      });
-    }
-
-    const item = resultadoMap.get(modeloEquipo);
-    item.horasMtto += horasMtto;
-    item.cantidadFallas += cantidadFallas;
-    item.cantidadOperaciones += 1;
-
-    // 🔥 Calcular MTTR = Horas Mtto / Cantidad Fallas (como SI.ERROR)
-    try {
-      if (item.cantidadFallas > 0) {
-        item.mttr = Number((item.horasMtto / item.cantidadFallas).toFixed(2));
+    const resultado = Array.from(resultadoMap.values()).map((item) => {
+      if (item.fallas > 0) {
+        item.mttr = Number((item.horasMttoCorrectivo / item.fallas).toFixed(2));
       } else {
-        item.mttr = 0; // Si no hay fallas, MTTR = 0
+        item.mttr = 0;
       }
-    } catch (error) {
-      item.mttr = 0; // 🔥 como el SI.ERROR
-    }
-  });
 
-  const resultado = Array.from(resultadoMap.values())
-    .sort((a, b) => b.mttr - a.mttr); // Ordenar por mayor MTTR
+      item.horasMttoCorrectivo = Number(item.horasMttoCorrectivo.toFixed(2));
 
-  //console.log('📊 MTTR POR EQUIPO:', resultado);
-  return resultado;
-}
-
-//GRAFICO - MTTR POR AÑO
-MTTRPorAnio() {
-  const resultadoMap = new Map<string, any>();
-
-  this.operacionesFiltradas.forEach((op) => {
-    if (!op.fecha) return;
-    
-    // 🔥 Extraer el año de la fecha
-    const fecha = new Date(op.fecha);
-    const año = fecha.getFullYear();
-    const clave = `${año}`;
-    
-    const HORAS_TOTALES = 12;
-    let horasMtto = 0;
-    let cantidadFallas = 0;
-
-    const registrosArray = op.registros;
-    if (!Array.isArray(registrosArray)) return;
-
-    for (const registro of registrosArray) {
-      if (registro.estado !== 'MANTENIMIENTO') continue;
-      
-      // 🔥 Acumular horas de mantenimiento
-      const horas = this.calcularDuracionHoras(
-        registro.hora_inicio,
-        registro.hora_final!
-      );
-      horasMtto += horas;
-      
-      // 🔥 CONTAR cada registro de mantenimiento como UNA FALLA
-      cantidadFallas++;
-    }
-
-    // Limitar horasMtto al total disponible
-    horasMtto = Math.min(horasMtto, HORAS_TOTALES);
-
-    if (!resultadoMap.has(clave)) {
-      resultadoMap.set(clave, {
-        año: año,
-        horasMtto: 0,
-        cantidadFallas: 0,
-        mttr: 0,
-        cantidadOperaciones: 0,
-        cantidadEquipos: new Set()
-      });
-    }
-
-    const item = resultadoMap.get(clave);
-    item.horasMtto += horasMtto;
-    item.cantidadFallas += cantidadFallas;
-    item.cantidadOperaciones += 1;
-    item.cantidadEquipos.add(`${op.equipo}-${op.n_equipo}`);
-
-    // 🔥 Calcular MTTR = Horas Mtto / Cantidad Fallas (como SI.ERROR)
-    try {
-      if (item.cantidadFallas > 0) {
-        item.mttr = Number((item.horasMtto / item.cantidadFallas).toFixed(2));
-      } else {
-        item.mttr = 0; // Si no hay fallas, MTTR = 0
-      }
-    } catch (error) {
-      item.mttr = 0;
-    }
-  });
-
-  // 🔥 Convertir Set a número y ordenar por año
-  const resultado = Array.from(resultadoMap.values())
-    .map(item => ({
-      ...item,
-      cantidadEquipos: item.cantidadEquipos.size
-    }))
-    .sort((a, b) => a.año - b.año); // Ordenar de menor a mayor año
-
-  //console.log('📊 MTTR POR AÑO:', resultado);
-  return resultado;
-}
-
-//GRAFICO - MTTR POR SEMANA
-MTTRPorSemana() {
-  const resultadoMap = new Map<string, any>();
-
-  this.operacionesFiltradas.forEach((op) => {
-    if (!op.fecha) return;
-    
-    // 🔥 Extraer el número de semana de la fecha
-    const numeroSemana = this.obtenerNumeroSemana(op.fecha);
-    const semanaLabel = `SEM ${numeroSemana}`;
-    
-    const HORAS_TOTALES = 12;
-    let horasMtto = 0;
-    let cantidadFallas = 0;
-
-    const registrosArray = op.registros;
-    if (!Array.isArray(registrosArray)) return;
-
-    for (const registro of registrosArray) {
-      if (registro.estado !== 'MANTENIMIENTO') continue;
-      
-      // 🔥 Acumular horas de mantenimiento
-      const horas = this.calcularDuracionHoras(
-        registro.hora_inicio,
-        registro.hora_final!
-      );
-      horasMtto += horas;
-      
-      // 🔥 CONTAR cada registro de mantenimiento como UNA FALLA
-      cantidadFallas++;
-    }
-
-    // Limitar horasMtto al total disponible
-    horasMtto = Math.min(horasMtto, HORAS_TOTALES);
-
-    if (!resultadoMap.has(semanaLabel)) {
-      resultadoMap.set(semanaLabel, {
-        semana: semanaLabel,
-        numeroSemana: numeroSemana,
-        horasMtto: 0,
-        cantidadFallas: 0,
-        mttr: 0,
-        cantidadOperaciones: 0,
-        cantidadEquipos: new Set()
-      });
-    }
-
-    const item = resultadoMap.get(semanaLabel);
-    item.horasMtto += horasMtto;
-    item.cantidadFallas += cantidadFallas;
-    item.cantidadOperaciones += 1;
-    item.cantidadEquipos.add(`${op.equipo}-${op.n_equipo}`);
-
-    // 🔥 Calcular MTTR = Horas Mtto / Cantidad Fallas (como SI.ERROR)
-    try {
-      if (item.cantidadFallas > 0) {
-        item.mttr = Number((item.horasMtto / item.cantidadFallas).toFixed(2));
-      } else {
-        item.mttr = 0; // Si no hay fallas, MTTR = 0
-      }
-    } catch (error) {
-      item.mttr = 0;
-    }
-  });
-
-  // 🔥 Convertir Set a número y ordenar por número de semana
-  const resultado = Array.from(resultadoMap.values())
-    .map(item => ({
-      ...item,
-      cantidadEquipos: item.cantidadEquipos.size
-    }))
-    .sort((a, b) => a.numeroSemana - b.numeroSemana); // Ordenar por semana
-
-  //console.log('📊 MTTR POR SEMANA:', resultado);
-  return resultado;
-}
-
-//GRAFICO - MTTR POR MES Y AÑO
-MTTRPorMes() {
-  const resultadoMap = new Map<string, any>();
-
-  // 🔥 Nombres de meses
-  const nombresMeses = [
-    'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
-    'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'
-  ];
-
-  this.operacionesFiltradas.forEach((op) => {
-    if (!op.fecha) return;
-
-    // 🔥 Fecha
-    const fecha = new Date(op.fecha);
-    const año = fecha.getFullYear();
-    const mesNumero = fecha.getMonth() + 1;
-    const nombreMes = nombresMeses[mesNumero - 1];
-    const clave = `${año}-${mesNumero.toString().padStart(2, '0')}`;
-
-    const HORAS_TOTALES = 12;
-    let horasMtto = 0;
-    let cantidadFallas = 0;
-
-    const registrosArray = op.registros;
-    if (!Array.isArray(registrosArray)) return;
-
-    for (const registro of registrosArray) {
-      if (registro.estado !== 'MANTENIMIENTO') continue;
-      
-      // 🔥 Acumular horas de mantenimiento
-      const horas = this.calcularDuracionHoras(
-        registro.hora_inicio,
-        registro.hora_final!
-      );
-      horasMtto += horas;
-      
-      // 🔥 CONTAR cada registro de mantenimiento como UNA FALLA
-      cantidadFallas++;
-    }
-
-    // Limitar horasMtto al total disponible
-    horasMtto = Math.min(horasMtto, HORAS_TOTALES);
-
-    if (!resultadoMap.has(clave)) {
-      resultadoMap.set(clave, {
-        // 🔥 Datos de fecha
-        mes: nombreMes,
-        año: año,
-        mesNumero: mesNumero,
-        
-        // 🔥 Resultado principal
-        mttr: 0,
-        
-        // 🔥 Datos auxiliares
-        horasMtto: 0,
-        cantidadFallas: 0,
-        cantidadOperaciones: 0,
-        cantidadEquipos: new Set()
-      });
-    }
-
-    const item = resultadoMap.get(clave);
-    item.horasMtto += horasMtto;
-    item.cantidadFallas += cantidadFallas;
-    item.cantidadOperaciones += 1;
-    item.cantidadEquipos.add(`${op.equipo}-${op.n_equipo}`);
-
-    // 🔥 Calcular MTTR = Horas Mtto / Cantidad Fallas
-    if (item.cantidadFallas > 0) {
-      item.mttr = Number((item.horasMtto / item.cantidadFallas).toFixed(2));
-    }
-  });
-
-  // 🔥 Convertir Set a número y ordenar por año y mes
-  const resultado = Array.from(resultadoMap.values())
-    .map(item => ({
-      ...item,
-      cantidadEquipos: item.cantidadEquipos.size
-    }))
-    .sort((a, b) => {
-      if (a.año !== b.año) return a.año - b.año;
-      return a.mesNumero - b.mesNumero;
+      return item;
     });
 
-  //console.log('📊 MTTR POR MES:', resultado);
+    resultado.sort((a, b) => b.mttr - a.mttr);
+
+    return resultado;
+  }
+  MTBFPorEquipo() {
+    const resultadoMap = new Map<string, any>();
+
+    this.operacionesFiltradas.forEach((op) => {
+      const equipo = op.equipo || 'SIN EQUIPO';
+      const nEquipo = op.n_equipo || 'SIN N° EQUIPO';
+      const modeloEquipo = op.modelo_equipo || nEquipo;
+
+      const key = modeloEquipo;
+
+      const registrosArray = op.registros;
+
+      if (!Array.isArray(registrosArray)) return;
+
+      if (!resultadoMap.has(key)) {
+        resultadoMap.set(key, {
+          equipo,
+          n_equipo: nEquipo,
+          modelo_equipo: modeloEquipo,
+
+          horasTotales: 0,
+          horasMttoCorrectivo: 0,
+          horasSinMttoCorrectivo: 0,
+
+          fallas: 0,
+          mtbf: 0,
+
+          cantidadOperaciones: 0,
+          cantidadRegistros: 0,
+          cantidadRegistrosMttoCorrectivo: 0,
+        });
+      }
+
+      const item = resultadoMap.get(key);
+
+      item.cantidadOperaciones += 1;
+
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+        const estado = String(registro.estado || '')
+          .trim()
+          .toUpperCase();
+
+        if (!registro.hora_inicio || !registro.hora_final) continue;
+
+        const horas = this.calcularDuracionHoras(
+          registro.hora_inicio,
+          registro.hora_final,
+        );
+
+        if (!horas || horas <= 0) continue;
+
+        // SUMA(BD_JUMBOS[HORAS])
+        item.horasTotales += horas;
+        item.cantidadRegistros += 1;
+
+        // SUMA(BD_JUMBOS[Hrs. Mtto. Correctivo])
+        if (this.esMantenimientoCorrectivo(codigo)) {
+          item.horasMttoCorrectivo += horas;
+
+          // SUMA(BD_JUMBOS[#FALLAS])
+          item.fallas += 1;
+
+          item.cantidadRegistrosMttoCorrectivo += 1;
+        }
+      }
+    });
+
+    const resultado = Array.from(resultadoMap.values()).map((item) => {
+      item.horasSinMttoCorrectivo =
+        item.horasTotales - item.horasMttoCorrectivo;
+
+      const divisorFallas = item.fallas === 0 ? 1 : item.fallas;
+
+      item.mtbf = Number(
+        (item.horasSinMttoCorrectivo / divisorFallas).toFixed(2),
+      );
+
+      item.horasTotales = Number(item.horasTotales.toFixed(2));
+      item.horasMttoCorrectivo = Number(item.horasMttoCorrectivo.toFixed(2));
+      item.horasSinMttoCorrectivo = Number(
+        item.horasSinMttoCorrectivo.toFixed(2),
+      );
+
+      return item;
+    });
+
+    resultado.sort((a, b) => b.mtbf - a.mtbf);
+
+    return resultado;
+  }
+
+  MTBFPorSemana() {
+    return this.calcularMTTRMTBFPorPeriodoVisual('SEMANA');
+  }
+
+  MTBFPorMes() {
+    return this.calcularMTTRMTBFPorPeriodoVisual('MES');
+  }
+
+  MTBFPorAño() {
+    return this.calcularMTTRMTBFPorPeriodoVisual('ANIO');
+  }
+
+  MTTRPorSemana() {
+    return this.calcularMTTRMTBFPorPeriodoVisual('SEMANA');
+  }
+
+  MTTRPorMes() {
+    return this.calcularMTTRMTBFPorPeriodoVisual('MES');
+  }
+
+  MTTRPorAño() {
+    return this.calcularMTTRMTBFPorPeriodoVisual('ANIO');
+  }
+
+
+
+  private calcularMTTRMTBFPorPeriodoVisual(
+  tipo: 'SEMANA' | 'MES' | 'ANIO'
+) {
+  const resultadoMap = this.crearPeriodosVisiblesMTTRMTBF(tipo);
+
+  const dataCalculo = this.operacionesOriginal;
+
+  dataCalculo.forEach((op) => {
+    const registrosArray = op.registros;
+
+    if (!Array.isArray(registrosArray)) return;
+
+    const fecha = op.fecha;
+
+    if (!fecha) return;
+
+    const periodo = this.obtenerPeriodoMTBFMTTR(fecha, tipo);
+
+    if (!periodo) return;
+
+    /**
+     * Clave:
+     * Si el mes/año no está dentro del rango visual seleccionado,
+     * no se muestra.
+     * Pero si está, el cálculo usa TODA la data original de ese mes/año.
+     */
+    if (!resultadoMap.has(periodo.key)) return;
+
+    const item = resultadoMap.get(periodo.key);
+
+    for (const registro of registrosArray) {
+      const codigo = String(registro.codigo || '').trim();
+
+      if (!registro.hora_inicio || !registro.hora_final) continue;
+
+      const horas = this.calcularDuracionHoras(
+        registro.hora_inicio,
+        registro.hora_final
+      );
+
+      if (!horas || horas <= 0) continue;
+
+      item.horasTotales += horas;
+      item.cantidadRegistros += 1;
+
+      if (this.esMantenimientoCorrectivo(codigo)) {
+        item.horasMttoCorrectivo += horas;
+        item.fallas += 1;
+        item.cantidadRegistrosMttoCorrectivo += 1;
+      }
+    }
+  });
+
+  const resultado = Array.from(resultadoMap.values()).map((item) => {
+    item.horasSinMttoCorrectivo =
+      item.horasTotales - item.horasMttoCorrectivo;
+
+    if (item.fallas > 0) {
+      item.mttr = Number(
+        (item.horasMttoCorrectivo / item.fallas).toFixed(2)
+      );
+    } else {
+      item.mttr = 0;
+    }
+
+    const divisorFallas = item.fallas === 0 ? 1 : item.fallas;
+
+    item.mtbf = Number(
+      (item.horasSinMttoCorrectivo / divisorFallas).toFixed(2)
+    );
+
+    item.horasTotales = Number(item.horasTotales.toFixed(2));
+    item.horasMttoCorrectivo = Number(item.horasMttoCorrectivo.toFixed(2));
+    item.horasSinMttoCorrectivo = Number(
+      item.horasSinMttoCorrectivo.toFixed(2)
+    );
+
+    return item;
+  });
+
+  resultado.sort((a, b) => String(a.key).localeCompare(String(b.key)));
+
   return resultado;
-}
+  }
+
+  private crearPeriodosVisiblesMTTRMTBF(
+    tipo: 'SEMANA' | 'MES' | 'ANIO'
+  ) {
+  const resultadoMap = new Map<string, any>();
+
+  if (!this.fechaInicio || !this.fechaFin) {
+    return resultadoMap;
+  }
+
+  const diasRango = generarDiasEntreFechas(this.fechaInicio, this.fechaFin);
+
+  diasRango.forEach((dia) => {
+    const periodo = this.obtenerPeriodoMTBFMTTR(dia.key, tipo);
+
+    if (!periodo) return;
+
+    if (!resultadoMap.has(periodo.key)) {
+      resultadoMap.set(periodo.key, {
+        key: periodo.key,
+        periodo: periodo.label,
+        anio: periodo.anio || null,
+        fechaInicio: periodo.fechaInicio || null,
+        fechaFin: periodo.fechaFin || null,
+
+        horasTotales: 0,
+        horasMttoCorrectivo: 0,
+        horasSinMttoCorrectivo: 0,
+
+        fallas: 0,
+        mttr: 0,
+        mtbf: 0,
+
+        cantidadDiasRango: 0,
+        cantidadRegistros: 0,
+        cantidadRegistrosMttoCorrectivo: 0,
+      });
+    }
+
+    const item = resultadoMap.get(periodo.key);
+    item.cantidadDiasRango += 1;
+  });
+
+  return resultadoMap;
+  }
+
+  private obtenerPeriodoMTBFMTTR(
+      fecha: string,
+      tipo: 'DIA' | 'SEMANA' | 'MES' | 'ANIO',
+    ) {
+      if (tipo === 'DIA') {
+        return obtenerPeriodo(fecha, 'DIA');
+      }
+  
+      if (tipo === 'SEMANA') {
+        return obtenerPeriodoDesdeKey(fecha, 'SEMANA');
+      }
+  
+      if (tipo === 'MES') {
+        return obtenerPeriodoDesdeKey(fecha, 'MES');
+      }
+  
+      if (tipo === 'ANIO') {
+        const date = parseFechaSimple(fecha);
+  
+        if (!date) return null;
+  
+        const anio = date.getFullYear();
+  
+        return {
+          key: `${anio}`,
+          label: `${anio}`,
+          anio,
+        };
+      }
+  
+      return null;
+    }
+  
+    private esMantenimientoCorrectivo(codigo: string): boolean {
+      return String(codigo || '').trim() === '202';
+    }
 
 //IMPORTAR EXCEL:
 async ImportarExcel() {

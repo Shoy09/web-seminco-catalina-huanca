@@ -1,5 +1,4 @@
 <div class="contenedor-mttr-ano">
-  <!-- INDICADOR MTTR POR AÑO -->
   <div
     class="gauge-card"
     *ngFor="let item of tarjetas"
@@ -8,7 +7,7 @@
     <div class="gauge-title">
       {{ item.titulo }}
     </div>
-    
+
     <div class="gauge-container">
       <div
         class="gauge"
@@ -20,11 +19,14 @@
           <span class="unidad">{{ item.unidad }}</span>
         </div>
       </div>
-    </div>
 
+      <div class="gauge-scale">
+        <span>0</span>
+        <span>{{ objetivoMttr }} hrs</span>
+      </div>
+    </div>
   </div>
 
-  <!-- Mensaje cuando no hay datos -->
   <div *ngIf="tarjetas.length === 0" class="no-data">
     No hay datos de MTTR disponibles
   </div>

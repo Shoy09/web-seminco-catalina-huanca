@@ -40,10 +40,10 @@ import { RankingOperadorRendimientoComponent } from '../Graficos components/Rend
 import { RankingOperadorUtilizacionComponent } from '../Graficos components/Utilizacion/ranking-operador-utilizacion/ranking-operador-utilizacion.component';
 import { MtbfEquipoComponent } from '../../scoops/Graficos components/MTBF-MTTR/MTBF/mtbf-equipo/mtbf-equipo.component';
 import { MttrEquipoComponent } from '../../scoops/Graficos components/MTBF-MTTR/MTTR/mttr-equipo/mttr-equipo.component';
-import { MtbfSemanasComponent } from "../../scoops/Graficos components/MTBF-MTTR/MTBF/mtbf-semanas/mtbf-semanas.component";
-import { MtbfMesComponent } from "../../scoops/Graficos components/MTBF-MTTR/MTBF/mtbf-mes/mtbf-mes.component";
-import { MtbfAnoComponent } from "../../scoops/Graficos components/MTBF-MTTR/MTBF/mtbf-ano/mtbf-ano.component";
-import { MttrSemanasComponent } from "../../scoops/Graficos components/MTBF-MTTR/MTTR/mttr-semanas/mttr-semanas.component";
+import { MtbfSemanasComponent } from '../../scoops/Graficos components/MTBF-MTTR/MTBF/mtbf-semanas/mtbf-semanas.component';
+import { MtbfMesComponent } from '../../scoops/Graficos components/MTBF-MTTR/MTBF/mtbf-mes/mtbf-mes.component';
+import { MtbfAnoComponent } from '../../scoops/Graficos components/MTBF-MTTR/MTBF/mtbf-ano/mtbf-ano.component';
+import { MttrSemanasComponent } from '../../scoops/Graficos components/MTBF-MTTR/MTTR/mttr-semanas/mttr-semanas.component';
 import { MttrMesComponent } from '../../scoops/Graficos components/MTBF-MTTR/MTTR/mttr-mes/mttr-mes.component';
 import { MttrAnoComponent } from '../../scoops/Graficos components/MTBF-MTTR/MTTR/mttr-ano/mttr-ano.component';
 
@@ -81,8 +81,8 @@ import { MatDialog } from '@angular/material/dialog';
     MtbfAnoComponent,
     MttrSemanasComponent,
     MttrMesComponent,
-    MttrAnoComponent
-],
+    MttrAnoComponent,
+  ],
   templateUrl: './principal-grafico-horizontal.component.html',
   styleUrl: './principal-grafico-horizontal.component.css',
 })
@@ -350,11 +350,9 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
     this.DataMTTRPorEquipo = this.MTTRPorEquipo();
     this.DataMTBFPorEquipo = this.MTBFPorEquipo();
 
-    this.DataMTTRPorDia = this.MTTRPorDia();
     this.DataMTTRPorSemana = this.MTTRPorSemana();
     this.DataMTTRPorMes = this.MTTRPorMes();
     this.DataMTTRPorAnio = this.MTTRPorAño();
-    this.DataMTBFPorDia = this.MTBFPorDia();
     this.DataMTBFPorSemana = this.MTBFPorSemana();
     this.DataMTBFPorMes = this.MTBFPorMes();
     this.DataMTBFPorAnio = this.MTBFPorAño();
@@ -696,7 +694,7 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
       console.warn('No hay datos filtrados para mostrar');
       return;
     }
-  
+
     const dialogRef = this.dialog.open(PresentacionHorizontalDialogComponent, {
       width: '1800px',
       maxHeight: '90vh',
@@ -707,15 +705,15 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
         fechaFin: this.fechaFin,
       },
       disableClose: false,
-      autoFocus: true
+      autoFocus: true,
     });
-  
+
     // Opcional: Escuchar cuando se cierre el diálogo
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       console.log('Diálogo cerrado', result);
     });
   }
-  
+
   UtilizacionPorEquipo() {
     const resultadoMap = new Map<string, any>();
 
@@ -2347,74 +2345,36 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
     return resultado;
   }
 
-  MTTRPorDia() {
-    return this.calcularMTTRMTBFPorPeriodo('DIA');
-  }
-
   MTTRPorSemana() {
-    return this.calcularMTTRMTBFPorPeriodo('SEMANA');
+    return this.calcularMTTRMTBFPorPeriodoVisual('SEMANA');
   }
 
   MTTRPorMes() {
-    return this.calcularMTTRMTBFPorPeriodo('MES');
+    return this.calcularMTTRMTBFPorPeriodoVisual('MES');
   }
 
   MTTRPorAño() {
-    return this.calcularMTTRMTBFPorPeriodo('ANIO');
-  }
-
-  MTBFPorDia() {
-    return this.calcularMTTRMTBFPorPeriodo('DIA');
+    return this.calcularMTTRMTBFPorPeriodoVisual('ANIO');
   }
 
   MTBFPorSemana() {
-    return this.calcularMTTRMTBFPorPeriodo('SEMANA');
+    return this.calcularMTTRMTBFPorPeriodoVisual('SEMANA');
   }
 
   MTBFPorMes() {
-    return this.calcularMTTRMTBFPorPeriodo('MES');
+    return this.calcularMTTRMTBFPorPeriodoVisual('MES');
   }
 
   MTBFPorAño() {
-    return this.calcularMTTRMTBFPorPeriodo('ANIO');
+    return this.calcularMTTRMTBFPorPeriodoVisual('ANIO');
   }
 
-  private calcularMTTRMTBFPorPeriodo(tipo: 'DIA' | 'SEMANA' | 'MES' | 'ANIO') {
-    const resultadoMap = new Map<string, any>();
+  private calcularMTTRMTBFPorPeriodoVisual(tipo: 'SEMANA' | 'MES' | 'ANIO') {
+    const resultadoMap = this.crearPeriodosVisiblesMTTRMTBF(tipo);
 
-    // Crear períodos visibles según fechaInicio y fechaFin
-    if (this.fechaInicio && this.fechaFin) {
-      const diasRango = generarDiasEntreFechas(this.fechaInicio, this.fechaFin);
+    const dataCalculo = this.operacionesOriginal;
 
-      diasRango.forEach((dia) => {
-        const periodo = this.obtenerPeriodoMTBFMTTR(dia.key, tipo);
-
-        if (!periodo) return;
-
-        if (!resultadoMap.has(periodo.key)) {
-          resultadoMap.set(periodo.key, {
-            key: periodo.key,
-            periodo: periodo.label,
-            anio: periodo.anio || null,
-            fechaInicio: periodo.fechaInicio || null,
-            fechaFin: periodo.fechaFin || null,
-
-            horasTotales: 0,
-            horasMttoCorrectivo: 0,
-            horasSinMttoCorrectivo: 0,
-
-            fallas: 0,
-            mttr: 0,
-            mtbf: 0,
-
-            cantidadRegistros: 0,
-            cantidadRegistrosMttoCorrectivo: 0,
-          });
-        }
-      });
-    }
-
-    this.operacionesFiltradas.forEach((op) => {
+    dataCalculo.forEach((op) => {
       const registrosArray = op.registros;
 
       if (!Array.isArray(registrosArray)) return;
@@ -2424,6 +2384,83 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
       if (!fecha) return;
 
       const periodo = this.obtenerPeriodoMTBFMTTR(fecha, tipo);
+
+      if (!periodo) return;
+
+      /**
+       * Clave:
+       * Si el mes/año no está dentro del rango visual seleccionado,
+       * no se muestra.
+       * Pero si está, el cálculo usa TODA la data original de ese mes/año.
+       */
+      if (!resultadoMap.has(periodo.key)) return;
+
+      const item = resultadoMap.get(periodo.key);
+
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+
+        if (!registro.hora_inicio || !registro.hora_final) continue;
+
+        const horas = this.calcularDuracionHoras(
+          registro.hora_inicio,
+          registro.hora_final,
+        );
+
+        if (!horas || horas <= 0) continue;
+
+        item.horasTotales += horas;
+        item.cantidadRegistros += 1;
+
+        if (this.esMantenimientoCorrectivo(codigo)) {
+          item.horasMttoCorrectivo += horas;
+          item.fallas += 1;
+          item.cantidadRegistrosMttoCorrectivo += 1;
+        }
+      }
+    });
+
+    const resultado = Array.from(resultadoMap.values()).map((item) => {
+      item.horasSinMttoCorrectivo =
+        item.horasTotales - item.horasMttoCorrectivo;
+
+      if (item.fallas > 0) {
+        item.mttr = Number((item.horasMttoCorrectivo / item.fallas).toFixed(2));
+      } else {
+        item.mttr = 0;
+      }
+
+      const divisorFallas = item.fallas === 0 ? 1 : item.fallas;
+
+      item.mtbf = Number(
+        (item.horasSinMttoCorrectivo / divisorFallas).toFixed(2),
+      );
+
+      item.horasTotales = Number(item.horasTotales.toFixed(2));
+      item.horasMttoCorrectivo = Number(item.horasMttoCorrectivo.toFixed(2));
+      item.horasSinMttoCorrectivo = Number(
+        item.horasSinMttoCorrectivo.toFixed(2),
+      );
+
+      return item;
+    });
+
+    resultado.sort((a, b) => String(a.key).localeCompare(String(b.key)));
+
+    return resultado;
+  }
+
+  private crearPeriodosVisiblesMTTRMTBF(tipo: 'SEMANA' | 'MES' | 'ANIO') {
+    const resultadoMap = new Map<string, any>();
+
+    if (!this.fechaInicio || !this.fechaFin) {
+      return resultadoMap;
+    }
+
+    const diasRango = generarDiasEntreFechas(this.fechaInicio, this.fechaFin);
+
+    diasRango.forEach((dia) => {
+      const periodo = this.obtenerPeriodoMTBFMTTR(dia.key, tipo);
 
       if (!periodo) return;
 
@@ -2443,70 +2480,17 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
           mttr: 0,
           mtbf: 0,
 
+          cantidadDiasRango: 0,
           cantidadRegistros: 0,
           cantidadRegistrosMttoCorrectivo: 0,
         });
       }
 
       const item = resultadoMap.get(periodo.key);
-
-      for (const registro of registrosArray) {
-        const codigo = String(registro.codigo || '').trim();
-
-        if (!registro.hora_inicio || !registro.hora_final) continue;
-
-        const horas = this.calcularDuracionHoras(
-          registro.hora_inicio,
-          registro.hora_final,
-        );
-
-        if (!horas || horas <= 0) continue;
-
-        // SUMA(HORAS)
-        item.horasTotales += horas;
-        item.cantidadRegistros += 1;
-
-        // Código 202 = Mantenimiento Correctivo / No Programado
-        if (this.esMantenimientoCorrectivo(codigo)) {
-          item.horasMttoCorrectivo += horas;
-          item.fallas += 1;
-          item.cantidadRegistrosMttoCorrectivo += 1;
-        }
-      }
+      item.cantidadDiasRango += 1;
     });
 
-    const resultado = Array.from(resultadoMap.values()).map((item) => {
-      item.horasSinMttoCorrectivo =
-        item.horasTotales - item.horasMttoCorrectivo;
-
-      // MTTR = Hrs Mtto Correctivo / #Fallas
-      if (item.fallas > 0) {
-        item.mttr = Number((item.horasMttoCorrectivo / item.fallas).toFixed(2));
-      } else {
-        item.mttr = 0;
-      }
-
-      // MTBF = (HORAS - Hrs Mtto Correctivo) / IF(#Fallas = 0, 1, #Fallas)
-      const divisorFallas = item.fallas === 0 ? 1 : item.fallas;
-
-      item.mtbf = Number(
-        (item.horasSinMttoCorrectivo / divisorFallas).toFixed(2),
-      );
-
-      item.horasTotales = Number(item.horasTotales.toFixed(2));
-      item.horasMttoCorrectivo = Number(item.horasMttoCorrectivo.toFixed(2));
-      item.horasSinMttoCorrectivo = Number(
-        item.horasSinMttoCorrectivo.toFixed(2),
-      );
-
-      return item;
-    });
-
-    resultado.sort((a, b) => String(a.key).localeCompare(String(b.key)));
-
-    console.log(`📊 MTTR / MTBF POR ${tipo}:`, resultado);
-
-    return resultado;
+    return resultadoMap;
   }
   private obtenerPeriodoMTBFMTTR(
     fecha: string,
