@@ -1,0 +1,257 @@
+.dashboard-container {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  min-height: 600px;
+  padding: 20px;
+  background: #f5f7fa;
+  border-radius: 12px;
+}
+
+/* Columna izquierda - Gráfico */
+.grafico-columna {
+  flex: 3;
+  background: white;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.grafico-echarts {
+  width: 100%;
+  height: 100%;
+  min-height: 500px;
+}
+
+/* Columna derecha - Totales */
+.totales-columna {
+  flex: 1;
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  height: 600px; /* Altura fija */
+  max-height: 600px; /* Altura máxima fija */
+}
+
+.totales-header {
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 10px;
+  margin-bottom: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  flex-shrink: 0; /* Evita que se encoja */
+}
+
+.totales-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: #2c3e50;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.totales-stats {
+  display: flex;
+  gap: 8px;
+}
+
+.badge {
+  background: #e9ecef;
+  color: #495057;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.totales-lista {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto; /* Siempre scroll cuando hay muchos items */
+  padding-right: 5px;
+  min-height: 0; /* Importante para que funcione el scroll */
+}
+
+/* Scroll personalizado */
+.totales-lista::-webkit-scrollbar {
+  width: 6px;
+}
+
+.totales-lista::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.totales-lista::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.totales-lista::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.total-item {
+  padding: 12px;
+  border-radius: 8px;
+  background: #f8f9fa;
+  border-left: 4px solid;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  flex-shrink: 0; /* Evita que los items se encojan */
+}
+
+.total-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: #ffffff;
+}
+
+.total-item-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.total-item-nombre {
+  font-weight: bold;
+  font-size: 14px;
+  color: #495057;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.total-item-valor {
+  font-weight: bold;
+  font-size: 18px;
+  color: #2c3e50;
+}
+
+.total-item-progreso {
+  width: 100%;
+  height: 6px;
+  background-color: #e9ecef;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.progreso-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.total-item-porcentaje {
+  text-align: right;
+  font-size: 11px;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.mas-tipos {
+  text-align: center;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  color: #6c757d;
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.ver-mas-btn {
+  background: none;
+  border: 1px solid #dee2e6;
+  padding: 4px 12px;
+  border-radius: 6px;
+  color: #3498db;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.ver-mas-btn:hover {
+  background: #e3f2fd;
+  border-color: #3498db;
+}
+
+.total-general {
+  padding-top: 15px;
+  border-top: 2px solid #e9ecef;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 16px;
+  font-weight: bold;
+  flex-shrink: 0; /* Evita que se encoja */
+}
+
+.total-general span {
+  color: #6c757d;
+}
+
+.total-general strong {
+  font-size: 20px;
+  color: #e74c3c;
+}
+
+.sin-datos {
+  text-align: center;
+  padding: 40px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  color: #6c757d;
+  font-size: 16px;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .dashboard-container {
+    flex-direction: column;
+  }
+  
+  .grafico-columna {
+    min-height: 400px;
+  }
+  
+  .totales-columna {
+    min-width: auto;
+    height: auto;
+    max-height: 500px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 10px;
+    gap: 10px;
+  }
+  
+  .total-item-valor {
+    font-size: 14px;
+  }
+  
+  .total-general strong {
+    font-size: 16px;
+  }
+}

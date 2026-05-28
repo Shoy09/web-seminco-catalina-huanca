@@ -3187,7 +3187,7 @@ UtilizacionGuardia() {
 ToneladasPorRangoHoraCompleto(turno: string = '') {
   const resultadoMap = new Map<string, any>();
 
-  const codigosPermitidos = ['101', '102', '105', '106', '108'];
+  const codigosPermitidos = ['101', '103'];
 
   // 🔥 Rangos de hora según el turno
   let rangosHora: string[] = [];
@@ -3400,7 +3400,7 @@ ToneladasPorRangoHoraCompleto(turno: string = '') {
 ToneladasPorLaborYRangoHora(turno: string = '') {
   const resultadoMap = new Map<string, any>();
 
-  const codigosPermitidos = ['101', '102', '105', '106', '108'];
+  const codigosPermitidos = ['101', '103'];
 
   // 🔥 Rangos de hora según el turno
   let rangosHora: string[] = [];

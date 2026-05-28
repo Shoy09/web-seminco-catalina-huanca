@@ -1,12 +1,61 @@
-<div class="grafico-container">
-  <div 
-    echarts 
-    [options]="chartOptions" 
-    [autoResize]="true" 
-    style="width: 100%; height: 500px;">
+<div class="dashboard-container">
+  <!-- Columna izquierda: Gráfico -->
+  <div class="grafico-columna">
+    <div 
+      echarts 
+      [options]="chartOptions" 
+      [autoResize]="true" 
+      class="grafico-echarts">
+    </div>
   </div>
   
-  <div *ngIf="!data?.length" class="sin-datos">
-    <p>No hay datos de toneladas por rango de hora disponibles</p>
+  <!-- Columna derecha: Totales compactos -->
+  <div class="totales-columna">
+    <div class="totales-header">
+      <h4>📊 TOTAL POR MATERIAL</h4>
+    </div>
+    
+    <div class="totales-lista">
+      <!-- Mineral -->
+      <div class="total-item total-mineral">
+        <div class="total-item-info">
+          <span class="total-item-nombre">MINERAL</span>
+          <span class="total-item-valor">{{ totalesMateriales.mineral | number:'1.2-2' }} t</span>
+        </div>
+      </div>
+      
+      <!-- Desmonte -->
+      <div class="total-item total-desmonte">
+        <div class="total-item-info">
+          <span class="total-item-nombre">DESMONTE</span>
+          <span class="total-item-valor">{{ totalesMateriales.desmonte | number:'1.2-2' }} t</span>
+        </div>
+      </div>
+      
+      <!-- Relave -->
+      <div class="total-item total-relave">
+        <div class="total-item-info">
+          <span class="total-item-nombre">RELAVE</span>
+          <span class="total-item-valor">{{ totalesMateriales.relave | number:'1.2-2' }} t</span>
+        </div>
+      </div>
+      
+      <!-- Relleno -->
+      <div class="total-item total-relleno">
+        <div class="total-item-info">
+          <span class="total-item-nombre">RELLENO</span>
+          <span class="total-item-valor">{{ totalesMateriales.relleno | number:'1.2-2' }} t</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="total-general">
+      <span>TOTAL GENERAL</span>
+      <strong>{{ totalGeneral | number:'1.2-2' }} t</strong>
+    </div>
   </div>
+</div>
+
+<div *ngIf="!data?.length" class="sin-datos">
+  <p>No hay datos de toneladas por rango de hora disponibles</p>
 </div>
