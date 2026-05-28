@@ -1,5 +1,23 @@
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
 
+:root {
+  --ch-catalina-green: #00A064;
+  --ch-catalina-green-75: #40B88B;
+  --ch-catalina-green-50: #80D0B2;
+  --ch-catalina-green-25: #BFE7D8;
+
+  --ch-dusty-green: #78C67B;
+  --ch-forest-green: #145A52;
+  --ch-grey: #333333;
+  --ch-grey-75: #666666;
+  --ch-grey-50: #999999;
+  --ch-grey-25: #CCCCCC;
+
+  --ch-highlight-orange: #FF9132;
+
+  --ch-bg-light: #F7F9F8;
+  --ch-border: #CCCCCC;
+}
 
 html, body {
   height: 100%;

@@ -9,6 +9,7 @@ import {
   ToolboxComponent
 } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
+import { CHART_COLORS, colorPorMTBF } from '../../../../../../../../shared/chart-theme';
 
 echarts.use([
   BarChart,
@@ -97,8 +98,7 @@ export class MtbfSemanasComponent implements OnInit, OnChanges {
         textStyle: {
           fontSize: 14,
           fontWeight: 'bold',
-          color: '#333',
-          fontFamily: 'Arial'
+          color: CHART_COLORS.grey,
         }
       },
 
@@ -112,33 +112,11 @@ export class MtbfSemanasComponent implements OnInit, OnChanges {
           const index = data.dataIndex;
           const item = this.datosMtbfSemanas[index];
           
-          // Determinar nivel de confiabilidad (MTBF más alto es mejor)
-          let nivel = '';
-          let colorNivel = '';
-          if (item.mtbf === 0) {
-            nivel = 'Sin Datos ⚠️';
-            colorNivel = '#95a5a6';
-          } else if (item.mtbf >= 330) {
-            nivel = 'Excelente ✅';
-            colorNivel = '#2ecc71';
-          } else if (item.mtbf >= 300) {
-            nivel = 'Bueno 👍';
-            colorNivel = '#3498db';
-          } else if (item.mtbf >= 270) {
-            nivel = 'Regular ⚠️';
-            colorNivel = '#f39c12';
-          } else {
-            nivel = 'Crítico 🔧';
-            colorNivel = '#e74c3c';
-          }
-          
           return `
             <strong>📅 ${item.semana}</strong><br/>
             <hr style="margin: 4px 0;"/>
             <span style="color:#3498db; font-weight:bold;">●</span>
             MTBF: <strong>${data.value.toFixed(1)}</strong> horas<br/>
-            <span style="color:${colorNivel}; font-weight:bold;">●</span>
-            Confiabilidad: <strong>${nivel}</strong><br/>
             <span style="color:#9b59b6; font-weight:bold;">●</span>
             Equipos: <strong>${item.cantidadEquipos}</strong><br/>
             <span style="color:#e67e22; font-weight:bold;">●</span>
@@ -208,7 +186,7 @@ export class MtbfSemanasComponent implements OnInit, OnChanges {
           data: valores.map((valor) => ({
             value: valor,
             itemStyle: {
-              color: this.getColorByMtbf(valor)
+              color: colorPorMTBF(valor)
             }
           })),
           itemStyle: {
@@ -241,14 +219,5 @@ export class MtbfSemanasComponent implements OnInit, OnChanges {
         }
       ]
     };
-  }
-
-  // Color según el valor del MTBF (más alto es mejor)
-  private getColorByMtbf(valor: number): string {
-    if (valor === 0) return '#95a5a6';      // Gris - Sin datos/Sin fallas
-    if (valor >= 330) return '#2ecc71';     // Verde - Excelente
-    if (valor >= 300) return '#3498db';     // Azul - Bueno
-    if (valor >= 270) return '#f39c12';     // Naranja - Regular
-    return '#e74c3c';                        // Rojo - Crítico
   }
 }

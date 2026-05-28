@@ -160,33 +160,11 @@ export class MttrMesComponent implements OnInit, OnChanges {
           const index = data.dataIndex;
           const item = this.datosMttrMes[index];
           
-          // Determinar nivel según MTTR (menor es mejor)
-          let nivel = '';
-          let colorNivel = '';
-          if (item.mttr === 0) {
-            nivel = 'Sin Fallas ✅';
-            colorNivel = '#2ecc71';
-          } else if (item.mttr <= 12) {
-            nivel = 'Excelente ✅';
-            colorNivel = '#2ecc71';
-          } else if (item.mttr <= 24) {
-            nivel = 'Bueno 👍';
-            colorNivel = '#3498db';
-          } else if (item.mttr <= 48) {
-            nivel = 'Regular ⚠️';
-            colorNivel = '#f39c12';
-          } else {
-            nivel = 'Crítico 🔧';
-            colorNivel = '#e74c3c';
-          }
-          
           return `
             <strong>📅 ${item.mes} ${item.año}</strong><br/>
             <hr style="margin: 4px 0;"/>
             <span style="color:#3498db; font-weight:bold;">●</span>
             MTTR: <strong>${data.value.toFixed(2)}</strong> horas<br/>
-            <span style="color:${colorNivel}; font-weight:bold;">●</span>
-            Nivel: <strong>${nivel}</strong><br/>
             <span style="color:#9b59b6; font-weight:bold;">●</span>
             Equipos: <strong>${item.cantidadEquipos || 0}</strong><br/>
             <span style="color:#e67e22; font-weight:bold;">●</span>
@@ -213,7 +191,7 @@ export class MttrMesComponent implements OnInit, OnChanges {
         axisLabel: {
           show: true,
           interval: 0,
-          rotate: 35,
+          rotate: 0,
           margin: 15,
           fontSize: 11,
           fontWeight: 'bold',
