@@ -9,6 +9,7 @@ import {
   ToolboxComponent
 } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
+import { CHART_BACKGROUND_BAR, CHART_BAR_SHADOW, CHART_COLORS, CHART_SPLIT_LINE, colorPorMTTR } from '../../../../../../../../shared/chart-theme';
 
 echarts.use([
   BarChart,
@@ -69,237 +70,175 @@ export class MttrMesComponent implements OnInit, OnChanges {
   }
 
   actualizarGrafico(): void {
-    // Etiquetas para eje X (meses)
-    const meses = this.datosMttrMes.map(item => item.mes);
-    
-    // Valores (MTTR)
-    const valores = this.datosMttrMes.map(item => item.mttr);
+  if (!this.data || this.data.length === 0) {
+    this.chartOptions = {};
+    return;
+  }
 
-    // Calcular máximo para escala dinámica
-    const maxValor = Math.max(...valores);
-    const escalaMax = Math.ceil(maxValor / 10) * 10;
+  const datosOrdenados = [...this.data].sort((a, b) =>
+    String(a.key).localeCompare(String(b.key))
+  );
 
-    // =========================
-    // GRAPHICS: Año centrado abajo
-    // =========================
-    const graphics: any[] = [];
+  const meses = datosOrdenados.map((item) => item.periodo);
 
-    // Agrupar por año
-    const anosPosiciones = new Map();
+  const valores = datosOrdenados.map((item) =>
+    Number(item.mttr || 0)
+  );
 
-    let anoActual = '';
-    let inicio = 0;
+  const maxValor = Math.max(...valores, 1);
+  const escalaMax = Math.ceil(maxValor / 10) * 10;
 
-    for (let i = 0; i < this.datosMttrMes.length; i++) {
-      const item = this.datosMttrMes[i];
-      const anoStr = item.año?.toString() || '';
+  const porcentajeVisible =
+    meses.length > 8 ? (8 / meses.length) * 100 : 100;
 
-      if (anoStr !== anoActual) {
-        if (anoActual !== '') {
-          anosPosiciones.set(anoActual, {
-            start: inicio,
-            end: i - 1
-          });
-        }
-        anoActual = anoStr;
-        inicio = i;
-      }
-    }
-
-    // Guardar último año
-    if (anoActual !== '') {
-      anosPosiciones.set(anoActual, {
-        start: inicio,
-        end: this.datosMttrMes.length - 1
-      });
-    }
-
-    const totalItems = this.datosMttrMes.length;
-
-    // Dibujar años centrados ABAJO
-    anosPosiciones.forEach((pos: any, ano: string) => {
-      const centro = (pos.start + pos.end + 1) / 2;
-      const leftPercent = (centro / totalItems) * 100;
-
-      graphics.push({
-        type: 'text',
-        left: `${leftPercent}%`,
-        bottom: 8,
-        style: {
-          text: ano,
-          fill: '#2c3e50',
-          fontSize: 14,
-          fontWeight: 'bold',
-          fontFamily: 'Arial'
-        },
-        z: 100,
-        styleHtml: true
-      });
-    });
-
-    this.chartOptions = {
-      title: {
-        text: 'MTTR (horas) - MES',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: '#333',
-          fontFamily: 'Arial'
-        }
+  this.chartOptions = {
+    title: {
+      text: 'MTTR POR MES',
+      left: 'center',
+      top: 10,
+      textStyle: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        color: CHART_COLORS.grey,
+        fontFamily: 'Arial',
       },
+    },
 
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          type: 'shadow'
-        },
-        formatter: (params: any) => {
-          const data = params[0];
-          const index = data.dataIndex;
-          const item = this.datosMttrMes[index];
-          
-          // Determinar nivel según MTTR (menor es mejor)
-          let nivel = '';
-          let colorNivel = '';
-          if (item.mttr === 0) {
-            nivel = 'Sin Fallas ✅';
-            colorNivel = '#2ecc71';
-          } else if (item.mttr <= 12) {
-            nivel = 'Excelente ✅';
-            colorNivel = '#2ecc71';
-          } else if (item.mttr <= 24) {
-            nivel = 'Bueno 👍';
-            colorNivel = '#3498db';
-          } else if (item.mttr <= 48) {
-            nivel = 'Regular ⚠️';
-            colorNivel = '#f39c12';
-          } else {
-            nivel = 'Crítico 🔧';
-            colorNivel = '#e74c3c';
-          }
-          
-          return `
-            <strong>📅 ${item.mes} ${item.año}</strong><br/>
-            <hr style="margin: 4px 0;"/>
-            <span style="color:#3498db; font-weight:bold;">●</span>
-            MTTR: <strong>${data.value.toFixed(2)}</strong> horas<br/>
-            <span style="color:${colorNivel}; font-weight:bold;">●</span>
-            Nivel: <strong>${nivel}</strong><br/>
-            <span style="color:#9b59b6; font-weight:bold;">●</span>
-            Equipos: <strong>${item.cantidadEquipos || 0}</strong><br/>
-            <span style="color:#e67e22; font-weight:bold;">●</span>
-            Fallas: <strong>${item.cantidadFallas || 0}</strong><br/>
-            <span style="color:#1abc9c; font-weight:bold;">●</span>
-            Operaciones: <strong>${item.cantidadOperaciones || 0}</strong><br/>
-            <span style="color:#e74c3c; font-weight:bold;">●</span>
-            Horas Mtto: <strong>${item.horasMtto || 0}</strong> hrs
-          `;
-        }
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'shadow',
       },
+      formatter: (params: any) => {
+        const data = params[0];
+        const item = datosOrdenados[data.dataIndex];
 
-      grid: {
-        left: '8%',
-        right: '5%',
-        top: '18%',
-        bottom: '15%',
-        containLabel: true
+        const mttr = Number(item.mttr || 0);
+        const mtbf = Number(item.mtbf || 0);
+        const horasTotales = Number(item.horasTotales || 0);
+        const horasMttoCorrectivo = Number(item.horasMttoCorrectivo || 0);
+        const horasSinMttoCorrectivo = Number(item.horasSinMttoCorrectivo || 0);
+
+        return `
+          <strong>${item.periodo} ${item.anio || ''}</strong><br/>
+          <hr style="margin: 5px 0"/>
+          MTTR: <b>${mttr.toFixed(2)} h</b><br/>
+          MTBF: ${mtbf.toFixed(2)} h<br/>
+          Horas totales: ${horasTotales.toFixed(2)} h<br/>
+          Hrs. Mtto. Correctivo: ${horasMttoCorrectivo.toFixed(2)} h<br/>
+          Hrs. sin Mtto. Correctivo: ${horasSinMttoCorrectivo.toFixed(2)} h<br/>
+          Fallas: ${item.fallas || 0}<br/>
+          Registros: ${item.cantidadRegistros || 0}<br/>
+          Registros Mtto. Correctivo: ${item.cantidadRegistrosMttoCorrectivo || 0}
+        `;
       },
+    },
 
-      xAxis: {
-        type: 'category',
-        data: meses,
-        axisLabel: {
-          show: true,
-          interval: 0,
-          rotate: 35,
-          margin: 15,
-          fontSize: 11,
-          fontWeight: 'bold',
-          color: '#2c3e50',
-          fontFamily: 'Arial'
-        },
-        axisLine: {
-          lineStyle: {
-            color: '#666'
-          }
-        },
-        axisTick: {
-          show: false
-        }
+    grid: {
+      left: '8%',
+      right: '8%',
+      top: '18%',
+      bottom: '22%',
+      containLabel: true,
+    },
+
+    xAxis: {
+      type: 'category',
+      data: meses,
+      axisLabel: {
+        interval: 0,
+        rotate: meses.length > 8 ? 35 : 0,
+        fontSize: 10,
+        fontWeight: 'bold',
+        color: CHART_COLORS.grey,
+        fontFamily: 'Arial',
       },
-
-      yAxis: {
-        type: 'value',
-        name: 'MTTR (horas)',
-        nameLocation: 'middle',
-        nameGap: 45,
-        min: 0,
-        max: escalaMax,
-        axisLabel: {
-          fontSize: 10,
-          formatter: '{value}'
+      axisLine: {
+        lineStyle: {
+          color: CHART_COLORS.axis,
         },
-        splitLine: {
-          lineStyle: {
-            type: 'dashed',
-            color: '#ccc'
-          }
-        }
       },
+      axisTick: {
+        alignWithLabel: true,
+      },
+    },
 
-      series: [
-        {
-          name: 'MTTR',
-          type: 'bar',
-          barWidth: '60%',
-          data: valores.map((valor, index) => ({
-            value: valor,
-            itemStyle: {
-              color: this.getColorByMttr(valor)
-            }
-          })),
+    yAxis: {
+      type: 'value',
+      name: 'MTTR (horas)',
+      nameLocation: 'middle',
+      nameGap: 45,
+      min: 0,
+      max: escalaMax,
+      axisLabel: {
+        formatter: '{value} h',
+        fontSize: 10,
+        color: CHART_COLORS.grey,
+      },
+      splitLine: CHART_SPLIT_LINE,
+    },
+
+    dataZoom: [
+      {
+        type: 'slider',
+        show: meses.length > 8,
+        xAxisIndex: 0,
+        start: 0,
+        end: porcentajeVisible,
+        height: 18,
+        bottom: 25,
+      },
+      {
+        type: 'inside',
+        xAxisIndex: 0,
+        start: 0,
+        end: porcentajeVisible,
+      },
+    ],
+
+    series: [
+      {
+        name: 'MTTR',
+        type: 'bar',
+        barWidth: '55%',
+
+        data: valores.map((valor) => ({
+          value: valor,
           itemStyle: {
-            borderRadius: [6, 6, 0, 0],
-            shadowColor: 'rgba(0, 0, 0, 0.2)',
-            shadowBlur: 6,
-            shadowOffsetY: 2
+            color: colorPorMTTR(valor),
           },
-          label: {
-            show: true,
-            position: 'top',
-            fontWeight: 'bold',
-            fontSize: 11,
-            formatter: (params: any) => params.value.toFixed(1),
-            color: '#333'
-          },
-          emphasis: {
-            focus: 'series',
-            itemStyle: {
-              shadowBlur: 10,
-              shadowOffsetX: 0,
-              shadowColor: 'rgba(0, 0, 0, 0.3)'
-            }
-          },
-          showBackground: true,
-          backgroundStyle: {
-            color: 'rgba(180, 180, 180, 0.1)',
-            borderRadius: 6
-          }
-        }
-      ],
+        })),
 
-      graphic: graphics
-    };
+        itemStyle: {
+          borderRadius: [6, 6, 0, 0],
+          ...CHART_BAR_SHADOW,
+        },
+
+        label: {
+          show: true,
+          position: 'top',
+          formatter: (params: any) => {
+            return `${Number(params.value).toFixed(2)} h`;
+          },
+          fontWeight: 'bold',
+          fontSize: 10,
+          color: CHART_COLORS.grey,
+        },
+
+        emphasis: {
+          focus: 'series',
+          itemStyle: {
+            shadowBlur: 10,
+            shadowColor: 'rgba(0,0,0,0.3)',
+          },
+        },
+
+        showBackground: true,
+        backgroundStyle: CHART_BACKGROUND_BAR,
+      },
+    ],
+  };
   }
 
-  // Color según el valor del MTTR (menor es mejor)
-  private getColorByMttr(valor: number): string {
-    if (valor === 0) return '#2ecc71';      // Verde - Sin fallas
-    if (valor <= 12) return '#2ecc71';      // Verde - Excelente
-    if (valor <= 24) return '#3498db';      // Azul - Bueno
-    if (valor <= 48) return '#f39c12';      // Naranja - Regular
-    return '#e74c3c';                        // Rojo - Crítico
-  }
+  
 }

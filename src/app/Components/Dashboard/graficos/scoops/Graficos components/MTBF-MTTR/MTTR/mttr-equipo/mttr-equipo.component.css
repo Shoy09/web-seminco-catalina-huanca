@@ -13,7 +13,7 @@
   color: #2c3e50;
   margin: 0 0 15px 0;
   padding-bottom: 10px;
-  border-bottom: 2px solid #3498db;
+  border-bottom: 2px solid var(--ch-catalina-green);
 }
 
 .table-responsive {
@@ -27,7 +27,7 @@
 }
 
 .data-table thead tr {
-  background: #3498db;
+  background: var(--ch-catalina-green);
   color: white;
 }
 
@@ -62,7 +62,7 @@
 /* Estilo especial para la fila de total */
 .total-row {
   background: #f8f9fa;
-  border-top: 2px solid #3498db;
+  border-top: 2px solid var(--ch-catalina-green);
 }
 
 .total-row td {
@@ -123,12 +123,12 @@
 
 .pagination-btn {
   padding: 6px 12px;
-  background: #f8f9fa;
+  background: var(--ch-catalina-green);
   border: 1px solid #dee2e6;
   border-radius: 4px;
   cursor: pointer;
   font-size: 13px;
-  color: #495057;
+  color: white;
   transition: all 0.2s;
   white-space: nowrap;
 }
@@ -150,7 +150,7 @@
 
 .page-btn {
   padding: 6px 10px;
-  background: white;
+  background: var(--ch-catalina-green);
   border: 1px solid #dee2e6;
   border-radius: 4px;
   cursor: pointer;
@@ -167,9 +167,8 @@
 }
 
 .page-btn.active {
-  background: #3498db;
+  background: var(--ch-catalina-green);
   color: white;
-  border-color: #3498db;
 }
 
 .rows-per-page {
