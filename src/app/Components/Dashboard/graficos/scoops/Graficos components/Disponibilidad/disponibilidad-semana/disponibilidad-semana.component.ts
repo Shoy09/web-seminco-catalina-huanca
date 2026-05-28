@@ -15,6 +15,7 @@ import {
 } from 'echarts/components';
 
 import { CanvasRenderer } from 'echarts/renderers';
+import { CHART_COLORS, colorPorDisponibilidad } from '../../../../../../../shared/chart-theme';
 
 echarts.use([
   BarChart,
@@ -73,8 +74,7 @@ export class DisponibilidadSemanaComponent implements OnChanges {
         textStyle: {
           fontSize: 16,
           fontWeight: 'bold',
-          color: '#333',
-          fontFamily: 'Arial',
+          color: CHART_COLORS.grey,
         },
       },
 
@@ -180,8 +180,7 @@ export class DisponibilidadSemanaComponent implements OnChanges {
           data: valores.map((valor) => ({
             value: valor,
             itemStyle: {
-              color:
-                valor >= 90 ? '#27ae60' : valor >= 75 ? '#f1c40f' : '#e74c3c',
+              color: colorPorDisponibilidad(valor)
             },
           })),
 

@@ -28,20 +28,25 @@ echarts.use([
 ]);
 
 @Component({
-  selector: 'app-rendimiento-equipo',
+  selector: 'app-ranking-operador-rendimiento',
   standalone: true,
   imports: [NgxEchartsDirective],
   providers: [provideEchartsCore({ echarts })],
-  templateUrl: './rendimiento-equipo.component.html',
-  styleUrl: './rendimiento-equipo.component.css',
+  templateUrl: './ranking-operador-rendimiento.component.html',
+  styleUrl: './ranking-operador-rendimiento.component.css',
 })
-export class RendimientoEquipoComponent implements OnChanges {
+export class RankingOperadorRendimientoComponent implements OnChanges {
   @Input() data: any[] = [];
+
+  // m/h para Jumbo, ton/h para Scoop
+  @Input() unidad: string = 'm/h';
+
+  @Input() titulo: string = 'RANKING RENDIMIENTO POR OPERADOR';
 
   chartOptions: any = {};
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data']) {
+    if (changes['data'] || changes['unidad'] || changes['titulo']) {
       this.actualizarGrafico();
     }
   }
@@ -56,23 +61,28 @@ export class RendimientoEquipoComponent implements OnChanges {
       (a, b) => Number(b.rendimiento || 0) - Number(a.rendimiento || 0),
     );
 
-    const equipos = datosOrdenados.map((item) => item.n_equipo || 'SIN EQUIPO');
+    const operadores = datosOrdenados.map((item) => {
+      const operador = item.operador || 'SIN OPERADOR';
+      const equipo = item.equiposLabel || item.modelo_equipo || 'SIN MODELO';
+
+      return `${operador}\n${equipo}`;
+    });
 
     const valores = datosOrdenados.map((item) => Number(item.rendimiento || 0));
 
     const maxValor = Math.max(...valores, 1);
-    const escalaMax = Math.ceil(maxValor / 20) * 20;
+    const escalaMax = Math.ceil(maxValor / 10) * 10;
 
     const porcentajeVisible =
-      equipos.length > 8 ? (8 / equipos.length) * 100 : 100;
+      operadores.length > 8 ? (8 / operadores.length) * 100 : 100;
 
     this.chartOptions = {
       title: {
-        text: 'RENDIMIENTO POR EQUIPO',
+        text: this.titulo,
         left: 'center',
         top: 10,
         textStyle: {
-          fontSize: 16,
+          fontSize: 14,
           fontWeight: 'bold',
           color: CHART_COLORS.grey,
         },
@@ -88,43 +98,96 @@ export class RendimientoEquipoComponent implements OnChanges {
           const item = datosOrdenados[data.dataIndex];
 
           const rendimiento = Number(item.rendimiento || 0);
-          const metrosPerforados = Number(item.metrosPerforados || 0);
           const horasOperativas = Number(item.horasOperativas || 0);
 
+          const equipo =
+            item.equiposLabel || item.modelo_equipo || 'SIN MODELO';
+
+          let detalleProduccion = '';
+
+          // Para Jumbo
+          if (item.metrosPerforados !== undefined) {
+            detalleProduccion = `
+            Metros perforados: ${Number(item.metrosPerforados || 0).toFixed(2)} m<br/>
+            Tal. producción: ${item.talProd || 0}<br/>
+            Tal. rimados: ${item.talRimados || 0}<br/>
+            Tal. alivio: ${item.talAlivio || 0}<br/>
+            Tal. repaso: ${item.talRepaso || 0}<br/>
+            Total taladros: ${item.totalTaladros || 0}<br/>
+          `;
+          }
+
+          // Para Scoop
+          if (item.tnTotalAjustado !== undefined) {
+            detalleProduccion = `
+            Tn total ajustado: ${Number(item.tnTotalAjustado || 0).toFixed(2)} Tn<br/>
+          `;
+          }
+
           return `
-          <strong>${item.n_equipo || 'SIN EQUIPO'}</strong><br/>
-          Equipo: ${item.equipo || '-'}<br/>
+          <strong>${item.operador || 'SIN OPERADOR'}</strong><br/>
+          Equipo / modelo: <b>${equipo}</b><br/>
           <hr style="margin: 5px 0"/>
-          Rendimiento: <b>${rendimiento.toFixed(2)} m/h</b><br/>
-          Metros perforados: ${metrosPerforados.toFixed(2)} m<br/>
+          Rendimiento: <b>${rendimiento.toFixed(2)} ${this.unidad}</b><br/>
+          ${detalleProduccion}
           Horas operativas: ${horasOperativas.toFixed(2)} h<br/>
           Operaciones: ${item.cantidadOperaciones || 0}<br/>
-          Registros operativos: ${item.cantidadRegistrosOperativos || 0}<br/>
-          Tal. producción: ${item.talProd || 0}<br/>
-          Tal. rimados: ${item.talRimados || 0}<br/>
-          Tal. alivio: ${item.talAlivio || 0}<br/>
-          Tal. repaso: ${item.talRepaso || 0}
+          Registros operativos: ${item.cantidadRegistrosOperativos || 0}
         `;
         },
       },
 
       grid: {
-        left: '8%',
-        right: '5%',
-        top: '20%',
-        bottom: '25%',
+        left: '30%',
+        right: '12%',
+        top: '18%',
+        bottom: '22%',
         containLabel: true,
       },
 
       xAxis: {
+        type: 'value',
+        name: `Rendimiento (${this.unidad})`,
+        nameLocation: 'middle',
+        nameGap: 45,
+        min: 0,
+        max: escalaMax,
+        axisLabel: {
+          show: true,
+          formatter: `{value} ${this.unidad}`,
+          fontSize: 10,
+          color: '#333',
+          margin: 10,
+        },
+        axisLine: {
+          show: true,
+          lineStyle: {
+            color: '#666',
+          },
+        },
+        axisTick: {
+          show: true,
+        },
+        splitLine: {
+          lineStyle: {
+            type: 'dashed',
+            color: '#ccc',
+          },
+        },
+      },
+
+      yAxis: {
         type: 'category',
-        data: equipos,
+        data: operadores,
+        inverse: true,
         axisLabel: {
           interval: 0,
-          rotate: equipos.length > 6 ? 35 : 0,
           fontSize: 10,
           fontWeight: 'bold',
           color: '#333',
+          lineHeight: 16,
+          width: 190,
+          overflow: 'truncate',
         },
         axisLine: {
           lineStyle: {
@@ -136,38 +199,21 @@ export class RendimientoEquipoComponent implements OnChanges {
         },
       },
 
-      yAxis: {
-        type: 'value',
-        name: 'Rendimiento (m/h)',
-        nameLocation: 'middle',
-        nameGap: 55,
-        min: 0,
-        max: escalaMax,
-        axisLabel: {
-          formatter: '{value} m/h',
-          fontSize: 10,
-        },
-        splitLine: {
-          lineStyle: {
-            type: 'dashed',
-            color: '#ccc',
-          },
-        },
-      },
-
       dataZoom: [
         {
           type: 'slider',
-          show: equipos.length > 8,
-          xAxisIndex: 0,
+          show: operadores.length > 8,
+          yAxisIndex: 0,
           start: 0,
           end: porcentajeVisible,
-          height: 18,
-          bottom: 25,
+          width: 16,
+          right: 5,
+          top: 80,
+          bottom: 40,
         },
         {
           type: 'inside',
-          xAxisIndex: 0,
+          yAxisIndex: 0,
           start: 0,
           end: porcentajeVisible,
         },
@@ -187,7 +233,7 @@ export class RendimientoEquipoComponent implements OnChanges {
           })),
 
           itemStyle: {
-            borderRadius: [6, 6, 0, 0],
+            borderRadius: [0, 6, 6, 0],
             shadowColor: 'rgba(0,0,0,0.2)',
             shadowBlur: 6,
             shadowOffsetY: 2,
@@ -195,9 +241,9 @@ export class RendimientoEquipoComponent implements OnChanges {
 
           label: {
             show: true,
-            position: 'top',
+            position: 'right',
             formatter: (params: any) => {
-              return `${Number(params.value).toFixed(2)} m/h`;
+              return `${Number(params.value).toFixed(2)} ${this.unidad}`;
             },
             fontWeight: 'bold',
             fontSize: 11,

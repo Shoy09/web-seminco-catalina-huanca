@@ -168,3 +168,17 @@ export function obtenerPeriodoDesdeKey(
 
   return obtenerPeriodo(fechaKey, tipo);
 }
+
+export function parseFechaSimple(fecha: string): Date | null {
+  if (!fecha) return null;
+
+  const partes = fecha.split('-').map(Number);
+
+  if (partes.length !== 3) return null;
+
+  const [year, month, day] = partes;
+
+  if (!year || !month || !day) return null;
+
+  return new Date(year, month - 1, day);
+}

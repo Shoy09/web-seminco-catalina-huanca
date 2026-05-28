@@ -4,9 +4,7 @@ import { PlanMensualService } from '../../../../../services/plan-mensual.service
 import { FechasPlanMensualService } from '../../../../../services/fechas-plan-mensual.service';
 import { OperacionesService } from '../../../../../services/operaciones.service';
 
-import {
-  OperacionBaseJumbo,
-} from '../../../../../models/OperacionBase.models';
+import { OperacionBaseJumbo } from '../../../../../models/OperacionBase.models';
 import { PlanMensual } from '../../../../../models/plan-mensual.model';
 import { FormsModule } from '@angular/forms';
 import jsPDF from 'jspdf';
@@ -18,6 +16,7 @@ import {
   generarDiasEntreFechas,
   obtenerPeriodo,
   obtenerPeriodoDesdeKey,
+  parseFechaSimple,
 } from '../../../../../utils/fecha-utils';
 import { DisponibilidadDiaComponent } from '../../scoops/Graficos components/Disponibilidad/disponibilidad-dia/disponibilidad-dia.component';
 import { DisponibilidadSemanaComponent } from '../../scoops/Graficos components/Disponibilidad/disponibilidad-semana/disponibilidad-semana.component';
@@ -34,6 +33,20 @@ import { RendimientoSemanaComponent } from '../Graficos components/Rendimiento/r
 import { RendimientoMesComponent } from '../Graficos components/Rendimiento/rendimiento-mes/rendimiento-mes.component';
 import { ParetoUtilizacionComponent } from '../Graficos components/Pareto/pareto-utilizacion/pareto-utilizacion.component';
 import { ParetoDisponibilidadComponent } from '../Graficos components/Pareto/pareto-disponibilidad/pareto-disponibilidad.component';
+import { DisponibilidadGuardiaComponent } from '../../scoops/Graficos components/Disponibilidad/disponibilidad-guardia/disponibilidad-guardia.component';
+import { UtilizacionGuardiaComponent } from '../../scoops/Graficos components/Utilizacion/utilizacion-guardia/utilizacion-guardia.component';
+import { RendimientoGuardiaComponent } from '../../scoops/Graficos components/Rendimiento/rendimiento-guardia/rendimiento-guardia.component';
+import { RankingOperadorRendimientoComponent } from '../Graficos components/Rendimiento/ranking-operador-rendimiento/ranking-operador-rendimiento.component';
+import { RankingOperadorUtilizacionComponent } from '../Graficos components/Utilizacion/ranking-operador-utilizacion/ranking-operador-utilizacion.component';
+import { MtbfEquipoComponent } from '../../scoops/Graficos components/MTBF-MTTR/MTBF/mtbf-equipo/mtbf-equipo.component';
+import { MttrEquipoComponent } from '../../scoops/Graficos components/MTBF-MTTR/MTTR/mttr-equipo/mttr-equipo.component';
+import { MtbfSemanasComponent } from "../../scoops/Graficos components/MTBF-MTTR/MTBF/mtbf-semanas/mtbf-semanas.component";
+import { MtbfMesComponent } from "../../scoops/Graficos components/MTBF-MTTR/MTBF/mtbf-mes/mtbf-mes.component";
+import { MtbfAnoComponent } from "../../scoops/Graficos components/MTBF-MTTR/MTBF/mtbf-ano/mtbf-ano.component";
+import { MttrSemanasComponent } from "../../scoops/Graficos components/MTBF-MTTR/MTTR/mttr-semanas/mttr-semanas.component";
+import { MttrMesComponent } from '../../scoops/Graficos components/MTBF-MTTR/MTTR/mttr-mes/mttr-mes.component';
+import { MttrAnoComponent } from '../../scoops/Graficos components/MTBF-MTTR/MTTR/mttr-ano/mttr-ano.component';
+
 import { PresentacionHorizontalDialogComponent } from '../presentacion-dialog/presentacion-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 @Component({
@@ -56,7 +69,20 @@ import { MatDialog } from '@angular/material/dialog';
     RendimientoMesComponent,
     ParetoUtilizacionComponent,
     ParetoDisponibilidadComponent,
-  ],
+    DisponibilidadGuardiaComponent,
+    UtilizacionGuardiaComponent,
+    RendimientoGuardiaComponent,
+    RankingOperadorRendimientoComponent,
+    RankingOperadorUtilizacionComponent,
+    MtbfEquipoComponent,
+    MttrEquipoComponent,
+    MtbfSemanasComponent,
+    MtbfMesComponent,
+    MtbfAnoComponent,
+    MttrSemanasComponent,
+    MttrMesComponent,
+    MttrAnoComponent
+],
   templateUrl: './principal-grafico-horizontal.component.html',
   styleUrl: './principal-grafico-horizontal.component.css',
 })
@@ -129,6 +155,24 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
   DataRendimientoPorMes: any[] = [];
   DataParetoUtilizacionJumbos: any[] = [];
   DataParetoDisponibilidadJumbos: any[] = [];
+  DataDisponibilidadPorGuardia: any[] = [];
+  DataUtilizacionPorGuardia: any[] = [];
+  DataRendimientoPorGuardia: any[] = [];
+
+  DataRankingOperadorUtilizacion: any[] = [];
+  DataRankingOperadorRendimiento: any[] = [];
+
+  DataMTTRPorEquipo: any[] = [];
+  DataMTBFPorEquipo: any[] = [];
+
+  DataMTTRPorDia: any[] = [];
+  DataMTTRPorSemana: any[] = [];
+  DataMTTRPorMes: any[] = [];
+  DataMTTRPorAnio: any[] = [];
+  DataMTBFPorDia: any[] = [];
+  DataMTBFPorSemana: any[] = [];
+  DataMTBFPorMes: any[] = [];
+  DataMTBFPorAnio: any[] = [];
 
   constructor(
     private planMensualService: PlanMensualService,
@@ -298,6 +342,22 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
     this.DataRendimientoPorMes = this.RendimientoPorMes();
     this.DataParetoUtilizacionJumbos = this.ParetoUtilizacionJumbos();
     this.DataParetoDisponibilidadJumbos = this.ParetoDisponibilidadJumbos();
+    this.DataDisponibilidadPorGuardia = this.DisponibilidadPorGuardia();
+    this.DataUtilizacionPorGuardia = this.UtilizacionPorGuardia();
+    this.DataRendimientoPorGuardia = this.RendimientoPorGuardia();
+    this.DataRankingOperadorUtilizacion = this.OperadorUtilizacion();
+    this.DataRankingOperadorRendimiento = this.OperadorRendimiento();
+    this.DataMTTRPorEquipo = this.MTTRPorEquipo();
+    this.DataMTBFPorEquipo = this.MTBFPorEquipo();
+
+    this.DataMTTRPorDia = this.MTTRPorDia();
+    this.DataMTTRPorSemana = this.MTTRPorSemana();
+    this.DataMTTRPorMes = this.MTTRPorMes();
+    this.DataMTTRPorAnio = this.MTTRPorAño();
+    this.DataMTBFPorDia = this.MTBFPorDia();
+    this.DataMTBFPorSemana = this.MTBFPorSemana();
+    this.DataMTBFPorMes = this.MTBFPorMes();
+    this.DataMTBFPorAnio = this.MTBFPorAño();
 
     //console.log('🔥 DATA DISPAROS EQUIPO:', this.dataDisparosEquipo);
   }
@@ -1022,7 +1082,7 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
           talProd: 0,
           talRimados: 0,
           talAlivio: 0,
-          talRepaso: 0,
+          //talRepaso: 0,
 
           totalTaladros: 0,
           totalBarras: 0,
@@ -1052,14 +1112,14 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
         const talProd = this.convertirNumero(operacion.tal_prod);
         const talRimados = this.convertirNumero(operacion.tal_rimados);
         const talAlivio = this.convertirNumero(operacion.tal_alivio);
-        const talRepaso = this.convertirNumero(operacion.tal_repaso);
+        //const talRepaso = this.convertirNumero(operacion.tal_repaso);
 
         const longBarrasPies = this.convertirNumero(operacion.long_barras);
 
         // Si viene vacío, asumimos 1 barra
         const numBarras = this.convertirNumero(operacion.num_barras, 1);
 
-        const totalTaladros = talProd + talRimados + talAlivio + talRepaso;
+        const totalTaladros = talProd + talRimados + talAlivio; //+ talRepaso;
 
         const longBarrasMetros = longBarrasPies * 0.3048;
 
@@ -1071,7 +1131,7 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
         item.talProd += talProd;
         item.talRimados += talRimados;
         item.talAlivio += talAlivio;
-        item.talRepaso += talRepaso;
+        //item.talRepaso += talRepaso;
 
         item.totalTaladros += totalTaladros;
         item.totalBarras += numBarras;
@@ -1561,8 +1621,7 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
         if (!horas || horas <= 0) continue;
 
         const observacion = String(
-          registro.operacion?.observaciones ||
-            'SIN OBSERVACIÓN',
+          registro.operacion?.observaciones || 'SIN OBSERVACIÓN',
         )
           .trim()
           .toUpperCase();
@@ -1636,5 +1695,853 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
 
     return resultado;
   }
-  DisponibilidadPorGuardia() {}
+  DisponibilidadPorGuardia() {
+    const resultadoMap = new Map<string, any>();
+
+    this.operacionesFiltradas.forEach((op) => {
+      const guardia = op.seccion || 'SIN GUARDIA';
+
+      const key = guardia;
+
+      const registrosArray = op.registros;
+
+      if (!Array.isArray(registrosArray)) return;
+
+      if (!resultadoMap.has(key)) {
+        resultadoMap.set(key, {
+          guardia,
+          horasTotales: 0,
+          horasMtto: 0,
+          horasDisponibles: 0,
+          disponibilidad: 0,
+
+          cantidadOperaciones: 0,
+          cantidadRegistros: 0,
+          cantidadRegistrosMtto: 0,
+        });
+      }
+
+      const item = resultadoMap.get(key);
+
+      item.cantidadOperaciones += 1;
+
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+
+        if (!registro.hora_inicio || !registro.hora_final) continue;
+
+        const horas = this.calcularDuracionHoras(
+          registro.hora_inicio,
+          registro.hora_final,
+        );
+
+        if (!horas || horas <= 0) continue;
+
+        const estado = String(registro.estado || '')
+          .trim()
+          .toUpperCase();
+
+        // SUMA(HORAS)
+        item.horasTotales += horas;
+        item.cantidadRegistros += 1;
+
+        // SUMA(HRS MANTENIMIENTO)
+        if (estado === 'MANTENIMIENTO' || this.esCodigoMantenimiento(codigo)) {
+          item.horasMtto += horas;
+          item.cantidadRegistrosMtto += 1;
+        }
+      }
+    });
+
+    const resultado = Array.from(resultadoMap.values()).map((item) => {
+      item.horasDisponibles = item.horasTotales - item.horasMtto;
+
+      if (item.horasTotales > 0) {
+        item.disponibilidad = Number(
+          ((item.horasDisponibles / item.horasTotales) * 100).toFixed(2),
+        );
+      } else {
+        item.disponibilidad = 0;
+      }
+
+      item.horasTotales = Number(item.horasTotales.toFixed(2));
+      item.horasMtto = Number(item.horasMtto.toFixed(2));
+      item.horasDisponibles = Number(item.horasDisponibles.toFixed(2));
+
+      return item;
+    });
+
+    resultado.sort((a, b) => b.disponibilidad - a.disponibilidad);
+
+    return resultado;
+  }
+
+  UtilizacionPorGuardia() {
+    const resultadoMap = new Map<string, any>();
+
+    this.operacionesFiltradas.forEach((op) => {
+      const guardia = op.seccion || 'SIN GUARDIA';
+
+      const key = guardia;
+
+      const registrosArray = op.registros;
+
+      if (!Array.isArray(registrosArray)) return;
+
+      if (!resultadoMap.has(key)) {
+        resultadoMap.set(key, {
+          guardia,
+
+          horasTotales: 0,
+          horasMtto: 0,
+          horasDisponibles: 0,
+          horasOperativas: 0,
+          utilizacion: 0,
+
+          cantidadOperaciones: 0,
+          cantidadRegistros: 0,
+          cantidadRegistrosOperativos: 0,
+          cantidadRegistrosMtto: 0,
+        });
+      }
+
+      const item = resultadoMap.get(key);
+
+      item.cantidadOperaciones += 1;
+
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+
+        if (!registro.hora_inicio || !registro.hora_final) continue;
+
+        const horas = this.calcularDuracionHoras(
+          registro.hora_inicio,
+          registro.hora_final,
+        );
+
+        if (!horas || horas <= 0) continue;
+
+        const estado = String(registro.estado || '')
+          .trim()
+          .toUpperCase();
+
+        // SUMA(HORAS)
+        item.horasTotales += horas;
+        item.cantidadRegistros += 1;
+
+        // SUMA(HRS MANTENIMIENTO)
+        if (estado === 'MANTENIMIENTO' || this.esCodigoMantenimiento(codigo)) {
+          item.horasMtto += horas;
+          item.cantidadRegistrosMtto += 1;
+        }
+
+        // SUMA(HRS OPERATIVAS)
+        if (estado === 'OPERATIVO' || this.esCodigoOperativo(codigo)) {
+          item.horasOperativas += horas;
+          item.cantidadRegistrosOperativos += 1;
+        }
+      }
+    });
+
+    const resultado = Array.from(resultadoMap.values()).map((item) => {
+      item.horasDisponibles = item.horasTotales - item.horasMtto;
+
+      if (item.horasDisponibles > 0) {
+        item.utilizacion = Number(
+          ((item.horasOperativas / item.horasDisponibles) * 100).toFixed(2),
+        );
+      } else {
+        item.utilizacion = 0;
+      }
+
+      item.horasTotales = Number(item.horasTotales.toFixed(2));
+      item.horasMtto = Number(item.horasMtto.toFixed(2));
+      item.horasDisponibles = Number(item.horasDisponibles.toFixed(2));
+      item.horasOperativas = Number(item.horasOperativas.toFixed(2));
+
+      return item;
+    });
+
+    resultado.sort((a, b) => b.utilizacion - a.utilizacion);
+
+    return resultado;
+  }
+  RendimientoPorGuardia() {
+    const resultadoMap = new Map<string, any>();
+
+    this.operacionesFiltradas.forEach((op) => {
+      const guardia = op.seccion || 'SIN GUARDIA';
+
+      const key = guardia;
+
+      const registrosArray = op.registros;
+
+      if (!Array.isArray(registrosArray)) return;
+
+      if (!resultadoMap.has(key)) {
+        resultadoMap.set(key, {
+          guardia,
+
+          metrosPerforados: 0,
+          horasOperativas: 0,
+          rendimiento: 0,
+
+          cantidadOperaciones: 0,
+          cantidadRegistros: 0,
+          cantidadRegistrosOperativos: 0,
+
+          talProd: 0,
+          talRimados: 0,
+          talAlivio: 0,
+          talRepaso: 0,
+          totalTaladros: 0,
+          totalBarras: 0,
+        });
+      }
+
+      const item = resultadoMap.get(key);
+
+      item.cantidadOperaciones += 1;
+
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+
+        // Solo códigos operativos según API de estados
+        if (!this.esCodigoOperativo(codigo)) continue;
+
+        if (!registro.hora_inicio || !registro.hora_final) continue;
+
+        const horas = this.calcularDuracionHoras(
+          registro.hora_inicio,
+          registro.hora_final,
+        );
+
+        if (!horas || horas <= 0) continue;
+
+        const operacion = registro.operacion || {};
+
+        const talProd = this.convertirNumero(operacion.tal_prod);
+        const talRimados = this.convertirNumero(operacion.tal_rimados);
+        const talAlivio = this.convertirNumero(operacion.tal_alivio);
+        const talRepaso = this.convertirNumero(operacion.tal_repaso);
+
+        const longBarrasPies = this.convertirNumero(operacion.long_barras);
+
+        // Si viene vacío, se asume 1 barra
+        const numBarras = this.convertirNumero(operacion.num_barras, 1);
+
+        const totalTaladros = talProd + talRimados + talAlivio + talRepaso;
+
+        // Convertir pies a metros
+        const longBarrasMetros = longBarrasPies * 0.3048;
+
+        const metrosRegistro = totalTaladros * longBarrasMetros * numBarras;
+
+        item.metrosPerforados += metrosRegistro;
+        item.horasOperativas += horas;
+
+        item.talProd += talProd;
+        item.talRimados += talRimados;
+        item.talAlivio += talAlivio;
+        item.talRepaso += talRepaso;
+        item.totalTaladros += totalTaladros;
+        item.totalBarras += numBarras;
+
+        item.cantidadRegistros += 1;
+        item.cantidadRegistrosOperativos += 1;
+      }
+    });
+
+    const resultado = Array.from(resultadoMap.values()).map((item) => {
+      if (item.horasOperativas > 0) {
+        item.rendimiento = Number(
+          (item.metrosPerforados / item.horasOperativas).toFixed(2),
+        );
+      } else {
+        item.rendimiento = 0;
+      }
+
+      item.metrosPerforados = Number(item.metrosPerforados.toFixed(2));
+      item.horasOperativas = Number(item.horasOperativas.toFixed(2));
+
+      return item;
+    });
+
+    resultado.sort((a, b) => b.rendimiento - a.rendimiento);
+
+    return resultado;
+  }
+
+  OperadorUtilizacion() {
+    const resultadoMap = new Map<string, any>();
+
+    this.operacionesFiltradas.forEach((op) => {
+      const operador = op.operador || 'SIN OPERADOR';
+
+      const key = operador;
+
+      const registrosArray = op.registros;
+
+      if (!Array.isArray(registrosArray)) return;
+
+      if (!resultadoMap.has(key)) {
+        resultadoMap.set(key, {
+          operador,
+
+          horasTotales: 0,
+          horasMtto: 0,
+          horasDisponibles: 0,
+          horasOperativas: 0,
+          utilizacion: 0,
+
+          cantidadOperaciones: 0,
+          cantidadRegistros: 0,
+          cantidadRegistrosOperativos: 0,
+          cantidadRegistrosMtto: 0,
+        });
+      }
+
+      const item = resultadoMap.get(key);
+
+      item.cantidadOperaciones += 1;
+
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+
+        if (!registro.hora_inicio || !registro.hora_final) continue;
+
+        const horas = this.calcularDuracionHoras(
+          registro.hora_inicio,
+          registro.hora_final,
+        );
+
+        if (!horas || horas <= 0) continue;
+
+        const estado = String(registro.estado || '')
+          .trim()
+          .toUpperCase();
+
+        // SUMA(HORAS)
+        item.horasTotales += horas;
+        item.cantidadRegistros += 1;
+
+        // SUMA(HRS MANTENIMIENTO)
+        if (estado === 'MANTENIMIENTO' || this.esCodigoMantenimiento(codigo)) {
+          item.horasMtto += horas;
+          item.cantidadRegistrosMtto += 1;
+        }
+
+        // SUMA(HRS OPERATIVAS)
+        if (estado === 'OPERATIVO' || this.esCodigoOperativo(codigo)) {
+          item.horasOperativas += horas;
+          item.cantidadRegistrosOperativos += 1;
+        }
+      }
+    });
+
+    const resultado = Array.from(resultadoMap.values()).map((item) => {
+      item.horasDisponibles = item.horasTotales - item.horasMtto;
+
+      if (item.horasDisponibles > 0) {
+        item.utilizacion = Number(
+          ((item.horasOperativas / item.horasDisponibles) * 100).toFixed(2),
+        );
+      } else {
+        item.utilizacion = 0;
+      }
+
+      item.horasTotales = Number(item.horasTotales.toFixed(2));
+      item.horasMtto = Number(item.horasMtto.toFixed(2));
+      item.horasDisponibles = Number(item.horasDisponibles.toFixed(2));
+      item.horasOperativas = Number(item.horasOperativas.toFixed(2));
+
+      return item;
+    });
+
+    resultado.sort((a, b) => b.utilizacion - a.utilizacion);
+
+    return resultado;
+  }
+  OperadorRendimiento() {
+    const resultadoMap = new Map<string, any>();
+
+    this.operacionesFiltradas.forEach((op) => {
+      const operador = op.operador || 'SIN OPERADOR';
+
+      const key = operador;
+
+      const registrosArray = op.registros;
+
+      if (!Array.isArray(registrosArray)) return;
+
+      if (!resultadoMap.has(key)) {
+        resultadoMap.set(key, {
+          operador,
+
+          metrosPerforados: 0,
+          horasOperativas: 0,
+          rendimiento: 0,
+
+          cantidadOperaciones: 0,
+          cantidadRegistros: 0,
+          cantidadRegistrosOperativos: 0,
+
+          talProd: 0,
+          talRimados: 0,
+          talAlivio: 0,
+          talRepaso: 0,
+          totalTaladros: 0,
+          totalBarras: 0,
+
+          modelosEquipo: new Set<string>(),
+        });
+      }
+
+      const item = resultadoMap.get(key);
+
+      item.cantidadOperaciones += 1;
+      if (op.modelo_equipo) {
+        item.modelosEquipo.add(op.modelo_equipo);
+      }
+
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+
+        // Solo códigos operativos según API
+        if (!this.esCodigoOperativo(codigo)) continue;
+
+        if (!registro.hora_inicio || !registro.hora_final) continue;
+
+        const horas = this.calcularDuracionHoras(
+          registro.hora_inicio,
+          registro.hora_final,
+        );
+
+        if (!horas || horas <= 0) continue;
+
+        const operacion = registro.operacion || {};
+
+        const talProd = this.convertirNumero(operacion.tal_prod);
+        const talRimados = this.convertirNumero(operacion.tal_rimados);
+        const talAlivio = this.convertirNumero(operacion.tal_alivio);
+        //const talRepaso = this.convertirNumero(operacion.tal_repaso);
+
+        const longBarrasPies = this.convertirNumero(operacion.long_barras);
+
+        const numBarras = this.convertirNumero(operacion.num_barras, 1);
+
+        const totalTaladros = talProd + talRimados + talAlivio; // + talRepaso;
+
+        const longBarrasMetros = longBarrasPies * 0.3048;
+
+        const metrosRegistro = totalTaladros * longBarrasMetros * numBarras;
+
+        item.metrosPerforados += metrosRegistro;
+        item.horasOperativas += horas;
+
+        item.talProd += talProd;
+        item.talRimados += talRimados;
+        item.talAlivio += talAlivio;
+        //const talRepaso = this.convertirNumero(operacion.tal_repaso);
+        item.totalTaladros += totalTaladros;
+        item.totalBarras += numBarras;
+
+        item.cantidadRegistros += 1;
+        item.cantidadRegistrosOperativos += 1;
+      }
+    });
+
+    const resultado = Array.from(resultadoMap.values()).map((item) => {
+      if (item.horasOperativas > 0) {
+        item.rendimiento = Number(
+          (item.metrosPerforados / item.horasOperativas).toFixed(2),
+        );
+      } else {
+        item.rendimiento = 0;
+      }
+
+      item.metrosPerforados = Number(item.metrosPerforados.toFixed(2));
+      item.horasOperativas = Number(item.horasOperativas.toFixed(2));
+
+      item.modelosEquipo = Array.from(item.modelosEquipo);
+
+      item.equiposLabel = item.modelosEquipo.length
+        ? item.modelosEquipo.join(', ')
+        : 'SIN MODELO';
+
+      return item;
+    });
+
+    resultado.sort((a, b) => b.rendimiento - a.rendimiento);
+
+    return resultado;
+  }
+
+  MTTRPorEquipo() {
+    const resultadoMap = new Map<string, any>();
+
+    this.operacionesFiltradas.forEach((op) => {
+      const equipo = op.equipo || 'SIN EQUIPO';
+      const nEquipo = op.n_equipo || 'SIN N° EQUIPO';
+      const modeloEquipo = op.modelo_equipo || nEquipo;
+
+      const key = modeloEquipo;
+
+      const registrosArray = op.registros;
+
+      if (!Array.isArray(registrosArray)) return;
+
+      if (!resultadoMap.has(key)) {
+        resultadoMap.set(key, {
+          equipo,
+          n_equipo: nEquipo,
+          modelo_equipo: modeloEquipo,
+
+          horasMttoCorrectivo: 0,
+          fallas: 0,
+          mttr: 0,
+
+          cantidadOperaciones: 0,
+          cantidadRegistros: 0,
+          cantidadRegistrosMttoCorrectivo: 0,
+        });
+      }
+
+      const item = resultadoMap.get(key);
+
+      item.cantidadOperaciones += 1;
+
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+        const estado = String(registro.estado || '')
+          .trim()
+          .toUpperCase();
+
+        if (!registro.hora_inicio || !registro.hora_final) continue;
+
+        const horas = this.calcularDuracionHoras(
+          registro.hora_inicio,
+          registro.hora_final,
+        );
+
+        if (!horas || horas <= 0) continue;
+
+        item.cantidadRegistros += 1;
+
+        if (this.esMantenimientoCorrectivo(codigo)) {
+          item.horasMttoCorrectivo += horas;
+
+          // Cada registro de mantenimiento correctivo cuenta como una falla
+          item.fallas += 1;
+
+          item.cantidadRegistrosMttoCorrectivo += 1;
+        }
+      }
+    });
+
+    const resultado = Array.from(resultadoMap.values()).map((item) => {
+      if (item.fallas > 0) {
+        item.mttr = Number((item.horasMttoCorrectivo / item.fallas).toFixed(2));
+      } else {
+        item.mttr = 0;
+      }
+
+      item.horasMttoCorrectivo = Number(item.horasMttoCorrectivo.toFixed(2));
+
+      return item;
+    });
+
+    resultado.sort((a, b) => b.mttr - a.mttr);
+
+    return resultado;
+  }
+  MTBFPorEquipo() {
+    const resultadoMap = new Map<string, any>();
+
+    this.operacionesFiltradas.forEach((op) => {
+      const equipo = op.equipo || 'SIN EQUIPO';
+      const nEquipo = op.n_equipo || 'SIN N° EQUIPO';
+      const modeloEquipo = op.modelo_equipo || nEquipo;
+
+      const key = modeloEquipo;
+
+      const registrosArray = op.registros;
+
+      if (!Array.isArray(registrosArray)) return;
+
+      if (!resultadoMap.has(key)) {
+        resultadoMap.set(key, {
+          equipo,
+          n_equipo: nEquipo,
+          modelo_equipo: modeloEquipo,
+
+          horasTotales: 0,
+          horasMttoCorrectivo: 0,
+          horasSinMttoCorrectivo: 0,
+
+          fallas: 0,
+          mtbf: 0,
+
+          cantidadOperaciones: 0,
+          cantidadRegistros: 0,
+          cantidadRegistrosMttoCorrectivo: 0,
+        });
+      }
+
+      const item = resultadoMap.get(key);
+
+      item.cantidadOperaciones += 1;
+
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+        const estado = String(registro.estado || '')
+          .trim()
+          .toUpperCase();
+
+        if (!registro.hora_inicio || !registro.hora_final) continue;
+
+        const horas = this.calcularDuracionHoras(
+          registro.hora_inicio,
+          registro.hora_final,
+        );
+
+        if (!horas || horas <= 0) continue;
+
+        // SUMA(BD_JUMBOS[HORAS])
+        item.horasTotales += horas;
+        item.cantidadRegistros += 1;
+
+        // SUMA(BD_JUMBOS[Hrs. Mtto. Correctivo])
+        if (this.esMantenimientoCorrectivo(codigo)) {
+          item.horasMttoCorrectivo += horas;
+
+          // SUMA(BD_JUMBOS[#FALLAS])
+          item.fallas += 1;
+
+          item.cantidadRegistrosMttoCorrectivo += 1;
+        }
+      }
+    });
+
+    const resultado = Array.from(resultadoMap.values()).map((item) => {
+      item.horasSinMttoCorrectivo =
+        item.horasTotales - item.horasMttoCorrectivo;
+
+      const divisorFallas = item.fallas === 0 ? 1 : item.fallas;
+
+      item.mtbf = Number(
+        (item.horasSinMttoCorrectivo / divisorFallas).toFixed(2),
+      );
+
+      item.horasTotales = Number(item.horasTotales.toFixed(2));
+      item.horasMttoCorrectivo = Number(item.horasMttoCorrectivo.toFixed(2));
+      item.horasSinMttoCorrectivo = Number(
+        item.horasSinMttoCorrectivo.toFixed(2),
+      );
+
+      return item;
+    });
+
+    resultado.sort((a, b) => b.mtbf - a.mtbf);
+
+    return resultado;
+  }
+
+  MTTRPorDia() {
+    return this.calcularMTTRMTBFPorPeriodo('DIA');
+  }
+
+  MTTRPorSemana() {
+    return this.calcularMTTRMTBFPorPeriodo('SEMANA');
+  }
+
+  MTTRPorMes() {
+    return this.calcularMTTRMTBFPorPeriodo('MES');
+  }
+
+  MTTRPorAño() {
+    return this.calcularMTTRMTBFPorPeriodo('ANIO');
+  }
+
+  MTBFPorDia() {
+    return this.calcularMTTRMTBFPorPeriodo('DIA');
+  }
+
+  MTBFPorSemana() {
+    return this.calcularMTTRMTBFPorPeriodo('SEMANA');
+  }
+
+  MTBFPorMes() {
+    return this.calcularMTTRMTBFPorPeriodo('MES');
+  }
+
+  MTBFPorAño() {
+    return this.calcularMTTRMTBFPorPeriodo('ANIO');
+  }
+
+  private calcularMTTRMTBFPorPeriodo(tipo: 'DIA' | 'SEMANA' | 'MES' | 'ANIO') {
+    const resultadoMap = new Map<string, any>();
+
+    // Crear períodos visibles según fechaInicio y fechaFin
+    if (this.fechaInicio && this.fechaFin) {
+      const diasRango = generarDiasEntreFechas(this.fechaInicio, this.fechaFin);
+
+      diasRango.forEach((dia) => {
+        const periodo = this.obtenerPeriodoMTBFMTTR(dia.key, tipo);
+
+        if (!periodo) return;
+
+        if (!resultadoMap.has(periodo.key)) {
+          resultadoMap.set(periodo.key, {
+            key: periodo.key,
+            periodo: periodo.label,
+            anio: periodo.anio || null,
+            fechaInicio: periodo.fechaInicio || null,
+            fechaFin: periodo.fechaFin || null,
+
+            horasTotales: 0,
+            horasMttoCorrectivo: 0,
+            horasSinMttoCorrectivo: 0,
+
+            fallas: 0,
+            mttr: 0,
+            mtbf: 0,
+
+            cantidadRegistros: 0,
+            cantidadRegistrosMttoCorrectivo: 0,
+          });
+        }
+      });
+    }
+
+    this.operacionesFiltradas.forEach((op) => {
+      const registrosArray = op.registros;
+
+      if (!Array.isArray(registrosArray)) return;
+
+      const fecha = op.fecha;
+
+      if (!fecha) return;
+
+      const periodo = this.obtenerPeriodoMTBFMTTR(fecha, tipo);
+
+      if (!periodo) return;
+
+      if (!resultadoMap.has(periodo.key)) {
+        resultadoMap.set(periodo.key, {
+          key: periodo.key,
+          periodo: periodo.label,
+          anio: periodo.anio || null,
+          fechaInicio: periodo.fechaInicio || null,
+          fechaFin: periodo.fechaFin || null,
+
+          horasTotales: 0,
+          horasMttoCorrectivo: 0,
+          horasSinMttoCorrectivo: 0,
+
+          fallas: 0,
+          mttr: 0,
+          mtbf: 0,
+
+          cantidadRegistros: 0,
+          cantidadRegistrosMttoCorrectivo: 0,
+        });
+      }
+
+      const item = resultadoMap.get(periodo.key);
+
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+
+        if (!registro.hora_inicio || !registro.hora_final) continue;
+
+        const horas = this.calcularDuracionHoras(
+          registro.hora_inicio,
+          registro.hora_final,
+        );
+
+        if (!horas || horas <= 0) continue;
+
+        // SUMA(HORAS)
+        item.horasTotales += horas;
+        item.cantidadRegistros += 1;
+
+        // Código 202 = Mantenimiento Correctivo / No Programado
+        if (this.esMantenimientoCorrectivo(codigo)) {
+          item.horasMttoCorrectivo += horas;
+          item.fallas += 1;
+          item.cantidadRegistrosMttoCorrectivo += 1;
+        }
+      }
+    });
+
+    const resultado = Array.from(resultadoMap.values()).map((item) => {
+      item.horasSinMttoCorrectivo =
+        item.horasTotales - item.horasMttoCorrectivo;
+
+      // MTTR = Hrs Mtto Correctivo / #Fallas
+      if (item.fallas > 0) {
+        item.mttr = Number((item.horasMttoCorrectivo / item.fallas).toFixed(2));
+      } else {
+        item.mttr = 0;
+      }
+
+      // MTBF = (HORAS - Hrs Mtto Correctivo) / IF(#Fallas = 0, 1, #Fallas)
+      const divisorFallas = item.fallas === 0 ? 1 : item.fallas;
+
+      item.mtbf = Number(
+        (item.horasSinMttoCorrectivo / divisorFallas).toFixed(2),
+      );
+
+      item.horasTotales = Number(item.horasTotales.toFixed(2));
+      item.horasMttoCorrectivo = Number(item.horasMttoCorrectivo.toFixed(2));
+      item.horasSinMttoCorrectivo = Number(
+        item.horasSinMttoCorrectivo.toFixed(2),
+      );
+
+      return item;
+    });
+
+    resultado.sort((a, b) => String(a.key).localeCompare(String(b.key)));
+
+    console.log(`📊 MTTR / MTBF POR ${tipo}:`, resultado);
+
+    return resultado;
+  }
+  private obtenerPeriodoMTBFMTTR(
+    fecha: string,
+    tipo: 'DIA' | 'SEMANA' | 'MES' | 'ANIO',
+  ) {
+    if (tipo === 'DIA') {
+      return obtenerPeriodo(fecha, 'DIA');
+    }
+
+    if (tipo === 'SEMANA') {
+      return obtenerPeriodoDesdeKey(fecha, 'SEMANA');
+    }
+
+    if (tipo === 'MES') {
+      return obtenerPeriodoDesdeKey(fecha, 'MES');
+    }
+
+    if (tipo === 'ANIO') {
+      const date = parseFechaSimple(fecha);
+
+      if (!date) return null;
+
+      const anio = date.getFullYear();
+
+      return {
+        key: `${anio}`,
+        label: `${anio}`,
+        anio,
+      };
+    }
+
+    return null;
+  }
+
+  private esMantenimientoCorrectivo(codigo: string): boolean {
+    return String(codigo || '').trim() === '202';
+  }
 }

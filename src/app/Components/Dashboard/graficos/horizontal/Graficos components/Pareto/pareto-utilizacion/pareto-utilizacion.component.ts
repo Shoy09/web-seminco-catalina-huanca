@@ -16,6 +16,14 @@ import {
 } from 'echarts/components';
 
 import { CanvasRenderer } from 'echarts/renderers';
+import {
+  CHART_AXIS_LABEL,
+  CHART_BAR_SHADOW,
+  CHART_COLORS,
+  CHART_PARETO,
+  CHART_SPLIT_LINE,
+  CHART_TITLE_STYLE,
+} from '../../../../../../../shared/chart-theme';
 
 echarts.use([
   BarChart,
@@ -38,7 +46,6 @@ echarts.use([
   styleUrl: './pareto-utilizacion.component.css',
 })
 export class ParetoUtilizacionComponent implements OnChanges {
-
   @Input() data: any[] = [];
 
   chartOptions: any = {};
@@ -63,40 +70,47 @@ export class ParetoUtilizacionComponent implements OnChanges {
       return String(a.actividad || '').localeCompare(String(b.actividad || ''));
     });
 
-    const actividades = datosOrdenados.map((item) => item.actividad || 'SIN ACTIVIDAD');
+    const actividades = datosOrdenados.map(
+      (item) => item.actividad || 'SIN ACTIVIDAD',
+    );
 
     const horasDemora = datosOrdenados.map((item) =>
-      Number(item.horasDemora || 0)
+      Number(item.horasDemora || 0),
     );
 
-    const paretoAct = datosOrdenados.map((item) =>
-      Number(item.paretoAct || 0)
-    );
+    const paretoAct = datosOrdenados.map((item) => Number(item.paretoAct || 0));
 
     const maxHoras = Math.max(...horasDemora, 1);
     const escalaMaxHoras = Math.ceil(maxHoras / 5) * 5;
 
-    const porcentajeVisible = actividades.length > 8
-      ? (8 / actividades.length) * 100
-      : 100;
+    const porcentajeVisible =
+      actividades.length > 8 ? (8 / actividades.length) * 100 : 100;
 
     this.chartOptions = {
       title: {
         text: 'PARETO DE UTILIZACIÓN',
         left: 'center',
         top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: '#333',
-          fontFamily: 'Arial',
-        },
+        textStyle: CHART_TITLE_STYLE,
       },
 
       legend: {
         top: 40,
         left: 'center',
-        data: ['Horas demora', 'Pareto acumulado'],
+        data: [
+          {
+            name: 'Horas demora',
+            itemStyle: {
+              color: CHART_PARETO.bar, 
+            }
+          },
+          {
+            name: 'Pareto acumulado'
+          }
+        ],
+        textStyle: {
+          color: CHART_COLORS.grey,
+        },
       },
 
       tooltip: {
@@ -139,19 +153,19 @@ export class ParetoUtilizacionComponent implements OnChanges {
         data: actividades,
         axisLabel: {
           interval: 0,
-          rotate: 35,
+          rotate: 0,
           fontSize: 10,
           fontWeight: 'bold',
-          color: '#333',
-          width: 100,
-          overflow: 'truncate',
+          color: CHART_COLORS.grey,
+          width: 80,
+          overflow: 'break',
         },
         axisTick: {
           alignWithLabel: true,
         },
         axisLine: {
           lineStyle: {
-            color: '#666',
+            color: CHART_COLORS.axis,
           },
         },
       },
@@ -166,14 +180,9 @@ export class ParetoUtilizacionComponent implements OnChanges {
           max: escalaMaxHoras,
           axisLabel: {
             formatter: '{value} h',
-            fontSize: 10,
+            ...CHART_AXIS_LABEL,
           },
-          splitLine: {
-            lineStyle: {
-              type: 'dashed',
-              color: '#ccc',
-            },
-          },
+          splitLine: CHART_SPLIT_LINE,
         },
         {
           type: 'value',
@@ -185,10 +194,15 @@ export class ParetoUtilizacionComponent implements OnChanges {
           interval: 20,
           axisLabel: {
             formatter: '{value}%',
-            fontSize: 10,
+            ...CHART_AXIS_LABEL,
           },
           splitLine: {
             show: false,
+          },
+          axisLine: {
+            lineStyle: {
+              color: CHART_COLORS.axis,
+            },
           },
         },
       ],
@@ -220,14 +234,12 @@ export class ParetoUtilizacionComponent implements OnChanges {
           data: horasDemora.map((valor) => ({
             value: valor,
             itemStyle: {
-              color: '#27ae60',
+              color: CHART_PARETO.bar,
             },
           })),
           itemStyle: {
             borderRadius: [6, 6, 0, 0],
-            shadowColor: 'rgba(0,0,0,0.2)',
-            shadowBlur: 6,
-            shadowOffsetY: 2,
+            ...CHART_BAR_SHADOW,
           },
           label: {
             show: true,
@@ -237,7 +249,7 @@ export class ParetoUtilizacionComponent implements OnChanges {
             },
             fontWeight: 'bold',
             fontSize: 10,
-            color: '#333',
+            color: CHART_COLORS.grey,
           },
           emphasis: {
             focus: 'series',
@@ -253,10 +265,10 @@ export class ParetoUtilizacionComponent implements OnChanges {
           symbolSize: 8,
           lineStyle: {
             width: 3,
-            color: '#e67e22',
+            color: CHART_PARETO.line,
           },
           itemStyle: {
-            color: '#e67e22',
+            color: CHART_PARETO.symbol,
           },
           label: {
             show: true,
@@ -266,7 +278,7 @@ export class ParetoUtilizacionComponent implements OnChanges {
             },
             fontSize: 10,
             fontWeight: 'bold',
-            color: '#333',
+            color: CHART_COLORS.grey,
           },
         },
       ],

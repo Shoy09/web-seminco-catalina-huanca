@@ -19,6 +19,7 @@ import {
 } from 'echarts/components';
 
 import { CanvasRenderer } from 'echarts/renderers';
+import { CHART_COLORS, colorPorUtilizacion } from '../../../../../../../shared/chart-theme';
 
 echarts.use([
   BarChart,
@@ -73,7 +74,7 @@ export class UtilizacionEquipoComponent implements OnChanges {
         textStyle: {
           fontSize: 16,
           fontWeight: 'bold',
-          color: '#333'
+          color: CHART_COLORS.grey
         }
       },
 
@@ -160,14 +161,7 @@ export class UtilizacionEquipoComponent implements OnChanges {
 
             // 🔥 color según rango de utilización
             itemStyle: {
-              color:
-                valor >= 85    // Excelente utilización
-                  ? '#2980b9'
-                  : valor >= 70  // Buena utilización
-                  ? '#27ae60'
-                  : valor >= 50  // Utilización media
-                  ? '#f1c40f'
-                  : '#e74c3c'    // Baja utilización
+              color: colorPorUtilizacion(valor)
             }
           })),
 

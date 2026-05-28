@@ -4,6 +4,7 @@ import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
 import { TitleComponent, TooltipComponent, GridComponent, ToolboxComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
+import { CHART_COLORS, colorPorDisponibilidad } from '../../../../../../../shared/chart-theme';
 
 echarts.use([
   BarChart,
@@ -72,9 +73,6 @@ export class DisponibilidadGuardiaComponent implements OnInit, OnChanges {
     const guardias = this.datosPorGuardia.map(item => item.guardia);
     const valores = this.datosPorGuardia.map(item => item.valor);
     
-    // Colores según el valor (verde para alta disponibilidad, naranja/rojo para baja)
-    const colores = this.datosPorGuardia.map(item => this.getColorByValue(item.valor));
-
     // Calcular máximo para escala
     const maxValor = Math.max(...valores, 100);
     const escalaMax = Math.ceil(maxValor / 20) * 20;
@@ -87,8 +85,7 @@ export class DisponibilidadGuardiaComponent implements OnInit, OnChanges {
         textStyle: {
           fontSize: 16,
           fontWeight: 'bold',
-          color: '#333',
-          fontFamily: 'Arial'
+          color: CHART_COLORS.grey,
         }
       },
 
@@ -168,7 +165,7 @@ export class DisponibilidadGuardiaComponent implements OnInit, OnChanges {
           data: valores.map((valor, index) => ({
             value: valor,
             itemStyle: {
-              color: colores[index]
+              color: colorPorDisponibilidad(valor)
             }
           })),
 

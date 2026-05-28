@@ -16,6 +16,7 @@ import {
 } from 'echarts/components';
 
 import { CanvasRenderer } from 'echarts/renderers';
+import { CHART_AXIS_LABEL, CHART_BAR_SHADOW, CHART_COLORS, CHART_PARETO, CHART_SPLIT_LINE, CHART_TITLE_STYLE } from '../../../../../../../shared/chart-theme';
 
 echarts.use([
   BarChart,
@@ -87,18 +88,26 @@ export class ParetoDisponibilidadComponent implements OnChanges {
         text: 'PARETO DE DISPONIBILIDAD',
         left: 'center',
         top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: '#333',
-          fontFamily: 'Arial',
-        },
+        textStyle: CHART_TITLE_STYLE,
       },
 
       legend: {
         top: 40,
         left: 'center',
-        data: ['Horas general', 'Pareto disponibilidad'],
+        data: [
+          {
+            name: 'Horas general',
+            itemStyle: {
+              color: CHART_PARETO.bar,
+            }
+          },
+          {
+            name: 'Pareto disponibilidad'
+          }
+        ],
+        textStyle: {
+          color: CHART_COLORS.grey,
+        },
       },
 
       tooltip: {
@@ -131,8 +140,8 @@ export class ParetoDisponibilidadComponent implements OnChanges {
       grid: {
         left: '8%',
         right: '8%',
-        top: '24%',
-        bottom: '30%',
+        top: '22%',
+        bottom: '28%',
         containLabel: true,
       },
 
@@ -141,19 +150,19 @@ export class ParetoDisponibilidadComponent implements OnChanges {
         data: observaciones,
         axisLabel: {
           interval: 0,
-          rotate: 35,
+          rotate: 0, // Ajustado a horizontal
           fontSize: 10,
           fontWeight: 'bold',
-          color: '#333',
-          width: 120,
-          overflow: 'truncate',
+          color: CHART_COLORS.grey,
+          width: 80,
+          overflow: 'break', // Divide los textos largos en líneas para que entren en horizontal
         },
         axisTick: {
           alignWithLabel: true,
         },
         axisLine: {
           lineStyle: {
-            color: '#666',
+            color: CHART_COLORS.axis,
           },
         },
       },
@@ -168,14 +177,9 @@ export class ParetoDisponibilidadComponent implements OnChanges {
           max: escalaMaxHoras,
           axisLabel: {
             formatter: '{value} h',
-            fontSize: 10,
+            ...CHART_AXIS_LABEL,
           },
-          splitLine: {
-            lineStyle: {
-              type: 'dashed',
-              color: '#ccc',
-            },
-          },
+          splitLine: CHART_SPLIT_LINE,
         },
         {
           type: 'value',
@@ -187,10 +191,15 @@ export class ParetoDisponibilidadComponent implements OnChanges {
           interval: 20,
           axisLabel: {
             formatter: '{value}%',
-            fontSize: 10,
+            ...CHART_AXIS_LABEL,
           },
           splitLine: {
             show: false,
+          },
+          axisLine: {
+            lineStyle: {
+              color: CHART_COLORS.axis,
+            },
           },
         },
       ],
@@ -222,14 +231,12 @@ export class ParetoDisponibilidadComponent implements OnChanges {
           data: horasGeneral.map((valor) => ({
             value: valor,
             itemStyle: {
-              color: '#27ae60',
+              color: CHART_PARETO.bar,
             },
           })),
           itemStyle: {
             borderRadius: [6, 6, 0, 0],
-            shadowColor: 'rgba(0,0,0,0.2)',
-            shadowBlur: 6,
-            shadowOffsetY: 2,
+            ...CHART_BAR_SHADOW,
           },
           label: {
             show: true,
@@ -239,7 +246,7 @@ export class ParetoDisponibilidadComponent implements OnChanges {
             },
             fontWeight: 'bold',
             fontSize: 10,
-            color: '#333',
+            color: CHART_COLORS.grey,
           },
           emphasis: {
             focus: 'series',
@@ -255,10 +262,10 @@ export class ParetoDisponibilidadComponent implements OnChanges {
           symbolSize: 8,
           lineStyle: {
             width: 3,
-            color: '#e67e22',
+            color: CHART_PARETO.line,
           },
           itemStyle: {
-            color: '#e67e22',
+            color: CHART_PARETO.symbol,
           },
           label: {
             show: true,
@@ -268,7 +275,7 @@ export class ParetoDisponibilidadComponent implements OnChanges {
             },
             fontSize: 10,
             fontWeight: 'bold',
-            color: '#333',
+            color: CHART_COLORS.grey,
           },
         },
       ],

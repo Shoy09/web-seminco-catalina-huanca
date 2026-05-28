@@ -28,21 +28,23 @@ echarts.use([
 ]);
 
 @Component({
-  selector: 'app-utilizacion-mes',
+  selector: 'app-ranking-operador-utilizacion',
   standalone: true,
   imports: [NgxEchartsDirective],
   providers: [provideEchartsCore({ echarts })],
-  templateUrl: './utilizacion-mes.component.html',
-  styleUrl: './utilizacion-mes.component.css',
+  templateUrl: './ranking-operador-utilizacion.component.html',
+  styleUrl: './ranking-operador-utilizacion.component.css'
 })
-export class UtilizacionMesComponent implements OnChanges {
-  // 🔥 DATA DINÁMICA (del método UtilizacionPorMes)
+export class RankingOperadorUtilizacionComponent implements OnChanges {
+
   @Input() data: any[] = [];
+
+  @Input() titulo: string = 'RANKING UTILIZACIÓN POR OPERADOR';
 
   chartOptions: any = {};
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data']) {
+    if (changes['data'] || changes['titulo']) {
       this.actualizarGrafico();
     }
   }
@@ -53,23 +55,28 @@ export class UtilizacionMesComponent implements OnChanges {
       return;
     }
 
-    const datosOrdenados = [...this.data].sort((a, b) =>
-      String(a.key).localeCompare(String(b.key)),
+    const datosOrdenados = [...this.data].sort(
+      (a, b) => Number(b.utilizacion || 0) - Number(a.utilizacion || 0)
     );
 
-    const meses = datosOrdenados.map((item) => item.periodo);
+    const operadores = datosOrdenados.map((item) =>
+      item.operador || 'SIN OPERADOR'
+    );
 
-    const valores = datosOrdenados.map((item) => Number(item.utilizacion || 0));
+    const valores = datosOrdenados.map((item) =>
+      Number(item.utilizacion || 0)
+    );
 
-    const porcentajeVisible = meses.length > 6 ? (6 / meses.length) * 100 : 100;
+    const porcentajeVisible =
+      operadores.length > 8 ? (8 / operadores.length) * 100 : 100;
 
     this.chartOptions = {
       title: {
-        text: 'UTILIZACIÓN POR MES',
+        text: this.titulo,
         left: 'center',
         top: 10,
         textStyle: {
-          fontSize: 16,
+          fontSize: 14,
           fontWeight: 'bold',
           color: CHART_COLORS.grey,
         },
@@ -85,45 +92,67 @@ export class UtilizacionMesComponent implements OnChanges {
           const item = datosOrdenados[data.dataIndex];
 
           const utilizacion = Number(item.utilizacion || 0);
-          const horasOperativas = Number(item.horasOperativas || 0);
           const horasTotales = Number(item.horasTotales || 0);
           const horasMtto = Number(item.horasMtto || 0);
           const horasDisponibles = Number(item.horasDisponibles || 0);
+          const horasOperativas = Number(item.horasOperativas || 0);
 
           return `
-          <strong>${item.periodo} ${item.anio || ''}</strong><br/>
-          <hr style="margin: 5px 0"/>
-          Utilización promedio: <b>${utilizacion.toFixed(2)}%</b><br/>
-          Horas operativas: ${horasOperativas.toFixed(2)} h<br/>
-          Horas totales: ${horasTotales.toFixed(2)} h<br/>
-          Horas mantenimiento: ${horasMtto.toFixed(2)} h<br/>
-          Horas disponibles: ${horasDisponibles.toFixed(2)} h<br/>
-          Días con datos: ${item.cantidadDiasConDatos || 0}<br/>
-          Operaciones: ${item.cantidadOperaciones || 0}<br/>
-          Registros: ${item.cantidadRegistros || 0}<br/>
-          Registros operativos: ${item.cantidadRegistrosOperativos || 0}<br/>
-          Registros MTTO: ${item.cantidadRegistrosMtto || 0}
-        `;
+            <strong>${item.operador || 'SIN OPERADOR'}</strong><br/>
+            <hr style="margin: 5px 0"/>
+            Utilización: <b>${utilizacion.toFixed(2)}%</b><br/>
+            Horas totales: ${horasTotales.toFixed(2)} h<br/>
+            Horas mantenimiento: ${horasMtto.toFixed(2)} h<br/>
+            Horas disponibles: ${horasDisponibles.toFixed(2)} h<br/>
+            Horas operativas: ${horasOperativas.toFixed(2)} h<br/>
+            Operaciones: ${item.cantidadOperaciones || 0}<br/>
+            Registros: ${item.cantidadRegistros || 0}<br/>
+            Registros operativos: ${item.cantidadRegistrosOperativos || 0}<br/>
+            Registros MTTO: ${item.cantidadRegistrosMtto || 0}
+          `;
         },
       },
 
       grid: {
-        left: '8%',
-        right: '5%',
-        top: '20%',
-        bottom: '25%',
+        left: '28%',
+        right: '12%',
+        top: '18%',
+        bottom: '12%',
         containLabel: true,
       },
 
       xAxis: {
+        type: 'value',
+        name: 'Utilización (%)',
+        nameLocation: 'middle',
+        nameGap: 35,
+        min: 0,
+        max: 100,
+        interval: 20,
+        axisLabel: {
+          formatter: '{value}%',
+          fontSize: 10,
+          color: '#333',
+        },
+        splitLine: {
+          lineStyle: {
+            type: 'dashed',
+            color: '#ccc',
+          },
+        },
+      },
+
+      yAxis: {
         type: 'category',
-        data: meses,
+        data: operadores,
+        inverse: true,
         axisLabel: {
           interval: 0,
-          rotate: 35,
           fontSize: 10,
           fontWeight: 'bold',
           color: '#333',
+          width: 180,
+          overflow: 'truncate',
         },
         axisLine: {
           lineStyle: {
@@ -135,39 +164,19 @@ export class UtilizacionMesComponent implements OnChanges {
         },
       },
 
-      yAxis: {
-        type: 'value',
-        name: 'Utilización (%)',
-        nameLocation: 'middle',
-        nameGap: 45,
-        min: 0,
-        max: 100,
-        interval: 20,
-        axisLabel: {
-          formatter: '{value}%',
-          fontSize: 10,
-        },
-        splitLine: {
-          lineStyle: {
-            type: 'dashed',
-            color: '#ccc',
-          },
-        },
-      },
-
       dataZoom: [
         {
           type: 'slider',
-          show: true,
-          xAxisIndex: 0,
+          show: operadores.length > 8,
+          yAxisIndex: 0,
           start: 0,
           end: porcentajeVisible,
-          height: 18,
-          bottom: 25,
+          width: 16,
+          right: 5,
         },
         {
           type: 'inside',
-          xAxisIndex: 0,
+          yAxisIndex: 0,
           start: 0,
           end: porcentajeVisible,
         },
@@ -177,7 +186,7 @@ export class UtilizacionMesComponent implements OnChanges {
         {
           name: 'Utilización',
           type: 'bar',
-          barWidth: '60%',
+          barWidth: '45%',
 
           data: valores.map((valor) => ({
             value: valor,
@@ -187,7 +196,7 @@ export class UtilizacionMesComponent implements OnChanges {
           })),
 
           itemStyle: {
-            borderRadius: [6, 6, 0, 0],
+            borderRadius: [0, 6, 6, 0],
             shadowColor: 'rgba(0,0,0,0.2)',
             shadowBlur: 6,
             shadowOffsetY: 2,
@@ -195,7 +204,7 @@ export class UtilizacionMesComponent implements OnChanges {
 
           label: {
             show: true,
-            position: 'top',
+            position: 'right',
             formatter: (params: any) => {
               return `${Number(params.value).toFixed(2)}%`;
             },
@@ -221,25 +230,5 @@ export class UtilizacionMesComponent implements OnChanges {
         },
       ],
     };
-  }
-
-  // 🔥 convertir número a nombre mes
-  obtenerNombreMes(numeroMes: number): string {
-    const meses = [
-      'ENERO',
-      'FEBRERO',
-      'MARZO',
-      'ABRIL',
-      'MAYO',
-      'JUNIO',
-      'JULIO',
-      'AGOSTO',
-      'SEPTIEMBRE',
-      'OCTUBRE',
-      'NOVIEMBRE',
-      'DICIEMBRE',
-    ];
-
-    return meses[numeroMes - 1] || 'SIN MES';
   }
 }

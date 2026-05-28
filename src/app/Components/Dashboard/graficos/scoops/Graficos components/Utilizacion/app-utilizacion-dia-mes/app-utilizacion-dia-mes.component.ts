@@ -15,6 +15,7 @@ import {
 } from 'echarts/components';
 
 import { CanvasRenderer } from 'echarts/renderers';
+import { CHART_COLORS, colorPorUtilizacion } from '../../../../../../../shared/chart-theme';
 
 echarts.use([
   BarChart,
@@ -133,8 +134,7 @@ export class UtilizacionDiaMesComponent implements OnChanges {
         textStyle: {
           fontSize: 16,
           fontWeight: 'bold',
-          color: '#333',
-          fontFamily: 'Arial',
+          color: CHART_COLORS.grey,
         },
       },
 
@@ -252,7 +252,7 @@ export class UtilizacionDiaMesComponent implements OnChanges {
             value: valor,
             itemStyle: {
               color:
-                valor >= 90 ? '#27ae60' : valor >= 75 ? '#f1c40f' : '#e74c3c',
+                colorPorUtilizacion(valor)
             },
           })),
 

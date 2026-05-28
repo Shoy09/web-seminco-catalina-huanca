@@ -4,6 +4,7 @@ import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
 import { TitleComponent, TooltipComponent, GridComponent, ToolboxComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
+import { colorPorRendimiento } from '../../../../../../../shared/chart-theme';
 
 @Component({
   selector: 'app-rendimiento-guardia',
@@ -69,9 +70,6 @@ export class RendimientoGuardiaComponent implements OnInit, OnChanges {
     const guardias = this.datosPorGuardia.map(item => item.guardia);
     const valores = this.datosPorGuardia.map(item => item.valor);
     
-    // Colores según el valor de rendimiento
-    const colores = this.datosPorGuardia.map(item => this.getColorByValue(item.valor));
-
     // Encontrar el valor máximo para escala dinámica
     const maxValor = Math.max(...valores);
     const escalaMax = Math.ceil(maxValor / 50) * 50;
@@ -172,10 +170,10 @@ export class RendimientoGuardiaComponent implements OnInit, OnChanges {
           type: 'bar',
           barWidth: '45%',
 
-          data: valores.map((valor, index) => ({
+          data: valores.map((valor) => ({
             value: valor,
             itemStyle: {
-              color: colores[index]
+              color: colorPorRendimiento(valor)
             }
           })),
 
@@ -213,13 +211,5 @@ export class RendimientoGuardiaComponent implements OnInit, OnChanges {
       ]
     };
   }
-
-  // Color según valor de rendimiento
-  private getColorByValue(valor: number): string {
-    if (valor >= 300) return '#2ecc71';   // Verde - Excelente
-    if (valor >= 200) return '#3498db';   // Azul - Bueno
-    if (valor >= 100) return '#f39c12';   // Naranja - Regular
-    if (valor >= 50) return '#e67e22';    // Naranja oscuro - Baja
-    return '#e74c3c';                     // Rojo - Crítica
-  }
+ 
 }

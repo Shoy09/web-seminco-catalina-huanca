@@ -4,6 +4,7 @@ import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
 import { TitleComponent, TooltipComponent, GridComponent, ToolboxComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
+import { CHART_COLORS, colorPorUtilizacion } from '../../../../../../../shared/chart-theme';
 
 echarts.use([
   BarChart,
@@ -74,9 +75,6 @@ export class UtilizacionGuardiaComponent implements OnInit, OnChanges {
 
     const guardias = this.datosPorGuardia.map(item => item.guardia);
     const valores = this.datosPorGuardia.map(item => item.valor);
-    
-    // Colores según el valor de utilización
-    const colores = this.datosPorGuardia.map(item => this.getColorByValue(item.valor));
 
     // Calcular máximo para escala
     const maxValor = Math.max(...valores, 100);
@@ -90,8 +88,7 @@ export class UtilizacionGuardiaComponent implements OnInit, OnChanges {
         textStyle: {
           fontSize: 16,
           fontWeight: 'bold',
-          color: '#333',
-          fontFamily: 'Arial'
+          color: CHART_COLORS.grey,
         }
       },
 
@@ -174,10 +171,10 @@ export class UtilizacionGuardiaComponent implements OnInit, OnChanges {
           type: 'bar',
           barWidth: '45%',
 
-          data: valores.map((valor, index) => ({
+          data: valores.map((valor) => ({
             value: valor,
             itemStyle: {
-              color: colores[index]
+              color: colorPorUtilizacion(valor)
             }
           })),
 
