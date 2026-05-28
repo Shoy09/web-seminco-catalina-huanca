@@ -242,7 +242,7 @@ validarCambios() {
   this.normalizarTipoEquipo(this.cardData.tiposEquipo)
 ),
 
-      registros: JSON.stringify(this.tablaData),
+      registros: this.tablaData,
 
       horometros: JSON.stringify(this.formatearHorometros(this.horometrosData)),
 

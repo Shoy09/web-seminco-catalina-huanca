@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { OperacionBase } from '../../../../../models/OperacionBase.models';
+import { OperacionBaseSostenimiento } from '../../../../../models/OperacionBase.models';
 import { PlanProduccion } from '../../../../../models/plan_produccion.model';
 import { PlanProduccionService } from '../../../../../services/plan-produccion.service';
 import { FechasPlanMensualService } from '../../../../../services/fechas-plan-mensual.service';
@@ -33,6 +33,7 @@ import { ObservacionesComponent } from '../Graficos components/Hoja 2/observacio
 import { PernosDiaComponent } from '../Graficos components/Hoja 1/pernos-dia/pernos-dia.component';
 import { SchedulerComponent } from '../../Linea de tiempo/scheduler/scheduler.component';
 import { EstadoService } from '../../../../../services/estado.service';
+import { OperacionSostenimiento } from '../../../../../models/OperacionSostenimiento';
 
 @Component({
   selector: 'app-principal-grafico-sostenimiento',
@@ -71,8 +72,8 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
   mes!: string;
 
   // DATA ORIGINAL (sin filtrar)
-  operacionesOriginal: OperacionBase[] = [];
-  operacionesFiltradas: OperacionBase[] = [];
+  operacionesOriginal: OperacionBaseSostenimiento[] = [];
+  operacionesFiltradas: OperacionBaseSostenimiento[] = [];
   planesMensuales: PlanProduccion[] = [];
 
   fechaInicio: string = '';
@@ -168,7 +169,7 @@ mapaEstados: Map<string, any> = new Map();
   cargarOperaciones() {
     const tipo = 'empernador';
 
-    this.operacionesService.getAllAprobados(tipo).subscribe({
+    this.operacionesService.getAllAprobados<OperacionSostenimiento>(tipo).subscribe({
       next: (resp) => {
         this.operacionesOriginal = resp.data;
 
@@ -865,7 +866,7 @@ mapaEstados: Map<string, any> = new Map();
 
         const duracion = this.calcularDuracionHoras(
           r.hora_inicio,
-          r.hora_final,
+          r.hora_final!,
         );
         if (!duracion || duracion <= 0) return;
 
@@ -1002,7 +1003,7 @@ mapaEstados: Map<string, any> = new Map();
 
         const duracion = this.calcularDuracionHoras(
           r.hora_inicio,
-          r.hora_final,
+          r.hora_final!
         );
         if (!duracion || duracion <= 0) return;
 
@@ -1089,7 +1090,7 @@ mapaEstados: Map<string, any> = new Map();
 
         const duracion = this.calcularDuracionHoras(
           r.hora_inicio,
-          r.hora_final,
+          r.hora_final!,
         );
         if (!duracion || duracion <= 0) return;
 
@@ -1707,19 +1708,22 @@ mapaEstados: Map<string, any> = new Map();
             ? r.operacion
             : {};
 
-        const pernos = Number(opData.n_pernos_instalados) || 0;
+        //const pernos = Number(opData.n_pernos_instalados) || 0;
+        const pernos = 1;
         data.n_pernos += pernos;
 
-        const logPernos = Number(opData.log_pernos) || 0;
+        //const logPernos = Number(opData.log_pernos) || 0;
+        const logPernos = 1;
 
         if (logPernos > 0) {
           data.log_pernos += logPernos;
           data.log_pernos_count += 1;
         }
 
-        const tipoLabor = opData.tipo_labor || '';
-        const labor = opData.labor || '';
-        const ala = opData.ala || '';
+        const tipoLabor =  ''; //opData.tipo_labor || '';
+        
+        const labor = ''; //opData.labor || '';
+        const ala = '';  //opData.ala || '';
 
         const laborSOS = `${tipoLabor}${labor}${ala}`;
 
@@ -1797,9 +1801,9 @@ mapaEstados: Map<string, any> = new Map();
             : {};
 
         // 🔥 LABOR
-        const tipoLabor = opData.tipo_labor || '';
-        const labor = opData.labor || '';
-        const ala = opData.ala || '';
+        const tipoLabor =  ''; //opData.tipo_labor || '';
+        const labor = ''; //opData.labor || '';
+        const ala = '';  //opData.ala || '';
 
         const laborRaw = `${tipoLabor}${labor}${ala}`.trim();
         const laborSOS = laborRaw || 'SIN_LABOR';
@@ -1808,16 +1812,20 @@ mapaEstados: Map<string, any> = new Map();
         const seccionLabor = this.obtenerSeccionLabor(opData, mapaPlanes);
 
         // 🔥 PERNOS
-        const pernos = Number(opData.n_pernos_instalados) || 0;
+        //const pernos = Number(opData.n_pernos_instalados) || 0;
+        const pernos = 1;
 
         // 🔥 LONGITUD
-        const logPernos = Number(opData.log_pernos) || 0;
+        //const logPernos = Number(opData.log_pernos) || 0;
+        const logPernos = 1;
 
         // 🔥 MT52
-        const mt52 = Number(opData.mt52_malla) || 0;
+        //const mt52 = Number(opData.mt52_malla) || 0;
+        const mt52 = 1;
 
         // 🔥 TIPO PERNOS
-        const tipoPernos = opData.tipo_pernos || '';
+        //const tipoPernos = opData.tipo_pernos || '';
+        const tipoPernos = 'SIN_TIPO'; 
 
         // 🔥 METROS
         const metros = this.calcularMetrosPerforados([r]);

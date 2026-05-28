@@ -1,4 +1,9 @@
-export interface OperacionBase {
+import { OperacionJumbo } from './OperacionJumbo';
+import { OperacionScoop } from './OperacionScoop';
+import { OperacionSostenimiento } from './OperacionSostenimiento';
+import { OperacionTLargos } from './OperacionTLargos';
+
+export interface OperacionBase<TOperacion = TipoOperacionRegistro> {
   id?: number;
   fecha: string;
   turno: string;
@@ -9,7 +14,7 @@ export interface OperacionBase {
 
   estado?: string;
   envio?: number;
-  registros?: string;
+  registros?: Registro<TOperacion>[];
 
   revisado?: number;
   aprobacion?: number;
@@ -26,7 +31,28 @@ export interface OperacionBase {
 
   horometros?: string;
   condiciones_equipo?: string;
-  check_list?: string; 
+  check_list?: string;
   control_llantas?: string;
-  programa_trabajo?: string;  
+  programa_trabajo?: string;
 }
+
+export interface Registro<TOperacion = TipoOperacionRegistro> {
+  id: number;
+  numero: number;
+  estado: string;
+  codigo: string;
+  hora_inicio: string;
+  hora_final: string | null;
+  operacion: TOperacion;
+}
+export type TipoOperacionRegistro =
+  | OperacionJumbo
+  | OperacionScoop
+  | OperacionTLargos
+  | OperacionSostenimiento;
+
+  export type OperacionBaseJumbo = OperacionBase<OperacionJumbo>;
+  export type OperacionBaseScoop = OperacionBase<OperacionScoop>;
+  export type OperacionBaseTLargos = OperacionBase<OperacionTLargos>;
+  export type OperacionBaseSostenimiento = OperacionBase<OperacionSostenimiento>;
+

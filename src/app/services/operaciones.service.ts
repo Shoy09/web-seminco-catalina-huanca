@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { OperacionBase } from '../models/OperacionBase.models';
+import { OperacionBase, TipoOperacionRegistro } from '../models/OperacionBase.models';
 
 @Injectable({
   providedIn: 'root'
@@ -76,10 +76,10 @@ getAll(
   );
 }
 
-getAllAprobados(
+getAllAprobados<TOperacion = TipoOperacionRegistro>(
   tipo: string
-): Observable<{ ok: boolean; data: OperacionBase[] }> {
-  return this.apiService.getDatos(
+): Observable<{ ok: boolean; data: OperacionBase<TOperacion>[] }> {
+  return this.apiService.getDatos<{ ok: boolean; data: OperacionBase<TOperacion>[] }>(
     `${this.baseUrl}/aprobacion/${tipo}`
   );
 }

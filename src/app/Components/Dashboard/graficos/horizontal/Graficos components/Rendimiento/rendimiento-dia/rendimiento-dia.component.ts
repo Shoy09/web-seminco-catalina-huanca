@@ -1,11 +1,7 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
-
 import * as echarts from 'echarts/core';
-
 import { BarChart } from 'echarts/charts';
-
 import {
   TitleComponent,
   TooltipComponent,
@@ -13,7 +9,6 @@ import {
   ToolboxComponent,
   DataZoomComponent,
 } from 'echarts/components';
-
 import { CanvasRenderer } from 'echarts/renderers';
 
 echarts.use([
@@ -27,15 +22,14 @@ echarts.use([
 ]);
 
 @Component({
-  selector: 'app-utilizacion-dia-mes',
+  selector: 'app-rendimiento-dia',
   standalone: true,
   imports: [NgxEchartsDirective],
   providers: [provideEchartsCore({ echarts })],
-  templateUrl: './app-utilizacion-dia-mes.component.html',
-  styleUrl: './app-utilizacion-dia-mes.component.css',
+  templateUrl: './rendimiento-dia.component.html',
+  styleUrl: './rendimiento-dia.component.css',
 })
-export class UtilizacionDiaMesComponent implements OnChanges {
-  // 🔥 DATA DINÁMICA (del método UtilizacionPorDia)
+export class RendimientoDiaComponent implements OnChanges {
   @Input() data: any[] = [];
 
   chartOptions: any = {};
@@ -53,7 +47,7 @@ export class UtilizacionDiaMesComponent implements OnChanges {
     }
 
     const datosOrdenados = [...this.data].sort((a, b) =>
-      String(a.key).localeCompare(String(b.key)),
+      String(a.key).localeCompare(String(b.key))
     );
 
     const xAxisLabels = datosOrdenados.map((item) => {
@@ -73,10 +67,14 @@ export class UtilizacionDiaMesComponent implements OnChanges {
       };
     });
 
-    const valores = datosOrdenados.map((item) => Number(item.utilizacion || 0));
+    const valores = datosOrdenados.map((item) =>
+      Number(item.rendimiento || 0)
+    );
+
+    const maxValor = Math.max(...valores, 1);
+    const escalaMax = Math.ceil(maxValor / 20) * 20;
 
     const graphics: any[] = [];
-
     const mesesPosiciones = new Map<string, any>();
 
     let mesActual = '';
@@ -127,7 +125,7 @@ export class UtilizacionDiaMesComponent implements OnChanges {
 
     this.chartOptions = {
       title: {
-        text: 'UTILIZACIÓN POR DÍA',
+        text: 'RENDIMIENTO POR DÍA',
         left: 'center',
         top: 10,
         textStyle: {
@@ -147,24 +145,24 @@ export class UtilizacionDiaMesComponent implements OnChanges {
           const data = params[0];
           const item = datosOrdenados[data.dataIndex];
 
-          const utilizacion = Number(item.utilizacion || 0);
-          const horasTotales = Number(item.horasTotales || 0);
-          const horasMtto = Number(item.horasMtto || 0);
-          const horasDisponibles = Number(item.horasDisponibles || 0);
+          const rendimiento = Number(item.rendimiento || 0);
+          const metrosPerforados = Number(item.metrosPerforados || 0);
           const horasOperativas = Number(item.horasOperativas || 0);
 
           return `
-          <strong>${item.periodo}</strong><br/>
-          Utilización: <b>${utilizacion.toFixed(2)}%</b><br/>
-          Horas totales: ${horasTotales.toFixed(2)} h<br/>
-          Horas mantenimiento: ${horasMtto.toFixed(2)} h<br/>
-          Horas disponibles: ${horasDisponibles.toFixed(2)} h<br/>
-          Horas operativas: ${horasOperativas.toFixed(2)} h<br/>
-          Operaciones: ${item.cantidadOperaciones || 0}<br/>
-          Registros: ${item.cantidadRegistros || 0}<br/>
-          Registros operativos: ${item.cantidadRegistrosOperativos || 0}<br/>
-          Registros MTTO: ${item.cantidadRegistrosMtto || 0}
-        `;
+            <strong>${item.periodo}</strong><br/>
+            <hr style="margin: 5px 0"/>
+            Rendimiento: <b>${rendimiento.toFixed(2)} m/h</b><br/>
+            Metros perforados: ${metrosPerforados.toFixed(2)} m<br/>
+            Horas operativas: ${horasOperativas.toFixed(2)} h<br/>
+            Operaciones: ${item.cantidadOperaciones || 0}<br/>
+            Registros operativos: ${item.cantidadRegistrosOperativos || 0}<br/>
+            Tal. producción: ${item.talProd || 0}<br/>
+            Tal. rimados: ${item.talRimados || 0}<br/>
+            Tal. alivio: ${item.talAlivio || 0}<br/>
+            Tal. repaso: ${item.talRepaso || 0}<br/>
+            Total taladros: ${item.totalTaladros || 0}
+          `;
         },
       },
 
@@ -179,7 +177,6 @@ export class UtilizacionDiaMesComponent implements OnChanges {
       xAxis: {
         type: 'category',
         data: xAxisLabels.map((item) => item.value),
-
         axisLabel: {
           show: true,
           interval: 0,
@@ -192,13 +189,11 @@ export class UtilizacionDiaMesComponent implements OnChanges {
             return partes[2] || value;
           },
         },
-
         axisLine: {
           lineStyle: {
             color: '#666',
           },
         },
-
         axisTick: {
           alignWithLabel: true,
         },
@@ -206,15 +201,14 @@ export class UtilizacionDiaMesComponent implements OnChanges {
 
       yAxis: {
         type: 'value',
-        name: 'Utilización (%)',
+        name: 'Rendimiento (m/h)',
         nameLocation: 'middle',
-        nameGap: 45,
+        nameGap: 55,
         min: 0,
-        max: 100,
-        interval: 20,
+        max: escalaMax,
         axisLabel: {
-          fontSize: 9,
-          formatter: '{value}%',
+          formatter: '{value} m/h',
+          fontSize: 10,
         },
         splitLine: {
           lineStyle: {
@@ -244,49 +238,37 @@ export class UtilizacionDiaMesComponent implements OnChanges {
 
       series: [
         {
-          name: 'Utilización',
+          name: 'Rendimiento',
           type: 'bar',
           barWidth: '50%',
-
           data: valores.map((valor) => ({
             value: valor,
             itemStyle: {
-              color:
-                valor >= 90 ? '#27ae60' : valor >= 75 ? '#f1c40f' : '#e74c3c',
+              color: '#27ae60',
             },
           })),
-
           itemStyle: {
-            borderRadius: [5, 5, 0, 0],
-            shadowColor: 'rgba(0, 0, 0, 0.2)',
+            borderRadius: [6, 6, 0, 0],
+            shadowColor: 'rgba(0,0,0,0.2)',
             shadowBlur: 6,
             shadowOffsetY: 2,
           },
-
           label: {
             show: true,
             position: 'top',
+            formatter: (params: any) => {
+              return `${Number(params.value).toFixed(2)} m/h`;
+            },
             fontWeight: 'bold',
             fontSize: 11,
-            formatter: (params: any) => {
-              return `${Number(params.value).toFixed(2)}%`;
-            },
             color: '#333',
           },
-
           emphasis: {
             focus: 'series',
-            itemStyle: {
-              shadowBlur: 10,
-              shadowOffsetX: 0,
-              shadowColor: 'rgba(0, 0, 0, 0.3)',
-            },
           },
-
           showBackground: true,
-
           backgroundStyle: {
-            color: 'rgba(180, 180, 180, 0.1)',
+            color: 'rgba(180,180,180,0.1)',
             borderRadius: 5,
           },
         },
@@ -296,26 +278,12 @@ export class UtilizacionDiaMesComponent implements OnChanges {
     };
   }
 
-  // =====================================
-  // MES
-  // =====================================
-
-  obtenerNombreMes(numeroMes: number): string {
+  obtenerNombreMes(mes: number): string {
     const meses = [
-      'ENERO',
-      'FEBRERO',
-      'MARZO',
-      'ABRIL',
-      'MAYO',
-      'JUNIO',
-      'JULIO',
-      'AGOSTO',
-      'SEPTIEMBRE',
-      'OCTUBRE',
-      'NOVIEMBRE',
-      'DICIEMBRE',
+      'ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN',
+      'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC',
     ];
 
-    return meses[numeroMes - 1] || '';
+    return meses[mes - 1] || '';
   }
 }

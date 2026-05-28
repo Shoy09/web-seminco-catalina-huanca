@@ -27,15 +27,14 @@ echarts.use([
 ]);
 
 @Component({
-  selector: 'app-utilizacion-mes',
+  selector: 'app-rendimiento-equipo',
   standalone: true,
   imports: [NgxEchartsDirective],
   providers: [provideEchartsCore({ echarts })],
-  templateUrl: './utilizacion-mes.component.html',
-  styleUrl: './utilizacion-mes.component.css',
+  templateUrl: './rendimiento-equipo.component.html',
+  styleUrl: './rendimiento-equipo.component.css',
 })
-export class UtilizacionMesComponent implements OnChanges {
-  // 🔥 DATA DINÁMICA (del método UtilizacionPorMes)
+export class RendimientoEquipoComponent implements OnChanges {
   @Input() data: any[] = [];
 
   chartOptions: any = {};
@@ -52,19 +51,23 @@ export class UtilizacionMesComponent implements OnChanges {
       return;
     }
 
-    const datosOrdenados = [...this.data].sort((a, b) =>
-      String(a.key).localeCompare(String(b.key)),
+    const datosOrdenados = [...this.data].sort(
+      (a, b) => Number(b.rendimiento || 0) - Number(a.rendimiento || 0),
     );
 
-    const meses = datosOrdenados.map((item) => item.periodo);
+    const equipos = datosOrdenados.map((item) => item.n_equipo || 'SIN EQUIPO');
 
-    const valores = datosOrdenados.map((item) => Number(item.utilizacion || 0));
+    const valores = datosOrdenados.map((item) => Number(item.rendimiento || 0));
 
-    const porcentajeVisible = meses.length > 6 ? (6 / meses.length) * 100 : 100;
+    const maxValor = Math.max(...valores, 1);
+    const escalaMax = Math.ceil(maxValor / 20) * 20;
+
+    const porcentajeVisible =
+      equipos.length > 8 ? (8 / equipos.length) * 100 : 100;
 
     this.chartOptions = {
       title: {
-        text: 'UTILIZACIÓN POR MES',
+        text: 'RENDIMIENTO POR EQUIPO',
         left: 'center',
         top: 10,
         textStyle: {
@@ -84,25 +87,23 @@ export class UtilizacionMesComponent implements OnChanges {
           const data = params[0];
           const item = datosOrdenados[data.dataIndex];
 
-          const utilizacion = Number(item.utilizacion || 0);
+          const rendimiento = Number(item.rendimiento || 0);
+          const metrosPerforados = Number(item.metrosPerforados || 0);
           const horasOperativas = Number(item.horasOperativas || 0);
-          const horasTotales = Number(item.horasTotales || 0);
-          const horasMtto = Number(item.horasMtto || 0);
-          const horasDisponibles = Number(item.horasDisponibles || 0);
 
           return `
-          <strong>${item.periodo} ${item.anio || ''}</strong><br/>
+          <strong>${item.n_equipo || 'SIN EQUIPO'}</strong><br/>
+          Equipo: ${item.equipo || '-'}<br/>
           <hr style="margin: 5px 0"/>
-          Utilización promedio: <b>${utilizacion.toFixed(2)}%</b><br/>
+          Rendimiento: <b>${rendimiento.toFixed(2)} m/h</b><br/>
+          Metros perforados: ${metrosPerforados.toFixed(2)} m<br/>
           Horas operativas: ${horasOperativas.toFixed(2)} h<br/>
-          Horas totales: ${horasTotales.toFixed(2)} h<br/>
-          Horas mantenimiento: ${horasMtto.toFixed(2)} h<br/>
-          Horas disponibles: ${horasDisponibles.toFixed(2)} h<br/>
-          Días con datos: ${item.cantidadDiasConDatos || 0}<br/>
           Operaciones: ${item.cantidadOperaciones || 0}<br/>
-          Registros: ${item.cantidadRegistros || 0}<br/>
           Registros operativos: ${item.cantidadRegistrosOperativos || 0}<br/>
-          Registros MTTO: ${item.cantidadRegistrosMtto || 0}
+          Tal. producción: ${item.talProd || 0}<br/>
+          Tal. rimados: ${item.talRimados || 0}<br/>
+          Tal. alivio: ${item.talAlivio || 0}<br/>
+          Tal. repaso: ${item.talRepaso || 0}
         `;
         },
       },
@@ -117,10 +118,10 @@ export class UtilizacionMesComponent implements OnChanges {
 
       xAxis: {
         type: 'category',
-        data: meses,
+        data: equipos,
         axisLabel: {
           interval: 0,
-          rotate: 35,
+          rotate: equipos.length > 6 ? 35 : 0,
           fontSize: 10,
           fontWeight: 'bold',
           color: '#333',
@@ -137,14 +138,13 @@ export class UtilizacionMesComponent implements OnChanges {
 
       yAxis: {
         type: 'value',
-        name: 'Utilización (%)',
+        name: 'Rendimiento (m/h)',
         nameLocation: 'middle',
-        nameGap: 45,
+        nameGap: 55,
         min: 0,
-        max: 100,
-        interval: 20,
+        max: escalaMax,
         axisLabel: {
-          formatter: '{value}%',
+          formatter: '{value} m/h',
           fontSize: 10,
         },
         splitLine: {
@@ -158,7 +158,7 @@ export class UtilizacionMesComponent implements OnChanges {
       dataZoom: [
         {
           type: 'slider',
-          show: true,
+          show: equipos.length > 8,
           xAxisIndex: 0,
           start: 0,
           end: porcentajeVisible,
@@ -175,21 +175,14 @@ export class UtilizacionMesComponent implements OnChanges {
 
       series: [
         {
-          name: 'Utilización',
+          name: 'Rendimiento',
           type: 'bar',
-          barWidth: '60%',
+          barWidth: '45%',
 
           data: valores.map((valor) => ({
             value: valor,
             itemStyle: {
-              color:
-                valor >= 85
-                  ? '#2980b9'
-                  : valor >= 70
-                    ? '#27ae60'
-                    : valor >= 50
-                      ? '#f1c40f'
-                      : '#e74c3c',
+              color: '#27ae60',
             },
           })),
 
@@ -204,7 +197,7 @@ export class UtilizacionMesComponent implements OnChanges {
             show: true,
             position: 'top',
             formatter: (params: any) => {
-              return `${Number(params.value).toFixed(2)}%`;
+              return `${Number(params.value).toFixed(2)} m/h`;
             },
             fontWeight: 'bold',
             fontSize: 11,
@@ -228,25 +221,5 @@ export class UtilizacionMesComponent implements OnChanges {
         },
       ],
     };
-  }
-
-  // 🔥 convertir número a nombre mes
-  obtenerNombreMes(numeroMes: number): string {
-    const meses = [
-      'ENERO',
-      'FEBRERO',
-      'MARZO',
-      'ABRIL',
-      'MAYO',
-      'JUNIO',
-      'JULIO',
-      'AGOSTO',
-      'SEPTIEMBRE',
-      'OCTUBRE',
-      'NOVIEMBRE',
-      'DICIEMBRE',
-    ];
-
-    return meses[numeroMes - 1] || 'SIN MES';
   }
 }

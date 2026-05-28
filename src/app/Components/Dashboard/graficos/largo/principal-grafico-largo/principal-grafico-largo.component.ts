@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FechasPlanMensualService } from '../../../../../services/fechas-plan-mensual.service';
 import { OperacionesService } from '../../../../../services/operaciones.service';
-import { OperacionBase } from '../../../../../models/OperacionBase.models';
+import { OperacionBaseTLargos } from '../../../../../models/OperacionBase.models';
 import { PlanMensual } from '../../../../../models/plan-mensual.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -32,6 +32,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { SchedulerComponent } from '../../Linea de tiempo/scheduler/scheduler.component';
 import { EstadoService } from '../../../../../services/estado.service';
+import { OperacionTLargos } from '../../../../../models/OperacionTLargos';
 
 @Component({
   selector: 'app-principal-grafico-largo',
@@ -68,8 +69,9 @@ export class PrincipalGraficoLargoComponent implements OnInit {
   mes!: string;
 
   // DATA ORIGINAL (sin filtrar)
-  operacionesOriginal: OperacionBase[] = [];
-  operacionesFiltradas: OperacionBase[] = [];
+  operacionesOriginal: OperacionBaseTLargos[] = [];
+  operacionesFiltradas: OperacionBaseTLargos[] = [];
+
   planesMensuales: PlanProduccion[] = [];
 
   // 🔥 DATA FINAL PARA LOS GRAFICOS
@@ -250,7 +252,7 @@ mapaEstados: Map<string, any> = new Map();
   cargarOperaciones() {
     const tipo = 'tal_largo';
 
-    this.operacionesService.getAllAprobados(tipo).subscribe({
+    this.operacionesService.getAllAprobados<OperacionTLargos>(tipo).subscribe({
       next: (resp) => {
         this.operacionesOriginal = resp.data;
 
@@ -479,9 +481,7 @@ mapaEstados: Map<string, any> = new Map();
         if (Array.isArray(registrosArray) && registrosArray.length > 0) {
           // Obtener área del primer registro
           const primerRegistro = registrosArray[0];
-          const area =
-            primerRegistro?.operacion?.area || primerRegistro?.area || '';
-
+          
           // Obtener sección del plan
 
           // Contar frentes completos
@@ -851,7 +851,7 @@ mapaEstados: Map<string, any> = new Map();
 
         const duracion = this.calcularDuracionHoras(
           r.hora_inicio,
-          r.hora_final,
+          r.hora_final!,
         );
 
         if (!duracion || duracion <= 0) return;
@@ -949,7 +949,7 @@ mapaEstados: Map<string, any> = new Map();
 
         const duracion = this.calcularDuracionHoras(
           r.hora_inicio,
-          r.hora_final,
+          r.hora_final!,
         );
 
         if (!duracion || duracion <= 0) return;
@@ -1047,7 +1047,7 @@ mapaEstados: Map<string, any> = new Map();
 
         const duracion = this.calcularDuracionHoras(
           r.hora_inicio,
-          r.hora_final,
+          r.hora_final!,
         );
 
         if (!duracion || duracion <= 0) return;
