@@ -62,22 +62,23 @@
       <div class="totales-lista">
 
   <div
-    *ngFor="let equipo of equiposFiltrados"
-    class="total-item">
+  *ngFor="let equipo of equiposFiltrados"
+  class="total-item"
+  [title]="obtenerTooltipEquipo(equipo)">
 
-    <div class="total-item-info">
+  <div class="total-item-info">
 
-      <span class="total-item-nombre">
-        {{ equipo }}
-      </span>
+    <span class="total-item-nombre">
+      {{ equipo }}
+    </span>
 
-      <span class="total-item-valor">
-        {{ totalesPorEquipo[equipo] | number:'1.2-2' }} m
-      </span>
-
-    </div>
+    <span class="total-item-valor">
+      {{ totalesPorEquipo[equipo] | number:'1.2-2' }} m
+    </span>
 
   </div>
+
+</div>
 
 </div>
 

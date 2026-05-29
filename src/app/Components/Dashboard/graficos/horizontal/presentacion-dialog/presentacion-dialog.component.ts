@@ -101,6 +101,7 @@ isFullscreen: boolean = false;
 
 MetrosPerforadosPorRangoHoraCompleto(turno: string = '') {
   const resultadoMap = new Map<string, any>();
+
   // const codigosPermitidos = ['101', '103'];
 
   // Set para almacenar todos los tipos de perforación únicos
@@ -115,8 +116,7 @@ MetrosPerforadosPorRangoHoraCompleto(turno: string = '') {
 
     let [hora, minutos] = horaStr.split(':').map(Number);
 
-    // 🔥 Si termina exacto en :00
-    // pertenece al rango anterior
+    // 🔥 Si termina exacto en :00 pertenece al rango anterior
     if (minutos === 0) {
       hora = hora === 0 ? 23 : hora - 1;
       minutos = 59;
@@ -228,7 +228,7 @@ MetrosPerforadosPorRangoHoraCompleto(turno: string = '') {
     if (!Array.isArray(registrosArray)) return;
 
     for (const registro of registrosArray) {
-      const codigo = registro.codigo?.toString() || '';
+      // const codigo = registro.codigo?.toString() || '';
 
       // if (!codigosPermitidos.includes(codigo)) continue;
 
@@ -259,7 +259,7 @@ MetrosPerforadosPorRangoHoraCompleto(turno: string = '') {
     if (!Array.isArray(registrosArray)) return;
 
     for (const registro of registrosArray) {
-      const codigo = registro.codigo?.toString() || '';
+      // const codigo = registro.codigo?.toString() || '';
 
       // if (!codigosPermitidos.includes(codigo)) continue;
 
@@ -292,7 +292,17 @@ MetrosPerforadosPorRangoHoraCompleto(turno: string = '') {
         .toUpperCase()
         .trim();
 
-        const nEquipo = op.n_equipo || 'SIN EQUIPO';
+      const labor = (
+        operacionData.labor || 'SIN LABOR'
+      )
+        .trim();
+
+      const claveLabor =
+        labor === '' ? 'SIN LABOR' : labor;
+
+      const nEquipo =
+        op.n_equipo || 'SIN EQUIPO';
+
       // 🔥 Calcular metros perforados
       const sumaTaladros =
         talAlivio + talProd + talRimados;
@@ -305,15 +315,15 @@ MetrosPerforadosPorRangoHoraCompleto(turno: string = '') {
       // 🔥 Inicializar rango si no existe
       if (!resultadoMap.has(rangoHora)) {
         const nuevoItem: any = {
-  rangoHora,
-  total: 0,
-  cantidadRegistros: 0,
+          rangoHora,
+          total: 0,
+          cantidadRegistros: 0,
 
-  // 🔥 NUEVO
-  equipos: {}
-};
+          // 🔥 NUEVO
+          equipos: {}
+        };
 
-        // Inicializar tipos
+        // 🔥 Inicializar tipos
         tiposPerforacion.forEach(tipo => {
           nuevoItem[tipo] = 0;
         });
@@ -333,12 +343,23 @@ MetrosPerforadosPorRangoHoraCompleto(turno: string = '') {
 
       item.total += metrosPerforados;
       item.cantidadRegistros += 1;
-      // 🔥 ACUMULAR POR EQUIPO
-if (!item.equipos[nEquipo]) {
-  item.equipos[nEquipo] = 0;
-}
 
-item.equipos[nEquipo] += metrosPerforados;
+      // 🔥 ACUMULAR POR EQUIPO
+      if (!item.equipos[nEquipo]) {
+        item.equipos[nEquipo] = {
+          total: 0,
+          labores: {}
+        };
+      }
+
+      item.equipos[nEquipo].total += metrosPerforados;
+
+      // 🔥 ACUMULAR POR LABOR DENTRO DEL EQUIPO
+      if (!item.equipos[nEquipo].labores[claveLabor]) {
+        item.equipos[nEquipo].labores[claveLabor] = 0;
+      }
+
+      item.equipos[nEquipo].labores[claveLabor] += metrosPerforados;
     }
   });
 
@@ -351,6 +372,8 @@ item.equipos[nEquipo] += metrosPerforados;
       return indexA - indexB;
     })
     .map(item => {
+
+      // 🔥 Redondear tipos
       tiposPerforacion.forEach(tipo => {
         if (item[tipo] !== undefined) {
           item[tipo] = Number(
@@ -361,12 +384,24 @@ item.equipos[nEquipo] += metrosPerforados;
 
       item.total = Number(item.total.toFixed(2));
 
-      // 🔥 REDONDEAR EQUIPOS
-Object.keys(item.equipos).forEach(equipo => {
-  item.equipos[equipo] = Number(
-    item.equipos[equipo].toFixed(2)
-  );
-});
+      // 🔥 REDONDEAR EQUIPOS Y LABORES
+      Object.keys(item.equipos).forEach(equipo => {
+
+        item.equipos[equipo].total = Number(
+          item.equipos[equipo].total.toFixed(2)
+        );
+
+        Object.keys(
+          item.equipos[equipo].labores
+        ).forEach(labor => {
+
+          item.equipos[equipo].labores[labor] = Number(
+            item.equipos[equipo].labores[labor].toFixed(2)
+          );
+
+        });
+
+      });
 
       return item;
     });
@@ -679,5 +714,7 @@ MetrosPerforadosPorLaborYRangoHora(turno: string = '') {
 
   return resultado;
 }
+
+
 
 }

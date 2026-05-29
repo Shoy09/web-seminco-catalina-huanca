@@ -136,7 +136,7 @@ calcularTotalesPorEquipo(): void {
         this.data.reduce((sum, item) => {
 
           const valor =
-            item.equipos?.[equipo] || 0;
+  item.equipos?.[equipo]?.total || 0;
 
           return sum + valor;
 
@@ -146,6 +146,43 @@ calcularTotalesPorEquipo(): void {
 
   }
 
+}
+
+obtenerTooltipEquipo(equipo: string): string {
+
+  const laboresTotales: {
+    [labor: string]: number
+  } = {};
+
+  this.data.forEach(item => {
+
+    const equipoData =
+      item.equipos?.[equipo];
+
+    if (!equipoData?.labores) return;
+
+    Object.keys(equipoData.labores)
+      .forEach(labor => {
+
+        if (!laboresTotales[labor]) {
+          laboresTotales[labor] = 0;
+        }
+
+        laboresTotales[labor] +=
+          equipoData.labores[labor];
+
+      });
+
+  });
+
+  const laboresTexto =
+    Object.entries(laboresTotales)
+      .map(([labor, metros]) =>
+        `${labor}: ${Number(metros).toFixed(2)} m`
+      )
+      .join('\n');
+
+  return laboresTexto || 'Sin labores';
 }
 
   procesarDatos(): void {
@@ -180,21 +217,36 @@ calcularTotalesPorEquipo(): void {
   
   // Extraer todos los tipos de perforación únicos de los datos
   extraerTiposPerforacion(): void {
-    const tiposSet = new Set<string>();
-    
-    if (this.data && this.data.length > 0) {
-      this.data.forEach(item => {
-        // Recorrer todas las propiedades del item excepto las fijas
-        Object.keys(item).forEach(key => {
-          if (!['rangoHora', 'total', 'cantidadRegistros'].includes(key)) {
-            tiposSet.add(key);
-          }
-        });
+
+  const tiposSet = new Set<string>();
+
+  if (this.data && this.data.length > 0) {
+
+    this.data.forEach(item => {
+
+      Object.keys(item).forEach(key => {
+
+        if (
+          ![
+            'rangoHora',
+            'total',
+            'cantidadRegistros',
+            'equipos'
+          ].includes(key)
+        ) {
+          tiposSet.add(key);
+        }
+
       });
-    }
-    
-    this.tiposPerforacion = Array.from(tiposSet).sort();
+
+    });
+
   }
+
+  this.tiposPerforacion =
+    Array.from(tiposSet).sort();
+
+}
 
   // Calcular totales acumulados por tipo de perforación
   calcularTotalesPorTipo(): void {

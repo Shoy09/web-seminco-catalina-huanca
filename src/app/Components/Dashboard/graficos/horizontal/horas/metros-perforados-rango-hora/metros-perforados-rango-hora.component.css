@@ -44,6 +44,7 @@
 
 .contenedor-inferior {
   display: flex;
+  flex-direction: column;  /* ← Cambia de 'row' a 'column' */
   gap: 15px;
   height: 100%;
 }
@@ -95,15 +96,21 @@
    LISTA
 ========================= */
 
+
+.tooltip-labores {
+  white-space: pre-line;
+  font-size: 12px;
+}
+
 .totales-lista {
   flex: 1;
-
   overflow-y: auto;
-
-  display: flex;
-  flex-direction: column;
+  
+  /* Cambia de flex a grid */
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);  /* 2 columnas iguales */
   gap: 8px;
-
+  
   padding-right: 5px;
   min-height: 0;
 }
