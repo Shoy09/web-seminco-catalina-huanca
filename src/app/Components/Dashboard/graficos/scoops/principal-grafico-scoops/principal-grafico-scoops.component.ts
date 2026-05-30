@@ -56,6 +56,8 @@ import { HorasOperativasDiaComponent } from '../Graficos components/HorasOperati
 import { HorasOperativasMesComponent } from '../Graficos components/HorasOperativas/horas-operativas-mes/horas-operativas-mes.component';
 import { HorasOperativasSemanaComponent } from '../Graficos components/HorasOperativas/horas-operativas-semana/horas-operativas-semana.component';
 import { generarDiasEntreFechas, MESES_CORTOS, obtenerPeriodo, obtenerPeriodoDesdeKey, obtenerRangoSemanaISO, obtenerSemanaISO, parseFechaLocal, parseFechaSimple } from '../../../../../utils/fecha-utils';
+import { ParetoUtilizacionComponent } from "../../horizontal/Graficos components/Pareto/pareto-utilizacion/pareto-utilizacion.component";
+import { ParetoDisponibilidadComponent } from "../../horizontal/Graficos components/Pareto/pareto-disponibilidad/pareto-disponibilidad.component";
 
 
 @Component({
@@ -102,6 +104,8 @@ import { generarDiasEntreFechas, MESES_CORTOS, obtenerPeriodo, obtenerPeriodoDes
     HorasOperativasDiaComponent,
     HorasOperativasSemanaComponent,
     HorasOperativasMesComponent,
+    ParetoUtilizacionComponent,
+    ParetoDisponibilidadComponent
 ],
   templateUrl: './principal-grafico-scoops.component.html',
   styleUrl: './principal-grafico-scoops.component.css',
@@ -125,15 +129,15 @@ export class PrincipalGraficoScoopsComponent implements OnInit {
 DataDisponibilidadPorEquipo: any[] = [];
 DataDisponibilidadPorSemana: any[] = [];
 DataDisponibilidadPorMes: any[] = [];
-DataHorasMantenimientoPorCodigo: any[] = [];
 DataDisponibilidadPorDia: any[] = [];
 DataDisponibilidadPorSeccion: any[] = [];
+DataParetoDisponibilidad: any[] = [];
 DataUtilizacionPorEquipo: any[] = [];
 DataUtilizacionPorSemana: any[] = [];
 DataUtilizacionPorMes: any[] = [];
-DataHorasDemoraPorCodigo: any[] = [];
 DataUtilizacionPorDia: any[] = [];
 DataUtilizacionPorSeccionDetallada: any[] = [];
+DataParetoUtilizacion: any[] = [];
 DataRendimientoPorSeccionDetallado: any[] = [];
 DataprocesarEquiposConCapacidad: any[] = [];
 DataRendimientoPorMes: any[] = [];
@@ -329,16 +333,16 @@ mapaEstados: Map<string, any> = new Map();
   this.DataDisponibilidadPorEquipo = this.DisponibilidadPorEquipo();
   this.DataDisponibilidadPorSemana = this.DisponibilidadPorSemana();
   this.DataDisponibilidadPorMes = this.DisponibilidadPorMes();
-  this.DataHorasMantenimientoPorCodigo = this.HorasMantenimientoPorCodigo();
+  this.DataParetoDisponibilidad = this.ParetoDisponibilidad();
   this.DataDisponibilidadPorDia = this.DisponibilidadPorDia();
   this.DataDisponibilidadPorSeccion = this.DisponibilidadPorSeccion();
   //UTILIZACION
   this.DataUtilizacionPorEquipo = this.UtilizacionPorEquipo();
   this.DataUtilizacionPorSemana = this.UtilizacionPorSemana();
   this.DataUtilizacionPorMes = this.UtilizacionPorMes();
-  this.DataHorasDemoraPorCodigo = this.HorasDemoraPorCodigo();
   this.DataUtilizacionPorDia = this.UtilizacionPorDia();
   this.DataUtilizacionPorSeccionDetallada = this.UtilizacionPorSeccionDetallada();
+  this.DataParetoUtilizacion = this.ParetoUtilizacion();
   //RENDIMIENTO
   this.DataRendimientoPorSeccionDetallado = this.RendimientoPorSeccionDetallado();
   this.DataprocesarEquiposConCapacidad = this.RendimientoPorEquipo();
@@ -590,77 +594,6 @@ private obtenerNumeroSemana(fecha: string): number {
   return Math.ceil((dias + inicioAnio.getDay() + 1) / 7);
 }
 
-
-
-//GRAFICO 4  FALTA
-
-
-//GRAFICO 5 horas Estados
-HorasMantenimientoPorCodigo() {
-
-  const resultadoMap = new Map<string, any>();
-
-  this.operacionesFiltradas.forEach((op) => {
-
-    const registrosArray = op.registros;
-
-    if (!Array.isArray(registrosArray)) return;
-
-    for (const registro of registrosArray) {
-
-      // 🔥 SOLO mantenimiento
-      if (registro.estado !== 'MANTENIMIENTO')
-        continue;
-
-      // 🔥 código
-      const codigo =
-        registro.codigo || 'SIN_CODIGO';
-
-      // 🔥 horas
-      const horas =
-        this.calcularDuracionHoras(
-          registro.hora_inicio,
-          registro.hora_final!
-        );
-
-      // 🔥 crear item
-      if (!resultadoMap.has(codigo)) {
-
-        resultadoMap.set(codigo, {
-          codigo,
-          horas: 0,
-          cantidadRegistros: 0
-        });
-      }
-
-      const item = resultadoMap.get(codigo);
-
-      item.horas += horas;
-
-      item.cantidadRegistros += 1;
-    }
-  });
-
-  // 🔥 convertir array
-  const resultado =
-    Array.from(resultadoMap.values())
-
-    // 🔥 ordenar mayor a menor
-    .sort((a, b) => b.horas - a.horas)
-
-    // 🔥 redondear
-    .map(item => ({
-      ...item,
-      horas: Number(item.horas.toFixed(2))
-    }));
-
-  // console.log(
-  //   '📊 HORAS MTTO POR CODIGO:',
-  //   resultado
-  // );
-
-  return resultado;
-}
 
   DisponibilidadPorDia() {
     return this.calcularDisponibilidadBasePorDia(
@@ -1016,78 +949,6 @@ UtilizacionPorEquipo() {
 }
 
 //GRAFICO 4 FALTA
-
-//GRAFICO 5 
-//GRAFICO - HORAS DE DEMORA POR CÓDIGO
-HorasDemoraPorCodigo() {
-
-  const resultadoMap = new Map<string, any>();
-  
-  // 🔥 Lista de códigos que representan DEMORAS
-  const listaDemoras = [
-    '301',
-    '302',
-    '303',
-    '304',
-    '305',
-    '306',
-    '307',
-    '308',
-    '309',
-    '310',
-    '311',
-    '312'
-  ];
-
-  this.operacionesFiltradas.forEach((op) => {
-    const HORAS_TOTALES = 12;
-    
-    const registrosArray = op.registros;
-    if (!Array.isArray(registrosArray)) return;
-
-    for (const registro of registrosArray) {
-      
-      // 🔥 Verificar si el código está en la lista de demoras
-      const codigo = registro.codigo || 'SIN_CODIGO';
-      
-      if (!listaDemoras.includes(codigo)) continue;
-      
-      // 🔥 Calcular horas de demora
-      let horasDemora = this.calcularDuracionHoras(
-        registro.hora_inicio,
-        registro.hora_final!
-      );
-      
-      // 🔥 Limitar horas al total disponible (máximo 12 por operación)
-      horasDemora = Math.min(horasDemora, HORAS_TOTALES);
-      
-      // 🔥 Crear o actualizar item en el mapa
-      if (!resultadoMap.has(codigo)) {
-        resultadoMap.set(codigo, {
-          codigo,
-          horasDemora: 0,
-          cantidadRegistros: 0,
-          descripcion: this.obtenerDescripcionDemora(codigo)
-        });
-      }
-      
-      const item = resultadoMap.get(codigo);
-      item.horasDemora += horasDemora;
-      item.cantidadRegistros += 1;
-    }
-  });
-  
-  // 🔥 Convertir a array, ordenar y redondear
-  const resultado = Array.from(resultadoMap.values())
-    .sort((a, b) => b.horasDemora - a.horasDemora)
-    .map(item => ({
-      ...item,
-      horasDemora: Number(item.horasDemora.toFixed(2))
-    }));
-  
-  // console.log('📊 HORAS DE DEMORA POR CÓDIGO:', resultado);
-  return resultado;
-}
 
 // 🔥 Método auxiliar para obtener descripción de cada código
 private obtenerDescripcionDemora(codigo: string): string {
@@ -3101,9 +2962,255 @@ private obtenerDescripcionCompleta(codigo: string, tipoDemora: string): string {
       return null;
     }
   
-    private esMantenimientoCorrectivo(codigo: string): boolean {
-      return String(codigo || '').trim() === '202';
-    }
+  private esMantenimientoCorrectivo(codigo: string): boolean {
+    return String(codigo || '').trim() === '202';
+  }
+
+  ParetoUtilizacion() {
+    const resultadoMap = new Map<string, any>();
+
+    this.operacionesFiltradas.forEach((op) => {
+      const registrosArray = op.registros;
+
+      if (!Array.isArray(registrosArray)) return;
+
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+
+        if (!codigo) continue;
+
+        // Solo DEMORAS OPERATIVAS y DEMORAS NO OPERATIVAS
+        if (!this.esDemoraPorCodigo(codigo)) continue;
+
+        if (!registro.hora_inicio || !registro.hora_final) continue;
+
+        const horas = this.calcularDuracionHoras(
+          registro.hora_inicio,
+          registro.hora_final,
+        );
+
+        if (!horas || horas <= 0) continue;
+
+        const actividad = this.obtenerActividadPorCodigo(codigo);
+
+        if (!resultadoMap.has(actividad)) {
+          resultadoMap.set(actividad, {
+            actividad,
+            horasDemora: 0,
+            paretoAct: 0,
+            porcentajeHoras: 0,
+            cantidadRegistros: 0,
+            codigos: new Set<string>(),
+          });
+        }
+
+        const item = resultadoMap.get(actividad);
+
+        item.horasDemora += horas;
+        item.cantidadRegistros += 1;
+        item.codigos.add(codigo);
+      }
+    });
+
+    let resultado = Array.from(resultadoMap.values()).map((item) => {
+      item.horasDemora = Number(item.horasDemora.toFixed(2));
+      item.codigos = Array.from(item.codigos);
+      return item;
+    });
+
+    // Orden Pareto: mayor HorasDemora primero.
+    // Si empatan, orden alfabético por actividad.
+    resultado.sort((a, b) => {
+      if (b.horasDemora !== a.horasDemora) {
+        return b.horasDemora - a.horasDemora;
+      }
+
+      return String(a.actividad).localeCompare(String(b.actividad));
+    });
+
+    const totalHorasDemora = resultado.reduce(
+      (sum, item) => sum + item.horasDemora,
+      0,
+    );
+
+    let acumulado = 0;
+
+    resultado = resultado.map((item) => {
+      acumulado += item.horasDemora;
+
+      item.paretoAct =
+        totalHorasDemora > 0
+          ? Number(((acumulado / totalHorasDemora) * 100).toFixed(2))
+          : 0;
+
+      item.porcentajeHoras =
+        totalHorasDemora > 0
+          ? Number(((item.horasDemora / totalHorasDemora) * 100).toFixed(2))
+          : 0;
+
+      item.totalHorasDemora = Number(totalHorasDemora.toFixed(2));
+
+      return item;
+    });
+
+    return resultado;
+  }
+
+    ParetoDisponibilidad() {
+    const resultadoMap = new Map<string, any>();
+
+    this.operacionesFiltradas.forEach((op) => {
+      const registrosArray = op.registros;
+
+      if (!Array.isArray(registrosArray)) return;
+
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+
+        if (!codigo) continue;
+
+        /**
+         * Solo considerar registros que afectan DISPONIBILIDAD.
+         * Normalmente son registros de MANTENIMIENTO.
+         */
+        const estadoRegistro = this.normalizarTexto(registro.estado);
+
+        const esMantenimiento =
+          estadoRegistro.includes('MANTENIMIENTO') ||
+          this.esMantenimientoPorCodigo(codigo);
+
+        if (!esMantenimiento) continue;
+
+        if (!registro.hora_inicio || !registro.hora_final) continue;
+
+        const horas = this.calcularDuracionHoras(
+          registro.hora_inicio,
+          registro.hora_final,
+        );
+
+        if (!horas || horas <= 0) continue;
+
+        const observacion = String(
+          registro.operacion?.observaciones || 'SIN OBSERVACIÓN',
+        )
+          .trim()
+          .toUpperCase();
+
+        const key = observacion || 'SIN OBSERVACIÓN';
+
+        if (!resultadoMap.has(key)) {
+          resultadoMap.set(key, {
+            observacion: key,
+            horasGeneral: 0,
+            paretoDispObs: 0,
+            porcentajeHoras: 0,
+            totalHorasGeneral: 0,
+            cantidadRegistros: 0,
+            codigos: new Set<string>(),
+          });
+        }
+
+        const item = resultadoMap.get(key);
+
+        item.horasGeneral += horas;
+        item.cantidadRegistros += 1;
+        item.codigos.add(codigo);
+      }
+    });
+
+    let resultado = Array.from(resultadoMap.values()).map((item) => {
+      item.horasGeneral = Number(item.horasGeneral.toFixed(2));
+      item.codigos = Array.from(item.codigos);
+
+      return item;
+    });
+
+    /**
+     * Mismo criterio que tu DAX:
+     * [Horas General] > curHoras
+     * o empate por observación alfabética.
+     */
+    resultado.sort((a, b) => {
+      if (b.horasGeneral !== a.horasGeneral) {
+        return b.horasGeneral - a.horasGeneral;
+      }
+
+      return String(a.observacion).localeCompare(String(b.observacion));
+    });
+
+    const totalHorasGeneral = resultado.reduce(
+      (sum, item) => sum + Number(item.horasGeneral || 0),
+      0,
+    );
+
+    let acumulado = 0;
+
+    resultado = resultado.map((item) => {
+      acumulado += Number(item.horasGeneral || 0);
+
+      item.paretoDispObs =
+        totalHorasGeneral > 0
+          ? Number(((acumulado / totalHorasGeneral) * 100).toFixed(2))
+          : 0;
+
+      item.porcentajeHoras =
+        totalHorasGeneral > 0
+          ? Number(((item.horasGeneral / totalHorasGeneral) * 100).toFixed(2))
+          : 0;
+
+      item.totalHorasGeneral = Number(totalHorasGeneral.toFixed(2));
+
+      return item;
+    });
+
+    return resultado;
+  }
+
+  private esDemoraPorCodigo(codigo: string): boolean {
+    const estado = this.mapaEstados.get(codigo);
+
+    if (!estado) return false;
+
+    const categoria = this.normalizarTexto(estado.categoria);
+    const estadoPrincipal = this.normalizarTexto(estado.estado_principal);
+
+    return categoria.includes('DEMORA') || estadoPrincipal.includes('DEMORA');
+  }
+
+  private esMantenimientoPorCodigo(codigo: string): boolean {
+    const estado = this.mapaEstados.get(codigo);
+
+    if (!estado) return false;
+
+    const estadoPrincipal = this.normalizarTexto(estado.estado_principal);
+    const categoria = this.normalizarTexto(estado.categoria);
+
+    return (
+      estadoPrincipal.includes('MANTENIMIENTO') ||
+      categoria.includes('MANTENIMIENTO')
+    );
+  }
+
+  private obtenerActividadPorCodigo(codigo: string): string {
+    const estado = this.mapaEstados.get(codigo);
+
+    if (!estado) return `COD ${codigo}`;
+
+    return (
+      estado.tipo_estado ||
+      estado.categoria ||
+      estado.estado_principal ||
+      `COD ${codigo}`
+    );
+  }
+
+  private normalizarTexto(valor: any): string {
+    return String(valor || '')
+      .trim()
+      .toUpperCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+  }
 
 //IMPORTAR EXCEL:
 async ImportarExcel() {
