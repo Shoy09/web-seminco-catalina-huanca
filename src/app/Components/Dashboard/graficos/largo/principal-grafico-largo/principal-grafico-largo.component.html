@@ -39,12 +39,33 @@
 
 <div class="graficos-container" *ngIf="vistaPrincipal">
   <!-- Hoja 1 pdf -->
+
+  <app-rendimiento-equipo [data]="DataRendimientoPorEquipo" data-page="1" />
+  <app-rendimiento-dia [data]="DataRendimientoPorDia" data-page="1" />
+  <app-rendimiento-semana [data]="DataRendimientoPorSemana" data-page="1" />
+  <app-rendimiento-mes [data]="DataRendimientoPorMes" data-page="1" />
+  <app-rendimiento-guardia [data]="DataRendimientoPorGuardia" data-page="1" />
+
+  <app-disponibilidad-equipo [data]="DataDisponibilidadEquipo" data-page="1" />
+  <app-disponibilidad-dia [data]="DataDisponibilidadDia" data-page="1" />
+  <app-disponibilidad-semana [data]="DataDisponibilidadSemana" data-page="1" />
+  <app-disponibilidad-mes [data]="DataDisponibilidadMes" data-page="1" />
+  <app-pareto-disponibilidad [data]="DataParetoDisponibilidad" data-page="1" />
+  <app-disponibilidad-guardia [data]="DataDisponibilidadPorGuardia" data-page="1" />
+
+  <app-utilizacion-equipo [data]="DataUtilizacionPorEquipo" data-page="1" />
+  <app-utilizacion-dia-mes [data]="DataUtilizacionPorDia" data-page="1" />
+  <app-utilizacion-semana [data]="DataUtilizacionPorSemana" data-page="1" />
+  <app-utilizacion-mes [data]="DataUtilizacionPorMes" data-page="1" />
+  <app-utilizacion-guardia [data]="DataUtilizacionPorGuardia" data-page="1" />
+  <app-pareto-utilizacion [data]="DataParetoUtilizacion" data-page="1" />
+
+
   <app-resumen class="full-width" [data]="resumen" data-page="1"></app-resumen>
   
   <app-disparos-equipo [data]="dataDisparosEquipo" data-page="1"></app-disparos-equipo>
   <app-perforado-equipo  [data]="dataMetrosDisparoFR" data-page="1"></app-perforado-equipo>
 
-  <app-rendimiento-equipo [data]="dataIndicadoresEquipo" data-page="1"></app-rendimiento-equipo>
   <app-demoras-operativas [data]="dataDemorasOperativas" data-page="1"></app-demoras-operativas>
 <!-- Hoja 2 pdf -->
   <app-horas-no-operativas [data]="dataHorasNoOperativas" data-page="2"></app-horas-no-operativas>

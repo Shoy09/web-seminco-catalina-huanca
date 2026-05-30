@@ -120,7 +120,7 @@ export class UtilizacionMesComponent implements OnChanges {
         data: meses,
         axisLabel: {
           interval: 0,
-          rotate: 35,
+          rotate: 0,
           fontSize: 10,
           fontWeight: 'bold',
           color: '#333',
