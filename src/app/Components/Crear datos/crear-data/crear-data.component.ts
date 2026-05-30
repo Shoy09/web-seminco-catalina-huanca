@@ -151,7 +151,7 @@ datoOriginal: any = null;
       label: 'Proceso',
       tipo: 'select',
       opciones: [
-        'PERFORACIÓN TALADROS LARGOS', 'PERFORACIÓN HORIZONTAL', 'EMPERNADOR', 'SCISSOR', 'SCALAMIN', 'ROMPEBANCOS', 'ANFOCHANGER', 'SCOOPTRAM', 'DUMPER'
+        'PERFORACIÓN TALADROS LARGOS', 'PERFORACIÓN HORIZONTAL', 'EMPERNADOR', 'SCISSOR','VOLQUETES', 'SCALAMIN', 'ROMPEBANCOS', 'ANFOCHANGER', 'SCOOPTRAM', 'DUMPER'
       ]
     },
         { nombre: 'codigo', label: 'Código', tipo: 'text' },
