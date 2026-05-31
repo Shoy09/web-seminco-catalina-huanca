@@ -15,6 +15,7 @@ import { MallasService } from '../../../services/mallas.service';
 import { OrigenDestinoService } from '../../../services/origen-destino.service';
 import { GuardiaService } from '../../../services/guardia.service';
 import { MaterialService } from '../../../services/material.service';
+import { EmpresaService } from '../../../services/empresa.service';
 
 
 @Component({
@@ -54,7 +55,8 @@ datoOriginal: any = null;
   private mallasService: MallasService,
   private origenDestinoService: OrigenDestinoService,
   private guardiaService: GuardiaService,
-    private materialService: MaterialService 
+    private materialService: MaterialService,
+  private empresaService: EmpresaService
   ) {} // Inyecta los servicios
 
   ngOnInit() {
@@ -151,7 +153,7 @@ datoOriginal: any = null;
       label: 'Proceso',
       tipo: 'select',
       opciones: [
-        'PERFORACIÓN TALADROS LARGOS', 'PERFORACIÓN HORIZONTAL', 'EMPERNADOR', 'SCISSOR','VOLQUETES', 'SCALAMIN', 'ROMPEBANCOS', 'ANFOCHANGER', 'SCOOPTRAM', 'DUMPER'
+        'PERFORACIÓN TALADROS LARGOS', 'PERFORACIÓN HORIZONTAL', 'EMPERNADOR', 'SCISSOR','ACARREO', 'SCALAMIN', 'ROMPEBANCOS', 'ANFOCHANGER', 'SCOOPTRAM', 'DUMPER'
       ]
     },
         { nombre: 'codigo', label: 'Código', tipo: 'text' },
@@ -167,6 +169,19 @@ datoOriginal: any = null;
     }
       ]
     },
+    {
+  nombre: 'Empresas',
+  icon: 'mas.svg',
+  tipo: 'Empresa',
+  datos: [],
+  campos: [
+    {
+      nombre: 'nombre',
+      label: 'Nombre de la Empresa',
+      tipo: 'text'
+    }
+  ]
+},
     {
   nombre: 'Tipo de Equipo',
   icon: 'mas.svg',
@@ -375,6 +390,14 @@ else if (this.modalContenido.tipo === 'Mallas') {
         },
         error: (err) => console.error('Error al actualizar Material:', err)
     });
+}else if (this.modalContenido.tipo === 'Empresa') {
+  this.empresaService.updateEmpresa(id, datosActualizados).subscribe({
+    next: (data) => {
+      this.modalContenido.datos[this.indiceEditando] = data;
+      this.cancelarEdicion();
+    },
+    error: (err) => console.error('Error al actualizar Empresa:', err)
+  });
 }
 
     // Agregar más casos según necesites, como 'Fechas Plan Mensual', 'Toneladas', etc.
@@ -630,6 +653,13 @@ else if (button.tipo === 'Mallas') {
         },
         error: (err) => console.error('Error al cargar Materiales:', err)
     });
+}else if (button.tipo === 'Empresa') {
+  this.empresaService.getEmpresas().subscribe({
+    next: (data) => {
+      this.modalContenido.datos = data;
+    },
+    error: (err) => console.error('Error al cargar Empresas:', err)
+  });
 }
 
   }
@@ -691,7 +721,7 @@ else if (button.tipo === 'Mallas') {
             this.modalContenido.datos.push(data);
             
           },
-          error: (err) => console.error('Error al guardar Empresa:', err)
+          error: (err) => console.error('Error al guardar Fecha:', err)
         });
       }else if (this.modalContenido.tipo === 'Tipo de Equipo') {
   this.tipoEquipoService.createTipo(nuevoRegistro).subscribe({
@@ -751,6 +781,13 @@ else if (this.modalContenido.tipo === 'Mallas') {
         },
         error: (err) => console.error('Error al guardar Material:', err)
     });
+}else if (this.modalContenido.tipo === 'Empresa') {
+  this.empresaService.createEmpresa(nuevoRegistro).subscribe({
+    next: (data) => {
+      this.modalContenido.datos.push(data);
+    },
+    error: (err) => console.error('Error al guardar Empresa:', err)
+  });
 }
 
       this.nuevoDato = {};
@@ -856,6 +893,15 @@ else if (this.modalContenido.tipo === 'Mallas') {
         },
         error: (err) => console.error('Error al eliminar Material:', err)
     });
+}else if (this.modalContenido.tipo === 'Empresa') {
+  this.empresaService.deleteEmpresa(item.id).subscribe({
+    next: () => {
+      this.modalContenido.datos = this.modalContenido.datos.filter(
+        (dato: any) => dato.id !== item.id
+      );
+    },
+    error: (err) => console.error('Error al eliminar Empresa:', err)
+  });
 }
 
   }
