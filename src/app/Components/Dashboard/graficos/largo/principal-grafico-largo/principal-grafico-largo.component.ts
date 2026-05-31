@@ -55,6 +55,10 @@ import { UtilizacionMesComponent } from '../../scoops/Graficos components/Utiliz
 import { UtilizacionGuardiaComponent } from '../../scoops/Graficos components/Utilizacion/utilizacion-guardia/utilizacion-guardia.component';
 import { ParetoUtilizacionComponent } from '../../horizontal/Graficos components/Pareto/pareto-utilizacion/pareto-utilizacion.component';
 import { RendimientoGuardiaComponent } from "../../scoops/Graficos components/Rendimiento/rendimiento-guardia/rendimiento-guardia.component";
+import { MatDialog } from '@angular/material/dialog';
+import { PresentacionDialogComponent } from '../../scoops/presentacion-dialog/presentacion-dialog.component';
+import { Equipo } from '../../../../../models/equipo.model';
+import { PresentacionTlargosDialogComponent } from '../presentacion-tlargos-dialog/presentacion-tlargos-dialog.component';
 
 @Component({
   selector: 'app-principal-grafico-largo',
@@ -151,6 +155,8 @@ export class PrincipalGraficoLargoComponent implements OnInit {
   ganttData: any[] = [];
   vistaPrincipal: boolean = true;
 
+  equiposProceso: Equipo[] = [];
+
   DataRendimientoPorEquipo: any[] = [];
   DataRendimientoPorGuardia: any[] = [];
   DataRendimientoPorDia: any[] = [];
@@ -176,6 +182,7 @@ export class PrincipalGraficoLargoComponent implements OnInit {
     private fechasPlanMensualService: FechasPlanMensualService,
     private operacionesService: OperacionesService,
     private estadoService: EstadoService,
+    private dialog: MatDialog,
   ) {}
 
   ngOnInit(): void {
@@ -209,6 +216,31 @@ export class PrincipalGraficoLargoComponent implements OnInit {
   toggleVista() {
     this.vistaPrincipal = !this.vistaPrincipal;
   }
+
+  Presentacion() {
+      if (!this.operacionesFiltradas || this.operacionesFiltradas.length === 0) {
+        console.warn('No hay datos filtrados para mostrar');
+        return;
+      }
+  
+      const dialogRef = this.dialog.open(PresentacionTlargosDialogComponent, {
+        width: '1800px',
+        maxHeight: '90vh',
+        data: {
+          operaciones: this.operacionesFiltradas,
+          turnoAplicado: this.turnoAplicado,
+          fechaInicio: this.fechaInicio,
+          fechaFin: this.fechaFin,
+        },
+        disableClose: false,
+        autoFocus: true,
+      });
+  
+      // Opcional: Escuchar cuando se cierre el diálogo
+      dialogRef.afterClosed().subscribe((result) => {
+        console.log('Diálogo cerrado', result);
+      });
+    }
 
   construirMapaEstados() {
     this.mapaEstados.clear();
