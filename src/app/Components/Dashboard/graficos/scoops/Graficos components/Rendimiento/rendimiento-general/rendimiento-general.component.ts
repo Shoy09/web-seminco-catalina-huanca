@@ -13,6 +13,11 @@ export class RendimientoGeneralComponent implements OnInit, OnChanges {
   
   tarjetas: any[] = [];
 
+  MetaCap1 = 150;
+  MetaCap2 = 120;
+  MetaCap3 = 85;
+  MetaCap4 = 60;
+
   constructor() {}
 
   ngOnInit(): void {

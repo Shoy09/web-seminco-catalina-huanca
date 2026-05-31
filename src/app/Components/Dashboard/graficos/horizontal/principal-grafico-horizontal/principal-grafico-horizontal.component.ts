@@ -123,6 +123,7 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
   fechaFin: string = '';
   turnoSeleccionado: string = '';
   turnoAplicado: string = '';
+  showZoom = false;
   resumen = {
     conteoEquipos: 0,
     metrosPorDisparo: 0,
@@ -196,6 +197,9 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
 
   toggleVista() {
     this.vistaPrincipal = !this.vistaPrincipal;
+  }
+  toggleDataZoom(): void {
+    this.showZoom = !this.showZoom;
   }
 
   obtenerEstadosPorProceso(proceso: string) {

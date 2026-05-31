@@ -15,7 +15,10 @@ import {
 } from 'echarts/components';
 
 import { CanvasRenderer } from 'echarts/renderers';
-import { CHART_COLORS, colorPorDisponibilidad } from '../../../../../../../shared/chart-theme';
+import {
+  CHART_COLORS,
+  colorPorDisponibilidad,
+} from '../../../../../../../shared/chart-theme';
 
 echarts.use([
   BarChart,
@@ -38,11 +41,12 @@ echarts.use([
 export class DisponibilidadDiaComponent implements OnChanges {
   // 🔥 DATA DINÁMICA
   @Input() data: any[] = [];
+  @Input() showZoom: boolean = false;
 
   chartOptions: any = {};
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data']) {
+    if (changes['showZoom'] || changes['data']) {
       this.actualizarGrafico();
     }
   }
@@ -222,23 +226,25 @@ export class DisponibilidadDiaComponent implements OnChanges {
         },
       },
 
-      dataZoom: [
-        {
-          type: 'slider',
-          show: true,
-          xAxisIndex: 0,
-          start: 0,
-          end: xAxisLabels.length > 10 ? 35 : 100,
-          height: 18,
-          bottom: 25,
-        },
-        {
-          type: 'inside',
-          xAxisIndex: 0,
-          start: 0,
-          end: xAxisLabels.length > 10 ? 35 : 100,
-        },
-      ],
+      dataZoom: this.showZoom
+        ? [
+            {
+              type: 'slider',
+              show: true,
+              xAxisIndex: 0,
+              start: 0,
+              end: xAxisLabels.length > 10 ? 35 : 100,
+              height: 18,
+              bottom: 25,
+            },
+            {
+              type: 'inside',
+              xAxisIndex: 0,
+              start: 0,
+              end: xAxisLabels.length > 10 ? 35 : 100,
+            },
+          ]
+        : [],
 
       series: [
         {
@@ -249,7 +255,7 @@ export class DisponibilidadDiaComponent implements OnChanges {
           data: valores.map((valor) => ({
             value: valor,
             itemStyle: {
-              color: colorPorDisponibilidad(valor)
+              color: colorPorDisponibilidad(valor),
             },
           })),
 
