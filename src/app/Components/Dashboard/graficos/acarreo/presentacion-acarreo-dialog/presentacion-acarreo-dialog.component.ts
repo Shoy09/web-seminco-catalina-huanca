@@ -1,7 +1,12 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { OperacionBaseVolquete } from '../../../../../models/OperacionBase.models';
-import { convertirNumero, normalizarTexto, obtenerRangoHoraBase, obtenerRangosHoraPorTurno } from '../../../../../utils/fecha-utils';
+import {
+  convertirNumero,
+  normalizarTexto,
+  obtenerRangoHoraBase,
+  obtenerRangosHoraPorTurno,
+} from '../../../../../utils/fecha-utils';
 import { CommonModule } from '@angular/common';
 import { MetrosPerforadosRangoHoraComponent } from '../../horizontal/horas/metros-perforados-rango-hora/metros-perforados-rango-hora.component';
 import { TablaMetrosPerforadosEquipoComponent } from '../../horizontal/horas/tabla-metros-perforados-equipo/tabla-metros-perforados-equipo.component';
@@ -15,7 +20,11 @@ export interface PresentacionAcarreoDialogData {
 
 @Component({
   selector: 'app-presentacion-acarreo-dialog',
-  imports: [CommonModule, MetrosPerforadosRangoHoraComponent, TablaMetrosPerforadosEquipoComponent],
+  imports: [
+    CommonModule,
+    MetrosPerforadosRangoHoraComponent,
+    TablaMetrosPerforadosEquipoComponent,
+  ],
   templateUrl: './presentacion-acarreo-dialog.component.html',
   styleUrl: './presentacion-acarreo-dialog.component.css',
 })
@@ -62,10 +71,12 @@ export class PresentacionAcarreoDialogComponent {
   procesarTodo(): void {
     if (!this.data.operaciones.length) return;
 
-    this.DataToneladasPorHora =
-      this.TonPorRangoHoraCompleto(this.turnoAplicado);
-    this.DataToneladasPorLaborYRangoHora =
-      this.TonPorLaborYRangoHora(this.turnoAplicado);
+    this.DataToneladasPorHora = this.TonPorRangoHoraCompleto(
+      this.turnoAplicado,
+    );
+    this.DataToneladasPorLaborYRangoHora = this.TonPorLaborYRangoHora(
+      this.turnoAplicado,
+    );
   }
 
   TonPorRangoHoraCompleto(turno: string = '') {
@@ -428,44 +439,18 @@ export class PresentacionAcarreoDialogComponent {
   }[] {
     if (!operacion) return [];
 
-    const mineral = convertirNumero(operacion.mineral);
-    const desmonte = convertirNumero(operacion.desmonte);
-    const relleno = convertirNumero(operacion.relleno);
-    const relave = convertirNumero(operacion.relave);
+    const toneladas = convertirNumero(operacion.toneladas);
 
-    const detalle = [
-      { material: 'MINERAL', toneladas: mineral },
-      { material: 'DESMONTE', toneladas: desmonte },
-      { material: 'RELLENO', toneladas: relleno },
-      { material: 'RELAVE', toneladas: relave },
-    ].filter((item) => item.toneladas > 0);
+    if (!toneladas || toneladas <= 0) return [];
 
-    if (detalle.length > 0) return detalle;
+    const material = normalizarTexto(operacion.material || 'SIN MATERIAL');
 
-    /**
-     * Si tu backend más adelante manda un campo directo:
-     * operacion.toneladas / operacion.total_toneladas,
-     * esto lo soporta.
-     */
-    const toneladasDirectas =
-      convertirNumero(operacion.toneladas) ||
-      convertirNumero(operacion.total_toneladas) ||
-      convertirNumero(operacion.ton_total);
-
-    if (toneladasDirectas > 0) {
-      const material = normalizarTexto(
-        operacion.material || 'SIN MATERIAL',
-      );
-
-      return [
-        {
-          material,
-          toneladas: toneladasDirectas,
-        },
-      ];
-    }
-
-    return [];
+    return [
+      {
+        material,
+        toneladas,
+      },
+    ];
   }
 
   cerrar(): void {
