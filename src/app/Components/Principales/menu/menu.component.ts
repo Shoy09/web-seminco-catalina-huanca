@@ -23,6 +23,7 @@ export class MenuComponent {
          { title: 'Perforacion Horizontal', path: 'grafico-horizontal' },
         { title: 'Perforacion Sostenimiento', path: 'grafico-sostenimiento' },
         {title: 'Carguío', path: 'grafico-scoops'},
+        {title: 'Acarreo', path: 'grafico-acarreo'},
          { title: 'Explosivos', path: 'explosivos-graficos' },
         { title: 'Linea de tiempo', path: 'linea-de-tiempo' },
       ],

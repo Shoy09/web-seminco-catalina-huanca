@@ -36,6 +36,7 @@ import { PrincipalGraficoSostenimientoComponent } from './Components/Dashboard/g
 import { PrincipalGraficoScoopsComponent } from './Components/Dashboard/graficos/scoops/principal-grafico-scoops/principal-grafico-scoops.component';
 import { LineaPrincipalComponent } from './Components/Dashboard/graficos/Linea de tiempo/linea.principal/linea.principal.component';
 import { PrincipalScissorComponent } from './Components/Jefe mina/aprobaciones/scissor/principal/principal.component';
+import { PrincipalGraficoAcarreoComponent } from './Components/Dashboard/graficos/acarreo/principal-grafico-acarreo/principal-grafico-acarreo.component';
 
 
 
@@ -89,6 +90,7 @@ export const routes: Routes = [
 { path: 'grafico-tal-largo', component: PrincipalGraficoLargoComponent },
 {path: 'grafico-sostenimiento', component: PrincipalGraficoSostenimientoComponent},
 {path: 'grafico-scoops', component: PrincipalGraficoScoopsComponent},
+{path: 'grafico-acarreo', component: PrincipalGraficoAcarreoComponent},
 
 
 { path: 'explosivos', component: ExplosivosComponent },

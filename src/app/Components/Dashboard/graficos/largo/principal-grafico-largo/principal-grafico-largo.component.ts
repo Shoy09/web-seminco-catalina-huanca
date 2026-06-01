@@ -56,7 +56,6 @@ import { UtilizacionGuardiaComponent } from '../../scoops/Graficos components/Ut
 import { ParetoUtilizacionComponent } from '../../horizontal/Graficos components/Pareto/pareto-utilizacion/pareto-utilizacion.component';
 import { RendimientoGuardiaComponent } from "../../scoops/Graficos components/Rendimiento/rendimiento-guardia/rendimiento-guardia.component";
 import { MatDialog } from '@angular/material/dialog';
-import { PresentacionDialogComponent } from '../../scoops/presentacion-dialog/presentacion-dialog.component';
 import { Equipo } from '../../../../../models/equipo.model';
 import { PresentacionTlargosDialogComponent } from '../presentacion-tlargos-dialog/presentacion-tlargos-dialog.component';
 

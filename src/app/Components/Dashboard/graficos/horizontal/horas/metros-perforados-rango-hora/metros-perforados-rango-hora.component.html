@@ -11,95 +11,93 @@
   </div>
 
   <!-- Columna derecha -->
-<!-- Columna derecha -->
-<div class="sidebar-columna">
+  <div class="sidebar-columna">
 
-  <div class="contenedor-inferior">
+    <div class="contenedor-inferior">
 
-    <!-- TOTAL POR TIPO -->
-    <div class="totales-columna">
+      <!-- TOTAL POR TIPO / MATERIAL -->
+      <div class="totales-columna">
 
-      <div class="totales-header">
-        <h4>📊 TOTAL POR TIPO DE PERFORACIÓN</h4>
+        <div class="totales-header">
+          <h4>{{ tituloTotalTipo }}</h4>
+        </div>
+
+        <div class="totales-lista">
+          <div
+            *ngFor="let tipo of tiposPerforacionFiltrados"
+            class="total-item"
+          >
+            <div class="total-item-info">
+              <span class="total-item-nombre">
+                {{ tipo }}
+              </span>
+
+              <span class="total-item-valor">
+                {{ totalesPorTipo[tipo] | number:'1.2-2' }} {{ unidad }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="total-general">
+          <span class="total-general-label">
+            TOTAL GENERAL
+          </span>
+
+          <strong class="total-general-value">
+            {{ totalGeneral | number:'1.2-2' }} {{ unidad }}
+          </strong>
+        </div>
+
       </div>
 
-      <div class="totales-lista">
-        <div *ngFor="let tipo of tiposPerforacionFiltrados" 
-             class="total-item">
+      <!-- TOTAL POR EQUIPO / VOLQUETE -->
+      <div class="equipos-columna">
 
-          <div class="total-item-info">
-            <span class="total-item-nombre">
-              {{ tipo }}
-            </span>
+        <div class="totales-header">
+          <h4>{{ tituloTotalEquipo }}</h4>
+        </div>
 
-            <span class="total-item-valor">
-              {{ totalesPorTipo[tipo] | number:'1.2-2' }} m
-            </span>
+        <div class="totales-lista">
+
+          <div
+            *ngFor="let equipo of equiposFiltrados"
+            class="total-item"
+            [title]="obtenerTooltipEquipo(equipo)"
+          >
+            <div class="total-item-info">
+
+              <span class="total-item-nombre">
+                {{ equipo }}
+              </span>
+
+              <span class="total-item-valor">
+                {{ totalesPorEquipo[equipo] | number:'1.2-2' }} {{ unidad }}
+              </span>
+
+            </div>
           </div>
 
         </div>
+
+        <div class="total-general">
+          <span class="total-general-label">
+            TOTAL {{ labelEquipo | uppercase }}
+          </span>
+
+          <strong class="total-general-value">
+            {{ totalGeneral | number:'1.2-2' }} {{ unidad }}
+          </strong>
+        </div>
+
       </div>
-
-      <div class="total-general">
-  <span class="total-general-label">
-    TOTAL GENERAL
-  </span>
-
-  <strong class="total-general-value">
-    {{ totalGeneral | number:'1.2-2' }} m
-  </strong>
-</div>
-
-    </div>
-
-    <!-- TOTAL POR EQUIPO -->
-    <div class="equipos-columna">
-
-      <div class="totales-header">
-        <h4>🚜 TOTAL POR EQUIPO</h4>
-      </div>
-
-      <div class="totales-lista">
-
-  <div
-  *ngFor="let equipo of equiposFiltrados"
-  class="total-item"
-  [title]="obtenerTooltipEquipo(equipo)">
-
-  <div class="total-item-info">
-
-    <span class="total-item-nombre">
-      {{ equipo }}
-    </span>
-
-    <span class="total-item-valor">
-      {{ totalesPorEquipo[equipo] | number:'1.2-2' }} m
-    </span>
-
-  </div>
-
-</div>
-
-</div>
-
-<div class="total-general">
-  <span class="total-general-label">
-    TOTAL EQUIPOS
-  </span>
-
-  <strong class="total-general-value">
-    {{ totalGeneral | number:'1.2-2' }} m
-  </strong>
-</div>
 
     </div>
 
   </div>
-
-</div>
 
 </div>
 
 <div *ngIf="!data?.length" class="sin-datos">
-  <p>No hay datos de metros perforados por rango de hora disponibles</p>
+  <p>{{ mensajeSinDatos }}</p>
 </div>

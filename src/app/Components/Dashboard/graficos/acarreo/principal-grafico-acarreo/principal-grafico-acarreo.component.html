@@ -1,0 +1,56 @@
+<div class="filtro-fechas">
+  <div class="campo">
+    <label>Fecha inicio</label>
+    <input type="date" [(ngModel)]="fechaInicio">
+  </div>
+
+  <div class="campo">
+    <label>Fecha fin</label>
+    <input type="date" [(ngModel)]="fechaFin">
+  </div>
+
+  <div class="campo">
+  <label>Turno</label>
+  <select [(ngModel)]="turnoSeleccionado">
+    <option value="">Todos</option>
+    <option value="DÍA">Día</option>
+    <option value="NOCHE">Noche</option>
+  </select>
+</div>
+
+
+  <button class="btn-aplicar" (click)="aplicarFiltro()">
+    Aplicar
+  </button>
+
+  <button class="btn-aplicar" (click)="quitarFiltro()">
+    Quitar filtro
+  </button>
+
+ <!--  <button class="btn-aplicar" (click)="generarPDF()">
+  Exportar PDF
+</button>
+
+<button class="btn-aplicar" (click)="ImportarExcel()">
+  Crear Masivos
+</button> -->
+
+<button class="btn-aplicar" (click)="Presentacion()">
+  presentación
+</button>
+
+<!-- <button class="btn-aplicar" (click)="toggleVista()">
+  {{ vistaPrincipal ? 'Ver gráfico de linea' : 'Gráficos principales' }}
+</button> -->
+
+
+</div> 
+
+<div class="graficos-container" *ngIf="vistaPrincipal">
+  
+</div>
+ 
+<div class="overlay" *ngIf="cargandoPDF">
+  <div class="spinner"></div>
+  <p>Generando PDF...</p>
+</div> 
