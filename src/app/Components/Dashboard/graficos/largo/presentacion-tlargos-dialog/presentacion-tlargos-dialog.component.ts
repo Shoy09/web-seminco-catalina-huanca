@@ -4,6 +4,7 @@ import { MetrosPerforadosRangoHoraComponent } from '../../horizontal/horas/metro
 import { TablaMetrosPerforadosEquipoComponent } from '../../horizontal/horas/tabla-metros-perforados-equipo/tabla-metros-perforados-equipo.component';
 import { OperacionBaseTLargos } from '../../../../../models/OperacionBase.models';
 import { CommonModule } from '@angular/common';
+import { OperacionTLargos } from '../../../../../models/OperacionTLargos';
 
 export interface PresentacionTlargosDialogData {
   operaciones: OperacionBaseTLargos[];
@@ -141,7 +142,7 @@ MetrosPerforadosPorRangoHoraCompleto(turno: string = '') {
   }
 
   // 1. Obtener tipos de perforación
-  this.data.operaciones.forEach((op: any) => {
+  this.data.operaciones.forEach((op: OperacionBaseTLargos) => {
     if (turno && op.turno !== turno) return;
     const registrosArray = op.registros;
     if (!Array.isArray(registrosArray)) return;
@@ -171,9 +172,9 @@ MetrosPerforadosPorRangoHoraCompleto(turno: string = '') {
       rangoHora,
       total: 0,
       cantidadRegistros: 0,
-      cantidadBarras: 0,
-      totalTaladros: 0,
-      totalNBarras: 0,
+      //cantidadBarras: 0,
+      //totalTaladros: 0,
+      //totalNBarras: 0,
       equipos: {},
     };
 
@@ -215,7 +216,7 @@ MetrosPerforadosPorRangoHoraCompleto(turno: string = '') {
         const longitudPerforacion = Number(barra.longitud_perforacion) || 0;
         
         // Si viene n_fila, puedes usarlo para otros cálculos
-        const nFila = Number(barra.n_fila) || 0;
+        //const nFila = Number(barra.n_fila) || 0;
         
         const tipoPerforacion = String(barra.tipo_perforacion || 'SIN TIPO')
           .toUpperCase()
@@ -236,12 +237,12 @@ MetrosPerforadosPorRangoHoraCompleto(turno: string = '') {
         // Totales del rango
         item.total += metrosPerforados;
         item.cantidadRegistros += 1;
-        item.cantidadBarras += 1;
+        //item.cantidadBarras += 1;
         
         // Nota: Ya no tienes n_taladro ni n_barras, solo n_fila
         // Si aún necesitas estos valores, puedes usar n_fila
-        item.totalTaladros += nFila;     // Ahora usa n_fila en lugar de n_taladro
-        item.totalNBarras += 1;          // Cada barra cuenta como 1
+        //item.totalTaladros += nFila;     // Ahora usa n_fila en lugar de n_taladro
+        //item.totalNBarras += 1;          // Cada barra cuenta como 1
 
         // Acumular por equipo
         if (!item.equipos[nEquipo]) {
@@ -266,8 +267,8 @@ MetrosPerforadosPorRangoHoraCompleto(turno: string = '') {
   // 4. Convertir a array y redondear
   const resultado = Array.from(resultadoMap.values()).map((item) => {
     item.total = Number(item.total.toFixed(2));
-    item.totalTaladros = Number(item.totalTaladros.toFixed(2));
-    item.totalNBarras = Number(item.totalNBarras.toFixed(2));
+    //item.totalTaladros = Number(item.totalTaladros.toFixed(2));
+    //item.totalNBarras = Number(item.totalNBarras.toFixed(2));
 
     tiposPerforacion.forEach((tipo) => {
       item[tipo] = Number((item[tipo] || 0).toFixed(2));
@@ -286,7 +287,6 @@ MetrosPerforadosPorRangoHoraCompleto(turno: string = '') {
     return item;
   });
 
-  console.log('Resultado Metros Perforados por Rango de Hora:', resultado);
   return resultado;
 }
 
@@ -445,14 +445,19 @@ MetrosPerforadosPorRangoHoraCompleto(turno: string = '') {
         const item = resultadoMap.get(clave);
 
         for (const barra of barrasArray) {
-          const nTaladro = Number(barra.n_taladro) || 0;
-          const nBarras = Number(barra.n_barras) || 0;
+          //const nTaladro = Number(barra.n_taladro) || 0;
+          //const nBarras = Number(barra.n_barras) || 0;
 
           const tipoPerforacion = String(barra.tipo_perforacion || 'SIN TIPO')
             .toUpperCase()
             .trim();
 
-          const metrosPerforados = nTaladro * nBarras * longBarrasMetros;
+          //const metrosPerforados = nTaladro * nBarras * longBarrasMetros;
+          const longitudPerforacion = Number(barra.longitud_perforacion) || 0;
+
+          const metrosPerforados = longitudPerforacion;
+
+
 
           if (metrosPerforados <= 0) continue;
 
@@ -465,8 +470,8 @@ MetrosPerforadosPorRangoHoraCompleto(turno: string = '') {
 
           item.cantidadRegistros += 1;
           item.cantidadBarras += 1;
-          item.totalTaladros += nTaladro;
-          item.totalNBarras += nBarras;
+          //item.totalTaladros += nTaladro;
+          //item.totalNBarras += nBarras;
         }
       }
     });
@@ -511,13 +516,6 @@ MetrosPerforadosPorRangoHoraCompleto(turno: string = '') {
 
     const resultado = Array.from(resultadoPorLabor.values()).sort((a, b) =>
       a.labor.localeCompare(b.labor),
-    );
-
-    console.log(
-      `📊 METROS PERFORADOS POR LABOR Y RANGO HORA TLARGOS (Turno: ${
-        turno || 'TODOS'
-      }):`,
-      resultado,
     );
 
     return resultado;
