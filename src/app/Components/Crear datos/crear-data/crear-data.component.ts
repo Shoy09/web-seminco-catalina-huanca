@@ -251,7 +251,20 @@ datoOriginal: any = null;
     tipo: 'Material',
     datos: [],
     campos: [
-        { nombre: 'nombre', label: 'Nombre del Material', tipo: 'text' }
+        {
+            nombre: 'proceso',
+            label: 'Proceso',
+            tipo: 'select',
+            opciones: [
+                'SCOOPTRAM',
+                'ACARREO'
+            ]
+        },
+        {
+            nombre: 'nombre',
+            label: 'Nombre del Material',
+            tipo: 'text'
+        }
     ]
 },
   ];  
