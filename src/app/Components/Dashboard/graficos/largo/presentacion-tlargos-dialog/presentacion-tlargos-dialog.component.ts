@@ -76,81 +76,114 @@ export class PresentacionTlargosDialogComponent {
 MetrosPerforadosPorRangoHoraCompleto(turno: string = '') {
   const resultadoMap = new Map<string, any>();
   const tiposPerforacionSet = new Set<string>();
-  let rangosHora: string[] = [];
+  
+  // ✅ AHORA USA LA MISMA ESTRUCTURA QUE EL MÉTODO DE TONELADAS
+  let rangosHora: { label: string; inicio: number; fin: number }[] = [];
 
-  const obtenerRangoHoraBase = (horaStr: string): string => {
-    if (!horaStr) return 'SIN HORA';
-    let [hora, minutos] = horaStr.split(':').map(Number);
-    if (isNaN(hora) || isNaN(minutos)) return 'SIN HORA';
-
-    // Si termina exacto en :00 pertenece al rango anterior
-    if (minutos === 0) {
-      hora = hora === 0 ? 23 : hora - 1;
-      minutos = 59;
-    }
-
-    if (hora >= 6 && hora < 7) return '06:00 - 07:00';
-    if (hora >= 7 && hora < 8) return '07:00 - 08:00';
-    if (hora >= 8 && hora < 9) return '08:00 - 09:00';
-    if (hora >= 9 && hora < 10) return '09:00 - 10:00';
-    if (hora >= 10 && hora < 11) return '10:00 - 11:00';
-    if (hora >= 11 && hora < 12) return '11:00 - 12:00';
-    if (hora >= 12 && hora < 13) return '12:00 - 13:00';
-    if (hora >= 13 && hora < 14) return '13:00 - 14:00';
-    if (hora >= 14 && hora < 15) return '14:00 - 15:00';
-    if (hora >= 15 && hora < 16) return '15:00 - 16:00';
-    if (hora >= 16 && hora < 17) return '16:00 - 17:00';
-    if (hora >= 17 && hora < 18) return '17:00 - 18:00';
-    if (hora >= 18 && hora < 19) return '18:00 - 19:00';
-    if (hora >= 19 && hora < 20) return '19:00 - 20:00';
-    if (hora >= 20 && hora < 21) return '20:00 - 21:00';
-    if (hora >= 21 && hora < 22) return '21:00 - 22:00';
-    if (hora >= 22 && hora < 23) return '22:00 - 23:00';
-    if (hora >= 23) return '23:00 - 00:00';
-    if (hora >= 0 && hora < 1) return '00:00 - 01:00';
-    if (hora >= 1 && hora < 2) return '01:00 - 02:00';
-    if (hora >= 2 && hora < 3) return '02:00 - 03:00';
-    if (hora >= 3 && hora < 4) return '03:00 - 04:00';
-    if (hora >= 4 && hora < 5) return '04:00 - 05:00';
-    if (hora >= 5 && hora < 6) return '05:00 - 06:00';
-
-    return 'SIN HORA';
-  };
-
-  // Definir rangos según turno
   if (turno === 'DÍA') {
     rangosHora = [
-      '06:00 - 07:00', '07:00 - 08:00', '08:00 - 09:00', '09:00 - 10:00',
-      '10:00 - 11:00', '11:00 - 12:00', '12:00 - 13:00', '13:00 - 14:00',
-      '14:00 - 15:00', '15:00 - 16:00', '16:00 - 17:00', '17:00 - 18:00'
+      { label: '06:00 - 07:00', inicio: 6, fin: 7 },
+      { label: '07:00 - 08:00', inicio: 7, fin: 8 },
+      { label: '08:00 - 09:00', inicio: 8, fin: 9 },
+      { label: '09:00 - 10:00', inicio: 9, fin: 10 },
+      { label: '10:00 - 11:00', inicio: 10, fin: 11 },
+      { label: '11:00 - 12:00', inicio: 11, fin: 12 },
+      { label: '12:00 - 13:00', inicio: 12, fin: 13 },
+      { label: '13:00 - 14:00', inicio: 13, fin: 14 },
+      { label: '14:00 - 15:00', inicio: 14, fin: 15 },
+      { label: '15:00 - 16:00', inicio: 15, fin: 16 },
+      { label: '16:00 - 17:00', inicio: 16, fin: 17 },
+      { label: '17:00 - 18:00', inicio: 17, fin: 18 }
     ];
   } else if (turno === 'NOCHE') {
     rangosHora = [
-      '18:00 - 19:00', '19:00 - 20:00', '20:00 - 21:00', '21:00 - 22:00',
-      '22:00 - 23:00', '23:00 - 00:00', '00:00 - 01:00', '01:00 - 02:00',
-      '02:00 - 03:00', '03:00 - 04:00', '04:00 - 05:00', '05:00 - 06:00'
+      { label: '18:00 - 19:00', inicio: 18, fin: 19 },
+      { label: '19:00 - 20:00', inicio: 19, fin: 20 },
+      { label: '20:00 - 21:00', inicio: 20, fin: 21 },
+      { label: '21:00 - 22:00', inicio: 21, fin: 22 },
+      { label: '22:00 - 23:00', inicio: 22, fin: 23 },
+      { label: '23:00 - 00:00', inicio: 23, fin: 24 },
+      { label: '00:00 - 01:00', inicio: 0, fin: 1 },
+      { label: '01:00 - 02:00', inicio: 1, fin: 2 },
+      { label: '02:00 - 03:00', inicio: 2, fin: 3 },
+      { label: '03:00 - 04:00', inicio: 3, fin: 4 },
+      { label: '04:00 - 05:00', inicio: 4, fin: 5 },
+      { label: '05:00 - 06:00', inicio: 5, fin: 6 }
     ];
   } else {
     rangosHora = [
-      '06:00 - 07:00', '07:00 - 08:00', '08:00 - 09:00', '09:00 - 10:00',
-      '10:00 - 11:00', '11:00 - 12:00', '12:00 - 13:00', '13:00 - 14:00',
-      '14:00 - 15:00', '15:00 - 16:00', '16:00 - 17:00', '17:00 - 18:00',
-      '18:00 - 19:00', '19:00 - 20:00', '20:00 - 21:00', '21:00 - 22:00',
-      '22:00 - 23:00', '23:00 - 00:00', '00:00 - 01:00', '01:00 - 02:00',
-      '02:00 - 03:00', '03:00 - 04:00', '04:00 - 05:00', '05:00 - 06:00'
+      { label: '06:00 - 07:00', inicio: 6, fin: 7 },
+      { label: '07:00 - 08:00', inicio: 7, fin: 8 },
+      { label: '08:00 - 09:00', inicio: 8, fin: 9 },
+      { label: '09:00 - 10:00', inicio: 9, fin: 10 },
+      { label: '10:00 - 11:00', inicio: 10, fin: 11 },
+      { label: '11:00 - 12:00', inicio: 11, fin: 12 },
+      { label: '12:00 - 13:00', inicio: 12, fin: 13 },
+      { label: '13:00 - 14:00', inicio: 13, fin: 14 },
+      { label: '14:00 - 15:00', inicio: 14, fin: 15 },
+      { label: '15:00 - 16:00', inicio: 15, fin: 16 },
+      { label: '16:00 - 17:00', inicio: 16, fin: 17 },
+      { label: '17:00 - 18:00', inicio: 17, fin: 18 },
+      { label: '18:00 - 19:00', inicio: 18, fin: 19 },
+      { label: '19:00 - 20:00', inicio: 19, fin: 20 },
+      { label: '20:00 - 21:00', inicio: 20, fin: 21 },
+      { label: '21:00 - 22:00', inicio: 21, fin: 22 },
+      { label: '22:00 - 23:00', inicio: 22, fin: 23 },
+      { label: '23:00 - 00:00', inicio: 23, fin: 24 },
+      { label: '00:00 - 01:00', inicio: 0, fin: 1 },
+      { label: '01:00 - 02:00', inicio: 1, fin: 2 },
+      { label: '02:00 - 03:00', inicio: 2, fin: 3 },
+      { label: '03:00 - 04:00', inicio: 3, fin: 4 },
+      { label: '04:00 - 05:00', inicio: 4, fin: 5 },
+      { label: '05:00 - 06:00', inicio: 5, fin: 6 }
     ];
   }
 
-  // 1. Obtener tipos de perforación
-  this.data.operaciones.forEach((op: OperacionBaseTLargos) => {
+  // Función auxiliar para convertir hora string a decimal
+  const horaStringToDecimal = (horaStr: string): number => {
+    if (!horaStr) return 0;
+    const [hora, minutos] = horaStr.split(':').map(Number);
+    return hora + (minutos / 60);
+  };
+
+  // Calcular intersección entre operación y rango
+  const calcularInterseccion = (
+    inicioOp: number,
+    finOp: number,
+    inicioRango: number,
+    finRango: number
+  ): number => {
+    const inicio = Math.max(inicioOp, inicioRango);
+    const fin = Math.min(finOp, finRango);
+    return fin > inicio ? fin - inicio : 0;
+  };
+
+  // Inicializar rango en el mapa
+  const inicializarRangoSiNoExiste = (label: string) => {
+    if (!resultadoMap.has(label)) {
+      const nuevoItem: any = {
+        rangoHora: label,
+        total: 0,
+        cantidadRegistros: 0,
+        equipos: {},
+      };
+      
+      tiposPerforacionSet.forEach((tipo) => {
+        nuevoItem[tipo] = 0;
+      });
+      
+      resultadoMap.set(label, nuevoItem);
+    }
+  };
+
+  // 1. PRIMERO: Recopilar tipos de perforación disponibles
+  this.data.operaciones.forEach((op: any) => {
     if (turno && op.turno !== turno) return;
     const registrosArray = op.registros;
     if (!Array.isArray(registrosArray)) return;
 
     for (const registro of registrosArray) {
       if (registro.estado !== 'OPERATIVO') continue;
-      if (!registro.hora_final) continue;
-
       const operacionData = registro.operacion || {};
       const barrasArray = operacionData.barras;
       if (!Array.isArray(barrasArray)) continue;
@@ -166,26 +199,23 @@ MetrosPerforadosPorRangoHoraCompleto(turno: string = '') {
 
   const tiposPerforacion = Array.from(tiposPerforacionSet).sort();
 
-  // 2. Inicializar todos los rangos
-  rangosHora.forEach((rangoHora) => {
+  // 2. SEGUNDO: Inicializar todos los rangos con ceros
+  rangosHora.forEach((rango) => {
     const nuevoItem: any = {
-      rangoHora,
+      rangoHora: rango.label,
       total: 0,
       cantidadRegistros: 0,
-      //cantidadBarras: 0,
-      //totalTaladros: 0,
-      //totalNBarras: 0,
       equipos: {},
     };
-
+    
     tiposPerforacion.forEach((tipo) => {
       nuevoItem[tipo] = 0;
     });
-
-    resultadoMap.set(rangoHora, nuevoItem);
+    
+    resultadoMap.set(rango.label, nuevoItem);
   });
 
-  // 3. Procesar registros - NUEVA LÓGICA
+  // 3. TERCERO: Procesar con distribución proporcional
   this.data.operaciones.forEach((op: any) => {
     if (turno && op.turno !== turno) return;
 
@@ -194,332 +224,460 @@ MetrosPerforadosPorRangoHoraCompleto(turno: string = '') {
 
     for (const registro of registrosArray) {
       if (registro.estado !== 'OPERATIVO') continue;
-      if (!registro.hora_final) continue;
-
-      const rangoHora = obtenerRangoHoraBase(registro.hora_final);
-      if (!rangosHora.includes(rangoHora)) continue;
+      
+      const horaInicioStr = registro.hora_inicio;
+      const horaFinalStr = registro.hora_final;
+      if (!horaInicioStr || !horaFinalStr) continue;
 
       const operacionData = registro.operacion || {};
       const barrasArray = operacionData.barras;
-
       if (!Array.isArray(barrasArray)) continue;
 
-      const labor = String(operacionData.labor || 'SIN LABOR').trim();
-      const claveLabor = labor === '' ? 'SIN LABOR' : labor;
-      const nEquipo = String(op.modelo_equipo || op.n_equipo || 'SIN EQUIPO').trim();
+      // Calcular duración total de la operación
+      let horaInicioDecimal = horaStringToDecimal(horaInicioStr);
+      let horaFinalDecimal = horaStringToDecimal(horaFinalStr);
 
-      const item = resultadoMap.get(rangoHora);
-      if (!item) continue;
+      // Manejar cruce de medianoche
+      if (horaFinalDecimal < horaInicioDecimal) {
+        horaFinalDecimal += 24;
+      }
+
+      const duracionTotal = horaFinalDecimal - horaInicioDecimal;
+      if (duracionTotal <= 0) continue;
+
+      // Calcular metros perforados totales para esta operación
+      let metrosPerforadosTotales = 0;
+      const barrasConDatos = [];
 
       for (const barra of barrasArray) {
-        // ✅ NUEVO: Usar longitud_perforacion directamente
         const longitudPerforacion = Number(barra.longitud_perforacion) || 0;
-        
-        // Si viene n_fila, puedes usarlo para otros cálculos
-        //const nFila = Number(barra.n_fila) || 0;
+        if (longitudPerforacion <= 0) continue;
         
         const tipoPerforacion = String(barra.tipo_perforacion || 'SIN TIPO')
           .toUpperCase()
           .trim();
+        
+        metrosPerforadosTotales += longitudPerforacion;
+        barrasConDatos.push({ longitudPerforacion, tipoPerforacion });
+      }
 
-        // Los metros perforados son SOLO la longitud_perforacion
-        const metrosPerforados = longitudPerforacion;
+      if (metrosPerforadosTotales <= 0) continue;
 
-        if (metrosPerforados <= 0) continue;
+      // Distribuir proporcionalmente por rango de hora
+      for (const rango of rangosHora) {
+        let inicioRangoDecimal = rango.inicio;
+        let finRangoDecimal = rango.fin;
 
-        // Acumular por tipo de perforación
-        if (item[tipoPerforacion] === undefined) {
-          item[tipoPerforacion] = 0;
+        // Ajustar rangos si operación cruza medianoche
+        if (horaFinalDecimal > 24 && finRangoDecimal <= 6) {
+          inicioRangoDecimal += 24;
+          finRangoDecimal += 24;
         }
 
-        item[tipoPerforacion] += metrosPerforados;
+        const interseccionHoras = calcularInterseccion(
+          horaInicioDecimal,
+          horaFinalDecimal,
+          inicioRangoDecimal,
+          finRangoDecimal
+        );
 
-        // Totales del rango
-        item.total += metrosPerforados;
-        item.cantidadRegistros += 1;
-        //item.cantidadBarras += 1;
+        if (interseccionHoras <= 0) continue;
+
+        // Proporción de tiempo en este rango
+        const proporcion = interseccionHoras / duracionTotal;
         
-        // Nota: Ya no tienes n_taladro ni n_barras, solo n_fila
-        // Si aún necesitas estos valores, puedes usar n_fila
-        //item.totalTaladros += nFila;     // Ahora usa n_fila en lugar de n_taladro
-        //item.totalNBarras += 1;          // Cada barra cuenta como 1
+        // Metros perforados que corresponden a este rango
+        const metrosEnRango = metrosPerforadosTotales * proporcion;
+        if (metrosEnRango <= 0.001) continue;
 
-        // Acumular por equipo
+        // Obtener o inicializar el item del rango
+        let item = resultadoMap.get(rango.label);
+        if (!item) {
+          inicializarRangoSiNoExiste(rango.label);
+          item = resultadoMap.get(rango.label);
+        }
+
+        // Distribuir metros perforados por tipo
+        for (const barra of barrasConDatos) {
+          const proporcionBarra = barra.longitudPerforacion / metrosPerforadosTotales;
+          const metrosPorTipo = metrosEnRango * proporcionBarra;
+          
+          if (item[barra.tipoPerforacion] === undefined) {
+            item[barra.tipoPerforacion] = 0;
+          }
+          item[barra.tipoPerforacion] += metrosPorTipo;
+        }
+
+        // Acumular totales
+        item.total += metrosEnRango;
+        
+        // Acumular por equipo (solo 1 vez por registro para no duplicar)
+        const nEquipo = String(op.modelo_equipo || op.n_equipo || 'SIN EQUIPO').trim();
+        const labor = String(operacionData.labor || 'SIN LABOR').trim();
+        const claveLabor = labor === '' ? 'SIN LABOR' : labor;
+
         if (!item.equipos[nEquipo]) {
           item.equipos[nEquipo] = {
             total: 0,
             labores: {},
           };
         }
-
-        item.equipos[nEquipo].total += metrosPerforados;
-
-        // Acumular por labor dentro del equipo
+        
+        item.equipos[nEquipo].total += metrosEnRango;
+        
         if (!item.equipos[nEquipo].labores[claveLabor]) {
           item.equipos[nEquipo].labores[claveLabor] = 0;
         }
+        item.equipos[nEquipo].labores[claveLabor] += metrosEnRango;
+      }
 
-        item.equipos[nEquipo].labores[claveLabor] += metrosPerforados;
+      // Contar registro en el rango donde finalizó (opcional, como en toneladas)
+      const rangoFinal = rangosHora.find(r => {
+        const horaFin = horaStringToDecimal(horaFinalStr);
+        return horaFin >= r.inicio && horaFin < r.fin;
+      });
+      
+      if (rangoFinal) {
+        const item = resultadoMap.get(rangoFinal.label);
+        if (item) {
+          item.cantidadRegistros += 1;
+        }
       }
     }
   });
 
-  // 4. Convertir a array y redondear
-  const resultado = Array.from(resultadoMap.values()).map((item) => {
-    item.total = Number(item.total.toFixed(2));
-    //item.totalTaladros = Number(item.totalTaladros.toFixed(2));
-    //item.totalNBarras = Number(item.totalNBarras.toFixed(2));
-
-    tiposPerforacion.forEach((tipo) => {
-      item[tipo] = Number((item[tipo] || 0).toFixed(2));
-    });
-
-    Object.keys(item.equipos).forEach((equipo) => {
-      item.equipos[equipo].total = Number(item.equipos[equipo].total.toFixed(2));
-
-      Object.keys(item.equipos[equipo].labores).forEach((labor) => {
-        item.equipos[equipo].labores[labor] = Number(
-          item.equipos[equipo].labores[labor].toFixed(2)
-        );
+  // 4. Convertir a array, ordenar y redondear
+  const resultado = Array.from(resultadoMap.values())
+    .sort((a, b) => {
+      const indexA = rangosHora.findIndex(r => r.label === a.rangoHora);
+      const indexB = rangosHora.findIndex(r => r.label === b.rangoHora);
+      return indexA - indexB;
+    })
+    .map((item) => {
+      item.total = Number(item.total.toFixed(2));
+      
+      tiposPerforacion.forEach((tipo) => {
+        item[tipo] = Number((item[tipo] || 0).toFixed(2));
       });
+      
+      // Limpiar equipos con valores muy pequeños
+      Object.keys(item.equipos).forEach((equipo) => {
+        if (item.equipos[equipo].total < 0.01) {
+          delete item.equipos[equipo];
+        } else {
+          item.equipos[equipo].total = Number(item.equipos[equipo].total.toFixed(2));
+          
+          Object.keys(item.equipos[equipo].labores).forEach((labor) => {
+            if (item.equipos[equipo].labores[labor] < 0.01) {
+              delete item.equipos[equipo].labores[labor];
+            } else {
+              item.equipos[equipo].labores[labor] = Number(
+                item.equipos[equipo].labores[labor].toFixed(2)
+              );
+            }
+          });
+          
+          // Si no quedan labores, eliminar el equipo
+          if (Object.keys(item.equipos[equipo].labores).length === 0) {
+            delete item.equipos[equipo];
+          }
+        }
+      });
+      
+      return item;
     });
 
-    return item;
-  });
-
+  console.log(`📊 METROS PERFORADOS POR RANGO DE HORA (Turno: ${turno || 'TODOS'}):`, resultado);
   return resultado;
 }
 
-  MetrosPerforadosPorLaborYRangoHora(turno: string = '') {
-    const resultadoMap = new Map<string, any>();
+MetrosPerforadosPorLaborYRangoHora(turno: string = '') {
+  const resultadoMap = new Map<string, any>();
 
-    let rangosHora: string[] = [];
+  // ✅ AHORA USA LA MISMA ESTRUCTURA QUE LOS OTROS MÉTODOS
+  let rangosHora: { label: string; inicio: number; fin: number }[] = [];
 
-    if (turno === 'DÍA') {
-      rangosHora = [
-        '06:00 - 07:00',
-        '07:00 - 08:00',
-        '08:00 - 09:00',
-        '09:00 - 10:00',
-        '10:00 - 11:00',
-        '11:00 - 12:00',
-        '12:00 - 13:00',
-        '13:00 - 14:00',
-        '14:00 - 15:00',
-        '15:00 - 16:00',
-        '16:00 - 17:00',
-        '17:00 - 18:00',
-      ];
-    } else if (turno === 'NOCHE') {
-      rangosHora = [
-        '18:00 - 19:00',
-        '19:00 - 20:00',
-        '20:00 - 21:00',
-        '21:00 - 22:00',
-        '22:00 - 23:00',
-        '23:00 - 00:00',
-        '00:00 - 01:00',
-        '01:00 - 02:00',
-        '02:00 - 03:00',
-        '03:00 - 04:00',
-        '04:00 - 05:00',
-        '05:00 - 06:00',
-      ];
-    } else {
-      rangosHora = [
-        '06:00 - 07:00',
-        '07:00 - 08:00',
-        '08:00 - 09:00',
-        '09:00 - 10:00',
-        '10:00 - 11:00',
-        '11:00 - 12:00',
-        '12:00 - 13:00',
-        '13:00 - 14:00',
-        '14:00 - 15:00',
-        '15:00 - 16:00',
-        '16:00 - 17:00',
-        '17:00 - 18:00',
-        '18:00 - 19:00',
-        '19:00 - 20:00',
-        '20:00 - 21:00',
-        '21:00 - 22:00',
-        '22:00 - 23:00',
-        '23:00 - 00:00',
-        '00:00 - 01:00',
-        '01:00 - 02:00',
-        '02:00 - 03:00',
-        '03:00 - 04:00',
-        '04:00 - 05:00',
-        '05:00 - 06:00',
-      ];
+  if (turno === 'DÍA') {
+    rangosHora = [
+      { label: '06:00 - 07:00', inicio: 6, fin: 7 },
+      { label: '07:00 - 08:00', inicio: 7, fin: 8 },
+      { label: '08:00 - 09:00', inicio: 8, fin: 9 },
+      { label: '09:00 - 10:00', inicio: 9, fin: 10 },
+      { label: '10:00 - 11:00', inicio: 10, fin: 11 },
+      { label: '11:00 - 12:00', inicio: 11, fin: 12 },
+      { label: '12:00 - 13:00', inicio: 12, fin: 13 },
+      { label: '13:00 - 14:00', inicio: 13, fin: 14 },
+      { label: '14:00 - 15:00', inicio: 14, fin: 15 },
+      { label: '15:00 - 16:00', inicio: 15, fin: 16 },
+      { label: '16:00 - 17:00', inicio: 16, fin: 17 },
+      { label: '17:00 - 18:00', inicio: 17, fin: 18 }
+    ];
+  } else if (turno === 'NOCHE') {
+    rangosHora = [
+      { label: '18:00 - 19:00', inicio: 18, fin: 19 },
+      { label: '19:00 - 20:00', inicio: 19, fin: 20 },
+      { label: '20:00 - 21:00', inicio: 20, fin: 21 },
+      { label: '21:00 - 22:00', inicio: 21, fin: 22 },
+      { label: '22:00 - 23:00', inicio: 22, fin: 23 },
+      { label: '23:00 - 00:00', inicio: 23, fin: 24 },
+      { label: '00:00 - 01:00', inicio: 0, fin: 1 },
+      { label: '01:00 - 02:00', inicio: 1, fin: 2 },
+      { label: '02:00 - 03:00', inicio: 2, fin: 3 },
+      { label: '03:00 - 04:00', inicio: 3, fin: 4 },
+      { label: '04:00 - 05:00', inicio: 4, fin: 5 },
+      { label: '05:00 - 06:00', inicio: 5, fin: 6 }
+    ];
+  } else {
+    rangosHora = [
+      { label: '06:00 - 07:00', inicio: 6, fin: 7 },
+      { label: '07:00 - 08:00', inicio: 7, fin: 8 },
+      { label: '08:00 - 09:00', inicio: 8, fin: 9 },
+      { label: '09:00 - 10:00', inicio: 9, fin: 10 },
+      { label: '10:00 - 11:00', inicio: 10, fin: 11 },
+      { label: '11:00 - 12:00', inicio: 11, fin: 12 },
+      { label: '12:00 - 13:00', inicio: 12, fin: 13 },
+      { label: '13:00 - 14:00', inicio: 13, fin: 14 },
+      { label: '14:00 - 15:00', inicio: 14, fin: 15 },
+      { label: '15:00 - 16:00', inicio: 15, fin: 16 },
+      { label: '16:00 - 17:00', inicio: 16, fin: 17 },
+      { label: '17:00 - 18:00', inicio: 17, fin: 18 },
+      { label: '18:00 - 19:00', inicio: 18, fin: 19 },
+      { label: '19:00 - 20:00', inicio: 19, fin: 20 },
+      { label: '20:00 - 21:00', inicio: 20, fin: 21 },
+      { label: '21:00 - 22:00', inicio: 21, fin: 22 },
+      { label: '22:00 - 23:00', inicio: 22, fin: 23 },
+      { label: '23:00 - 00:00', inicio: 23, fin: 24 },
+      { label: '00:00 - 01:00', inicio: 0, fin: 1 },
+      { label: '01:00 - 02:00', inicio: 1, fin: 2 },
+      { label: '02:00 - 03:00', inicio: 2, fin: 3 },
+      { label: '03:00 - 04:00', inicio: 3, fin: 4 },
+      { label: '04:00 - 05:00', inicio: 4, fin: 5 },
+      { label: '05:00 - 06:00', inicio: 5, fin: 6 }
+    ];
+  }
+
+  // Función auxiliar para convertir hora string a decimal
+  const horaStringToDecimal = (horaStr: string): number => {
+    if (!horaStr) return 0;
+    const [hora, minutos] = horaStr.split(':').map(Number);
+    return hora + (minutos / 60);
+  };
+
+  // Calcular intersección entre operación y rango
+  const calcularInterseccion = (
+    inicioOp: number,
+    finOp: number,
+    inicioRango: number,
+    finRango: number
+  ): number => {
+    const inicio = Math.max(inicioOp, inicioRango);
+    const fin = Math.min(finOp, finRango);
+    return fin > inicio ? fin - inicio : 0;
+  };
+
+  // Inicializar un registro de labor+rango
+  const inicializarClave = (labor: string, rangoLabel: string) => {
+    const clave = `${labor}|${rangoLabel}`;
+    if (!resultadoMap.has(clave)) {
+      resultadoMap.set(clave, {
+        labor: labor,
+        rangoHora: rangoLabel,
+        total: 0,
+        cantidadRegistros: 0,
+        cantidadBarras: 0,
+        totalTaladros: 0,
+        totalNBarras: 0,
+        tipos: {},
+      });
+    }
+    return resultadoMap.get(clave);
+  };
+
+  // Procesar cada operación con distribución proporcional
+  this.data.operaciones.forEach((op: any) => {
+    if (turno && op.turno !== turno) return;
+
+    const registrosArray = op.registros;
+    if (!Array.isArray(registrosArray)) return;
+
+    for (const registro of registrosArray) {
+      const estado = String(registro.estado || '').trim().toUpperCase();
+      if (estado !== 'OPERATIVO') continue;
+
+      const horaInicioStr = registro.hora_inicio;
+      const horaFinalStr = registro.hora_final;
+      if (!horaInicioStr || !horaFinalStr) continue;
+
+      const operacionData = registro.operacion || {};
+      const labor = String(operacionData.labor || 'SIN LABOR').trim();
+      const claveLabor = labor === '' ? 'SIN LABOR' : labor;
+
+      const barrasArray = operacionData.barras;
+      if (!Array.isArray(barrasArray)) continue;
+
+      // Calcular duración total de la operación
+      let horaInicioDecimal = horaStringToDecimal(horaInicioStr);
+      let horaFinalDecimal = horaStringToDecimal(horaFinalStr);
+
+      // Manejar cruce de medianoche
+      if (horaFinalDecimal < horaInicioDecimal) {
+        horaFinalDecimal += 24;
+      }
+
+      const duracionTotal = horaFinalDecimal - horaInicioDecimal;
+      if (duracionTotal <= 0) continue;
+
+      // Calcular metros perforados totales por tipo de perforación
+      interface BarraInfo {
+        longitud: number;
+        tipo: string;
+      }
+      
+      const barrasInfo: BarraInfo[] = [];
+      let metrosPerforadosTotales = 0;
+
+      for (const barra of barrasArray) {
+        const longitudPerforacion = Number(barra.longitud_perforacion) || 0;
+        if (longitudPerforacion <= 0) continue;
+
+        const tipoPerforacion = String(barra.tipo_perforacion || 'SIN TIPO')
+          .toUpperCase()
+          .trim();
+
+        barrasInfo.push({
+          longitud: longitudPerforacion,
+          tipo: tipoPerforacion
+        });
+        
+        metrosPerforadosTotales += longitudPerforacion;
+      }
+
+      if (metrosPerforadosTotales <= 0) continue;
+
+      // Distribuir proporcionalmente por cada rango de hora
+      for (const rango of rangosHora) {
+        let inicioRangoDecimal = rango.inicio;
+        let finRangoDecimal = rango.fin;
+
+        // Ajustar rangos si operación cruza medianoche
+        if (horaFinalDecimal > 24 && finRangoDecimal <= 6) {
+          inicioRangoDecimal += 24;
+          finRangoDecimal += 24;
+        }
+
+        const interseccionHoras = calcularInterseccion(
+          horaInicioDecimal,
+          horaFinalDecimal,
+          inicioRangoDecimal,
+          finRangoDecimal
+        );
+
+        if (interseccionHoras <= 0.001) continue;
+
+        // Proporción de tiempo en este rango
+        const proporcion = interseccionHoras / duracionTotal;
+        
+        // Metros perforados que corresponden a este rango
+        const metrosEnRango = metrosPerforadosTotales * proporcion;
+        if (metrosEnRango <= 0.001) continue;
+
+        // Inicializar o obtener el registro para esta labor y rango
+        const item = inicializarClave(claveLabor, rango.label);
+
+        // Distribuir metros por tipo de perforación
+        for (const barra of barrasInfo) {
+          const proporcionBarra = barra.longitud / metrosPerforadosTotales;
+          const metrosPorTipo = metrosEnRango * proporcionBarra;
+          
+          if (!item.tipos[barra.tipo]) {
+            item.tipos[barra.tipo] = 0;
+          }
+          item.tipos[barra.tipo] += metrosPorTipo;
+        }
+
+        // Acumular totales
+        item.total += metrosEnRango;
+        
+        // La cantidad de registros se cuenta por operación, no por barra
+        // Para evitar duplicar, usamos un Set para saber qué registros ya contamos
+        // Pero como estamos distribuyendo, contamos el registro en el rango principal
+        // Alternativa: contar al final basado en el rango con mayor intersección
+        
+        // Acumular cantidad de barras (distribuidas proporcionalmente)
+        const barrasEnRango = barrasInfo.length * proporcion;
+        item.cantidadBarras += barrasEnRango;
+      }
+      
+      // Contar el registro en el rango donde tuvo mayor duración o donde finalizó
+      // Para simplificar, contamos en el rango de la hora final (similar a la versión original)
+      const rangoFinal = rangosHora.find(r => {
+        const horaFin = horaStringToDecimal(horaFinalStr);
+        return horaFin >= r.inicio && horaFin < r.fin;
+      });
+      
+      if (rangoFinal) {
+        const clave = `${claveLabor}|${rangoFinal.label}`;
+        const item = resultadoMap.get(clave);
+        if (item) {
+          item.cantidadRegistros += 1;
+        } else {
+          // Si no existe, crearlo
+          const nuevoItem = inicializarClave(claveLabor, rangoFinal.label);
+          nuevoItem.cantidadRegistros += 1;
+        }
+      }
+    }
+  });
+
+  // Agrupar resultados por labor
+  const resultadoPorLabor = new Map<string, any>();
+
+  Array.from(resultadoMap.values()).forEach((item) => {
+    const labor = item.labor;
+
+    if (!resultadoPorLabor.has(labor)) {
+      resultadoPorLabor.set(labor, {
+        labor,
+        turno: turno || 'TODOS',
+        rangos: [],
+      });
     }
 
-    const obtenerRangoHora = (horaStr: string): string => {
-      if (!horaStr) return 'SIN HORA';
+    const laborItem = resultadoPorLabor.get(labor);
 
-      let [hora, minutos] = horaStr.split(':').map(Number);
-
-      if (isNaN(hora) || isNaN(minutos)) return 'SIN HORA';
-
-      // Si termina exacto en :00, pertenece al rango anterior
-      if (minutos === 0) {
-        hora = hora === 0 ? 23 : hora - 1;
-        minutos = 59;
-      }
-
-      if (hora >= 6 && hora < 7) return '06:00 - 07:00';
-      if (hora >= 7 && hora < 8) return '07:00 - 08:00';
-      if (hora >= 8 && hora < 9) return '08:00 - 09:00';
-      if (hora >= 9 && hora < 10) return '09:00 - 10:00';
-      if (hora >= 10 && hora < 11) return '10:00 - 11:00';
-      if (hora >= 11 && hora < 12) return '11:00 - 12:00';
-      if (hora >= 12 && hora < 13) return '12:00 - 13:00';
-      if (hora >= 13 && hora < 14) return '13:00 - 14:00';
-      if (hora >= 14 && hora < 15) return '14:00 - 15:00';
-      if (hora >= 15 && hora < 16) return '15:00 - 16:00';
-      if (hora >= 16 && hora < 17) return '16:00 - 17:00';
-      if (hora >= 17 && hora < 18) return '17:00 - 18:00';
-      if (hora >= 18 && hora < 19) return '18:00 - 19:00';
-      if (hora >= 19 && hora < 20) return '19:00 - 20:00';
-      if (hora >= 20 && hora < 21) return '20:00 - 21:00';
-      if (hora >= 21 && hora < 22) return '21:00 - 22:00';
-      if (hora >= 22 && hora < 23) return '22:00 - 23:00';
-      if (hora >= 23) return '23:00 - 00:00';
-      if (hora >= 0 && hora < 1) return '00:00 - 01:00';
-      if (hora >= 1 && hora < 2) return '01:00 - 02:00';
-      if (hora >= 2 && hora < 3) return '02:00 - 03:00';
-      if (hora >= 3 && hora < 4) return '03:00 - 04:00';
-      if (hora >= 4 && hora < 5) return '04:00 - 05:00';
-      if (hora >= 5 && hora < 6) return '05:00 - 06:00';
-
-      return 'SIN HORA';
+    const rangoObj: any = {
+      rangoHora: item.rangoHora,
+      total: Number(item.total.toFixed(2)),
+      cantidadRegistros: Math.round(item.cantidadRegistros), // Redondear porque puede ser decimal
+      cantidadBarras: Number(item.cantidadBarras.toFixed(2)),
+      totalTaladros: Number((item.totalTaladros || 0).toFixed(2)),
+      totalNBarras: Number((item.totalNBarras || 0).toFixed(2)),
     };
 
-    this.data.operaciones.forEach((op: any) => {
-      if (turno && op.turno !== turno) return;
-
-      const registrosArray = op.registros;
-
-      if (!Array.isArray(registrosArray)) return;
-
-      for (const registro of registrosArray) {
-        const estado = String(registro.estado || '')
-          .trim()
-          .toUpperCase();
-
-        if (estado !== 'OPERATIVO') continue;
-
-        if (!registro.hora_final) continue;
-
-        const operacionData = registro.operacion || {};
-
-        const labor = String(operacionData.labor || 'SIN LABOR').trim();
-        const claveLabor = labor === '' ? 'SIN LABOR' : labor;
-
-        const rangoHora = obtenerRangoHora(registro.hora_final);
-
-        if (!rangosHora.includes(rangoHora)) continue;
-
-        const longBarrasPies = Number(operacionData.long_barras) || 0;
-        const longBarrasMetros = longBarrasPies * 0.3048;
-
-        const barrasArray = operacionData.barras;
-
-        if (!Array.isArray(barrasArray)) continue;
-
-        const clave = `${claveLabor}|${rangoHora}`;
-
-        if (!resultadoMap.has(clave)) {
-          resultadoMap.set(clave, {
-            labor: claveLabor,
-            rangoHora,
-            total: 0,
-            cantidadRegistros: 0,
-            cantidadBarras: 0,
-            totalTaladros: 0,
-            totalNBarras: 0,
-            tipos: {},
-          });
-        }
-
-        const item = resultadoMap.get(clave);
-
-        for (const barra of barrasArray) {
-          //const nTaladro = Number(barra.n_taladro) || 0;
-          //const nBarras = Number(barra.n_barras) || 0;
-
-          const tipoPerforacion = String(barra.tipo_perforacion || 'SIN TIPO')
-            .toUpperCase()
-            .trim();
-
-          //const metrosPerforados = nTaladro * nBarras * longBarrasMetros;
-          const longitudPerforacion = Number(barra.longitud_perforacion) || 0;
-
-          const metrosPerforados = longitudPerforacion;
-
-
-
-          if (metrosPerforados <= 0) continue;
-
-          if (!item.tipos[tipoPerforacion]) {
-            item.tipos[tipoPerforacion] = 0;
-          }
-
-          item.tipos[tipoPerforacion] += metrosPerforados;
-          item.total += metrosPerforados;
-
-          item.cantidadRegistros += 1;
-          item.cantidadBarras += 1;
-          //item.totalTaladros += nTaladro;
-          //item.totalNBarras += nBarras;
-        }
-      }
+    // Agregar tipos de perforación
+    Object.keys(item.tipos).forEach((tipo) => {
+      rangoObj[tipo] = Number(item.tipos[tipo].toFixed(2));
     });
 
-    const resultadoPorLabor = new Map<string, any>();
+    laborItem.rangos.push(rangoObj);
+  });
 
-    Array.from(resultadoMap.values()).forEach((item) => {
-      const labor = item.labor;
-
-      if (!resultadoPorLabor.has(labor)) {
-        resultadoPorLabor.set(labor, {
-          labor,
-          turno: turno || 'TODOS',
-          rangos: [],
-        });
-      }
-
-      const laborItem = resultadoPorLabor.get(labor);
-
-      const rangoObj: any = {
-        rangoHora: item.rangoHora,
-        total: Number(item.total.toFixed(2)),
-        cantidadRegistros: item.cantidadRegistros,
-        cantidadBarras: item.cantidadBarras,
-        totalTaladros: Number(item.totalTaladros.toFixed(2)),
-        totalNBarras: Number(item.totalNBarras.toFixed(2)),
-      };
-
-      Object.keys(item.tipos).forEach((tipo) => {
-        rangoObj[tipo] = Number(item.tipos[tipo].toFixed(2));
-      });
-
-      laborItem.rangos.push(rangoObj);
-
-      laborItem.rangos.sort((a: any, b: any) => {
-        const indexA = rangosHora.indexOf(a.rangoHora);
-        const indexB = rangosHora.indexOf(b.rangoHora);
-
-        return indexA - indexB;
-      });
+  // Ordenar rangos para cada labor
+  resultadoPorLabor.forEach((laborItem) => {
+    laborItem.rangos.sort((a: any, b: any) => {
+      const indexA = rangosHora.findIndex(r => r.label === a.rangoHora);
+      const indexB = rangosHora.findIndex(r => r.label === b.rangoHora);
+      return indexA - indexB;
     });
+  });
 
-    const resultado = Array.from(resultadoPorLabor.values()).sort((a, b) =>
-      a.labor.localeCompare(b.labor),
-    );
+  const resultado = Array.from(resultadoPorLabor.values()).sort((a, b) =>
+    a.labor.localeCompare(b.labor)
+  );
 
-    return resultado;
-  }
+  console.log(`📊 METROS PERFORADOS POR LABOR Y RANGO DE HORA (Turno: ${turno || 'TODOS'}):`, resultado);
+  return resultado;
+}
 
   cerrar(): void {
     this.dialogRef.close();
