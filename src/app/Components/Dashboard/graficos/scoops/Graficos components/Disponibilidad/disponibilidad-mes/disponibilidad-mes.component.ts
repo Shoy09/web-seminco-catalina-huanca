@@ -38,11 +38,12 @@ echarts.use([
 export class DisponibilidadMesComponent implements OnChanges {
   // 🔥 DATA DINÁMICA
   @Input() data: any[] = [];
+  @Input() showZoom: boolean = false;
 
   chartOptions: any = {};
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data']) {
+    if (changes['data'] || changes['showZoom']) {
       this.actualizarGrafico();
     }
   }
@@ -152,7 +153,7 @@ export class DisponibilidadMesComponent implements OnChanges {
         },
       },
 
-      dataZoom: [
+      dataZoom: this.showZoom ? [
         {
           type: 'slider',
           show: true,
@@ -168,7 +169,7 @@ export class DisponibilidadMesComponent implements OnChanges {
           start: 0,
           end: porcentajeVisible,
         },
-      ],
+      ] : [],
 
       series: [
         {

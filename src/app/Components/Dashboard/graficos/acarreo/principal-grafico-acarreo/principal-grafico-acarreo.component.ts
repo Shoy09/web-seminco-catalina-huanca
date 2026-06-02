@@ -27,6 +27,7 @@ export class PrincipalGraficoAcarreoComponent {
   turnoAplicado: string = '';
   cargandoPDF = false;
   vistaPrincipal: boolean = true;
+  showZoom: boolean = false;
 
   estadosProceso: any[] = [];
   equiposProceso: Equipo[] = [];
@@ -57,6 +58,9 @@ export class PrincipalGraficoAcarreoComponent {
     this.cargarOperaciones();
     this.obtenerEstadosPorProceso('ACARREO');
     this.obtenerEquiposPorProceso('ACARREO');
+  }
+  toggleZoom(): void {
+    this.showZoom = !this.showZoom;
   }
 
   aplicarFiltro() {

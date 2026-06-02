@@ -51,22 +51,25 @@ export class MetrosPerforadosRangoHoraComponent implements OnInit, OnChanges {
   @Input() labelEquipo: string = 'equipo';
   @Input() mensajeSinDatos: string = 'No hay datos disponibles';
 
+  @Input() mostrarLineaViajes: boolean = false;
+  @Input() labelLineaViajes: string = 'Total viajes';
+
   chartOptions: any = {};
 
   private readonly keysExcluidas = [
-  'rangoHora',
-  'total',
-  'cantidadRegistros',
-  'cantidadBarras',
-  'totalTaladros',
-  'totalNBarras',
-  'totalViajes',
-  'equipos',
-  'volquetes',
-  'scoops',
-  'materiales',
-  'ubicacionDestino',
-];
+    'rangoHora',
+    'total',
+    'cantidadRegistros',
+    'cantidadBarras',
+    'totalTaladros',
+    'totalNBarras',
+    'totalViajes',
+    'equipos',
+    'volquetes',
+    'scoops',
+    'materiales',
+    'ubicacionDestino',
+  ];
 
   // Almacenará los totales por tipo de perforación
   totalesPorTipo: { [key: string]: number } = {};
@@ -208,30 +211,31 @@ export class MetrosPerforadosRangoHoraComponent implements OnInit, OnChanges {
   }
 
   obtenerTooltipEquipo(equipo: string): string {
-  const laboresTotales: { [labor: string]: number } = {};
+    const laboresTotales: { [labor: string]: number } = {};
 
-  this.data.forEach((item) => {
-    const equipoData = item.equipos?.[equipo];
+    this.data.forEach((item) => {
+      const equipoData = item.equipos?.[equipo];
 
-    if (!equipoData?.labores) return;
+      if (!equipoData?.labores) return;
 
-    Object.keys(equipoData.labores).forEach((labor) => {
-      if (!laboresTotales[labor]) {
-        laboresTotales[labor] = 0;
-      }
+      Object.keys(equipoData.labores).forEach((labor) => {
+        if (!laboresTotales[labor]) {
+          laboresTotales[labor] = 0;
+        }
 
-      laboresTotales[labor] += equipoData.labores[labor];
+        laboresTotales[labor] += equipoData.labores[labor];
+      });
     });
-  });
 
-  const laboresTexto = Object.entries(laboresTotales)
-    .map(([labor, valor]) =>
-      `${labor}: ${Number(valor).toFixed(2)} ${this.unidad}`
-    )
-    .join('\n');
+    const laboresTexto = Object.entries(laboresTotales)
+      .map(
+        ([labor, valor]) =>
+          `${labor}: ${Number(valor).toFixed(2)} ${this.unidad}`,
+      )
+      .join('\n');
 
-  return laboresTexto || 'Sin labores';
-}
+    return laboresTexto || 'Sin labores';
+  }
 
   procesarDatos(): void {
     this.extraerTiposPerforacion();
@@ -266,25 +270,25 @@ export class MetrosPerforadosRangoHoraComponent implements OnInit, OnChanges {
 
   // Extraer todos los tipos de perforación únicos de los datos
   extraerTiposPerforacion(): void {
-  const tiposSet = new Set<string>();
+    const tiposSet = new Set<string>();
 
-  if (this.data && this.data.length > 0) {
-    this.data.forEach((item) => {
-      Object.keys(item).forEach((key) => {
-        if (!this.keysExcluidas.includes(key)) {
-          const valor = Number(item[key] || 0);
+    if (this.data && this.data.length > 0) {
+      this.data.forEach((item) => {
+        Object.keys(item).forEach((key) => {
+          if (!this.keysExcluidas.includes(key)) {
+            const valor = Number(item[key] || 0);
 
-          // Solo tomar campos numéricos positivos como categoría
-          if (!isNaN(valor)) {
-            tiposSet.add(key);
+            // Solo tomar campos numéricos positivos como categoría
+            if (!isNaN(valor)) {
+              tiposSet.add(key);
+            }
           }
-        }
+        });
       });
-    });
-  }
+    }
 
-  this.tiposPerforacion = Array.from(tiposSet).sort();
-}
+    this.tiposPerforacion = Array.from(tiposSet).sort();
+  }
 
   // Calcular totales acumulados por tipo de perforación
   calcularTotalesPorTipo(): void {
@@ -322,6 +326,7 @@ export class MetrosPerforadosRangoHoraComponent implements OnInit, OnChanges {
     });
 
     const totales: number[] = [];
+    const viajes: number[] = [];
 
     // Llenar datos por rango
     rangosCompletos.forEach((rango) => {
@@ -335,11 +340,13 @@ export class MetrosPerforadosRangoHoraComponent implements OnInit, OnChanges {
         });
 
         totales.push(item.total || 0);
+        viajes.push(Number(item.totalViajes || 0));
       } else {
         this.tiposPerforacion.forEach((tipo) => {
           seriesData[tipo].push(0);
         });
         totales.push(0);
+        viajes.push(0);
       }
     });
 
@@ -351,12 +358,19 @@ export class MetrosPerforadosRangoHoraComponent implements OnInit, OnChanges {
       acumulativo.push(sumaAcumulada);
     }
 
+    const mostrarViajes =
+      this.mostrarLineaViajes && viajes.some((valor) => Number(valor || 0) > 0);
+
     const maxTotal = Math.max(...totales, 0);
     const maxAcumulado = Math.max(...acumulativo, 0);
-    const escalaMax =
-      Math.max(maxTotal, maxAcumulado) > 0
-        ? Math.ceil(Math.max(maxTotal, maxAcumulado) / 100) * 100
-        : 100;
+    const maxProduccion = Math.max(maxTotal, maxAcumulado);
+
+    const escalaMaxProduccion =
+      maxProduccion > 0 ? Math.ceil(maxProduccion / 100) * 100 : 100;
+
+    const maxViajes = Math.max(...viajes, 0);
+
+    const escalaMaxViajes = maxViajes > 0 ? Math.ceil(maxViajes / 5) * 5 : 5;
 
     // Generar series para cada tipo de perforación
     const series: any[] = [];
@@ -417,6 +431,7 @@ export class MetrosPerforadosRangoHoraComponent implements OnInit, OnChanges {
     series.push({
       name: 'ACUMULADO',
       type: 'line',
+      yAxisIndex: 0,
       data: acumulativo,
       symbol: 'circle',
       symbolSize: 6,
@@ -461,9 +476,41 @@ export class MetrosPerforadosRangoHoraComponent implements OnInit, OnChanges {
         },
       },
       tooltip: {
-        valueFormatter: (value: any) => value?.toFixed(2) + ` ${this.unidad} (acumulado)`,
+        valueFormatter: (value: any) =>
+          value?.toFixed(2) + ` ${this.unidad} (acumulado)`,
       },
     });
+
+    if (mostrarViajes) {
+      series.push({
+        name: this.labelLineaViajes,
+        type: 'line',
+        yAxisIndex: 1,
+        data: viajes,
+        smooth: true,
+        symbol: 'diamond',
+        symbolSize: 8,
+        lineStyle: {
+          width: 3,
+          color: '#00A064',
+          type: 'dashed',
+        },
+        itemStyle: {
+          color: '#00A064',
+        },
+        label: {
+          show: true,
+          position: 'top',
+          formatter: (params: any) => {
+            const value = Number(params.value || 0);
+            return value > 0 ? `${value.toFixed(0)} viajes` : '';
+          },
+          fontSize: 10,
+          fontWeight: 'bold',
+          color: '#333',
+        },
+      });
+    }
 
     this.chartOptions = {
       title: {
@@ -484,37 +531,43 @@ export class MetrosPerforadosRangoHoraComponent implements OnInit, OnChanges {
           type: 'shadow',
         },
         formatter: (params: any) => {
-          const rango = params[0].axisValue;
           const index = params[0].dataIndex;
-          const total = totales[index];
-          const acumulado = acumulativo[index];
+          const rango = rangos[index];
 
-          if (total === 0 && acumulado === 0) {
-            return `<strong>📊 ${rango}</strong><br/>
-              <hr style="margin: 5px 0;"/>
-              <strong>Sin perforación</strong>`;
-          }
+          let html = `<strong>${rango}</strong><br/><hr style="margin: 5px 0"/>`;
 
-          let tooltipText = `<strong>📊 ${rango}</strong><br/>
-            <hr style="margin: 5px 0;"/>
-            <strong>Total hora: ${total.toFixed(2)} ${this.unidad}</strong><br/>
-            <strong style="color: #ff6b6b;">📈 Acumulado: ${acumulado.toFixed(2)} ${this.unidad}</strong><br/><br/>`;
+          params.forEach((p: any) => {
+            const value = Number(p.value || 0);
 
-          // Mostrar solo los tipos que tienen valor > 0
-          params.forEach((param: any) => {
-            if (param.seriesName !== 'ACUMULADO' && param.value > 0) {
-              const porcentaje = ((param.value / total) * 100).toFixed(1);
-              tooltipText += `<span style="display:inline-block; width:12px; height:12px; background-color:${param.color}; border-radius:2px; margin-right:8px;"></span>
-                <strong>${param.seriesName}:</strong> ${param.value.toFixed(2)} ${this.unidad} (${porcentaje}%)<br/>`;
+            if (value <= 0) return;
+
+            if (p.seriesName === this.labelLineaViajes) {
+              html += `${p.marker}${p.seriesName}: <b>${value.toFixed(0)} viajes</b><br/>`;
+            } else {
+              html += `${p.marker}${p.seriesName}: <b>${value.toFixed(2)} ${this.unidad}</b><br/>`;
             }
           });
 
-          return tooltipText;
+          const total = Number(totales[index] || 0);
+          const acumulado = Number(acumulativo[index] || 0);
+          const totalViajes = Number(viajes[index] || 0);
+
+          html += `<hr style="margin: 5px 0"/>`;
+          html += `Total hora: <b>${total.toFixed(2)} ${this.unidad}</b><br/>`;
+          html += `Acumulado: <b>${acumulado.toFixed(2)} ${this.unidad}</b><br/>`;
+
+          if (mostrarViajes) {
+            html += `Viajes: <b>${totalViajes.toFixed(0)}</b><br/>`;
+          }
+
+          return html;
         },
       },
 
       legend: {
-        data: [...this.tiposPerforacion, 'ACUMULADO'],
+        data: mostrarViajes
+          ? [...this.tiposPerforacion, 'ACUMULADO', this.labelLineaViajes]
+          : [...this.tiposPerforacion, 'ACUMULADO'],
         top: 40,
         left: 'center',
         itemWidth: 25,
@@ -555,25 +608,44 @@ export class MetrosPerforadosRangoHoraComponent implements OnInit, OnChanges {
         },
       },
 
-      yAxis: {
-        type: 'value',
-        nameLocation: 'middle',
-        nameGap: 45,
-        min: 0,
-        max: escalaMax,
-        axisLabel: {
-          fontSize: 10,
-          formatter: '{value} ' + this.unidad,
-        },
-        splitLine: {
-          lineStyle: {
-            type: 'dashed',
-            color: '#ccc',
+      yAxis: [
+        {
+          type: 'value',
+          name: this.unidad,
+          nameLocation: 'middle',
+          nameGap: 45,
+          min: 0,
+          max: escalaMaxProduccion,
+          axisLabel: {
+            formatter: `{value} ${this.unidad}`,
+            fontSize: 10,
+          },
+          splitLine: {
+            lineStyle: {
+              type: 'dashed',
+              color: '#ccc',
+            },
           },
         },
-      },
+        {
+          type: 'value',
+          name: 'Viajes',
+          nameLocation: 'middle',
+          nameGap: 45,
+          min: 0,
+          max: escalaMaxViajes,
+          show: mostrarViajes,
+          axisLabel: {
+            formatter: '{value}',
+            fontSize: 10,
+          },
+          splitLine: {
+            show: false,
+          },
+        },
+      ],
 
-      series: series,
+      series,
 
       graphic: {
         type: 'group',

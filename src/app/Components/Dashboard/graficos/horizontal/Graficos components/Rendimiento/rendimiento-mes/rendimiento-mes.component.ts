@@ -32,11 +32,12 @@ echarts.use([
 })
 export class RendimientoMesComponent implements OnChanges {
   @Input() data: any[] = [];
+  @Input() showZoom: boolean = false;
 
   chartOptions: any = {};
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data']) {
+    if (changes['data'] || changes['showZoom']) {
       this.actualizarGrafico();
     }
   }
@@ -155,7 +156,7 @@ export class RendimientoMesComponent implements OnChanges {
         },
       },
 
-      dataZoom: [
+      dataZoom: this.showZoom ? [
         {
           type: 'slider',
           show: meses.length > 6,
@@ -171,7 +172,7 @@ export class RendimientoMesComponent implements OnChanges {
           start: 0,
           end: porcentajeVisible,
         },
-      ],
+      ] : [],
 
       series: [
         {

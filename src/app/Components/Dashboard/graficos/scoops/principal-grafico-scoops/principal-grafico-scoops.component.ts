@@ -113,6 +113,7 @@ import { ParetoDisponibilidadComponent } from "../../horizontal/Graficos compone
 export class PrincipalGraficoScoopsComponent implements OnInit {
   anio!: number;
   mes!: string;
+  showZoom: boolean = false;
 
   // DATA ORIGINAL (sin filtrar)
   operacionesOriginal: OperacionBaseScoop[] = [];
@@ -196,6 +197,10 @@ constructor(
     this.cargarOperaciones();
     this.obtenerEstadosPorProceso('SCOOPTRAM');
     this.obtenerEquiposPorProceso('SCOOPTRAM');
+  }
+
+  toggleDataZoom(): void {
+    this.showZoom = !this.showZoom;
   }
 
   Presentacion() {

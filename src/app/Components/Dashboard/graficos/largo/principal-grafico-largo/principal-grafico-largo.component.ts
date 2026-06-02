@@ -108,6 +108,7 @@ import { PresentacionTlargosDialogComponent } from '../presentacion-tlargos-dial
 export class PrincipalGraficoLargoComponent implements OnInit {
   anio!: number;
   mes!: string;
+  showZoom: boolean = false;
 
   // DATA ORIGINAL (sin filtrar)
   operacionesOriginal: OperacionBaseTLargos[] = [];
@@ -195,6 +196,9 @@ export class PrincipalGraficoLargoComponent implements OnInit {
 
     this.cargarOperaciones();
     this.obtenerEstadosPorProceso('PERFORACIÓN TALADROS LARGOS');
+  }
+  toggleDataZoom(): void {
+    this.showZoom = !this.showZoom;
   }
 
   obtenerEstadosPorProceso(proceso: string) {

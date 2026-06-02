@@ -36,13 +36,14 @@ echarts.use([
   styleUrl: './utilizacion-mes.component.css',
 })
 export class UtilizacionMesComponent implements OnChanges {
-  // 🔥 DATA DINÁMICA (del método UtilizacionPorMes)
+
   @Input() data: any[] = [];
+  @Input() showZoom: boolean = false;
 
   chartOptions: any = {};
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data']) {
+    if (changes['data'] || changes['showZoom']) {
       this.actualizarGrafico();
     }
   }
@@ -155,7 +156,7 @@ export class UtilizacionMesComponent implements OnChanges {
         },
       },
 
-      dataZoom: [
+      dataZoom: this.showZoom ? [
         {
           type: 'slider',
           show: true,
@@ -171,7 +172,7 @@ export class UtilizacionMesComponent implements OnChanges {
           start: 0,
           end: porcentajeVisible,
         },
-      ],
+      ] : [],
 
       series: [
         {

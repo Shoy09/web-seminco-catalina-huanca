@@ -38,11 +38,12 @@ echarts.use([
 export class UtilizacionDiaMesComponent implements OnChanges {
   // 🔥 DATA DINÁMICA (del método UtilizacionPorDia)
   @Input() data: any[] = [];
+  @Input() showZoom: boolean = false;
 
   chartOptions: any = {};
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data']) {
+    if (changes['data'] || changes['showZoom']) {
       this.actualizarGrafico();
     }
   }
@@ -224,7 +225,7 @@ export class UtilizacionDiaMesComponent implements OnChanges {
         },
       },
 
-      dataZoom: [
+      dataZoom: this.showZoom ? [
         {
           type: 'slider',
           show: true,
@@ -240,7 +241,7 @@ export class UtilizacionDiaMesComponent implements OnChanges {
           start: 0,
           end: porcentajeVisible,
         },
-      ],
+      ] : [],
 
       series: [
         {
