@@ -3186,388 +3186,109 @@ UtilizacionGuardia() {
 //=========================================
 ToneladasPorRangoHoraCompleto(turno: string = '') {
   const resultadoMap = new Map<string, any>();
-
   const codigosPermitidos = ['101', '103'];
 
-  // 🔥 Rangos de hora según el turno
-  let rangosHora: string[] = [];
-  let obtenerRangoHora: (horaStr: string) => string;
-
-  if (turno === 'DÍA') {
-    // DÍA: 06:00 - 18:00
-    rangosHora = [
-      '06:00 - 07:00',
-      '07:00 - 08:00',
-      '08:00 - 09:00',
-      '09:00 - 10:00',
-      '10:00 - 11:00',
-      '11:00 - 12:00',
-      '12:00 - 13:00',
-      '13:00 - 14:00',
-      '14:00 - 15:00',
-      '15:00 - 16:00',
-      '16:00 - 17:00',
-      '17:00 - 18:00'
-    ];
-
-    obtenerRangoHora = (horaStr: string): string => {
-      if (!horaStr) return 'SIN HORA';
-
-      let [hora, minutos] = horaStr
-        .split(':')
-        .map(Number);
-
-      // 🔥 Si termina exacto en :00
-      // pertenece al rango anterior
-      if (minutos === 0) {
-        hora = hora === 0 ? 23 : hora - 1;
-        minutos = 59;
-      }
-
-      if (hora >= 6 && hora < 7) return '06:00 - 07:00';
-      if (hora >= 7 && hora < 8) return '07:00 - 08:00';
-      if (hora >= 8 && hora < 9) return '08:00 - 09:00';
-      if (hora >= 9 && hora < 10) return '09:00 - 10:00';
-      if (hora >= 10 && hora < 11) return '10:00 - 11:00';
-      if (hora >= 11 && hora < 12) return '11:00 - 12:00';
-      if (hora >= 12 && hora < 13) return '12:00 - 13:00';
-      if (hora >= 13 && hora < 14) return '13:00 - 14:00';
-      if (hora >= 14 && hora < 15) return '14:00 - 15:00';
-      if (hora >= 15 && hora < 16) return '15:00 - 16:00';
-      if (hora >= 16 && hora < 17) return '16:00 - 17:00';
-      if (hora >= 17 && hora < 18) return '17:00 - 18:00';
-
-      return 'SIN HORA';
-    };
-  } 
-  else if (turno === 'NOCHE') {
-    // NOCHE: 18:00 - 06:00
-    rangosHora = [
-      '18:00 - 19:00',
-      '19:00 - 20:00',
-      '20:00 - 21:00',
-      '21:00 - 22:00',
-      '22:00 - 23:00',
-      '23:00 - 00:00',
-      '00:00 - 01:00',
-      '01:00 - 02:00',
-      '02:00 - 03:00',
-      '03:00 - 04:00',
-      '04:00 - 05:00',
-      '05:00 - 06:00'
-    ];
-
-    obtenerRangoHora = (horaStr: string): string => {
-      if (!horaStr) return 'SIN HORA';
-
-      let [hora, minutos] = horaStr
-        .split(':')
-        .map(Number);
-
-      // 🔥 Si termina exacto en :00
-      // pertenece al rango anterior
-      if (minutos === 0) {
-        hora = hora === 0 ? 23 : hora - 1;
-        minutos = 59;
-      }
-
-      if (hora >= 18 && hora < 19) return '18:00 - 19:00';
-      if (hora >= 19 && hora < 20) return '19:00 - 20:00';
-      if (hora >= 20 && hora < 21) return '20:00 - 21:00';
-      if (hora >= 21 && hora < 22) return '21:00 - 22:00';
-      if (hora >= 22 && hora < 23) return '22:00 - 23:00';
-      if (hora >= 23) return '23:00 - 00:00';
-      if (hora >= 0 && hora < 1) return '00:00 - 01:00';
-      if (hora >= 1 && hora < 2) return '01:00 - 02:00';
-      if (hora >= 2 && hora < 3) return '02:00 - 03:00';
-      if (hora >= 3 && hora < 4) return '03:00 - 04:00';
-      if (hora >= 4 && hora < 5) return '04:00 - 05:00';
-      if (hora >= 5 && hora < 6) return '05:00 - 06:00';
-
-      return 'SIN HORA';
-    };
-  }
-  else {
-    // TODOS
-    rangosHora = [
-      '06:00 - 07:00',
-      '07:00 - 08:00',
-      '08:00 - 09:00',
-      '09:00 - 10:00',
-      '10:00 - 11:00',
-      '11:00 - 12:00',
-      '12:00 - 13:00',
-      '13:00 - 14:00',
-      '14:00 - 15:00',
-      '15:00 - 16:00',
-      '16:00 - 17:00',
-      '17:00 - 18:00',
-      '18:00 - 19:00',
-      '19:00 - 20:00',
-      '20:00 - 21:00',
-      '21:00 - 22:00',
-      '22:00 - 23:00',
-      '23:00 - 00:00',
-      '00:00 - 01:00',
-      '01:00 - 02:00',
-      '02:00 - 03:00',
-      '03:00 - 04:00',
-      '04:00 - 05:00',
-      '05:00 - 06:00'
-    ];
-
-    obtenerRangoHora = (horaStr: string): string => {
-      if (!horaStr) return 'SIN HORA';
-
-      let [hora, minutos] = horaStr
-        .split(':')
-        .map(Number);
-
-      // 🔥 Si termina exacto en :00
-      // pertenece al rango anterior
-      if (minutos === 0) {
-        hora = hora === 0 ? 23 : hora - 1;
-        minutos = 59;
-      }
-
-      if (hora >= 6 && hora < 7) return '06:00 - 07:00';
-      if (hora >= 7 && hora < 8) return '07:00 - 08:00';
-      if (hora >= 8 && hora < 9) return '08:00 - 09:00';
-      if (hora >= 9 && hora < 10) return '09:00 - 10:00';
-      if (hora >= 10 && hora < 11) return '10:00 - 11:00';
-      if (hora >= 11 && hora < 12) return '11:00 - 12:00';
-      if (hora >= 12 && hora < 13) return '12:00 - 13:00';
-      if (hora >= 13 && hora < 14) return '13:00 - 14:00';
-      if (hora >= 14 && hora < 15) return '14:00 - 15:00';
-      if (hora >= 15 && hora < 16) return '15:00 - 16:00';
-      if (hora >= 16 && hora < 17) return '16:00 - 17:00';
-      if (hora >= 17 && hora < 18) return '17:00 - 18:00';
-      if (hora >= 18 && hora < 19) return '18:00 - 19:00';
-      if (hora >= 19 && hora < 20) return '19:00 - 20:00';
-      if (hora >= 20 && hora < 21) return '20:00 - 21:00';
-      if (hora >= 21 && hora < 22) return '21:00 - 22:00';
-      if (hora >= 22 && hora < 23) return '22:00 - 23:00';
-      if (hora >= 23) return '23:00 - 00:00';
-      if (hora >= 0 && hora < 1) return '00:00 - 01:00';
-      if (hora >= 1 && hora < 2) return '01:00 - 02:00';
-      if (hora >= 2 && hora < 3) return '02:00 - 03:00';
-      if (hora >= 3 && hora < 4) return '03:00 - 04:00';
-      if (hora >= 4 && hora < 5) return '04:00 - 05:00';
-      if (hora >= 5 && hora < 6) return '05:00 - 06:00';
-
-      return 'SIN HORA';
-    };
-  }
-
-  this.data.operaciones.forEach((op: any) => {
-    // 🔥 Filtrar por turno
-    if (turno && op.turno !== turno) return;
-
-    const equipoEncontrado = this.equiposProceso.find(
-      equipo =>
-        equipo.nombre === op.equipo &&
-        equipo.codigo === op.n_equipo
-    );
-
-    const capacidadTonelada =
-      Number(equipoEncontrado?.capacidad_tonelada) || 0;
-
-    const capacidadToneladaDesmonte =
-      Number(
-        equipoEncontrado?.capacidad_tonelada_desmonte
-      ) || 0;
-
-    const registrosArray = op.registros;
-
-    if (!Array.isArray(registrosArray)) return;
-
-    for (const registro of registrosArray) {
-      const codigo = registro.codigo?.toString() || '';
-
-      if (!codigosPermitidos.includes(codigo)) continue;
-
-      if (registro.estado !== 'OPERATIVO') continue;
-
-      const rangoHora = obtenerRangoHora(
-        registro.hora_final
-      );
-
-      // 🔥 Validar rango
-      if (!rangosHora.includes(rangoHora)) continue;
-
-      const n_cucharas =
-        registro.operacion?.n_cucharas;
-
-      if (
-        !n_cucharas ||
-        isNaN(Number(n_cucharas))
-      ) continue;
-
-      const cucharas = Number(n_cucharas);
-
-      const material = (
-        registro.operacion?.material || ''
-      )
-        .toUpperCase()
-        .trim();
-
-      let tipoMaterial = '';
-      let capacidadUsada = 0;
-
-      // 🔥 NO modificar lógica toneladas
-      if (material === 'MINERAL') {
-        tipoMaterial = 'mineral';
-        capacidadUsada = capacidadTonelada;
-      } else if (material === 'DESMONTE') {
-        tipoMaterial = 'desmonte';
-        capacidadUsada =
-          capacidadToneladaDesmonte;
-      } else if (material === 'RELAVE') {
-        tipoMaterial = 'relave';
-        capacidadUsada =
-          capacidadToneladaDesmonte;
-      } else if (material === 'RELLENO') {
-        tipoMaterial = 'relleno';
-        capacidadUsada =
-          capacidadToneladaDesmonte;
-      } else {
-        tipoMaterial = 'otros';
-        capacidadUsada = capacidadTonelada;
-      }
-
-      const toneladas =
-        cucharas * capacidadUsada;
-
-      if (!resultadoMap.has(rangoHora)) {
-        resultadoMap.set(rangoHora, {
-          rangoHora,
-          mineral: 0,
-          desmonte: 0,
-          relave: 0,
-          relleno: 0,
-          otros: 0,
-          total: 0,
-          cantidadRegistros: 0
-        });
-      }
-
-      const item = resultadoMap.get(rangoHora);
-
-      switch (tipoMaterial) {
-        case 'mineral':
-          item.mineral += toneladas;
-          break;
-
-        case 'desmonte':
-          item.desmonte += toneladas;
-          break;
-
-        case 'relave':
-          item.relave += toneladas;
-          break;
-
-        case 'relleno':
-          item.relleno += toneladas;
-          break;
-
-        default:
-          item.otros += toneladas;
-      }
-
-      item.total += toneladas;
-      item.cantidadRegistros += 1;
-    }
-  });
-
-  const resultado = Array.from(
-    resultadoMap.values()
-  )
-    .sort((a, b) => {
-      const indexA = rangosHora.indexOf(
-        a.rangoHora
-      );
-
-      const indexB = rangosHora.indexOf(
-        b.rangoHora
-      );
-
-      return indexA - indexB;
-    })
-    .map(item => ({
-      ...item,
-      mineral: Number(item.mineral.toFixed(2)),
-      desmonte: Number(item.desmonte.toFixed(2)),
-      relave: Number(item.relave.toFixed(2)),
-      relleno: Number(item.relleno.toFixed(2)),
-      otros: Number(item.otros.toFixed(2)),
-      total: Number(item.total.toFixed(2))
-    }));
-
-  console.log(
-    `📊 TONELADAS POR RANGO DE HORA (Turno: ${
-      turno || 'TODOS'
-    }):`,
-    resultado
-  );
-
-  return resultado;
-}
-
-//GRAFICO - TONELADAS POR EQUIPO Y RANGO DE HORA
-ToneladasPorLaborYRangoHora(turno: string = '') {
-  const resultadoMap = new Map<string, any>();
-
-  const codigosPermitidos = ['101', '103'];
-
-  // 🔥 Rangos de hora según el turno
-  let rangosHora: string[] = [];
+  let rangosHora: { label: string; inicio: number; fin: number }[] = [];
 
   if (turno === 'DÍA') {
     rangosHora = [
-      '06:00 - 07:00', '07:00 - 08:00', '08:00 - 09:00', '09:00 - 10:00',
-      '10:00 - 11:00', '11:00 - 12:00', '12:00 - 13:00', '13:00 - 14:00',
-      '14:00 - 15:00', '15:00 - 16:00', '16:00 - 17:00', '17:00 - 18:00'
+      { label: '06:00 - 07:00', inicio: 6, fin: 7 },
+      { label: '07:00 - 08:00', inicio: 7, fin: 8 },
+      { label: '08:00 - 09:00', inicio: 8, fin: 9 },
+      { label: '09:00 - 10:00', inicio: 9, fin: 10 },
+      { label: '10:00 - 11:00', inicio: 10, fin: 11 },
+      { label: '11:00 - 12:00', inicio: 11, fin: 12 },
+      { label: '12:00 - 13:00', inicio: 12, fin: 13 },
+      { label: '13:00 - 14:00', inicio: 13, fin: 14 },
+      { label: '14:00 - 15:00', inicio: 14, fin: 15 },
+      { label: '15:00 - 16:00', inicio: 15, fin: 16 },
+      { label: '16:00 - 17:00', inicio: 16, fin: 17 },
+      { label: '17:00 - 18:00', inicio: 17, fin: 18 }
     ];
   } else if (turno === 'NOCHE') {
     rangosHora = [
-      '18:00 - 19:00', '19:00 - 20:00', '20:00 - 21:00', '21:00 - 22:00',
-      '22:00 - 23:00', '23:00 - 00:00', '00:00 - 01:00', '01:00 - 02:00',
-      '02:00 - 03:00', '03:00 - 04:00', '04:00 - 05:00', '05:00 - 06:00'
+      { label: '18:00 - 19:00', inicio: 18, fin: 19 },
+      { label: '19:00 - 20:00', inicio: 19, fin: 20 },
+      { label: '20:00 - 21:00', inicio: 20, fin: 21 },
+      { label: '21:00 - 22:00', inicio: 21, fin: 22 },
+      { label: '22:00 - 23:00', inicio: 22, fin: 23 },
+      { label: '23:00 - 00:00', inicio: 23, fin: 24 },
+      // ✅ CORREGIDO: estos rangos se guardan con inicio < 6
+      // pero al comparar los ajustamos sumando +24
+      { label: '00:00 - 01:00', inicio: 0, fin: 1 },
+      { label: '01:00 - 02:00', inicio: 1, fin: 2 },
+      { label: '02:00 - 03:00', inicio: 2, fin: 3 },
+      { label: '03:00 - 04:00', inicio: 3, fin: 4 },
+      { label: '04:00 - 05:00', inicio: 4, fin: 5 },
+      { label: '05:00 - 06:00', inicio: 5, fin: 6 }
     ];
   } else {
     rangosHora = [
-      '06:00 - 07:00', '07:00 - 08:00', '08:00 - 09:00', '09:00 - 10:00',
-      '10:00 - 11:00', '11:00 - 12:00', '12:00 - 13:00', '13:00 - 14:00',
-      '14:00 - 15:00', '15:00 - 16:00', '16:00 - 17:00', '17:00 - 18:00',
-      '18:00 - 19:00', '19:00 - 20:00', '20:00 - 21:00', '21:00 - 22:00',
-      '22:00 - 23:00', '23:00 - 00:00', '00:00 - 01:00', '01:00 - 02:00',
-      '02:00 - 03:00', '03:00 - 04:00', '04:00 - 05:00', '05:00 - 06:00'
+      { label: '06:00 - 07:00', inicio: 6, fin: 7 },
+      { label: '07:00 - 08:00', inicio: 7, fin: 8 },
+      { label: '08:00 - 09:00', inicio: 8, fin: 9 },
+      { label: '09:00 - 10:00', inicio: 9, fin: 10 },
+      { label: '10:00 - 11:00', inicio: 10, fin: 11 },
+      { label: '11:00 - 12:00', inicio: 11, fin: 12 },
+      { label: '12:00 - 13:00', inicio: 12, fin: 13 },
+      { label: '13:00 - 14:00', inicio: 13, fin: 14 },
+      { label: '14:00 - 15:00', inicio: 14, fin: 15 },
+      { label: '15:00 - 16:00', inicio: 15, fin: 16 },
+      { label: '16:00 - 17:00', inicio: 16, fin: 17 },
+      { label: '17:00 - 18:00', inicio: 17, fin: 18 },
+      { label: '18:00 - 19:00', inicio: 18, fin: 19 },
+      { label: '19:00 - 20:00', inicio: 19, fin: 20 },
+      { label: '20:00 - 21:00', inicio: 20, fin: 21 },
+      { label: '21:00 - 22:00', inicio: 21, fin: 22 },
+      { label: '22:00 - 23:00', inicio: 22, fin: 23 },
+      { label: '23:00 - 00:00', inicio: 23, fin: 24 },
+      { label: '00:00 - 01:00', inicio: 0, fin: 1 },
+      { label: '01:00 - 02:00', inicio: 1, fin: 2 },
+      { label: '02:00 - 03:00', inicio: 2, fin: 3 },
+      { label: '03:00 - 04:00', inicio: 3, fin: 4 },
+      { label: '04:00 - 05:00', inicio: 4, fin: 5 },
+      { label: '05:00 - 06:00', inicio: 5, fin: 6 }
     ];
   }
 
-  // 🔥 FIX:
-  // Si la hora exacta es 10:00 debe caer en 09:00 - 10:00
-  // Solo se resta 1 minuto cuando minuto === 0
-  const obtenerRangoHora = (horaStr: string): string => {
-    if (!horaStr) return 'SIN HORA';
+  // Convierte "7:30" → 7.5, "10:10" → 10.166...
+  const horaStringToDecimal = (horaStr: string): number => {
+    if (!horaStr) return 0;
+    const [hora, minutos] = horaStr.split(':').map(Number);
+    return hora + (minutos / 60);
+  };
 
-    let [hora, minuto] = horaStr.split(':').map(Number);
+  // Calcula cuántas horas se comparten entre la operación y un rango
+  const calcularInterseccion = (
+    inicioOp: number,
+    finOp: number,
+    inicioRango: number,
+    finRango: number
+  ): number => {
+    const inicio = Math.max(inicioOp, inicioRango);
+    const fin = Math.min(finOp, finRango);
+    return fin > inicio ? fin - inicio : 0;
+  };
 
-    if (minuto === 0) {
-      minuto = 59;
-      hora = hora === 0 ? 23 : hora - 1;
+  // Función helper para inicializar un rango en el mapa si no existe
+  // ✅ NUEVO: evita repetir este bloque en dos lugares del código
+  const inicializarRangoSiNoExiste = (label: string) => {
+    if (!resultadoMap.has(label)) {
+      resultadoMap.set(label, {
+        rangoHora: label,
+        mineral: 0,
+        desmonte: 0,
+        relave: 0,
+        relleno: 0,
+        otros: 0,
+        total: 0,
+        cantidadRegistros: 0,
+        totalCucharasDistribuidas: 0
+      });
     }
-
-    const horaInicio = hora;
-    const horaFin = (hora + 1) % 24;
-
-    const formatear = (h: number) => h.toString().padStart(2, '0');
-
-    return `${formatear(horaInicio)}:00 - ${formatear(horaFin)}:00`;
   };
 
   this.data.operaciones.forEach((op: any) => {
-    // 🔥 Filtrar por turno si es necesario
     if (turno && op.turno !== turno) return;
 
     const equipoEncontrado = this.equiposProceso.find(
@@ -3582,30 +3303,32 @@ ToneladasPorLaborYRangoHora(turno: string = '') {
 
     for (const registro of registrosArray) {
       const codigo = registro.codigo?.toString() || '';
-
       if (!codigosPermitidos.includes(codigo)) continue;
       if (registro.estado !== 'OPERATIVO') continue;
 
-      // 🔥 Obtener labor_inicio
-      const laborInicio = registro.operacion?.labor_inicio || 'SIN LABOR';
-      const claveLabor =
-        laborInicio.trim() === '' ? 'SIN LABOR' : laborInicio.trim();
-
-      const rangoHora = obtenerRangoHora(registro.hora_final);
-
-      // 🔥 Validar que pertenezca al turno
-      if (!rangosHora.includes(rangoHora)) continue;
-
       const n_cucharas = registro.operacion?.n_cucharas;
-
       if (!n_cucharas || isNaN(Number(n_cucharas))) continue;
 
-      const cucharas = Number(n_cucharas);
+      const cucharasTotales = Number(n_cucharas);
 
-      const material = (
-        registro.operacion?.material || ''
-      ).toUpperCase().trim();
+      const horaInicioStr = registro.hora_inicio;
+      const horaFinalStr = registro.hora_final;
+      if (!horaInicioStr || !horaFinalStr) continue;
 
+      const horaInicioDecimal = horaStringToDecimal(horaInicioStr);
+      let horaFinalDecimal = horaStringToDecimal(horaFinalStr);
+
+      // Si la hora final es menor que la inicial, cruzó la medianoche
+      // Ejemplo: inicio 23:00 → fin 01:00, entonces fin se vuelve 25:00
+      if (horaFinalDecimal < horaInicioDecimal) {
+        horaFinalDecimal += 24;
+      }
+
+      const duracionTotal = horaFinalDecimal - horaInicioDecimal;
+      if (duracionTotal <= 0) continue;
+
+      // Determinar tipo de material y capacidad a usar
+      const material = (registro.operacion?.material || '').toUpperCase().trim();
       let tipoMaterial = '';
       let capacidadUsada = 0;
 
@@ -3626,54 +3349,372 @@ ToneladasPorLaborYRangoHora(turno: string = '') {
         capacidadUsada = capacidadTonelada;
       }
 
-      const toneladas = cucharas * capacidadUsada;
+      // ─────────────────────────────────────────────
+      // DISTRIBUCIÓN POR RANGOS
+      // Ejemplo: hora_inicio=7:30, hora_final=10:10, cucharas=18, capacidad=6
+      //
+      // Rango 7-8  → intersección 0.50h → cucharas 3.4  → toneladas 20.3
+      // Rango 8-9  → intersección 1.00h → cucharas 6.75 → toneladas 40.5
+      // Rango 9-10 → intersección 1.00h → cucharas 6.75 → toneladas 40.5
+      // Rango 10-11→ intersección 0.17h → cucharas 1.12 → toneladas  6.7
+      // Total      → intersección 2.67h → cucharas 18   → toneladas 108
+      // ─────────────────────────────────────────────
 
-      // 🔥 Clave compuesta: labor | rangoHora
-      const clave = `${claveLabor}|${rangoHora}`;
+      let totalInterseccionAcumulada = 0; // Para validación al final
 
-      if (!resultadoMap.has(clave)) {
-        resultadoMap.set(clave, {
-          labor: claveLabor,
-          rangoHora: rangoHora,
-          mineral: 0,
-          desmonte: 0,
-          relave: 0,
-          relleno: 0,
-          otros: 0,
-          total: 0,
-          cantidadRegistros: 0
-        });
+      for (const rango of rangosHora) {
+        let inicioRangoDecimal = rango.inicio;
+        let finRangoDecimal = rango.fin;
+
+        // ✅ CORREGIDO: si la operación cruza medianoche (horaFinalDecimal > 24)
+        // los rangos de 00:00-06:00 deben ajustarse a 24-30 para poder comparar
+        // Antes usabas < 6, ahora usamos < horaInicioDecimal para ser más preciso
+        if (horaFinalDecimal > 24 && finRangoDecimal <= 6) {
+          inicioRangoDecimal += 24;
+          finRangoDecimal += 24;
+        }
+
+        const interseccionHoras = calcularInterseccion(
+          horaInicioDecimal,
+          horaFinalDecimal,
+          inicioRangoDecimal,
+          finRangoDecimal
+        );
+
+        if (interseccionHoras <= 0) continue;
+
+        totalInterseccionAcumulada += interseccionHoras;
+
+        // proporcion = qué parte del tiempo total cae en este rango
+        // Ejemplo rango 7-8: proporcion = 0.50 / 2.67 = 0.187
+        const proporcion = interseccionHoras / duracionTotal;
+
+        // cucharas_rango = cucharas_totales * proporcion
+        // Ejemplo: 18 * 0.187 = 3.4 cucharas
+        const cucharasEnRango = cucharasTotales * proporcion;
+
+        // toneladas_rango = cucharas_rango * capacidad
+        // Ejemplo: 3.4 * 6 = 20.3 toneladas
+        const toneladasEnRango = cucharasEnRango * capacidadUsada;
+
+        // ✅ CORREGIDO: inicializamos el rango antes de acumular
+        inicializarRangoSiNoExiste(rango.label);
+
+        const item = resultadoMap.get(rango.label);
+
+        // Acumular según tipo de material
+        switch (tipoMaterial) {
+          case 'mineral':  item.mineral  += toneladasEnRango; break;
+          case 'desmonte': item.desmonte += toneladasEnRango; break;
+          case 'relave':   item.relave   += toneladasEnRango; break;
+          case 'relleno':  item.relleno  += toneladasEnRango; break;
+          default:         item.otros    += toneladasEnRango;
+        }
+
+        item.total += toneladasEnRango;
+        item.totalCucharasDistribuidas += cucharasEnRango;
       }
 
-      const item = resultadoMap.get(clave);
-
-      switch (tipoMaterial) {
-        case 'mineral':
-          item.mineral += toneladas;
-          break;
-
-        case 'desmonte':
-          item.desmonte += toneladas;
-          break;
-
-        case 'relave':
-          item.relave += toneladas;
-          break;
-
-        case 'relleno':
-          item.relleno += toneladas;
-          break;
-
-        default:
-          item.otros += toneladas;
+      // ✅ NUEVO: Validación — si la intersección total no coincide con la duración,
+      // algo salió mal (rangos no cubren todo el período)
+      if (Math.abs(totalInterseccionAcumulada - duracionTotal) > 0.01) {
+        console.warn(
+          `⚠️ Registro ${horaInicioStr} - ${horaFinalStr}: ` +
+          `duración=${duracionTotal.toFixed(2)}h pero ` +
+          `intersección acumulada=${totalInterseccionAcumulada.toFixed(2)}h. ` +
+          `Puede haber rangos sin cubrir.`
+        );
       }
 
-      item.total += toneladas;
-      item.cantidadRegistros += 1;
+      // ✅ CORREGIDO: cantidadRegistros ahora inicializa el rango si no existe
+      // Antes fallaba si el rango final nunca tuvo intersección
+      const rangoFinal = rangosHora.find(r => {
+        const horaFin = horaStringToDecimal(horaFinalStr);
+        return horaFin >= r.inicio && horaFin < r.fin;
+      });
+
+      if (rangoFinal) {
+        // ✅ Ahora siempre inicializa antes de incrementar
+        inicializarRangoSiNoExiste(rangoFinal.label);
+        resultadoMap.get(rangoFinal.label).cantidadRegistros += 1;
+      }
     }
   });
 
-  // 🔥 Agrupar por labor
+  // Ordenar según el orden definido en rangosHora y redondear valores
+  const resultado = Array.from(resultadoMap.values())
+    .sort((a, b) => {
+      const indexA = rangosHora.findIndex(r => r.label === a.rangoHora);
+      const indexB = rangosHora.findIndex(r => r.label === b.rangoHora);
+      return indexA - indexB;
+    })
+    .map(item => ({
+      ...item,
+      mineral:  Number(item.mineral.toFixed(2)),
+      desmonte: Number(item.desmonte.toFixed(2)),
+      relave:   Number(item.relave.toFixed(2)),
+      relleno:  Number(item.relleno.toFixed(2)),
+      otros:    Number(item.otros.toFixed(2)),
+      total:    Number(item.total.toFixed(2)),
+      totalCucharasDistribuidas: Number((item.totalCucharasDistribuidas ?? 0).toFixed(2))
+    }));
+
+  console.log(`📊 TONELADAS POR RANGO DE HORA (Turno: ${turno || 'TODOS'}):`, resultado);
+
+  return resultado;
+}
+
+//GRAFICO - TONELADAS POR EQUIPO Y RANGO DE HORA
+ToneladasPorLaborYRangoHora(turno: string = '') {
+  const resultadoMap = new Map<string, any>();
+  const codigosPermitidos = ['101', '103'];
+
+  let rangosConfig: { nombre: string; inicio: number; fin: number }[] = [];
+
+  if (turno === 'DÍA') {
+    rangosConfig = [
+      { nombre: '06:00 - 07:00', inicio: 6, fin: 7 },
+      { nombre: '07:00 - 08:00', inicio: 7, fin: 8 },
+      { nombre: '08:00 - 09:00', inicio: 8, fin: 9 },
+      { nombre: '09:00 - 10:00', inicio: 9, fin: 10 },
+      { nombre: '10:00 - 11:00', inicio: 10, fin: 11 },
+      { nombre: '11:00 - 12:00', inicio: 11, fin: 12 },
+      { nombre: '12:00 - 13:00', inicio: 12, fin: 13 },
+      { nombre: '13:00 - 14:00', inicio: 13, fin: 14 },
+      { nombre: '14:00 - 15:00', inicio: 14, fin: 15 },
+      { nombre: '15:00 - 16:00', inicio: 15, fin: 16 },
+      { nombre: '16:00 - 17:00', inicio: 16, fin: 17 },
+      { nombre: '17:00 - 18:00', inicio: 17, fin: 18 }
+    ];
+  } else if (turno === 'NOCHE') {
+    rangosConfig = [
+      { nombre: '18:00 - 19:00', inicio: 18, fin: 19 },
+      { nombre: '19:00 - 20:00', inicio: 19, fin: 20 },
+      { nombre: '20:00 - 21:00', inicio: 20, fin: 21 },
+      { nombre: '21:00 - 22:00', inicio: 21, fin: 22 },
+      { nombre: '22:00 - 23:00', inicio: 22, fin: 23 },
+      { nombre: '23:00 - 00:00', inicio: 23, fin: 24 },
+      { nombre: '00:00 - 01:00', inicio: 0, fin: 1 },
+      { nombre: '01:00 - 02:00', inicio: 1, fin: 2 },
+      { nombre: '02:00 - 03:00', inicio: 2, fin: 3 },
+      { nombre: '03:00 - 04:00', inicio: 3, fin: 4 },
+      { nombre: '04:00 - 05:00', inicio: 4, fin: 5 },
+      { nombre: '05:00 - 06:00', inicio: 5, fin: 6 }
+    ];
+  } else {
+    rangosConfig = [
+      { nombre: '06:00 - 07:00', inicio: 6, fin: 7 },
+      { nombre: '07:00 - 08:00', inicio: 7, fin: 8 },
+      { nombre: '08:00 - 09:00', inicio: 8, fin: 9 },
+      { nombre: '09:00 - 10:00', inicio: 9, fin: 10 },
+      { nombre: '10:00 - 11:00', inicio: 10, fin: 11 },
+      { nombre: '11:00 - 12:00', inicio: 11, fin: 12 },
+      { nombre: '12:00 - 13:00', inicio: 12, fin: 13 },
+      { nombre: '13:00 - 14:00', inicio: 13, fin: 14 },
+      { nombre: '14:00 - 15:00', inicio: 14, fin: 15 },
+      { nombre: '15:00 - 16:00', inicio: 15, fin: 16 },
+      { nombre: '16:00 - 17:00', inicio: 16, fin: 17 },
+      { nombre: '17:00 - 18:00', inicio: 17, fin: 18 },
+      { nombre: '18:00 - 19:00', inicio: 18, fin: 19 },
+      { nombre: '19:00 - 20:00', inicio: 19, fin: 20 },
+      { nombre: '20:00 - 21:00', inicio: 20, fin: 21 },
+      { nombre: '21:00 - 22:00', inicio: 21, fin: 22 },
+      { nombre: '22:00 - 23:00', inicio: 22, fin: 23 },
+      { nombre: '23:00 - 00:00', inicio: 23, fin: 24 },
+      { nombre: '00:00 - 01:00', inicio: 0, fin: 1 },
+      { nombre: '01:00 - 02:00', inicio: 1, fin: 2 },
+      { nombre: '02:00 - 03:00', inicio: 2, fin: 3 },
+      { nombre: '03:00 - 04:00', inicio: 3, fin: 4 },
+      { nombre: '04:00 - 05:00', inicio: 4, fin: 5 },
+      { nombre: '05:00 - 06:00', inicio: 5, fin: 6 }
+    ];
+  }
+
+  const rangosHora = rangosConfig.map(r => r.nombre);
+
+  // Convierte "7:30" → 7.5
+  const parseHora = (horaStr: string): number => {
+    if (!horaStr) return NaN;
+    const [hora, minutos] = horaStr.split(':').map(Number);
+    return hora + (minutos / 60);
+  };
+
+  // Calcula intersección entre operación y rango
+  const calcularInterseccion = (
+    inicioOp: number,
+    finOp: number,
+    inicioRango: number,
+    finRango: number
+  ): number => {
+    const inicio = Math.max(inicioOp, inicioRango);
+    const fin = Math.min(finOp, finRango);
+    return fin > inicio ? fin - inicio : 0;
+  };
+
+  // ✅ Helper para inicializar entrada en el mapa
+  const inicializarClaveSiNoExiste = (clave: string, labor: string, rangoNombre: string) => {
+    if (!resultadoMap.has(clave)) {
+      resultadoMap.set(clave, {
+        labor,
+        rangoHora: rangoNombre,
+        mineral: 0,
+        desmonte: 0,
+        relave: 0,
+        relleno: 0,
+        otros: 0,
+        total: 0,
+        cantidadRegistros: 0,
+        totalCucharasDistribuidas: 0
+      });
+    }
+  };
+
+  this.data.operaciones.forEach((op: any) => {
+    if (turno && op.turno !== turno) return;
+
+    const equipoEncontrado = this.equiposProceso.find(
+      equipo => equipo.nombre === op.equipo && equipo.codigo === op.n_equipo
+    );
+
+    const capacidadTonelada = Number(equipoEncontrado?.capacidad_tonelada) || 0;
+    const capacidadToneladaDesmonte = Number(equipoEncontrado?.capacidad_tonelada_desmonte) || 0;
+
+    const registrosArray = op.registros;
+    if (!Array.isArray(registrosArray)) return;
+
+    for (const registro of registrosArray) {
+      const codigo = registro.codigo?.toString() || '';
+      if (!codigosPermitidos.includes(codigo)) continue;
+      if (registro.estado !== 'OPERATIVO') continue;
+
+      const laborInicio = registro.operacion?.labor_inicio || 'SIN LABOR';
+      const claveLabor = laborInicio.trim() === '' ? 'SIN LABOR' : laborInicio.trim();
+
+      const n_cucharas = registro.operacion?.n_cucharas;
+      if (!n_cucharas || isNaN(Number(n_cucharas))) continue;
+
+      const cucharasTotales = Number(n_cucharas);
+
+      const horaInicioDecimal = parseHora(registro.hora_inicio);
+      let horaFinalDecimal = parseHora(registro.hora_final);
+
+      if (isNaN(horaInicioDecimal) || isNaN(horaFinalDecimal)) continue;
+
+      // ✅ Manejo de cruce de medianoche
+      // Ejemplo: inicio 23:00, fin 01:00 → fin se convierte en 25:00
+      if (horaFinalDecimal < horaInicioDecimal) {
+        horaFinalDecimal += 24;
+      }
+
+      const duracionTotal = horaFinalDecimal - horaInicioDecimal;
+      if (duracionTotal <= 0) continue;
+
+      const material = (registro.operacion?.material || '').toUpperCase().trim();
+      let tipoMaterial = '';
+      let capacidadUsada = 0;
+
+      if (material === 'MINERAL') {
+        tipoMaterial = 'mineral';
+        capacidadUsada = capacidadTonelada;
+      } else if (material === 'DESMONTE') {
+        tipoMaterial = 'desmonte';
+        capacidadUsada = capacidadToneladaDesmonte;
+      } else if (material === 'RELAVE') {
+        tipoMaterial = 'relave';
+        capacidadUsada = capacidadToneladaDesmonte;
+      } else if (material === 'RELLENO') {
+        tipoMaterial = 'relleno';
+        capacidadUsada = capacidadToneladaDesmonte;
+      } else {
+        tipoMaterial = 'otros';
+        capacidadUsada = capacidadTonelada;
+      }
+
+      // ─────────────────────────────────────────────
+      // DISTRIBUCIÓN POR RANGOS con intersección
+      // Igual que ToneladasPorRangoHoraCompleto:
+      // cada rango recibe cucharas proporcionales al tiempo que cae en él
+      // ─────────────────────────────────────────────
+
+      let totalInterseccionAcumulada = 0;
+
+      for (const rango of rangosConfig) {
+        let inicioRangoDecimal = rango.inicio;
+        let finRangoDecimal = rango.fin;
+
+        // ✅ CORREGIDO: ajustar rangos post-medianoche para poder compararlos
+        // Si la operación cruza medianoche (fin > 24), los rangos 00:00-06:00
+        // deben sumarse +24 para estar en la misma escala
+        if (horaFinalDecimal > 24 && finRangoDecimal <= 6) {
+          inicioRangoDecimal += 24;
+          finRangoDecimal += 24;
+        }
+
+        const interseccionHoras = calcularInterseccion(
+          horaInicioDecimal,
+          horaFinalDecimal,
+          inicioRangoDecimal,
+          finRangoDecimal
+        );
+
+        if (interseccionHoras <= 0) continue;
+
+        totalInterseccionAcumulada += interseccionHoras;
+
+        // proporcion = parte del tiempo total que cae en este rango
+        const proporcion = interseccionHoras / duracionTotal;
+
+        // cucharas_rango = cucharas_totales * proporcion
+        const cucharasEnRango = cucharasTotales * proporcion;
+
+        // toneladas_rango = cucharas_rango * capacidad
+        const toneladasEnRango = cucharasEnRango * capacidadUsada;
+
+        const clave = `${claveLabor}|${rango.nombre}`;
+
+        // ✅ CORREGIDO: siempre inicializar antes de acumular
+        inicializarClaveSiNoExiste(clave, claveLabor, rango.nombre);
+
+        const item = resultadoMap.get(clave);
+
+        switch (tipoMaterial) {
+          case 'mineral':  item.mineral  += toneladasEnRango; break;
+          case 'desmonte': item.desmonte += toneladasEnRango; break;
+          case 'relave':   item.relave   += toneladasEnRango; break;
+          case 'relleno':  item.relleno  += toneladasEnRango; break;
+          default:         item.otros    += toneladasEnRango;
+        }
+
+        item.total += toneladasEnRango;
+        item.totalCucharasDistribuidas += cucharasEnRango;
+      }
+
+      // ✅ NUEVO: validación — avisa si algún rango quedó sin cubrir
+      if (Math.abs(totalInterseccionAcumulada - duracionTotal) > 0.01) {
+        console.warn(
+          `⚠️ [Labor] Registro ${registro.hora_inicio} - ${registro.hora_final}: ` +
+          `duración=${duracionTotal.toFixed(2)}h pero ` +
+          `intersección acumulada=${totalInterseccionAcumulada.toFixed(2)}h. ` +
+          `Labor: ${claveLabor}`
+        );
+      }
+
+      // ✅ CORREGIDO: cantidadRegistros — inicializa el rango si no existía
+      // En el código original fallaba si el rango final nunca tuvo intersección
+      const rangoFinal = rangosConfig.find(r => {
+        const horaFin = parseHora(registro.hora_final);
+        return horaFin >= r.inicio && horaFin < r.fin;
+      });
+
+      if (rangoFinal) {
+        const claveRangoFinal = `${claveLabor}|${rangoFinal.nombre}`;
+        inicializarClaveSiNoExiste(claveRangoFinal, claveLabor, rangoFinal.nombre);
+        resultadoMap.get(claveRangoFinal).cantidadRegistros += 1;
+      }
+    }
+  });
+
+  // Agrupar por labor
   const resultadoPorLabor = new Map<string, any>();
 
   Array.from(resultadoMap.values()).forEach(item => {
@@ -3681,7 +3722,7 @@ ToneladasPorLaborYRangoHora(turno: string = '') {
 
     if (!resultadoPorLabor.has(labor)) {
       resultadoPorLabor.set(labor, {
-        labor: labor,
+        labor,
         turno: turno || 'TODOS',
         rangos: []
       });
@@ -3691,25 +3732,22 @@ ToneladasPorLaborYRangoHora(turno: string = '') {
 
     laborItem.rangos.push({
       rangoHora: item.rangoHora,
-      mineral: Number(item.mineral.toFixed(2)),
-      desmonte: Number(item.desmonte.toFixed(2)),
-      relave: Number(item.relave.toFixed(2)),
-      relleno: Number(item.relleno.toFixed(2)),
-      otros: Number(item.otros.toFixed(2)),
-      total: Number(item.total.toFixed(2)),
-      cantidadRegistros: item.cantidadRegistros
+      mineral:   Number(item.mineral.toFixed(2)),
+      desmonte:  Number(item.desmonte.toFixed(2)),
+      relave:    Number(item.relave.toFixed(2)),
+      relleno:   Number(item.relleno.toFixed(2)),
+      otros:     Number(item.otros.toFixed(2)),
+      total:     Number(item.total.toFixed(2)),
+      cantidadRegistros: item.cantidadRegistros,
+      totalCucharasDistribuidas: Number((item.totalCucharasDistribuidas ?? 0).toFixed(2))
     });
 
-    // 🔥 Ordenar rangos por hora
+    // Ordenar rangos por posición en rangosHora
     laborItem.rangos.sort((a: any, b: any) => {
-      const indexA = rangosHora.indexOf(a.rangoHora);
-      const indexB = rangosHora.indexOf(b.rangoHora);
-
-      return indexA - indexB;
+      return rangosHora.indexOf(a.rangoHora) - rangosHora.indexOf(b.rangoHora);
     });
   });
 
-  // 🔥 Resultado final
   const resultado = Array.from(resultadoPorLabor.values())
     .sort((a, b) => a.labor.localeCompare(b.labor));
 
@@ -3720,5 +3758,4 @@ ToneladasPorLaborYRangoHora(turno: string = '') {
 
   return resultado;
 }
-
 }
