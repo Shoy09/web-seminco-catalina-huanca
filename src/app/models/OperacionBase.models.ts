@@ -2,6 +2,7 @@ import { OperacionJumbo } from './OperacionJumbo';
 import { OperacionScoop } from './OperacionScoop';
 import { OperacionSostenimiento } from './OperacionSostenimiento';
 import { OperacionTLargos } from './OperacionTLargos';
+import { OperacionVolquete } from './OperacionVolquete';
 
 export interface OperacionBase<TOperacion = TipoOperacionRegistro> {
   id?: number;
@@ -49,10 +50,13 @@ export type TipoOperacionRegistro =
   | OperacionJumbo
   | OperacionScoop
   | OperacionTLargos
+  | OperacionVolquete
   | OperacionSostenimiento;
 
   export type OperacionBaseJumbo = OperacionBase<OperacionJumbo>;
   export type OperacionBaseScoop = OperacionBase<OperacionScoop>;
   export type OperacionBaseTLargos = OperacionBase<OperacionTLargos>;
   export type OperacionBaseSostenimiento = OperacionBase<OperacionSostenimiento>;
+  export type OperacionBaseVolquete = OperacionBase<OperacionVolquete>;
+
 

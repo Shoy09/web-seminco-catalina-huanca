@@ -1,5 +1,6 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { obtenerRangosHoraPorTurno } from '../../../../../../utils/fecha-utils';
 
 @Component({
   selector: 'app-tabla-metros-perforados-equipo',
@@ -10,21 +11,32 @@ import { CommonModule } from '@angular/common';
 })
 export class TablaMetrosPerforadosEquipoComponent implements OnChanges {
 
-  @Input() data: any[] = []; // Datos de MetrosPerforadosPorLaborYRangoHora
-  @Input() turno: string = ''; // 'DÍA' o 'NOCHE'
+  @Input() data: any[] = [];
+  @Input() turno: string = '';
 
-  // 🔥 Datos para la tabla
+  // NUEVO: configuración reutilizable
+  @Input() unidad: string = 'm';
+  @Input() titulo: string = '📏 PRODUCCIÓN POR LABOR Y RANGO DE HORA';
+  @Input() labelTotalLabor: string = 'TOTAL x LABOR';
+  @Input() labelTotalRango: string = 'Total x Hora';
+  @Input() mensajeSinDatos: string = 'No hay datos disponibles para el turno seleccionado';
+
   rangosHora: string[] = [];
   labores: string[] = [];
-  matrizMetros: { [rango: string]: { [labor: string]: number } } = {};
-  
-  // 🔥 Totales por labor y por rango
+
+  matrizValores: { [rango: string]: { [labor: string]: number } } = {};
+
   totalesPorLabor: { [labor: string]: number } = {};
   totalesPorRango: { [rango: string]: number } = {};
   granTotal: number = 0;
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data'] || changes['turno']) {
+    if (
+      changes['data'] ||
+      changes['turno'] ||
+      changes['unidad'] ||
+      changes['titulo']
+    ) {
       this.procesarDatos();
     }
   }
@@ -35,127 +47,108 @@ export class TablaMetrosPerforadosEquipoComponent implements OnChanges {
       return;
     }
 
-    // 🔥 Definir rangos de hora según el turno
-    if (this.turno === 'DÍA') {
-      this.rangosHora = [
-        '06:00 - 07:00', '07:00 - 08:00', '08:00 - 09:00', '09:00 - 10:00', 
-        '10:00 - 11:00', '11:00 - 12:00', '12:00 - 13:00', '13:00 - 14:00', 
-        '14:00 - 15:00', '15:00 - 16:00', '16:00 - 17:00', '17:00 - 18:00'
-      ];
-    } else if (this.turno === 'NOCHE') {
-      this.rangosHora = [
-        '18:00 - 19:00', '19:00 - 20:00', '20:00 - 21:00', '21:00 - 22:00', 
-        '22:00 - 23:00', '23:00 - 00:00', '00:00 - 01:00', '01:00 - 02:00', 
-        '02:00 - 03:00', '03:00 - 04:00', '04:00 - 05:00', '05:00 - 06:00'
-      ];
-    } else {
-      // Todos los turnos - 24 rangos
-      this.rangosHora = [
-        '06:00 - 07:00', '07:00 - 08:00', '08:00 - 09:00', '09:00 - 10:00', 
-        '10:00 - 11:00', '11:00 - 12:00', '12:00 - 13:00', '13:00 - 14:00', 
-        '14:00 - 15:00', '15:00 - 16:00', '16:00 - 17:00', '17:00 - 18:00',
-        '18:00 - 19:00', '19:00 - 20:00', '20:00 - 21:00', '21:00 - 22:00', 
-        '22:00 - 23:00', '23:00 - 00:00', '00:00 - 01:00', '01:00 - 02:00', 
-        '02:00 - 03:00', '03:00 - 04:00', '04:00 - 05:00', '05:00 - 06:00'
-      ];
-    }
+    this.rangosHora = obtenerRangosHoraPorTurno(this.turno);
 
-    // 🔥 Obtener lista de labores únicas
-    this.labores = this.data.map(item => item.labor).sort();
-    
-    // 🔥 Inicializar matrices
-    this.matrizMetros = {};
+    this.labores = this.data
+      .map(item => item.labor || 'SIN LABOR')
+      .sort();
+
+    this.matrizValores = {};
     this.totalesPorLabor = {};
     this.totalesPorRango = {};
-    
-    // Inicializar totales por labor
+    this.granTotal = 0;
+
     this.labores.forEach(labor => {
       this.totalesPorLabor[labor] = 0;
     });
-    
-    // Inicializar matriz y totales por rango
+
     this.rangosHora.forEach(rango => {
-      this.matrizMetros[rango] = {};
+      this.matrizValores[rango] = {};
       this.totalesPorRango[rango] = 0;
+
       this.labores.forEach(labor => {
-        this.matrizMetros[rango][labor] = 0;
+        this.matrizValores[rango][labor] = 0;
       });
     });
-    
-    // 🔥 Llenar matriz con los datos
+
     this.data.forEach(laborData => {
-      const labor = laborData.labor;
-      
+      const labor = laborData.labor || 'SIN LABOR';
+
       if (!laborData.rangos || !Array.isArray(laborData.rangos)) return;
-      
+
       laborData.rangos.forEach((rangoData: any) => {
         const rango = rangoData.rangoHora;
-        const total = rangoData.total; // Usamos el total de metros perforados
-        
-        if (this.matrizMetros[rango] && this.matrizMetros[rango][labor] !== undefined) {
-          this.matrizMetros[rango][labor] = total;
+        const total = Number(rangoData.total || 0);
+
+        if (
+          this.matrizValores[rango] &&
+          this.matrizValores[rango][labor] !== undefined
+        ) {
+          this.matrizValores[rango][labor] += total;
           this.totalesPorLabor[labor] += total;
           this.totalesPorRango[rango] += total;
         }
       });
     });
-    
-    // 🔥 Calcular gran total
-    this.granTotal = Object.values(this.totalesPorLabor).reduce((sum, val) => sum + val, 0);
-    
-    // Redondear todos los valores a 2 decimales
+
+    this.granTotal = Object.values(this.totalesPorLabor)
+      .reduce((sum, val) => sum + val, 0);
+
     this.redondearValores();
   }
+
 
   limpiarTabla(): void {
     this.rangosHora = [];
     this.labores = [];
-    this.matrizMetros = {};
+    this.matrizValores = {};
     this.totalesPorLabor = {};
     this.totalesPorRango = {};
     this.granTotal = 0;
   }
 
   redondearValores(): void {
-    // Redondear totales por labor
     Object.keys(this.totalesPorLabor).forEach(labor => {
-      this.totalesPorLabor[labor] = Number(this.totalesPorLabor[labor].toFixed(2));
+      this.totalesPorLabor[labor] = Number(
+        this.totalesPorLabor[labor].toFixed(2)
+      );
     });
-    
-    // Redondear totales por rango
+
     Object.keys(this.totalesPorRango).forEach(rango => {
-      this.totalesPorRango[rango] = Number(this.totalesPorRango[rango].toFixed(2));
+      this.totalesPorRango[rango] = Number(
+        this.totalesPorRango[rango].toFixed(2)
+      );
     });
-    
-    // Redondear matriz
+
     this.rangosHora.forEach(rango => {
       this.labores.forEach(labor => {
-        if (this.matrizMetros[rango] && this.matrizMetros[rango][labor]) {
-          this.matrizMetros[rango][labor] = Number(this.matrizMetros[rango][labor].toFixed(2));
+        if (this.matrizValores[rango] && this.matrizValores[rango][labor]) {
+          this.matrizValores[rango][labor] = Number(
+            this.matrizValores[rango][labor].toFixed(2)
+          );
         }
       });
     });
-    
+
     this.granTotal = Number(this.granTotal.toFixed(2));
   }
 
-  // 🔥 Método para obtener el color de fondo según el valor
   getColorPorValor(valor: number): string {
-    if (valor === 0) return '';
-    if (valor > 300) return 'bg-red-100';
-    if (valor > 200) return 'bg-orange-100';
-    if (valor > 100) return 'bg-yellow-50';
-    if (valor > 50) return 'bg-green-50';
-    return 'bg-blue-50';
+    if (!valor || valor === 0) return '';
+
+    if (valor > 300) return 'bg-green-strong';
+    if (valor > 200) return 'bg-green-medium';
+    if (valor > 100) return 'bg-green-soft';
+    if (valor > 50) return 'bg-green-light';
+
+    return 'bg-green-min';
   }
 
-  // 🔥 Método para formatear números
   formatNumber(valor: number): string {
-    if (valor === 0) return '-';
-    return valor.toFixed(1);
+    if (!valor || valor === 0) return '-';
+    return `${valor.toFixed(1)} ${this.unidad}`;
   }
 
-  // 🔥 Métodos auxiliares para el template
   getTotalPorLabor(labor: string): number {
     return this.totalesPorLabor[labor] || 0;
   }

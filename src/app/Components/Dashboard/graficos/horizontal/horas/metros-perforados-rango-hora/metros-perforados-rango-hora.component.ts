@@ -1,4 +1,10 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart, LineChart } from 'echarts/charts';
@@ -7,7 +13,7 @@ import {
   TooltipComponent,
   GridComponent,
   ToolboxComponent,
-  LegendComponent
+  LegendComponent,
 } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { CommonModule } from '@angular/common';
@@ -21,7 +27,7 @@ echarts.use([
   GridComponent,
   ToolboxComponent,
   LegendComponent,
-  CanvasRenderer
+  CanvasRenderer,
 ]);
 
 @Component({
@@ -30,52 +36,122 @@ echarts.use([
   imports: [NgxEchartsDirective, CommonModule],
   providers: [provideEchartsCore({ echarts })],
   templateUrl: './metros-perforados-rango-hora.component.html',
-  styleUrl: './metros-perforados-rango-hora.component.css'
+  styleUrl: './metros-perforados-rango-hora.component.css',
 })
 export class MetrosPerforadosRangoHoraComponent implements OnInit, OnChanges {
-
-  @Input() data: any[] = []; // Datos procesados por la función
+  @Input() data: any[] = [];
   @Input() turno: string = '';
 
+  // NUEVO: configuración genérica
+  @Input() unidad: string = 'm';
+  @Input() tituloGrafico: string = 'PRODUCCIÓN POR RANGO DE HORA';
+  @Input() tituloTotalTipo: string = '📊 TOTAL POR TIPO DE PERFORACIÓN';
+  @Input() tituloTotalEquipo: string = '🚜 TOTAL POR EQUIPO';
+  @Input() labelCategoria: string = 'tipo';
+  @Input() labelEquipo: string = 'equipo';
+  @Input() mensajeSinDatos: string = 'No hay datos disponibles';
+
   chartOptions: any = {};
-  
-  
+
+  private readonly keysExcluidas = [
+  'rangoHora',
+  'total',
+  'cantidadRegistros',
+  'cantidadBarras',
+  'totalTaladros',
+  'totalNBarras',
+  'totalViajes',
+  'equipos',
+  'volquetes',
+  'scoops',
+  'materiales',
+  'ubicacionDestino',
+];
+
   // Almacenará los totales por tipo de perforación
   totalesPorTipo: { [key: string]: number } = {};
   tiposPerforacion: string[] = [];
 
   totalesPorEquipo: { [key: string]: number } = {};
-equipos: string[] = [];
+  equipos: string[] = [];
 
-   maxItemsMostrar: number = 5; // Cambia este valor según necesites (5, 6, etc.)
+  maxItemsMostrar: number = 5; // Cambia este valor según necesites (5, 6, etc.)
   verTodos: boolean = false;
 
   // Paleta de colores dinámica
-  public  coloresBase = [
-    '#9df6c2', '#1eff7c', '#2ecc71', '#27ae60', '#f39c12', 
-    '#e74c3c', '#3498db', '#9b59b6', '#1abc9c', '#e67e22',
-    '#95a5a6', '#d35400', '#c0392b', '#16a085', '#8e44ad'
+  public coloresBase = [
+    '#9df6c2',
+    '#1eff7c',
+    '#2ecc71',
+    '#27ae60',
+    '#f39c12',
+    '#e74c3c',
+    '#3498db',
+    '#9b59b6',
+    '#1abc9c',
+    '#e67e22',
+    '#95a5a6',
+    '#d35400',
+    '#c0392b',
+    '#16a085',
+    '#8e44ad',
   ];
 
   private rangosPorTurno: { [key: string]: string[] } = {
-    'DÍA': [
-      '06:00 - 07:00', '07:00 - 08:00', '08:00 - 09:00', '09:00 - 10:00', 
-      '10:00 - 11:00', '11:00 - 12:00', '12:00 - 13:00', '13:00 - 14:00', 
-      '14:00 - 15:00', '15:00 - 16:00', '16:00 - 17:00', '17:00 - 18:00'
+    DÍA: [
+      '06:00 - 07:00',
+      '07:00 - 08:00',
+      '08:00 - 09:00',
+      '09:00 - 10:00',
+      '10:00 - 11:00',
+      '11:00 - 12:00',
+      '12:00 - 13:00',
+      '13:00 - 14:00',
+      '14:00 - 15:00',
+      '15:00 - 16:00',
+      '16:00 - 17:00',
+      '17:00 - 18:00',
     ],
-    'NOCHE': [
-      '18:00 - 19:00', '19:00 - 20:00', '20:00 - 21:00', '21:00 - 22:00', 
-      '22:00 - 23:00', '23:00 - 00:00', '00:00 - 01:00', '01:00 - 02:00', 
-      '02:00 - 03:00', '03:00 - 04:00', '04:00 - 05:00', '05:00 - 06:00'
+    NOCHE: [
+      '18:00 - 19:00',
+      '19:00 - 20:00',
+      '20:00 - 21:00',
+      '21:00 - 22:00',
+      '22:00 - 23:00',
+      '23:00 - 00:00',
+      '00:00 - 01:00',
+      '01:00 - 02:00',
+      '02:00 - 03:00',
+      '03:00 - 04:00',
+      '04:00 - 05:00',
+      '05:00 - 06:00',
     ],
     '': [
-      '06:00 - 07:00', '07:00 - 08:00', '08:00 - 09:00', '09:00 - 10:00', 
-      '10:00 - 11:00', '11:00 - 12:00', '12:00 - 13:00', '13:00 - 14:00', 
-      '14:00 - 15:00', '15:00 - 16:00', '16:00 - 17:00', '17:00 - 18:00',
-      '18:00 - 19:00', '19:00 - 20:00', '20:00 - 21:00', '21:00 - 22:00', 
-      '22:00 - 23:00', '23:00 - 00:00', '00:00 - 01:00', '01:00 - 02:00', 
-      '02:00 - 03:00', '03:00 - 04:00', '04:00 - 05:00', '05:00 - 06:00'
-    ]
+      '06:00 - 07:00',
+      '07:00 - 08:00',
+      '08:00 - 09:00',
+      '09:00 - 10:00',
+      '10:00 - 11:00',
+      '11:00 - 12:00',
+      '12:00 - 13:00',
+      '13:00 - 14:00',
+      '14:00 - 15:00',
+      '15:00 - 16:00',
+      '16:00 - 17:00',
+      '17:00 - 18:00',
+      '18:00 - 19:00',
+      '19:00 - 20:00',
+      '20:00 - 21:00',
+      '21:00 - 22:00',
+      '22:00 - 23:00',
+      '23:00 - 00:00',
+      '00:00 - 01:00',
+      '01:00 - 02:00',
+      '02:00 - 03:00',
+      '03:00 - 04:00',
+      '04:00 - 05:00',
+      '05:00 - 06:00',
+    ],
   };
 
   ngOnInit(): void {
@@ -89,98 +165,70 @@ equipos: string[] = [];
   }
 
   // Filtra los tipos que tienen metros > 0
-get tiposPerforacionFiltrados(): string[] {
-  return this.tiposPerforacion.filter(tipo => (this.totalesPorTipo[tipo] || 0) > 0);
-}
-
-get equiposFiltrados(): string[] {
-
-  return this.equipos.filter(
-    equipo =>
-      (this.totalesPorEquipo[equipo] || 0) > 0
-  );
-
-}
-
-extraerEquipos(): void {
-  const equiposSet = new Set<string>();
-
-  if (this.data && this.data.length > 0) {
-
-    this.data.forEach(item => {
-
-      if (item.equipos) {
-
-        Object.keys(item.equipos).forEach(equipo => {
-          equiposSet.add(equipo);
-        });
-
-      }
-
-    });
-
+  get tiposPerforacionFiltrados(): string[] {
+    return this.tiposPerforacion.filter(
+      (tipo) => (this.totalesPorTipo[tipo] || 0) > 0,
+    );
   }
 
-  this.equipos = Array.from(equiposSet).sort();
-}
+  get equiposFiltrados(): string[] {
+    return this.equipos.filter(
+      (equipo) => (this.totalesPorEquipo[equipo] || 0) > 0,
+    );
+  }
 
-calcularTotalesPorEquipo(): void {
+  extraerEquipos(): void {
+    const equiposSet = new Set<string>();
 
-  this.totalesPorEquipo = {};
+    if (this.data && this.data.length > 0) {
+      this.data.forEach((item) => {
+        if (item.equipos) {
+          Object.keys(item.equipos).forEach((equipo) => {
+            equiposSet.add(equipo);
+          });
+        }
+      });
+    }
 
-  if (this.data && this.data.length > 0) {
+    this.equipos = Array.from(equiposSet).sort();
+  }
 
-    this.equipos.forEach(equipo => {
+  calcularTotalesPorEquipo(): void {
+    this.totalesPorEquipo = {};
 
-      this.totalesPorEquipo[equipo] =
-        this.data.reduce((sum, item) => {
-
-          const valor =
-  item.equipos?.[equipo]?.total || 0;
+    if (this.data && this.data.length > 0) {
+      this.equipos.forEach((equipo) => {
+        this.totalesPorEquipo[equipo] = this.data.reduce((sum, item) => {
+          const valor = item.equipos?.[equipo]?.total || 0;
 
           return sum + valor;
-
         }, 0);
-
-    });
-
+      });
+    }
   }
 
-}
+  obtenerTooltipEquipo(equipo: string): string {
+  const laboresTotales: { [labor: string]: number } = {};
 
-obtenerTooltipEquipo(equipo: string): string {
-
-  const laboresTotales: {
-    [labor: string]: number
-  } = {};
-
-  this.data.forEach(item => {
-
-    const equipoData =
-      item.equipos?.[equipo];
+  this.data.forEach((item) => {
+    const equipoData = item.equipos?.[equipo];
 
     if (!equipoData?.labores) return;
 
-    Object.keys(equipoData.labores)
-      .forEach(labor => {
+    Object.keys(equipoData.labores).forEach((labor) => {
+      if (!laboresTotales[labor]) {
+        laboresTotales[labor] = 0;
+      }
 
-        if (!laboresTotales[labor]) {
-          laboresTotales[labor] = 0;
-        }
-
-        laboresTotales[labor] +=
-          equipoData.labores[labor];
-
-      });
-
+      laboresTotales[labor] += equipoData.labores[labor];
+    });
   });
 
-  const laboresTexto =
-    Object.entries(laboresTotales)
-      .map(([labor, metros]) =>
-        `${labor}: ${Number(metros).toFixed(2)} m`
-      )
-      .join('\n');
+  const laboresTexto = Object.entries(laboresTotales)
+    .map(([labor, valor]) =>
+      `${labor}: ${Number(valor).toFixed(2)} ${this.unidad}`
+    )
+    .join('\n');
 
   return laboresTexto || 'Sin labores';
 }
@@ -188,12 +236,13 @@ obtenerTooltipEquipo(equipo: string): string {
   procesarDatos(): void {
     this.extraerTiposPerforacion();
     this.calcularTotalesPorTipo();
-    
-     this.extraerEquipos();
-  this.calcularTotalesPorEquipo();
 
-    const rangosCompletos = this.rangosPorTurno[this.turno] || this.rangosPorTurno[''];
-    
+    this.extraerEquipos();
+    this.calcularTotalesPorEquipo();
+
+    const rangosCompletos =
+      this.rangosPorTurno[this.turno] || this.rangosPorTurno[''];
+
     if (!this.data || this.data.length === 0) {
       this.actualizarGraficoConRangosCompletos(rangosCompletos, []);
       return;
@@ -202,7 +251,7 @@ obtenerTooltipEquipo(equipo: string): string {
     this.actualizarGraficoConRangosCompletos(rangosCompletos, this.data);
   }
 
-   get tiposPerforacionMostrados(): string[] {
+  get tiposPerforacionMostrados(): string[] {
     if (this.verTodos) {
       return this.tiposPerforacion;
     }
@@ -214,46 +263,35 @@ obtenerTooltipEquipo(equipo: string): string {
     this.verTodos = !this.verTodos;
     // Ya no cambiamos maxHeightLista porque usamos scroll
   }
-  
+
   // Extraer todos los tipos de perforación únicos de los datos
   extraerTiposPerforacion(): void {
-
   const tiposSet = new Set<string>();
 
   if (this.data && this.data.length > 0) {
+    this.data.forEach((item) => {
+      Object.keys(item).forEach((key) => {
+        if (!this.keysExcluidas.includes(key)) {
+          const valor = Number(item[key] || 0);
 
-    this.data.forEach(item => {
-
-      Object.keys(item).forEach(key => {
-
-        if (
-          ![
-            'rangoHora',
-            'total',
-            'cantidadRegistros',
-            'equipos'
-          ].includes(key)
-        ) {
-          tiposSet.add(key);
+          // Solo tomar campos numéricos positivos como categoría
+          if (!isNaN(valor)) {
+            tiposSet.add(key);
+          }
         }
-
       });
-
     });
-
   }
 
-  this.tiposPerforacion =
-    Array.from(tiposSet).sort();
-
+  this.tiposPerforacion = Array.from(tiposSet).sort();
 }
 
   // Calcular totales acumulados por tipo de perforación
   calcularTotalesPorTipo(): void {
     this.totalesPorTipo = {};
-    
+
     if (this.data && this.data.length > 0) {
-      this.tiposPerforacion.forEach(tipo => {
+      this.tiposPerforacion.forEach((tipo) => {
         this.totalesPorTipo[tipo] = this.data.reduce((sum, item) => {
           return sum + (item[tipo] || 0);
         }, 0);
@@ -266,36 +304,39 @@ obtenerTooltipEquipo(equipo: string): string {
     return this.data.reduce((sum, item) => sum + (item.total || 0), 0);
   }
 
-  actualizarGraficoConRangosCompletos(rangosCompletos: string[], datosOriginales: any[]): void {
+  actualizarGraficoConRangosCompletos(
+    rangosCompletos: string[],
+    datosOriginales: any[],
+  ): void {
     const datosPorRango = new Map<string, any>();
-    datosOriginales.forEach(item => {
+    datosOriginales.forEach((item) => {
       datosPorRango.set(item.rangoHora, item);
     });
 
     const rangos: string[] = [];
     const seriesData: { [key: string]: number[] } = {};
-    
+
     // Inicializar arrays para cada tipo de perforación
-    this.tiposPerforacion.forEach(tipo => {
+    this.tiposPerforacion.forEach((tipo) => {
       seriesData[tipo] = [];
     });
-    
+
     const totales: number[] = [];
 
     // Llenar datos por rango
-    rangosCompletos.forEach(rango => {
+    rangosCompletos.forEach((rango) => {
       rangos.push(rango);
-      
+
       if (datosPorRango.has(rango)) {
         const item = datosPorRango.get(rango);
-        
-        this.tiposPerforacion.forEach(tipo => {
+
+        this.tiposPerforacion.forEach((tipo) => {
           seriesData[tipo].push(item[tipo] || 0);
         });
-        
+
         totales.push(item.total || 0);
       } else {
-        this.tiposPerforacion.forEach(tipo => {
+        this.tiposPerforacion.forEach((tipo) => {
           seriesData[tipo].push(0);
         });
         totales.push(0);
@@ -312,19 +353,18 @@ obtenerTooltipEquipo(equipo: string): string {
 
     const maxTotal = Math.max(...totales, 0);
     const maxAcumulado = Math.max(...acumulativo, 0);
-    const escalaMax = Math.max(maxTotal, maxAcumulado) > 0 
-      ? Math.ceil(Math.max(maxTotal, maxAcumulado) / 100) * 100 
-      : 100;
+    const escalaMax =
+      Math.max(maxTotal, maxAcumulado) > 0
+        ? Math.ceil(Math.max(maxTotal, maxAcumulado) / 100) * 100
+        : 100;
 
     // Generar series para cada tipo de perforación
     const series: any[] = [];
 
-    
-    
     this.tiposPerforacion.forEach((tipo, index) => {
       const colorIndex = index % this.coloresBase.length;
       const isLast = index === this.tiposPerforacion.length - 1;
-      
+
       series.push({
         name: tipo,
         type: 'bar',
@@ -336,19 +376,19 @@ obtenerTooltipEquipo(equipo: string): string {
           borderRadius: isLast ? [4, 4, 0, 0] : [0, 0, 0, 0],
           shadowColor: 'rgba(0, 0, 0, 0.1)',
           shadowBlur: 4,
-          shadowOffsetY: 1
+          shadowOffsetY: 1,
         },
         label: {
-          show: false
+          show: false,
         },
         emphasis: {
           focus: 'series',
           itemStyle: {
             shadowBlur: 8,
-            shadowColor: 'rgba(0, 0, 0, 0.3)'
-          }
+            shadowColor: 'rgba(0, 0, 0, 0.3)',
+          },
         },
-        z: 1
+        z: 1,
       });
     });
 
@@ -361,7 +401,7 @@ obtenerTooltipEquipo(equipo: string): string {
         fontSize: 12,
         formatter: (params: any) => {
           const total = totales[params.dataIndex];
-          return total > 0 ? total.toFixed(0) + ' m' : '';
+          return total > 0 ? `${total.toFixed(0)} ${this.unidad}` : '';
         },
         color: '#2c3e50',
         backgroundColor: 'rgba(255, 255, 255, 0.8)',
@@ -369,7 +409,7 @@ obtenerTooltipEquipo(equipo: string): string {
         borderRadius: 4,
         borderColor: '#ddd',
         borderWidth: 1,
-        z: 100
+        z: 100,
       };
     }
 
@@ -385,17 +425,17 @@ obtenerTooltipEquipo(equipo: string): string {
         width: 3,
         type: 'solid',
         shadowColor: 'rgba(0, 0, 0, 0.2)',
-        shadowBlur: 6
+        shadowBlur: 6,
       },
       itemStyle: {
         color: '#ff6b6b',
         borderColor: '#fff',
-        borderWidth: 2
+        borderWidth: 2,
       },
       label: {
-        show: false
+        show: false,
       },
-      smooth: true,  // ← CAMBIADO: de false a true para suavizar la curva
+      smooth: true, // ← CAMBIADO: de false a true para suavizar la curva
       smoothMonotone: 'x', // ← NUEVO: asegura que la suavidad sea monótona en X
       connectNulls: false, // ← NUEVO: no conectar valores nulos
       step: false, // ← NUEVO: asegurar que no sea una línea escalonada
@@ -407,7 +447,7 @@ obtenerTooltipEquipo(equipo: string): string {
           show: true,
           position: 'top',
           formatter: (params: any) => {
-            return params.value.toFixed(0) + ' m';
+            return params.value.toFixed(0) + ` ${this.unidad}`;
           },
           fontSize: 10,
           fontWeight: 'bold',
@@ -417,60 +457,60 @@ obtenerTooltipEquipo(equipo: string): string {
           borderRadius: 4,
           borderColor: '#ff6b6b',
           borderWidth: 1,
-          z: 50
-        }
+          z: 50,
+        },
       },
       tooltip: {
-        valueFormatter: (value: any) => value?.toFixed(2) + ' m (acumulado)'
-      }
+        valueFormatter: (value: any) => value?.toFixed(2) + ` ${this.unidad} (acumulado)`,
+      },
     });
 
     this.chartOptions = {
       title: {
-        text: `METROS PERFORADOS POR RANGO DE HORA ${this.turno ? `- TURNO ${this.turno}` : '- TODOS LOS TURNOS'}`,
+        text: `${this.tituloGrafico} ${this.turno ? `- TURNO ${this.turno}` : '- TODOS LOS TURNOS'}`,
         left: 'center',
         top: 10,
         textStyle: {
           fontSize: 16,
           fontWeight: 'bold',
           color: '#333',
-          fontFamily: 'Arial'
-        }
+          fontFamily: 'Arial',
+        },
       },
 
       tooltip: {
         trigger: 'axis',
         axisPointer: {
-          type: 'shadow'
+          type: 'shadow',
         },
         formatter: (params: any) => {
           const rango = params[0].axisValue;
           const index = params[0].dataIndex;
           const total = totales[index];
           const acumulado = acumulativo[index];
-          
+
           if (total === 0 && acumulado === 0) {
             return `<strong>📊 ${rango}</strong><br/>
               <hr style="margin: 5px 0;"/>
               <strong>Sin perforación</strong>`;
           }
-          
+
           let tooltipText = `<strong>📊 ${rango}</strong><br/>
             <hr style="margin: 5px 0;"/>
-            <strong>Total hora: ${total.toFixed(2)} m</strong><br/>
-            <strong style="color: #ff6b6b;">📈 Acumulado: ${acumulado.toFixed(2)} m</strong><br/><br/>`;
-          
+            <strong>Total hora: ${total.toFixed(2)} ${this.unidad}</strong><br/>
+            <strong style="color: #ff6b6b;">📈 Acumulado: ${acumulado.toFixed(2)} ${this.unidad}</strong><br/><br/>`;
+
           // Mostrar solo los tipos que tienen valor > 0
           params.forEach((param: any) => {
             if (param.seriesName !== 'ACUMULADO' && param.value > 0) {
               const porcentaje = ((param.value / total) * 100).toFixed(1);
               tooltipText += `<span style="display:inline-block; width:12px; height:12px; background-color:${param.color}; border-radius:2px; margin-right:8px;"></span>
-                <strong>${param.seriesName}:</strong> ${param.value.toFixed(2)} m (${porcentaje}%)<br/>`;
+                <strong>${param.seriesName}:</strong> ${param.value.toFixed(2)} ${this.unidad} (${porcentaje}%)<br/>`;
             }
           });
-          
+
           return tooltipText;
-        }
+        },
       },
 
       legend: {
@@ -481,8 +521,8 @@ obtenerTooltipEquipo(equipo: string): string {
         itemHeight: 14,
         textStyle: {
           fontSize: 12,
-          fontWeight: 'bold'
-        }
+          fontWeight: 'bold',
+        },
       },
 
       grid: {
@@ -490,7 +530,7 @@ obtenerTooltipEquipo(equipo: string): string {
         right: '5%',
         top: '18%',
         bottom: '8%',
-        containLabel: true
+        containLabel: true,
       },
 
       xAxis: {
@@ -503,16 +543,16 @@ obtenerTooltipEquipo(equipo: string): string {
           fontFamily: 'Arial',
           rotate: 0,
           interval: 0,
-          margin: 10
+          margin: 10,
         },
         axisLine: {
           lineStyle: {
-            color: '#666'
-          }
+            color: '#666',
+          },
         },
         axisTick: {
-          show: false
-        }
+          show: false,
+        },
       },
 
       yAxis: {
@@ -523,22 +563,22 @@ obtenerTooltipEquipo(equipo: string): string {
         max: escalaMax,
         axisLabel: {
           fontSize: 10,
-          formatter: '{value} m'
+          formatter: '{value} ' + this.unidad,
         },
         splitLine: {
           lineStyle: {
             type: 'dashed',
-            color: '#ccc'
-          }
-        }
+            color: '#ccc',
+          },
+        },
       },
 
       series: series,
-      
+
       graphic: {
         type: 'group',
-        z: 100
-      }
+        z: 100,
+      },
     };
   }
 }

@@ -35,17 +35,32 @@
   
   <div class="graficos-wrapper one-column-full">
     <div class="graph-card">
-      <app-metros-perforados-rango-hora [data]="DataMetrosPerforadosPorHora" [turno]="turnoAplicado"></app-metros-perforados-rango-hora>
+      <app-metros-perforados-rango-hora
+        [data]="DataMetrosPerforadosPorHora"
+        [turno]="turnoAplicado"
+        unidad="m"
+        tituloGrafico="METROS PERFORADOS POR RANGO DE HORA"
+        tituloTotalTipo="📊 TOTAL POR TIPO DE PERFORACIÓN"
+        tituloTotalEquipo="🚜 TOTAL POR EQUIPO"
+        labelCategoria="tipo de perforación"
+        labelEquipo="equipos"
+        mensajeSinDatos="No hay datos de metros perforados por rango de hora disponibles">
+      </app-metros-perforados-rango-hora>
     </div>
   </div>
 
   <!-- Tabla de Metros Perforados por Equipo y Rango de Hora (1 columna - alto completo) -->
   <div class="graficos-wrapper one-column-full">
     <div class="graph-card">
-      <app-tabla-metros-perforados-equipo 
-        [data]="DataMetrosPerforadosPorLaborYRangoHora" 
-        [turno]="turnoAplicado">
-      </app-tabla-metros-perforados-equipo>
+      <app-tabla-metros-perforados-equipo
+      [data]="DataMetrosPerforadosPorLaborYRangoHora"
+      [turno]="turnoAplicado"
+      unidad="m"
+      titulo="📏 METROS PERFORADOS POR LABOR Y RANGO DE HORA"
+      labelTotalLabor="TOTAL x LABOR"
+      labelTotalRango="Total x Hora"
+      mensajeSinDatos="No hay datos de metros perforados disponibles para el turno seleccionado">
+    </app-tabla-metros-perforados-equipo>
     </div>
   </div>
 
