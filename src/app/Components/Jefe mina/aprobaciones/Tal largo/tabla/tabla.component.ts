@@ -6,36 +6,19 @@ import { FormularioPerforacionComponent } from "../formulario-perforacion/formul
 import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 
-// tabla.component.ts
-interface Operacion {
-  // Ubicación
-  nivel: string;
-  tipo_labor: string;
-  labor: string;
-  ala: string;
-  
-  // 🔥 NUEVOS: Metros perforados (no más "tal_xxx")
-  metros_perforados_produccion: string;
-  metros_perforados_rimados: string;
-  metros_perforados_alivio: string;
-  metros_perforados_repaso: string;
-  
-  // 🔥 NUEVOS: Número de taladros
-  n_taladros_produccion: string;
-  n_taladros_rimados: string;
-  n_taladros_alivio: string;
-  n_taladros_repaso: string;
-  
-  // Barras
-  long_barras: string;
-  num_barras: string;
-  
-  // Perforación
+// 🔥 INTERFAZ ACTUALIZADA CON BARRAS COMO ARRAY
+interface Barra {
+  n_fila: number | null;
+  n_taladro: number | null;
+  longitud_perforacion: number | null;
+  n_barras: number | null;
   tipo_perforacion: string;
-  tipo_perforacion_id: number | null;
-  
-  // Observaciones
+}
+
+interface Operacion {
+  labor: string;
   observaciones: string;
+  barras: Barra[];
 }
 
 interface Registro {
@@ -91,29 +74,9 @@ export class TablaComponent implements OnChanges {
       color: this.getColorEstado(item.estado),
       indiceOriginal: index,
       operacion: item.operacion || {
-        // Ubicación
-        nivel: '',
-        tipo_labor: '',
         labor: '',
-        ala: '',
-        // Metros perforados
-        metros_perforados_produccion: '',
-        metros_perforados_rimados: '',
-        metros_perforados_alivio: '',
-        metros_perforados_repaso: '',
-        // Número de taladros
-        n_taladros_produccion: '',
-        n_taladros_rimados: '',
-        n_taladros_alivio: '',
-        n_taladros_repaso: '',
-        // Barras
-        long_barras: '',
-        num_barras: '',
-        // Perforación
-        tipo_perforacion: '',
-        tipo_perforacion_id: null,
-        // Observaciones
-        observaciones: ''
+        observaciones: '',
+        barras: []
       }
     }));
   }
@@ -127,17 +90,15 @@ export class TablaComponent implements OnChanges {
   }
 
   onEdit(item: Registro) {
-  this.registroEnEdicion = item;
-
-  this.operacionFormSeleccionada = {
-    estado: item.estado,
-    codigo: item.codigo,
-    horaInicio: item.horaInicio,
-    horaFin: item.horaFin
-  };
-
-  this.mostrarOperacion = true;
-}
+    this.registroEnEdicion = item;
+    this.operacionFormSeleccionada = {
+      estado: item.estado,
+      codigo: item.codigo,
+      horaInicio: item.horaInicio,
+      horaFin: item.horaFin
+    };
+    this.mostrarOperacion = true;
+  }
 
   onExecute(item: Registro) {
     this.registroEnEdicion = item;
@@ -146,7 +107,6 @@ export class TablaComponent implements OnChanges {
   }
 
   onDelete(item: Registro) {
-  
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       disableClose: true
@@ -154,7 +114,6 @@ export class TablaComponent implements OnChanges {
   
     dialogRef.afterClosed().subscribe(confirmado => {
       if (!confirmado) return;
-  
       this.datos = this.datos.filter(r => r !== item);
       this.emitirCambios();
     });
@@ -165,47 +124,20 @@ export class TablaComponent implements OnChanges {
       this.registroEnEdicion.estado = datosActualizados.estado;
       this.registroEnEdicion.codigo = datosActualizados.codigo;
       this.registroEnEdicion.horaInicio = datosActualizados.horaInicio;
-    this.registroEnEdicion.horaFin = datosActualizados.horaFin;
+      this.registroEnEdicion.horaFin = datosActualizados.horaFin;
       this.registroEnEdicion.color = this.getColorEstado(datosActualizados.estado);
       this.emitirCambios();
     }
     this.cerrarFormOperacion();
   }
 
-  // 🔥 ACTUALIZADO: Manejar datos de perforación con nueva estructura
+  // 🔥 ACTUALIZADO: Manejar datos de perforación con NUEVA ESTRUCTURA (barras como array)
   onGuardarPerforacion(datosPerforacion: any) {
     if (this.registroEnEdicion) {
       this.registroEnEdicion.operacion = {
-        ...this.registroEnEdicion.operacion,
-        
-        // 📍 Ubicación
-        nivel: datosPerforacion.ubicacion.nivel,
-        tipo_labor: datosPerforacion.ubicacion.tipoLabor,
-        labor: datosPerforacion.ubicacion.labor,
-        ala: datosPerforacion.ubicacion.ala,
-        
-        // 🔥 METROS PERFORADOS (nuevos campos)
-        metros_perforados_produccion: datosPerforacion.metrosPerforados.produccion,
-        metros_perforados_rimados: datosPerforacion.metrosPerforados.rimados,
-        metros_perforados_alivio: datosPerforacion.metrosPerforados.alivio,
-        metros_perforados_repaso: datosPerforacion.metrosPerforados.repaso,
-        
-        // 🔥 NÚMERO DE TALADROS (nuevos campos)
-        n_taladros_produccion: datosPerforacion.numeroTaladros.produccion,
-        n_taladros_rimados: datosPerforacion.numeroTaladros.rimados,
-        n_taladros_alivio: datosPerforacion.numeroTaladros.alivio,
-        n_taladros_repaso: datosPerforacion.numeroTaladros.repaso,
-        
-        // 🔥 BARRAS
-        long_barras: datosPerforacion.barras.longitud,
-        num_barras: datosPerforacion.barras.numero,
-        
-        // 🔥 TIPO PERFORACIÓN
-        tipo_perforacion: datosPerforacion.tipoPerforacion.nombre,
-        tipo_perforacion_id: datosPerforacion.tipoPerforacion.id,
-        
-        // 📝 Observaciones
-        observaciones: datosPerforacion.observaciones
+        labor: datosPerforacion.labor,
+        observaciones: datosPerforacion.observaciones,
+        barras: datosPerforacion.barras || []
       };
       
       console.log('✅ Perforación guardada:', this.registroEnEdicion.operacion);
@@ -221,7 +153,7 @@ export class TablaComponent implements OnChanges {
       codigo: registro.codigo,
       hora_inicio: registro.horaInicio,
       hora_final: registro.horaFin,
-      operacion: registro.operacion  // ✅ Incluye todos los nuevos campos
+      operacion: registro.operacion
     }));
     
     console.log('📤 EMITIENDO:', dataActualizada);

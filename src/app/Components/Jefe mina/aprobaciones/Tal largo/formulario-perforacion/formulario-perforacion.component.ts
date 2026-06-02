@@ -10,35 +10,19 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-// 🔥 INTERFAZ CON ESTRUCTURA ANIDADA (como la versión que funciona)
+// 🔥 INTERFAZ ACTUALIZADA - n_fila es editable
+interface Barra {
+  n_fila: number | null;
+  n_taladro: number | null;
+  longitud_perforacion: number | null;
+  n_barras: number | null;
+  tipo_perforacion: string;
+}
+
 interface DatosPerforacion {
-  ubicacion: {
-    nivel: string;
-    tipoLabor: string;
-    labor: string;
-    ala: string;
-  };
-  metrosPerforados: {
-    produccion: string;
-    rimados: string;
-    alivio: string;
-    repaso: string;
-  };
-  numeroTaladros: {
-    produccion: string;
-    rimados: string;
-    alivio: string;
-    repaso: string;
-  };
-  barras: {
-    longitud: string;
-    numero: string;
-  };
-  tipoPerforacion: {
-    id: number | null;
-    nombre: string;
-  };
+  labor: string;
   observaciones: string;
+  barras: Barra[];
 }
 
 @Component({
@@ -57,17 +41,17 @@ export class FormularioPerforacionComponent implements OnInit, OnChanges {
 
   public formularioInvalido = false;
   public datosPerforacion: DatosPerforacion = this.getInitDatosPerforacion();
-
-  // Datos para selects
-  public niveles: string[] = ['100', '200', '300', '400'];
-  public tiposLabor: string[] = ['RAMPA', 'GALERIA', 'CHIMENEA', 'SUB-NIVEL'];
-  public labores: string[] = [];
-  public alas: string[] = ['NORTE', 'SUR', 'ESTE', 'OESTE'];
-  public tiposPerforacion: any[] = [
-    { id: 1, nombre: 'PRODUCCIÓN' },
-    { id: 2, nombre: 'DESARROLLO' },
-    { id: 3, nombre: 'SOSTENIMIENTO' },
-  ];
+  
+  // Opciones para tipo de perforación
+public tiposPerforacion: string[] = [
+  'PRODUCCIÓN',
+  'SLOT',
+  'RIMADO',
+  'REPASO',
+  'ADICIONAL',
+  'CORRECIÓN',
+  'RECONOCIMIENTO'
+];
 
   constructor() {}
 
@@ -83,67 +67,65 @@ export class FormularioPerforacionComponent implements OnInit, OnChanges {
     return this.estado === 'OPERATIVO';
   }
 
-  // 🔥 CARGA DATOS DESDE OPERACIÓN (mapeo de plano a anidado)
+  // 🔥 CARGA DATOS DESDE OPERACIÓN - SIN MODIFICAR, TAL CUAL VIENEN DE BD
   cargarDatosOperacion(op: any) {
     console.log('📥 Cargando operación:', op);
-
-    // Ubicación
-    this.datosPerforacion.ubicacion.nivel = op.nivel || '';
-    this.datosPerforacion.ubicacion.tipoLabor = op.tipo_labor || '';
-    this.datosPerforacion.ubicacion.labor = op.labor || '';
-    this.datosPerforacion.ubicacion.ala = op.ala || '';
-
-    // Metros perforados
-    this.datosPerforacion.metrosPerforados.produccion =
-      op.metros_perforados_produccion || '';
-    this.datosPerforacion.metrosPerforados.rimados =
-      op.metros_perforados_rimados || '';
-    this.datosPerforacion.metrosPerforados.alivio =
-      op.metros_perforados_alivio || '';
-    this.datosPerforacion.metrosPerforados.repaso =
-      op.metros_perforados_repaso || '';
-
-    // Número de taladros
-    this.datosPerforacion.numeroTaladros.produccion =
-      op.n_taladros_produccion || '';
-    this.datosPerforacion.numeroTaladros.rimados = op.n_taladros_rimados || '';
-    this.datosPerforacion.numeroTaladros.alivio = op.n_taladros_alivio || '';
-    this.datosPerforacion.numeroTaladros.repaso = op.n_taladros_repaso || '';
-
-    // Barras
-    this.datosPerforacion.barras.longitud = op.long_barras || '';
-    this.datosPerforacion.barras.numero = op.num_barras || '';
-
-    // Tipo perforación
-    this.datosPerforacion.tipoPerforacion.id = op.tipo_perforacion_id || null;
-    this.datosPerforacion.tipoPerforacion.nombre = op.tipo_perforacion || '';
-
+    
+    // Labor
+    this.datosPerforacion.labor = op.labor || '';
+    
     // Observaciones
     this.datosPerforacion.observaciones = op.observaciones || '';
+    
+    // Barras - cargar EXACTAMENTE como vienen de la BD, sin modificar
+    if (op.barras && Array.isArray(op.barras)) {
+      this.datosPerforacion.barras = op.barras.map((barra: any) => ({
+        n_fila: barra.n_fila !== undefined ? barra.n_fila : null,
+        n_taladro: barra.n_taladro !== undefined ? barra.n_taladro : null,
+        longitud_perforacion: barra.longitud_perforacion !== undefined ? barra.longitud_perforacion : null,
+        n_barras: barra.n_barras !== undefined ? barra.n_barras : null,
+        tipo_perforacion: barra.tipo_perforacion || 'PRODUCCIÓN'
+      }));
+    } else if (op.long_barras && op.num_barras) {
+      // Compatibilidad con versión anterior
+      this.convertirDatosAntiguos(op);
+    }
+  }
 
-    // Agregar a listas dinámicas
-    this.agregarSiNoExiste(this.niveles, op.nivel);
-    this.agregarSiNoExiste(this.tiposLabor, op.tipo_labor);
-    this.agregarSiNoExiste(this.labores, op.labor);
-    this.agregarSiNoExiste(this.alas, op.ala);
-
-    // Agregar tipo perforación si es nuevo
-    if (
-      op.tipo_perforacion &&
-      !this.tiposPerforacion.find((t) => t.nombre === op.tipo_perforacion)
-    ) {
-      this.tiposPerforacion.push({
-        id: op.tipo_perforacion_id,
-        nombre: op.tipo_perforacion,
+  // Convertir datos antiguos a nuevo formato
+  convertirDatosAntiguos(op: any) {
+    const numBarras = parseInt(op.num_barras) || 1;
+    const longitud = parseFloat(op.long_barras) || 0;
+    const tipoPerf = op.tipo_perforacion || 'PRODUCCIÓN';
+    const numTaladro = op.n_taladro_produccion ? parseInt(op.n_taladro_produccion) : null;
+    
+    this.datosPerforacion.barras = [];
+    for (let i = 1; i <= numBarras; i++) {
+      this.datosPerforacion.barras.push({
+        n_fila: i,
+        n_taladro: numTaladro,
+        longitud_perforacion: longitud,
+        n_barras: numBarras,
+        tipo_perforacion: tipoPerf
       });
     }
   }
 
-  agregarSiNoExiste(lista: string[], valor: string) {
-    if (!valor) return;
-    const limpio = valor.trim();
-    if (limpio && !lista.includes(limpio)) {
-      lista.push(limpio);
+  // 🔥 AGREGAR NUEVA FILA DE BARRA - Ahora sin auto-incrementar n_fila
+  agregarBarra() {
+    this.datosPerforacion.barras.push({
+      n_fila: null,
+      n_taladro: null,
+      longitud_perforacion: null,
+      n_barras: null,
+      tipo_perforacion: 'PRODUCCIÓN'
+    });
+  }
+
+  // 🔥 ELIMINAR FILA DE BARRA
+  eliminarBarra(index: number) {
+    if (this.datosPerforacion.barras.length > 1) {
+      this.datosPerforacion.barras.splice(index, 1);
     }
   }
 
@@ -151,14 +133,20 @@ export class FormularioPerforacionComponent implements OnInit, OnChanges {
     this.cerrar.emit();
   }
 
-  // 🔥 EMITIR CON ESTRUCTURA ANIDADA (como espera la tabla)
+  // 🔥 EMITIR CON LA MISMA ESTRUCTURA, RESPETANDO LOS VALORES INGRESADOS
   guardarPerforacion() {
     if (this.validarFormulario()) {
-      console.log(
-        '📤 Emitiendo datos perforación (anidado):',
-        this.datosPerforacion,
-      );
-      this.guardar.emit(this.datosPerforacion);
+      const datosAEmitir = {
+        labor: this.datosPerforacion.labor,
+        observaciones: this.datosPerforacion.observaciones,
+        barras: this.datosPerforacion.barras.filter(barra => 
+          barra.longitud_perforacion !== null && 
+          barra.longitud_perforacion > 0
+        )
+      };
+      
+      console.log('📤 Emitiendo datos perforación:', datosAEmitir);
+      this.guardar.emit(datosAEmitir);
       this.formularioInvalido = false;
     } else {
       this.formularioInvalido = true;
@@ -167,24 +155,31 @@ export class FormularioPerforacionComponent implements OnInit, OnChanges {
   }
 
   validarFormulario(): boolean {
-    // Validar campos obligatorios
-    // return !!(
-    //   this.datosPerforacion.ubicacion.nivel &&
-    //   this.datosPerforacion.ubicacion.tipoLabor &&
-    //   this.datosPerforacion.ubicacion.labor &&
-    //   this.datosPerforacion.tipoPerforacion.nombre
-    // );
-    return true;
+    // Validar que haya al menos una barra con longitud válida
+    const tieneBarraValida = this.datosPerforacion.barras.some(barra => 
+      barra.longitud_perforacion !== null && 
+      barra.longitud_perforacion > 0
+    );
+    
+    return !!(
+      this.datosPerforacion.labor && 
+      tieneBarraValida
+    );
   }
 
   private getInitDatosPerforacion(): DatosPerforacion {
     return {
-      ubicacion: { nivel: '', tipoLabor: '', labor: '', ala: '' },
-      metrosPerforados: { produccion: '', rimados: '', alivio: '', repaso: '' },
-      numeroTaladros: { produccion: '', rimados: '', alivio: '', repaso: '' },
-      barras: { longitud: '', numero: '' },
-      tipoPerforacion: { id: null, nombre: '' },
+      labor: '',
       observaciones: '',
+      barras: [
+        {
+          n_fila: null,
+          n_taladro: null,
+          longitud_perforacion: null,
+          n_barras: null,
+          tipo_perforacion: 'PRODUCCIÓN'
+        }
+      ]
     };
   }
 }
