@@ -244,8 +244,14 @@ MetrosPerforadosPorRangoHoraCompleto(turno: string = '') {
       if (registro.estado !== 'OPERATIVO') continue;
 
       const horaInicioStr = registro.hora_inicio;
-      const horaFinalStr = registro.hora_final;
-      if (!horaInicioStr || !horaFinalStr) continue;
+
+let horaFinalStr = registro.hora_final;
+
+if (!horaFinalStr && op.Hora_envio) {
+  horaFinalStr = op.Hora_envio;
+}
+
+if (!horaInicioStr || !horaFinalStr) continue;
 
       // Calcular duración total de la operación
       let horaInicioDecimal = horaStringToDecimal(horaInicioStr);
@@ -513,8 +519,12 @@ MetrosPerforadosPorLaborYRangoHora(turno: string = '') {
 
       // Obtener horas de inicio y fin
       const horaInicioStr = registro.hora_inicio;
-      const horaFinalStr = registro.hora_final;
-      if (!horaInicioStr || !horaFinalStr) continue;
+
+let horaFinalStr = registro.hora_final;
+
+if (!horaFinalStr && op.Hora_envio) {
+  horaFinalStr = op.Hora_envio;
+}
 
       // Calcular duración total de la operación
       let horaInicioDecimal = horaStringToDecimal(horaInicioStr);

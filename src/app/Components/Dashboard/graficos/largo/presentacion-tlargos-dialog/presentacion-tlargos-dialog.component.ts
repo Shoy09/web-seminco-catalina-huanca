@@ -226,8 +226,12 @@ MetrosPerforadosPorRangoHoraCompleto(turno: string = '') {
       if (registro.estado !== 'OPERATIVO') continue;
       
       const horaInicioStr = registro.hora_inicio;
-      const horaFinalStr = registro.hora_final;
-      if (!horaInicioStr || !horaFinalStr) continue;
+
+let horaFinalStr = registro.hora_final;
+
+if (!horaFinalStr && op.Hora_envio) {
+  horaFinalStr = op.Hora_envio;
+}
 
       const operacionData = registro.operacion || {};
       const barrasArray = operacionData.barras;
@@ -505,8 +509,12 @@ MetrosPerforadosPorLaborYRangoHora(turno: string = '') {
       if (estado !== 'OPERATIVO') continue;
 
       const horaInicioStr = registro.hora_inicio;
-      const horaFinalStr = registro.hora_final;
-      if (!horaInicioStr || !horaFinalStr) continue;
+
+let horaFinalStr = registro.hora_final;
+
+if (!horaFinalStr && op.Hora_envio) {
+  horaFinalStr = op.Hora_envio;
+}
 
       const operacionData = registro.operacion || {};
       const labor = String(operacionData.labor || 'SIN LABOR').trim();

@@ -15,6 +15,7 @@ export interface OperacionBase<TOperacion = TipoOperacionRegistro> {
 
   estado?: string;
   envio?: number;
+   Hora_envio?: string;
   registros?: Registro<TOperacion>[];
 
   revisado?: number;

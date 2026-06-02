@@ -3312,8 +3312,12 @@ ToneladasPorRangoHoraCompleto(turno: string = '') {
       const cucharasTotales = Number(n_cucharas);
 
       const horaInicioStr = registro.hora_inicio;
-      const horaFinalStr = registro.hora_final;
-      if (!horaInicioStr || !horaFinalStr) continue;
+
+let horaFinalStr = registro.hora_final;
+
+if (!horaFinalStr && op.Hora_envio) {
+  horaFinalStr = op.Hora_envio;
+}
 
       const horaInicioDecimal = horaStringToDecimal(horaInicioStr);
       let horaFinalDecimal = horaStringToDecimal(horaFinalStr);
@@ -3595,10 +3599,18 @@ ToneladasPorLaborYRangoHora(turno: string = '') {
 
       const cucharasTotales = Number(n_cucharas);
 
-      const horaInicioDecimal = parseHora(registro.hora_inicio);
-      let horaFinalDecimal = parseHora(registro.hora_final);
+      const horaInicioStr = registro.hora_inicio;
 
-      if (isNaN(horaInicioDecimal) || isNaN(horaFinalDecimal)) continue;
+let horaFinalStr = registro.hora_final;
+
+if (!horaFinalStr) {
+  horaFinalStr = op.Hora_envio || op.hora_envio;
+}
+
+const horaInicioDecimal = parseHora(horaInicioStr);
+let horaFinalDecimal = parseHora(horaFinalStr);
+
+if (isNaN(horaInicioDecimal) || isNaN(horaFinalDecimal)) continue;
 
       // ✅ Manejo de cruce de medianoche
       // Ejemplo: inicio 23:00, fin 01:00 → fin se convierte en 25:00
