@@ -28,7 +28,7 @@
     🔧 Mineral
   </button>
   <button class="nav-btn" [class.active]="hojaActual === 'hoja3'" (click)="cambiarHoja('hoja3')">
-    🔧 Demonte
+    🔧 Desmonte
   </button>
     <button class="nav-btn" [class.active]="hojaActual === 'hoja4'" (click)="cambiarHoja('hoja4')">
     📊 Disponibilidad
@@ -68,16 +68,18 @@
   <!-- Gráfico de Toneladas por Rango de Hora (1 columna - alto completo) -->
   <div class="graficos-wrapper one-column-full">
     <div class="graph-card">
-      <app-toneladas-rango-hora [data]="DataToneladasPorHora" [turno]="turnoAplicado"></app-toneladas-rango-hora>
+      <app-toneladas-rango-hora [data]="DataToneladasPorHora" [turno]="turnoAplicado" titulo='TONELADAS POR RANGO DE HORA'/>
     </div>
   </div>
 
   <!-- Tabla de Toneladas por Equipo y Rango de Hora (1 columna - alto completo) -->
   <div class="graficos-wrapper one-column-full">
     <div class="graph-card">
-      <app-tabla-toneladas-equipo 
-        [data]="DataToneladasPorEquipoYRangoHora" 
-        [turno]="turnoAplicado">
+      <app-tabla-toneladas-equipo
+        [data]="DataToneladasPorLaborYRangoHora"
+        [turno]="turnoAplicado"
+        titulo="TONELADAS POR LABOR Y RANGO DE HORA"
+        materialFiltro="TOTAL">
       </app-tabla-toneladas-equipo>
     </div>
   </div>
@@ -89,17 +91,19 @@
   <!-- Gráfico de Toneladas por Rango de Hora (1 columna - alto completo) -->
   <div class="graficos-wrapper one-column-full">
     <div class="graph-card">
-      <app-toneladas-rango-hora-mineral [data]="DataToneladasPorHora" [turno]="turnoAplicado"></app-toneladas-rango-hora-mineral>
+      <app-toneladas-rango-hora [data]="DataToneladasPorHora" [turno]="turnoAplicado" titulo='TONELADAS DE MINERAL POR RANGO DE HORA'/>
     </div>
   </div>
 
   <!-- Tabla de Toneladas por Equipo y Rango de Hora (1 columna - alto completo) -->
   <div class="graficos-wrapper one-column-full">
     <div class="graph-card">
-      <app-tabla-toneladas-equipo-mineral
-        [data]="DataToneladasPorEquipoYRangoHora" 
-        [turno]="turnoAplicado">
-      </app-tabla-toneladas-equipo-mineral>
+      <app-tabla-toneladas-equipo
+        [data]="DataToneladasPorLaborYRangoHora"
+        [turno]="turnoAplicado"
+        titulo="TONELADAS MINERAL POR LABOR Y RANGO DE HORA"
+        materialFiltro="MINERAL">
+      </app-tabla-toneladas-equipo>
     </div>
   </div>
 
@@ -110,17 +114,19 @@
   <!-- Gráfico de Toneladas por Rango de Hora (1 columna - alto completo) -->
   <div class="graficos-wrapper one-column-full">
     <div class="graph-card">
-      <app-toneladas-rango-hora-desmo [data]="DataToneladasPorHora" [turno]="turnoAplicado"></app-toneladas-rango-hora-desmo>
+      <app-toneladas-rango-hora [data]="DataToneladasPorHora" [turno]="turnoAplicado" titulo='TONELADAS DE DESMONTE POR RANGO DE HORA'/>
     </div>
   </div>
 
   <!-- Tabla de Toneladas por Equipo y Rango de Hora (1 columna - alto completo) -->
   <div class="graficos-wrapper one-column-full">
     <div class="graph-card">
-      <app-tabla-toneladas-equipo-desmo
-        [data]="DataToneladasPorEquipoYRangoHora" 
-        [turno]="turnoAplicado">
-      </app-tabla-toneladas-equipo-desmo>
+      <app-tabla-toneladas-equipo
+        [data]="DataToneladasPorLaborYRangoHora"
+        [turno]="turnoAplicado"
+        titulo="TONELADAS DESMONTE POR LABOR Y RANGO DE HORA"
+        materialFiltro="DESMONTE">
+      </app-tabla-toneladas-equipo>
     </div>
   </div>
 

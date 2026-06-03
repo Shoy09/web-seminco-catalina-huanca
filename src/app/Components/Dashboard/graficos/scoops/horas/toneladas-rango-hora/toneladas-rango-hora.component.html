@@ -1,59 +1,115 @@
 <div class="dashboard-container">
+
   <!-- Columna izquierda: Gráfico -->
   <div class="grafico-columna">
-    <div 
-      echarts 
-      [options]="chartOptions" 
-      [autoResize]="true" 
+    <div
+      echarts
+      [options]="chartOptions"
+      [autoResize]="true"
       class="grafico-echarts">
     </div>
   </div>
-  
-  <!-- Columna derecha: Totales compactos -->
-  <div class="totales-columna">
-    <div class="totales-header">
-      <h4>📊 TOTAL POR MATERIAL</h4>
+
+  <!-- Columna derecha: Totales -->
+  <div class="sidebar-columna">
+
+    <div class="contenedor-inferior">
+
+      <!-- TOTAL POR MATERIAL -->
+      <div class="totales-columna">
+
+        <div class="totales-header">
+          <h4>📊 TOTAL POR MATERIAL</h4>
+        </div>
+
+        <div class="totales-lista">
+
+          <div
+            *ngFor="let material of materialesFiltrados"
+            class="total-item"
+          >
+            <div class="total-item-info">
+
+              <span class="total-item-nombre">
+                {{ material }}
+              </span>
+
+              <span class="total-item-valor">
+                {{ totalesMateriales[material] | number:'1.2-2' }} t
+              </span>
+
+            </div>
+          </div>
+
+        </div>
+
+        <div class="total-general">
+          <span class="total-general-label">
+            TOTAL GENERAL
+          </span>
+
+          <strong class="total-general-value">
+            {{ totalGeneral | number:'1.2-2' }} t
+          </strong>
+        </div>
+
+        <!-- <div class="total-general" *ngIf="totalCucharas > 0">
+          <span class="total-general-label">
+            TOTAL CUCHARAS
+          </span>
+
+          <strong class="total-general-value">
+            {{ totalCucharas | number:'1.2-2' }}
+          </strong>
+        </div> -->
+
+      </div>
+
+      <!-- TOTAL POR EQUIPO -->
+      <div class="equipos-columna">
+
+        <div class="totales-header">
+          <h4>🚜 TOTAL POR EQUIPO</h4>
+        </div>
+
+        <div class="totales-lista">
+
+          <div
+            *ngFor="let equipo of equiposFiltrados"
+            class="total-item"
+            [title]="obtenerTooltipEquipo(equipo)"
+          >
+            <div class="total-item-info">
+
+              <span class="total-item-nombre">
+                {{ equipo }}
+              </span>
+
+              <span class="total-item-valor">
+                {{ totalesPorEquipo[equipo] | number:'1.2-2' }} t
+              </span>
+
+            </div>
+          </div>
+
+        </div>
+
+        <div class="total-general">
+          <span class="total-general-label">
+            TOTAL EQUIPOS
+          </span>
+
+          <strong class="total-general-value">
+            {{ totalGeneral | number:'1.2-2' }} t
+          </strong>
+        </div>
+
+      </div>
+
     </div>
-    
-    <div class="totales-lista">
-      <!-- Mineral -->
-      <div class="total-item total-mineral">
-        <div class="total-item-info">
-          <span class="total-item-nombre">MINERAL</span>
-          <span class="total-item-valor">{{ totalesMateriales.mineral | number:'1.2-2' }} t</span>
-        </div>
-      </div>
-      
-      <!-- Desmonte -->
-      <div class="total-item total-desmonte">
-        <div class="total-item-info">
-          <span class="total-item-nombre">DESMONTE</span>
-          <span class="total-item-valor">{{ totalesMateriales.desmonte | number:'1.2-2' }} t</span>
-        </div>
-      </div>
-      
-      <!-- Relave -->
-      <div class="total-item total-relave">
-        <div class="total-item-info">
-          <span class="total-item-nombre">RELAVE</span>
-          <span class="total-item-valor">{{ totalesMateriales.relave | number:'1.2-2' }} t</span>
-        </div>
-      </div>
-      
-      <!-- Relleno -->
-      <div class="total-item total-relleno">
-        <div class="total-item-info">
-          <span class="total-item-nombre">RELLENO</span>
-          <span class="total-item-valor">{{ totalesMateriales.relleno | number:'1.2-2' }} t</span>
-        </div>
-      </div>
-    </div>
-    
-    <div class="total-general">
-      <span>TOTAL GENERAL</span>
-      <strong>{{ totalGeneral | number:'1.2-2' }} t</strong>
-    </div>
+
   </div>
+
 </div>
 
 <div *ngIf="!data?.length" class="sin-datos">

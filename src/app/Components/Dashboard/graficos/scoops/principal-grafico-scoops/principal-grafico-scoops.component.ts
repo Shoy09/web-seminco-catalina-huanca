@@ -663,8 +663,6 @@ private obtenerNumeroSemana(fecha: string): number {
 
     resultado.sort((a, b) => String(a.key).localeCompare(String(b.key)));
 
-    console.log(`📊 DISPONIBILIDAD POR ${tipo} - VISUAL:`, resultado);
-
     return resultado;
   }
   private crearPeriodosVisiblesDisponibilidad(tipo: 'SEMANA' | 'MES') {
@@ -1047,8 +1045,6 @@ private obtenerDescripcionDemora(codigo: string): string {
     });
 
     resultado.sort((a, b) => a.key.localeCompare(b.key));
-
-    console.log(`📊 UTILIZACIÓN POR ${tipo} - VISUAL:`, resultado);
 
     return resultado;
   }
