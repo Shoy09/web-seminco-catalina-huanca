@@ -324,3 +324,84 @@ export function obtenerRangoHoraBase(horaStr: string): string {
 
   return 'SIN HORA';
 }
+
+export function distribuirValorPorRangosHora(
+  horaInicio: string,
+  horaFinal: string,
+  valorTotal: number,
+  rangosHoraPermitidos: string[]
+): { rangoHora: string; valor: number; minutos: number; porcentaje: number }[] {
+  if (!horaInicio || !horaFinal || !valorTotal || valorTotal <= 0) {
+    return [];
+  }
+
+  const convertirAMinutos = (horaStr: string): number | null => {
+    const [h, m] = String(horaStr).split(':').map(Number);
+
+    if (isNaN(h) || isNaN(m)) return null;
+
+    return h * 60 + m;
+  };
+
+  const obtenerRangoDesdeHora = (minutoDelDia: number): string => {
+    const hora = Math.floor(minutoDelDia / 60) % 24;
+
+    const horaInicioRango = String(hora).padStart(2, '0');
+    const horaFinRango = String((hora + 1) % 24).padStart(2, '0');
+
+    return `${horaInicioRango}:00 - ${horaFinRango}:00`;
+  };
+
+  let inicio = convertirAMinutos(horaInicio);
+  let fin = convertirAMinutos(horaFinal);
+
+  if (inicio === null || fin === null) return [];
+
+  // Si cruza medianoche, por ejemplo 22:00 a 00:00
+  if (fin <= inicio) {
+    fin += 24 * 60;
+  }
+
+  const duracionTotal = fin - inicio;
+
+  if (duracionTotal <= 0) return [];
+
+  const distribucion: {
+    rangoHora: string;
+    valor: number;
+    minutos: number;
+    porcentaje: number;
+  }[] = [];
+
+  let cursor = inicio;
+
+  while (cursor < fin) {
+    const minutoDia = cursor % (24 * 60);
+    const rangoHora = obtenerRangoDesdeHora(minutoDia);
+
+    const siguienteCorteHora =
+      Math.floor(cursor / 60) * 60 + 60;
+
+    const finTramo = Math.min(fin, siguienteCorteHora);
+    const minutosTramo = finTramo - cursor;
+
+    if (
+      minutosTramo > 0 &&
+      rangosHoraPermitidos.includes(rangoHora)
+    ) {
+      const porcentaje = minutosTramo / duracionTotal;
+      const valor = valorTotal * porcentaje;
+
+      distribucion.push({
+        rangoHora,
+        valor,
+        minutos: minutosTramo,
+        porcentaje,
+      });
+    }
+
+    cursor = finTramo;
+  }
+
+  return distribucion;
+}

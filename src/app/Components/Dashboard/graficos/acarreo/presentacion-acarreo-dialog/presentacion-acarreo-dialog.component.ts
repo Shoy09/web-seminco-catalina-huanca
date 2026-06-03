@@ -3,6 +3,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { OperacionBaseVolquete } from '../../../../../models/OperacionBase.models';
 import {
   convertirNumero,
+  distribuirValorPorRangosHora,
   normalizarTexto,
   obtenerRangoHoraBase,
   obtenerRangosHoraPorTurno,
@@ -97,7 +98,7 @@ export class PresentacionAcarreoDialogComponent {
         const estado = normalizarTexto(registro.estado);
 
         if (estado !== 'OPERATIVO') continue;
-        if (!registro.hora_final) continue;
+        if (!registro.hora_inicio || !registro.hora_final) continue;
 
         const detalleToneladas = this.obtenerToneladasPorMaterialVolquete(
           registro.operacion,
@@ -128,7 +129,7 @@ export class PresentacionAcarreoDialogComponent {
       resultadoMap.set(rangoHora, nuevoItem);
     });
 
-    // 3. Procesar registros
+    // 3. Procesar registros con ponderación por tiempo
     this.data.operaciones.forEach((op: any) => {
       if (turno && op.turno !== turno) return;
 
@@ -140,11 +141,7 @@ export class PresentacionAcarreoDialogComponent {
         const estado = normalizarTexto(registro.estado);
 
         if (estado !== 'OPERATIVO') continue;
-        if (!registro.hora_final) continue;
-
-        const rangoHora = obtenerRangoHoraBase(registro.hora_final);
-
-        if (!rangosHora.includes(rangoHora)) continue;
+        if (!registro.hora_inicio || !registro.hora_final) continue;
 
         const operacionData = registro.operacion || {};
 
@@ -170,63 +167,93 @@ export class PresentacionAcarreoDialogComponent {
 
         const totalViajes = convertirNumero(operacionData.total_viajes);
 
-        const item = resultadoMap.get(rangoHora);
+        // Distribuir viajes una sola vez por registro
+        const distribucionViajes = distribuirValorPorRangosHora(
+          registro.hora_inicio,
+          registro.hora_final,
+          totalViajes,
+          rangosHora,
+        );
 
-        if (!item) continue;
+        for (const tramoViaje of distribucionViajes) {
+          const item = resultadoMap.get(tramoViaje.rangoHora);
 
-        item.cantidadRegistros += 1;
-        item.totalViajes += totalViajes;
+          if (!item) continue;
 
+          item.totalViajes += tramoViaje.valor;
+        }
+
+        // Distribuir toneladas por material
         for (const detalle of detalleToneladas) {
           const material = detalle.material;
           const toneladas = detalle.toneladas;
 
           if (toneladas <= 0) continue;
 
-          if (item[material] === undefined) {
-            item[material] = 0;
+          const distribucionToneladas = distribuirValorPorRangosHora(
+            registro.hora_inicio,
+            registro.hora_final,
+            toneladas,
+            rangosHora,
+          );
+
+          for (const tramo of distribucionToneladas) {
+            const item = resultadoMap.get(tramo.rangoHora);
+
+            if (!item) continue;
+
+            const toneladasPonderadas = tramo.valor;
+
+            if (item[material] === undefined) {
+              item[material] = 0;
+            }
+
+            item[material] += toneladasPonderadas;
+            item.total += toneladasPonderadas;
+
+            // Cuenta el aporte del registro en ese rango
+            item.cantidadRegistros += 1;
+
+            // Acumular por volquete
+            if (!item.equipos[numeroVolquete]) {
+              item.equipos[numeroVolquete] = {
+                total: 0,
+                labores: {},
+                materiales: {},
+                scoops: {},
+              };
+            }
+
+            item.equipos[numeroVolquete].total += toneladasPonderadas;
+
+            // Acumular por labor
+            if (!item.equipos[numeroVolquete].labores[claveLabor]) {
+              item.equipos[numeroVolquete].labores[claveLabor] = 0;
+            }
+
+            item.equipos[numeroVolquete].labores[claveLabor] +=
+              toneladasPonderadas;
+
+            // Acumular por material
+            if (!item.equipos[numeroVolquete].materiales[material]) {
+              item.equipos[numeroVolquete].materiales[material] = 0;
+            }
+
+            item.equipos[numeroVolquete].materiales[material] +=
+              toneladasPonderadas;
+
+            // Acumular por scoop
+            if (!item.equipos[numeroVolquete].scoops[scoop]) {
+              item.equipos[numeroVolquete].scoops[scoop] = 0;
+            }
+
+            item.equipos[numeroVolquete].scoops[scoop] += toneladasPonderadas;
           }
-
-          item[material] += toneladas;
-          item.total += toneladas;
-
-          // Acumular por volquete
-          if (!item.equipos[numeroVolquete]) {
-            item.equipos[numeroVolquete] = {
-              total: 0,
-              labores: {},
-              materiales: {},
-              scoops: {},
-            };
-          }
-
-          item.equipos[numeroVolquete].total += toneladas;
-
-          // Acumular por labor
-          if (!item.equipos[numeroVolquete].labores[claveLabor]) {
-            item.equipos[numeroVolquete].labores[claveLabor] = 0;
-          }
-
-          item.equipos[numeroVolquete].labores[claveLabor] += toneladas;
-
-          // Acumular por material
-          if (!item.equipos[numeroVolquete].materiales[material]) {
-            item.equipos[numeroVolquete].materiales[material] = 0;
-          }
-
-          item.equipos[numeroVolquete].materiales[material] += toneladas;
-
-          // Acumular por scoop
-          if (!item.equipos[numeroVolquete].scoops[scoop]) {
-            item.equipos[numeroVolquete].scoops[scoop] = 0;
-          }
-
-          item.equipos[numeroVolquete].scoops[scoop] += toneladas;
         }
       }
     });
 
-    // 4. Convertir a array y redondear
+    // 4. Convertir a array y redondear al final
     const resultado = Array.from(resultadoMap.values()).map((item) => {
       item.total = Number(item.total.toFixed(2));
       item.totalViajes = Number(item.totalViajes.toFixed(2));
@@ -262,7 +289,7 @@ export class PresentacionAcarreoDialogComponent {
       return item;
     });
 
-    console.log('📊 TON POR RANGO HORA VOLQUETES:', resultado);
+    console.log('📊 TON POR RANGO HORA VOLQUETES PONDERADO:', resultado);
 
     return resultado;
   }
@@ -282,11 +309,7 @@ export class PresentacionAcarreoDialogComponent {
         const estado = normalizarTexto(registro.estado);
 
         if (estado !== 'OPERATIVO') continue;
-        if (!registro.hora_final) continue;
-
-        const rangoHora = obtenerRangoHoraBase(registro.hora_final);
-
-        if (!rangosHora.includes(rangoHora)) continue;
+        if (!registro.hora_inicio || !registro.hora_final) continue;
 
         const operacionData = registro.operacion || {};
 
@@ -316,28 +339,12 @@ export class PresentacionAcarreoDialogComponent {
 
         const totalViajes = convertirNumero(operacionData.total_viajes);
 
-        const clave = `${claveLabor}|${rangoHora}`;
-
-        if (!resultadoMap.has(clave)) {
-          resultadoMap.set(clave, {
-            labor: claveLabor,
-            rangoHora,
-            ubicacionDestino,
-
-            total: 0,
-            cantidadRegistros: 0,
-            totalViajes: 0,
-
-            materiales: {},
-            volquetes: {},
-            scoops: {},
-          });
-        }
-
-        const item = resultadoMap.get(clave);
-
-        item.cantidadRegistros += 1;
-        item.totalViajes += totalViajes;
+        const distribucionViajes = distribuirValorPorRangosHora(
+          registro.hora_inicio,
+          registro.hora_final,
+          totalViajes,
+          rangosHora,
+        );
 
         for (const detalle of detalleToneladas) {
           const material = detalle.material;
@@ -345,28 +352,66 @@ export class PresentacionAcarreoDialogComponent {
 
           if (toneladas <= 0) continue;
 
-          item.total += toneladas;
+          const distribucionToneladas = distribuirValorPorRangosHora(
+            registro.hora_inicio,
+            registro.hora_final,
+            toneladas,
+            rangosHora,
+          );
 
-          // Materiales
-          if (!item.materiales[material]) {
-            item.materiales[material] = 0;
+          for (const tramo of distribucionToneladas) {
+            const rangoHora = tramo.rangoHora;
+            const toneladasPonderadas = tramo.valor;
+
+            const viajesPonderados =
+              distribucionViajes.find((v) => v.rangoHora === rangoHora)
+                ?.valor || 0;
+
+            const clave = `${claveLabor}|${rangoHora}`;
+
+            if (!resultadoMap.has(clave)) {
+              resultadoMap.set(clave, {
+                labor: claveLabor,
+                rangoHora,
+                ubicacionDestino,
+
+                total: 0,
+                cantidadRegistros: 0,
+                totalViajes: 0,
+
+                materiales: {},
+                volquetes: {},
+                scoops: {},
+              });
+            }
+
+            const item = resultadoMap.get(clave);
+
+            item.total += toneladasPonderadas;
+            item.cantidadRegistros += 1;
+            item.totalViajes += viajesPonderados;
+
+            // Materiales
+            if (!item.materiales[material]) {
+              item.materiales[material] = 0;
+            }
+
+            item.materiales[material] += toneladasPonderadas;
+
+            // Volquetes
+            if (!item.volquetes[numeroVolquete]) {
+              item.volquetes[numeroVolquete] = 0;
+            }
+
+            item.volquetes[numeroVolquete] += toneladasPonderadas;
+
+            // Scoops
+            if (!item.scoops[scoop]) {
+              item.scoops[scoop] = 0;
+            }
+
+            item.scoops[scoop] += toneladasPonderadas;
           }
-
-          item.materiales[material] += toneladas;
-
-          // Volquetes
-          if (!item.volquetes[numeroVolquete]) {
-            item.volquetes[numeroVolquete] = 0;
-          }
-
-          item.volquetes[numeroVolquete] += toneladas;
-
-          // Scoops
-          if (!item.scoops[scoop]) {
-            item.scoops[scoop] = 0;
-          }
-
-          item.scoops[scoop] += toneladas;
         }
       }
     });
@@ -426,7 +471,9 @@ export class PresentacionAcarreoDialogComponent {
     );
 
     console.log(
-      `📊 TON POR LABOR Y RANGO HORA VOLQUETES (Turno: ${turno || 'TODOS'}):`,
+      `📊 TON POR LABOR Y RANGO HORA VOLQUETES PONDERADO (Turno: ${
+        turno || 'TODOS'
+      }):`,
       resultado,
     );
 
