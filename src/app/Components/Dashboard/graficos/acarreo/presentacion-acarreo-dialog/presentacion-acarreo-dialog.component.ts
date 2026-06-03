@@ -11,6 +11,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { MetrosPerforadosRangoHoraComponent } from '../../horizontal/horas/metros-perforados-rango-hora/metros-perforados-rango-hora.component';
 import { TablaMetrosPerforadosEquipoComponent } from '../../horizontal/horas/tabla-metros-perforados-equipo/tabla-metros-perforados-equipo.component';
+import { OperacionVolquete } from '../../../../../models/OperacionVolquete';
 
 export interface PresentacionAcarreoDialogData {
   operaciones: OperacionBaseVolquete[];
@@ -480,10 +481,7 @@ export class PresentacionAcarreoDialogComponent {
     return resultado;
   }
 
-  private obtenerToneladasPorMaterialVolquete(operacion: any): {
-    material: string;
-    toneladas: number;
-  }[] {
+  private obtenerToneladasPorMaterialVolquete(operacion: OperacionVolquete) {
     if (!operacion) return [];
 
     const toneladas = convertirNumero(operacion.toneladas);
