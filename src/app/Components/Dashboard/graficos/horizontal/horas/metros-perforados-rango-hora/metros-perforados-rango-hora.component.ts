@@ -69,6 +69,7 @@ export class MetrosPerforadosRangoHoraComponent implements OnInit, OnChanges {
     'scoops',
     'materiales',
     'ubicacionDestino',
+    'minutosOperativos'
   ];
 
   // Almacenará los totales por tipo de perforación
@@ -549,12 +550,12 @@ export class MetrosPerforadosRangoHoraComponent implements OnInit, OnChanges {
           });
 
           const total = Number(totales[index] || 0);
-          const acumulado = Number(acumulativo[index] || 0);
+          //const acumulado = Number(acumulativo[index] || 0);
           const totalViajes = Number(viajes[index] || 0);
 
           html += `<hr style="margin: 5px 0"/>`;
           html += `Total hora: <b>${total.toFixed(2)} ${this.unidad}</b><br/>`;
-          html += `Acumulado: <b>${acumulado.toFixed(2)} ${this.unidad}</b><br/>`;
+          //html += `Acumulado: <b>${acumulado.toFixed(2)} ${this.unidad}</b><br/>`;
 
           if (mostrarViajes) {
             html += `Viajes: <b>${totalViajes.toFixed(0)}</b><br/>`;
