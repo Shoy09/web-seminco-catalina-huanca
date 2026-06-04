@@ -1,104 +1,273 @@
-<mat-card class="usuario-card">
-  <h2 mat-dialog-title class="titulo-dialogo">{{ editMode ? 'Editar Usuario' : 'Nuevo Usuario' }}</h2>
+<div class="w-full max-w-4xl rounded-2xl bg-surface p-6 shadow-xl">
 
-  <mat-dialog-content>
-    <form [formGroup]="usuarioForm">
+  <!-- Header -->
+  <div class="mb-6 flex items-center justify-between border-b border-border pb-4">
+    <div>
+      <h2 class="text-2xl font-extrabold text-secondary">
+        {{ editMode ? 'Editar Usuario' : 'Nuevo Usuario' }}
+      </h2>
 
-      <div class="input-group">
-        <mat-form-field appearance="outline">
-          <mat-label>DNI</mat-label>
-          <input matInput formControlName="codigo_dni">
-        </mat-form-field>
+      <p class="mt-1 text-sm text-ink-75">
+        Complete la información del usuario y sus operaciones autorizadas.
+      </p>
+    </div>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Nombre</mat-label>
-          <input matInput formControlName="nombres">
-        </mat-form-field>
+    <button
+      pButton
+      type="button"
+      icon="pi pi-times"
+      severity="secondary"
+      text="true"
+      rounded="true"
+      (click)="cancelar()">
+    </button>
+  </div>
+
+  <!-- Formulario -->
+  <form [formGroup]="usuarioForm" class="space-y-5">
+
+    <!-- DNI / Nombre -->
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-bold text-ink">
+          DNI
+        </label>
+
+        <input
+          pInputText
+          type="text"
+          formControlName="codigo_dni"
+          placeholder="Ingrese DNI"
+          class="w-full"
+        />
       </div>
 
-      <div class="input-group">
-        <mat-form-field appearance="outline">
-          <mat-label>Apellidos</mat-label>
-          <input matInput formControlName="apellidos">
-        </mat-form-field>
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-bold text-ink">
+          Nombre
+        </label>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Correo</mat-label>
-          <input matInput formControlName="correo" type="email">
-        </mat-form-field>
+        <input
+          pInputText
+          type="text"
+          formControlName="nombres"
+          placeholder="Ingrese nombres"
+          class="w-full"
+        />
       </div>
 
-      <div class="input-group">
-        <mat-form-field appearance="outline">
-  <mat-label>Cargo</mat-label>
-  <mat-select formControlName="cargo">
-    <mat-option *ngFor="let cargo of cargos" [value]="cargo">
-      {{ cargo }}
-    </mat-option>
-  </mat-select>
-</mat-form-field>
+    </div>
 
+    <!-- Apellidos / Correo -->
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 
-        <mat-form-field appearance="outline">
-          <mat-label>Empresa</mat-label>
-          <input matInput formControlName="empresa">
-        </mat-form-field>
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-bold text-ink">
+          Apellidos
+        </label>
+
+        <input
+          pInputText
+          type="text"
+          formControlName="apellidos"
+          placeholder="Ingrese apellidos"
+          class="w-full"
+        />
       </div>
 
-      <div class="input-group">
-        <mat-form-field appearance="outline">
-          <mat-label>Guardia</mat-label>
-          <input matInput formControlName="guardia">
-        </mat-form-field>
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-bold text-ink">
+          Correo
+        </label>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Autorizado Equipo</mat-label>
-          <input matInput formControlName="autorizado_equipo">
-        </mat-form-field>
+        <input
+          pInputText
+          type="email"
+          formControlName="correo"
+          placeholder="correo@empresa.com"
+          class="w-full"
+        />
       </div>
 
-      <div class="input-group">
-        <mat-form-field appearance="outline">
-          <mat-label>Rol</mat-label>
-          <mat-select formControlName="rol">
-            <mat-option value="Admin">Admin</mat-option>
-            <mat-option value="Trabajador">Trabajador</mat-option>
-            <mat-option value="Master">Master</mat-option>
-          </mat-select>
-        </mat-form-field>
+    </div>
+
+    <!-- Cargo / Empresa -->
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-bold text-ink">
+          Cargo
+        </label>
+
+        <p-select
+          [options]="cargos"
+          formControlName="cargo"
+          placeholder="Seleccione cargo"
+          styleClass="w-full"
+          appendTo="body">
+        </p-select>
       </div>
 
-      <div class="input-group">
-  <mat-form-field appearance="outline" class="full-width">
-    <mat-label>Operaciones Autorizadas</mat-label>
-    <mat-select formControlName="operaciones_autorizadas" multiple>
-      <mat-option *ngFor="let op of operacionesDisponibles" [value]="op">{{ op }}</mat-option>
-    </mat-select>
-  </mat-form-field>
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-bold text-ink">
+          Empresa
+        </label>
+
+        <input
+          pInputText
+          type="text"
+          formControlName="empresa"
+          placeholder="Ingrese empresa"
+          class="w-full"
+        />
+      </div>
+
+    </div>
+
+    <!-- Guardia / Autorizado Equipo -->
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-bold text-ink">
+          Guardia
+        </label>
+
+        <input
+          pInputText
+          type="text"
+          formControlName="guardia"
+          placeholder="Ingrese guardia"
+          class="w-full"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-bold text-ink">
+          Autorizado Equipo
+        </label>
+
+        <input
+          pInputText
+          type="text"
+          formControlName="autorizado_equipo"
+          placeholder="Equipo autorizado"
+          class="w-full"
+        />
+      </div>
+
+    </div>
+
+    <!-- Rol -->
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-bold text-ink">
+          Rol
+        </label>
+
+        <p-select
+          [options]="roles"
+          formControlName="rol"
+          placeholder="Seleccione rol"
+          styleClass="w-full"
+          appendTo="body">
+        </p-select>
+      </div>
+
+    </div>
+
+    <!-- Operaciones Autorizadas -->
+    <div class="flex flex-col gap-2">
+      <label class="text-sm font-bold text-ink">
+        Operaciones Autorizadas
+      </label>
+
+      <p-multiselect
+        [options]="operacionesDisponibles"
+        formControlName="operaciones_autorizadas"
+        placeholder="Seleccione operaciones"
+        display="chip"
+        [maxSelectedLabels]="4"
+        styleClass="w-full"
+        appendTo="body">
+      </p-multiselect>
+    </div>
+
+    <!-- Contraseñas solo nuevo usuario -->
+    <div *ngIf="!editMode" class="grid grid-cols-1 gap-4 md:grid-cols-2">
+
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-bold text-ink">
+          Contraseña
+        </label>
+
+        <p-password
+          formControlName="password"
+          placeholder="Ingrese contraseña"
+          [toggleMask]="true"
+          [feedback]="false"
+          styleClass="w-full"
+          inputStyleClass="w-full">
+        </p-password>
+
+        <small
+          class="text-danger"
+          *ngIf="usuarioForm.get('password')?.invalid && usuarioForm.get('password')?.touched"
+        >
+          Debe tener al menos 6 caracteres.
+        </small>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-bold text-ink">
+          Confirmar Contraseña
+        </label>
+
+        <p-password
+          formControlName="confirmPassword"
+          placeholder="Repita la contraseña"
+          [toggleMask]="true"
+          [feedback]="false"
+          styleClass="w-full"
+          inputStyleClass="w-full">
+        </p-password>
+
+        <small
+          class="text-danger"
+          *ngIf="usuarioForm.hasError('noCoincide') && usuarioForm.get('confirmPassword')?.touched"
+        >
+          Las contraseñas no coinciden.
+        </small>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="mt-6 flex justify-end gap-3 border-t border-border pt-5">
+
+      <button
+        pButton
+        type="button"
+        label="Cancelar"
+        icon="pi pi-times"
+        severity="danger"
+        outlined="true"
+        (click)="cancelar()">
+      </button>
+
+      <button
+        pButton
+        type="button"
+        label="Guardar"
+        icon="pi pi-save"
+        severity="success"
+        [disabled]="usuarioForm.invalid"
+        (click)="guardar()">
+      </button>
+
+    </div>
+
+  </form>
+
 </div>
-
-      
-
-      <!-- Campos de contraseña solo si es un nuevo usuario -->
-      <div *ngIf="!editMode">
-        <mat-form-field appearance="outline">
-          <mat-label>Contraseña</mat-label>
-          <input matInput formControlName="password" type="password">
-          <mat-error *ngIf="usuarioForm.get('password')?.invalid">Debe tener al menos 6 caracteres</mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Confirmar Contraseña</mat-label>
-          <input matInput formControlName="confirmPassword" type="password">
-          <mat-error *ngIf="usuarioForm.hasError('noCoincide')">Las contraseñas no coinciden</mat-error>
-        </mat-form-field>
-      </div>
-
-    </form>
-  </mat-dialog-content>
-
-  <mat-dialog-actions align="end">
-    <button mat-raised-button color="warn" (click)="cancelar()">Cancelar</button>
-    <button mat-raised-button color="primary" [disabled]="usuarioForm.invalid" (click)="guardar()">Guardar</button>
-  </mat-dialog-actions>
-</mat-card>

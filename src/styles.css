@@ -1,4 +1,5 @@
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
+@import "primeicons/primeicons.css";
 @import "tailwindcss";
 
 :root {
@@ -19,7 +20,6 @@
   --ch-bg-light: #F7F9F8;
   --ch-border: #CCCCCC;
 }
-
 @theme {
   /* Marca principal */
   --color-primary: #00A064;

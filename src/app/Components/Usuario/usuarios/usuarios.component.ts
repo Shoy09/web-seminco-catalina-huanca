@@ -19,8 +19,14 @@ import { UsuarioService } from '../../../services/usuario.service';
 import { LoadingDialogComponent } from '../../Reutilizables/loading-dialog/loading-dialog.component';
 import { OperacionesDialogComponent } from '../operaciones-dialog.component';
 import { EditarOperacionesDialogComponent } from '../editar-operaciones-dialog/editar-operaciones-dialog.component';
-import { Subscription } from 'rxjs';
 
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { TagModule } from 'primeng/tag';
+import { InputTextModule } from 'primeng/inputtext';
+import { FileUploadModule } from 'primeng/fileupload';
+import { ToastService } from '../../../services/toast.service';
+import { ConfirmService } from '../../../services/confirm.service';
 @Component({
   selector: 'app-usuarios',
   standalone: true,
@@ -34,27 +40,22 @@ import { Subscription } from 'rxjs';
     MatInputModule,
     MatFormFieldModule,
     CommonModule,
+    TableModule,
+    ButtonModule,
+    TagModule,
+    InputTextModule,
+    FileUploadModule,
   ],
   templateUrl: './usuarios.component.html',
   styleUrl: './usuarios.component.css',
 })
 export class UsuariosComponent implements OnInit {
-  displayedColumns: string[] = [
-    'codigo_dni',
-    'nombre',
-    'rol',
-    'operaciones',
-    'acciones',
-  ];
-  Object = Object;
-  dataSource = new MatTableDataSource<Usuario>([]);
-
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
-
+  usuarios: Usuario[] = [];
   constructor(
     private usuarioService: UsuarioService,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private toastService: ToastService,
+    private confirmService: ConfirmService,
   ) {}
 
   ngOnInit() {
@@ -63,9 +64,7 @@ export class UsuariosComponent implements OnInit {
 
   obtenerUsuarios() {
     this.usuarioService.obtenerUsuarios().subscribe((data) => {
-      this.dataSource.data = data;
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
+      this.usuarios = data;
     });
   }
 
@@ -110,127 +109,139 @@ export class UsuariosComponent implements OnInit {
     });
   }
 
-  eliminarUsuario(id: number) {
-    if (confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
-      this.usuarioService.eliminarUsuario(id).subscribe(() => {
-        this.obtenerUsuarios();
-      });
+  eliminarUsuario(id: number): void {
+    this.confirmService.confirmDelete(
+      '¿Estás seguro de que deseas eliminar este usuario?',
+      () => {
+        this.usuarioService.eliminarUsuario(id).subscribe({
+          next: () => {
+            this.toastService.success(
+              'Usuario eliminado',
+              'El usuario fue eliminado correctamente.',
+            );
+
+            this.obtenerUsuarios();
+          },
+          error: () => {
+            this.toastService.error(
+              'Error al eliminar',
+              'No se pudo eliminar el usuario.',
+            );
+          },
+        });
+      },
+    );
+  }
+
+  cargarArchivo(event: any): void {
+    const archivo: File | undefined = event.files?.[0];
+    if (!archivo) {
+      this.toastService.warn(
+        'Archivo no seleccionado',
+        'Debe seleccionar un archivo Excel para continuar.',
+      );
+      return;
     }
+
+    this.procesarArchivoExcel(archivo);
   }
 
-  aplicarFiltro(event: Event) {
-    const valorFiltro = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = valorFiltro.trim().toLowerCase();
-  }
+  private procesarArchivoExcel(archivo: File): void {
+    const reader = new FileReader();
 
-  seleccionarArchivo() {
-    const fileInput = document.getElementById('fileInput') as HTMLInputElement;
-    if (fileInput) {
-      fileInput.click();
-    } else {
-      // console.error("No se encontró el elemento de entrada de archivo.");
-    }
-  }
+    reader.readAsArrayBuffer(archivo);
 
-  cargarArchivo(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      const archivo = input.files[0];
+    reader.onload = () => {
+      const data = new Uint8Array(reader.result as ArrayBuffer);
+      const workbook = XLSX.read(data, { type: 'array' });
 
-      const reader = new FileReader();
-      reader.readAsArrayBuffer(archivo);
+      const sheetName = 'Usuarios';
+      const sheet = workbook.Sheets[sheetName];
 
-      reader.onload = () => {
-        const data = new Uint8Array(reader.result as ArrayBuffer);
-        const workbook = XLSX.read(data, { type: 'array' });
+      if (!sheet) {
+        alert("No se encontró la hoja 'Usuarios' en el archivo.");
+        return;
+      }
 
-        const sheetName = 'Usuarios';
-        const sheet = workbook.Sheets[sheetName];
+      const datosExcel: any[] = XLSX.utils.sheet_to_json(sheet);
 
-        if (!sheet) {
-          alert("No se encontró la hoja 'Usuarios' en el archivo.");
+      const usuariosValidos: Usuario[] = [];
+      const usuariosInvalidos: { nombre: string; dni: string }[] = [];
+
+      datosExcel.forEach((row) => {
+        const apellidos = row['APELLIDOS'];
+        const nombres = row['NOMBRES'];
+        const codigo_dni = row['DNI'];
+        const cargo = row['PUESTO ACTUAL QUE DESEMPEÑA'];
+        const rol = row['ROL'] || 'Trabajador';
+        const area = row['ÁREA'];
+        const clasificacion = row['CLASIFICACIÓN'];
+        const empresa = row['EMPRESA'];
+        const guardia = row['GUARDIA'];
+        const autorizado_equipo = row['AUTORIZADO EQUIPO'];
+        const correo = row['CORREO'];
+        const password = row['password'];
+        const firma = row['FIRMA'];
+        const operacionesString = row['OPERACIONES AUTORIZADAS'] || '';
+
+        if (
+          !apellidos ||
+          !nombres ||
+          !codigo_dni ||
+          !cargo ||
+          !area ||
+          !rol ||
+          !password
+        ) {
+          usuariosInvalidos.push({
+            nombre: nombres || 'Desconocido',
+            dni: codigo_dni || 'Sin DNI',
+          });
           return;
         }
 
-        const datosExcel: any[] = XLSX.utils.sheet_to_json(sheet);
+        const operacionesArray = operacionesString
+          .split(/[,;]+/)
+          .map((op: string) => op.trim())
+          .filter((op: string) => op.length > 0);
 
-        let usuariosValidos: Usuario[] = [];
-        let usuariosInvalidos: { nombre: string; dni: string }[] = [];
+        const operaciones_autorizadas: { [clave: string]: boolean } = {};
 
-        datosExcel.forEach((row) => {
-          const apellidos = row['APELLIDOS'];
-          const nombres = row['NOMBRES'];
-          const codigo_dni = row['DNI'];
-          const cargo = row['PUESTO ACTUAL QUE DESEMPEÑA'];
-          const rol = row['ROL'] || 'Trabajador';
-          const area = row['ÁREA'];
-          const clasificacion = row['CLASIFICACIÓN'];
-          const empresa = row['EMPRESA']; // suponiendo que exista en el Excel
-          const guardia = row['GUARDIA']; // idem
-          const autorizado_equipo = row['AUTORIZADO EQUIPO']; // idem
-          const correo = row['CORREO']; // idem
-          const password = row['password'];
-          const firma = row['FIRMA']; // idem
-          const operacionesString = row['OPERACIONES AUTORIZADAS'] || '';
-
-          if (
-            !apellidos ||
-            !nombres ||
-            !codigo_dni ||
-            !cargo ||
-            !area ||
-            !rol ||
-            !password
-          ) {
-            usuariosInvalidos.push({
-              nombre: nombres || 'Desconocido',
-              dni: codigo_dni || 'Sin DNI',
-            });
-            return;
-          }
-
-          // Convertir operacionesString en objeto operaciones_autorizadas
-          const operacionesArray = operacionesString
-            .split(/[,;]+/)
-            .map((op: string) => op.trim())
-            .filter((op: string) => op.length > 0);
-
-          const operaciones_autorizadas: { [clave: string]: boolean } = {};
-          operacionesArray.forEach((op: string) => {
-            operaciones_autorizadas[op] = true;
-          });
-
-          // Crear objeto Usuario con todos los campos (los opcionales sólo si tienen valor)
-          const usuario: Usuario = {
-            apellidos,
-            nombres,
-            codigo_dni,
-            cargo,
-            rol,
-            area,
-            clasificacion,
-            password,
-            operaciones_autorizadas,
-          };
-
-          // Añadir campos opcionales solo si existen para no enviar undefined
-          if (empresa) usuario.empresa = empresa;
-          if (guardia) usuario.guardia = guardia;
-          if (autorizado_equipo) usuario.autorizado_equipo = autorizado_equipo;
-          if (correo) usuario.correo = correo;
-          if (firma) usuario.firma = firma;
-
-          // Ahora puedes enviar o acumular el objeto usuario
-          usuariosValidos.push(usuario);
+        operacionesArray.forEach((op: string) => {
+          operaciones_autorizadas[op] = true;
         });
 
-        if (usuariosValidos.length > 0) {
-          this.enviarUsuariosBulk(usuariosValidos, usuariosInvalidos);
-        } else {
-          alert('No hay usuarios válidos para enviar.');
-        }
-      };
-    }
+        const usuario: Usuario = {
+          apellidos,
+          nombres,
+          codigo_dni,
+          cargo,
+          rol,
+          area,
+          clasificacion,
+          password,
+          operaciones_autorizadas,
+        };
+
+        if (empresa) usuario.empresa = empresa;
+        if (guardia) usuario.guardia = guardia;
+        if (autorizado_equipo) usuario.autorizado_equipo = autorizado_equipo;
+        if (correo) usuario.correo = correo;
+        if (firma) usuario.firma = firma;
+
+        usuariosValidos.push(usuario);
+      });
+
+      if (usuariosValidos.length > 0) {
+        this.enviarUsuariosBulk(usuariosValidos, usuariosInvalidos);
+      } else {
+        alert('No hay usuarios válidos para enviar.');
+      }
+    };
+
+    reader.onerror = () => {
+      alert('No se pudo leer el archivo Excel.');
+    };
   }
 
   mostrarPantallaCarga() {
@@ -239,54 +250,54 @@ export class UsuariosComponent implements OnInit {
     });
   }
 
-enviarUsuariosBulk(
-  usuarios: Usuario[],
-  usuariosInvalidos: { nombre: string; dni: string }[]
-) {
-  const dialogRef = this.dialog.open(LoadingDialogComponent, {
-    disableClose: true,
-  });
+  enviarUsuariosBulk(
+    usuarios: Usuario[],
+    usuariosInvalidos: { nombre: string; dni: string }[],
+  ) {
+    const dialogRef = this.dialog.open(LoadingDialogComponent, {
+      disableClose: true,
+    });
 
-  this.usuarioService.crearUsuariosBulk(usuarios).subscribe({
-    next: (res) => {
-      dialogRef.close();
+    this.usuarioService.crearUsuariosBulk(usuarios).subscribe({
+      next: (res) => {
+        dialogRef.close();
 
-      if (usuariosInvalidos.length > 0) {
-        this.mostrarErrores(usuariosInvalidos);
-      }
+        if (usuariosInvalidos.length > 0) {
+          this.mostrarErrores(usuariosInvalidos);
+        }
 
-      alert(`✅ ${usuarios.length} usuarios procesados correctamente`);
-      this.obtenerUsuarios();
-    },
-    error: (error) => {
-      dialogRef.close();
-      console.error(error);
-      alert('❌ Error en carga masiva');
-    }
-  });
-}
-
-private verificarCompletado(
-  procesados: number,
-  total: number,
-  dialogRef: MatDialogRef<LoadingDialogComponent>,
-  usuariosInvalidos: { nombre: string; dni: string }[],
-  errores: { nombre: string; dni: string; motivo?: string }[]
-) {
-  if (procesados === total) {
-    dialogRef.close();
-    // Combina usuarios inválidos del Excel con errores de la API
-    const todosErrores = [...usuariosInvalidos, ...errores];
-    if (todosErrores.length > 0) {
-      this.mostrarErrores(todosErrores);
-    }
-    // Actualiza la lista de usuarios
-    this.obtenerUsuarios();
+        alert(`✅ ${usuarios.length} usuarios procesados correctamente`);
+        this.obtenerUsuarios();
+      },
+      error: (error) => {
+        dialogRef.close();
+        console.error(error);
+        alert('❌ Error en carga masiva');
+      },
+    });
   }
-}
+
+  private verificarCompletado(
+    procesados: number,
+    total: number,
+    dialogRef: MatDialogRef<LoadingDialogComponent>,
+    usuariosInvalidos: { nombre: string; dni: string }[],
+    errores: { nombre: string; dni: string; motivo?: string }[],
+  ) {
+    if (procesados === total) {
+      dialogRef.close();
+      // Combina usuarios inválidos del Excel con errores de la API
+      const todosErrores = [...usuariosInvalidos, ...errores];
+      if (todosErrores.length > 0) {
+        this.mostrarErrores(todosErrores);
+      }
+      // Actualiza la lista de usuarios
+      this.obtenerUsuarios();
+    }
+  }
 
   mostrarErrores(
-    usuariosInvalidos: { nombre: string; dni: string; motivo?: string }[]
+    usuariosInvalidos: { nombre: string; dni: string; motivo?: string }[],
   ) {
     if (usuariosInvalidos.length > 0) {
       let mensaje = 'Errores en el registro:\n\n';
@@ -301,7 +312,7 @@ private verificarCompletado(
 
   abrirDialogoEdicion(
     usuarioId: number,
-    operacionesAutorizadas: { [key: string]: boolean }
+    operacionesAutorizadas: { [key: string]: boolean },
   ) {
     const dialogRef = this.dialog.open(EditarOperacionesDialogComponent, {
       width: '400px',
