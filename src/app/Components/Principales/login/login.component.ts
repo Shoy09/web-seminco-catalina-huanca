@@ -2,9 +2,9 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ToastrService } from 'ngx-toastr';
 import { AuthService } from '../../../services/auth-service.service';
 import { UsuarioService } from '../../../services/usuario.service';
+import { ToastService } from '../../../services/toast.service';
 
 @Component({
   selector: 'app-login',
@@ -22,7 +22,7 @@ export class LoginComponent {
   constructor(
     private readonly router: Router,
     private authService: AuthService,
-    private _toastr: ToastrService, // Inyecta ToastrService
+    private toast: ToastService, // Inyecta ToastrService
     private usuarioService: UsuarioService
   ) {}
 
@@ -32,11 +32,11 @@ export class LoginComponent {
 
   login() {
   if (!this.codigo_dni || !this.password) {
-    this._toastr.warning('Por favor, ingresa todos los campos.', 'Advertencia');
+    this.toast.warn('Por favor, ingresa todos los campos.');
     return;
   }
 
-  this._toastr.info('Iniciando sesión...', 'Por favor espera');
+  this.toast.info('Iniciando sesión...');
 
   this.authService.login(this.codigo_dni, this.password).subscribe(
     (response) => {
@@ -57,7 +57,7 @@ const nombreCompleto = `${usuario.nombres || ''} ${usuario.apellidos || ''}`.tri
 localStorage.setItem('rol', usuario.rol || '');
 localStorage.setItem('nombre_completo', nombreCompleto);
 
-            this._toastr.success('Sesión iniciada con éxito', 'Bienvenido');
+            this.toast.success('Sesión iniciada con éxito');
 
             // 4️⃣ Recién ahora navegamos
             this.router.navigate(['/Dashboard/grafico-horizontal']);
@@ -68,11 +68,11 @@ localStorage.setItem('nombre_completo', nombreCompleto);
         });
 
       } else {
-        this._toastr.error('Token no recibido', 'Error');
+        this.toast.error('Token no recibido');
       }
     },
     () => {
-      this._toastr.error('Credenciales incorrectas', 'Error');
+      this.toast.error('Credenciales incorrectas');
     }
   );
 }

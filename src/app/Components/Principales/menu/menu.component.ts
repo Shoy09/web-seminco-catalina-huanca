@@ -1,18 +1,39 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-
+import { MenuItem } from 'primeng/api';
+import { MenuModule } from 'primeng/menu';
+import { RippleModule } from 'primeng/ripple';
 @Component({
   selector: 'app-menu',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, MenuModule, RippleModule],
   templateUrl: './menu.component.html',
   styleUrl: './menu.component.css',
 })
 export class MenuComponent {
-
   rolUsuario: string = '';
 
+  userMenuItems: MenuItem[] = [
+    {
+      label: 'Editar perfil',
+      icon: 'pi pi-user-edit',
+      command: () => {
+        this.editarPerfil();
+      },
+    },
+    {
+      separator: true,
+    },
+    {
+      label: 'Cerrar sesión',
+      icon: 'pi pi-sign-out',
+      styleClass: 'text-danger',
+      command: () => {
+        this.cerrarSesion();
+      },
+    },
+  ];
   // 🔥 MENÚ ORIGINAL (con nuevas rutas al final)
   menus = [
     {
@@ -20,20 +41,18 @@ export class MenuComponent {
       icon: 'das.svg',
       subItems: [
         { title: 'Perforacion Tal.Largo', path: 'grafico-tal-largo' },
-         { title: 'Perforacion Horizontal', path: 'grafico-horizontal' },
+        { title: 'Perforacion Horizontal', path: 'grafico-horizontal' },
         { title: 'Perforacion Sostenimiento', path: 'grafico-sostenimiento' },
-        {title: 'Carguío', path: 'grafico-scoops'},
-        {title: 'Acarreo', path: 'grafico-acarreo'},
-         { title: 'Explosivos', path: 'explosivos-graficos' },
+        { title: 'Carguío', path: 'grafico-scoops' },
+        { title: 'Acarreo', path: 'grafico-acarreo' },
+        { title: 'Explosivos', path: 'explosivos-graficos' },
         { title: 'Linea de tiempo', path: 'linea-de-tiempo' },
       ],
     },
     {
       title: 'Validaciones',
       icon: 'vota-si.svg',
-      subItems: [
-        {title: "Mina", path: 'jefe-mina'},
-      ],
+      subItems: [{ title: 'Mina', path: 'jefe-mina' }],
     },
     {
       title: 'Planes',
@@ -42,7 +61,6 @@ export class MenuComponent {
         { title: 'Plan de Avance', path: 'plan-avance' },
         { title: 'Plan de Metraje', path: 'plan-metraje' },
         { title: 'Plan de Producción', path: 'plan-produccion' },
-
       ],
     },
     {
@@ -64,18 +82,16 @@ export class MenuComponent {
         { title: 'Perfil', path: 'perfil' },
       ],
     },
-
   ];
 
   menuOpenIndex: number | null = null;
   selectedSubItemIndex: number | null = null;
   selectedSubItem: string | null = null;
 
-  mostrarCerrarSesion = false;
   menuColapsado = false;
+  menuMovilAbierto = false;
 
   constructor(private router: Router) {
-
     // 🔥 Leer rol guardado en login
     this.rolUsuario = localStorage.getItem('rol') || '';
 
@@ -87,13 +103,30 @@ export class MenuComponent {
     }
   }
 
+  toggleMenuMovil(): void {
+    this.menuMovilAbierto = !this.menuMovilAbierto;
+  }
+
+  editarPerfil(): void {
+    console.log('Editar perfil');
+  }
+
+  cerrarMenuMovil(): void {
+    this.menuMovilAbierto = false;
+  }
+
+  selectSubItemResponsive(i: number, subItem: any): void {
+    this.selectSubItem(i, subItem);
+
+    if (window.innerWidth < 768) {
+      this.cerrarMenuMovil();
+    }
+  }
+
   // 🔐 FILTRO POR ROL (solo afecta subItems con propiedad roles)
   filtrarMenusPorRol() {
-
-    this.menus = this.menus.map(menu => {
-
+    this.menus = this.menus.map((menu) => {
       const subItemsFiltrados = menu.subItems.filter((subItem: any) => {
-
         // Si NO tiene roles → visible para todos
         if (!subItem.roles) return true;
 
@@ -103,9 +136,8 @@ export class MenuComponent {
 
       return {
         ...menu,
-        subItems: subItemsFiltrados
+        subItems: subItemsFiltrados,
       };
-
     });
   }
 
@@ -138,10 +170,6 @@ export class MenuComponent {
 
   toggleMenu() {
     this.menuColapsado = !this.menuColapsado;
-  }
-
-  toggleCerrarSesion() {
-    this.mostrarCerrarSesion = !this.mostrarCerrarSesion;
   }
 
   cerrarSesion() {
