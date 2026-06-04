@@ -62,27 +62,54 @@
 
 .tabla-responsive {
   width: 100%;
-  overflow: auto;
-  max-height: 520px;
+  overflow-x: visible;
+  overflow-y: auto;
   border-radius: 12px;
   border: 1px solid rgba(20, 90, 82, 0.12);
 }
 
 .tabla-toneladas {
-  width: max-content;
-  min-width: 100%;
+  width: 100%;
+  table-layout: fixed;
+
   border-collapse: separate;
   border-spacing: 0;
-  font-size: 12px;
+  font-size: 11px;
+}
+
+.col-rango {
+  width: 88px;
+}
+
+.col-total {
+  width: 92px;
+}
+
+.col-labor {
+  width: auto;
+}
+
+.labor-col {
+  min-width: 0;
+  max-width: none;
+
+  font-size: 10px;
+  text-align: center;
+
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .tabla-toneladas th,
 .tabla-toneladas td {
-  padding: 9px 10px;
+  padding: 6px 4px;
   border-bottom: 1px solid #e9ecef;
   border-right: 1px solid #eef1f2;
   text-align: center;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.15;
 }
 
 .tabla-toneladas thead th {

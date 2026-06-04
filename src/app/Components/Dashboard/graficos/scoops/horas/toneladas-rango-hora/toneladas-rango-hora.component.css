@@ -1,10 +1,24 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  flex: 1;
+}
+
+/* ============================= */
+/* CONTENEDOR PRINCIPAL */
+/* ============================= */
+
 .dashboard-container {
   width: 100%;
-  min-height: 430px;
+  min-height: 620px;
 
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 330px;
+  grid-template-columns: minmax(0, 1fr) 360px;
   gap: 18px;
+
+  align-items: stretch;
 
   padding: 12px;
   box-sizing: border-box;
@@ -16,7 +30,10 @@
 
 .grafico-columna {
   min-width: 0;
-  height: 460px;
+  min-height: 620px;
+
+  display: flex;
+  flex-direction: column;
 
   background: #ffffff;
   border: 1px solid rgba(20, 90, 82, 0.12);
@@ -31,7 +48,9 @@
 .grafico-echarts {
   width: 100%;
   height: 100%;
-  min-height: 430px;
+  min-height: 590px;
+
+  flex: 1;
 }
 
 /* ============================= */
@@ -40,15 +59,21 @@
 
 .sidebar-columna {
   width: 100%;
-  min-width: 300px;
-  max-width: 360px;
+  min-width: 320px;
+  max-width: 380px;
+
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .contenedor-inferior {
+  flex: 1;
+  min-height: 0;
+
   display: grid;
   grid-template-rows: 1fr 1fr;
   gap: 14px;
-  height: 100%;
 }
 
 /* ============================= */
@@ -57,6 +82,8 @@
 
 .totales-columna,
 .equipos-columna {
+  min-height: 0;
+
   background: #ffffff;
   border: 1px solid rgba(20, 90, 82, 0.12);
   border-radius: 16px;
@@ -68,14 +95,16 @@
 
   display: flex;
   flex-direction: column;
-  min-height: 0;
 }
 
 /* Header de cada tarjeta */
 
 .totales-header {
+  flex: 0 0 auto;
+
   padding-bottom: 8px;
   margin-bottom: 8px;
+
   border-bottom: 1px solid rgba(20, 90, 82, 0.12);
 }
 
@@ -87,11 +116,15 @@
   letter-spacing: 0.3px;
 }
 
-/* Lista con scroll interno */
+/* Lista interna */
 
 .totales-lista {
   flex: 1;
+  min-height: 0;
+
   overflow-y: auto;
+  overflow-x: hidden;
+
   padding-right: 4px;
 
   display: flex;
@@ -99,7 +132,7 @@
   gap: 8px;
 }
 
-/* Scroll más limpio */
+/* Scroll limpio */
 
 .totales-lista::-webkit-scrollbar {
   width: 6px;
@@ -118,6 +151,8 @@
 /* Item de material/equipo */
 
 .total-item {
+  flex: 0 0 auto;
+
   background: linear-gradient(
     135deg,
     rgba(0, 160, 100, 0.08),
@@ -166,6 +201,8 @@
 /* Total general inferior */
 
 .total-general {
+  flex: 0 0 auto;
+
   margin-top: 10px;
   padding: 10px 12px;
 
@@ -222,15 +259,30 @@
 @media (max-width: 1200px) {
   .dashboard-container {
     grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .grafico-columna {
+    min-height: 500px;
+  }
+
+  .grafico-echarts {
+    min-height: 470px;
   }
 
   .sidebar-columna {
     max-width: none;
+    min-width: 0;
   }
 
   .contenedor-inferior {
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto;
+  }
+
+  .totales-columna,
+  .equipos-columna {
+    min-height: 260px;
   }
 }
 
@@ -241,18 +293,19 @@
   }
 
   .grafico-columna {
-    height: 420px;
+    min-height: 430px;
   }
 
   .grafico-echarts {
-    min-height: 390px;
+    min-height: 400px;
   }
 
   .contenedor-inferior {
     grid-template-columns: 1fr;
   }
 
-  .sidebar-columna {
-    min-width: 0;
+  .totales-columna,
+  .equipos-columna {
+    min-height: 240px;
   }
 }

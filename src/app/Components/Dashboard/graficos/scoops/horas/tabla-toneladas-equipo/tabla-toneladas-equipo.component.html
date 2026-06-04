@@ -26,16 +26,20 @@
     </div>
   </div>
 
-  <div
-    class="tabla-responsive"
-    *ngIf="rangosHora.length > 0 && laborInicios.length > 0"
-  >
+  <div class="tabla-responsive" *ngIf="rangosHora.length > 0 && laborInicios.length > 0">
     <table class="tabla-toneladas">
+      <colgroup>
+        <col class="col-rango" />
+
+        <col *ngFor="let labor of laborInicios" class="col-labor" />
+
+        <col class="col-total" />
+      </colgroup>
       <thead>
         <tr>
           <th class="fijo">Rango de Hora</th>
 
-          <th *ngFor="let labor of laborInicios">
+          <th class="labor-col" *ngFor="let labor of laborInicios">
             {{ labor }}
           </th>
 
@@ -49,11 +53,8 @@
             {{ rango }}
           </td>
 
-          <td
-            *ngFor="let labor of laborInicios"
-            [class]="getColorPorValor(matrizToneladas[rango][labor])"
-            [title]="getTooltipCelda(rango, labor)"
-          >
+          <td *ngFor="let labor of laborInicios" class="labor-col"
+            [ngClass]="getColorPorValor(matrizToneladas[rango][labor])" [title]="getTooltipCelda(rango, labor)">
             {{ formatNumber(matrizToneladas[rango][labor]) }}
           </td>
 
@@ -81,10 +82,7 @@
     </table>
   </div>
 
-  <div
-    *ngIf="rangosHora.length === 0 || laborInicios.length === 0"
-    class="sin-datos"
-  >
+  <div *ngIf="rangosHora.length === 0 || laborInicios.length === 0" class="sin-datos">
     <p>No hay datos disponibles para el turno {{ turno || 'seleccionado' }}</p>
   </div>
 
