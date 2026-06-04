@@ -149,6 +149,7 @@ export class PresentacionDialogComponent implements OnInit {
 
   estadosProceso: any[] = [];
   mapaEstados: Map<string, any> = new Map();
+  private readonly CODIGOS_OPERATIVOS_SCOOP = new Set(['101', '103']);
 
   constructor(
     public dialogRef: MatDialogRef<PresentacionDialogComponent>,
@@ -3858,22 +3859,10 @@ private obtenerMaterialPorHoja(): string {
   return resultado;
 }
 
-  private obtenerEstadoPorCodigo(codigo: string) {
-    return this.mapaEstados.get(String(codigo || '').trim());
-  }
-
   private esCodigoOperativo(codigo: string): boolean {
-    const estado = this.obtenerEstadoPorCodigo(codigo);
+  const codigoLimpio = String(codigo || '').trim();
 
-    if (!estado) return false;
-
-    const estadoPrincipal = normalizarTexto(estado.estado_principal);
-    const categoria = normalizarTexto(estado.categoria);
-
-    return (
-      estadoPrincipal === 'OPERATIVO' ||
-      categoria.includes('ACTIVIDADES OPERATIVAS')
-    );
+  return this.CODIGOS_OPERATIVOS_SCOOP.has(codigoLimpio);
   }
 
   private obtenerCapacidadScoop(equipo: string, nEquipo: string) {
