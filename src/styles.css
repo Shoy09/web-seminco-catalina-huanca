@@ -51,6 +51,9 @@
   --color-success: #00A064;
   --color-warning: #FF9132;
   --color-danger: #E74C3C;
+  /* Menú */
+  --color-menu-bg: #fff;
+  --color-menu-text: #333;
 }
 
 html, body {

@@ -8,7 +8,7 @@
 
   <!-- SIDEBAR -->
   <aside
-    class="fixed left-0 top-0 z-50 flex h-screen flex-col border-r border-white/10 bg-secondary text-white shadow-2xl transition-all duration-300"
+    class="fixed left-0 top-0 z-50 flex h-screen flex-col border-r border-white/10 bg-menu-bg text-menu-text shadow-2xl transition-all duration-300"
     [ngClass]="{
       'w-[280px]': !menuColapsado,
       'w-[84px]': menuColapsado,
@@ -41,8 +41,8 @@
         />
 
         <div class="min-w-0">
-          <p class="truncate text-sm font-bold text-white">Usuario</p>
-          <p class="text-xs font-medium text-white/70">Administrador</p>
+          <p class="truncate text-sm font-bold text-menu-text">Usuario</p>
+          <p class="text-xs font-medium text-menu-text/70">Administrador</p>
         </div>
       </div>
     </div>
@@ -59,8 +59,8 @@
             [ngClass]="{
               'justify-center': menuColapsado,
               'justify-between': !menuColapsado,
-              'bg-primary text-white shadow-lg': menuOpenIndex === i,
-              'text-white/80 hover:bg-white/10 hover:text-white':
+              'bg-primary text-menu-text shadow-lg': menuOpenIndex === i,
+              'text-menu-text/80 hover:bg-white/10 hover:text-menu-text':
                 menuOpenIndex !== i,
             }"
             (click)="AbrirCerrar(i, menu)"
@@ -82,7 +82,7 @@
                 />
               </span>
 
-              <span *ngIf="!menuColapsado" class="truncate text-sm font-bold text-white">
+              <span *ngIf="!menuColapsado" class="truncate text-sm font-bold text-menu-text">
                 {{ menu.title }}
               </span>
             </div>
@@ -113,8 +113,8 @@
               >
                 <a
                   [routerLink]="['/Dashboard', subItem.path]"
-                  routerLinkActive="bg-white/15 text-white"
-                  class="block rounded-lg px-3 py-2 text-sm font-medium text-white/70 transition hover:bg-white/10 hover:text-white"
+                  routerLinkActive="bg-white/15 text-menu-text"
+                  class="block rounded-lg px-3 py-2 text-sm font-medium text-menu-text/70 transition hover:bg-white/10 hover:text-menu-text"
                 >
                   {{ subItem.title }}
                 </a>
@@ -130,7 +130,7 @@
       <button
         type="button"
         pRipple
-        class="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold text-white/80 transition hover:bg-white/10 hover:text-white"
+        class="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold text-menu-text/80 transition hover:bg-white/10 hover:text-menu-text"
         [ngClass]="menuColapsado ? 'justify-center' : ''"
         (click)="cerrarSesion()"
         [title]="menuColapsado ? 'Cerrar sesión' : ''"
