@@ -1,4 +1,5 @@
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
+@import "tailwindcss";
 
 :root {
   --ch-catalina-green: #00A064;
@@ -17,6 +18,39 @@
 
   --ch-bg-light: #F7F9F8;
   --ch-border: #CCCCCC;
+}
+
+@theme {
+  /* Marca principal */
+  --color-primary: #00A064;
+  --color-primary-75: #40B88B;
+  --color-primary-50: #80D0B2;
+  --color-primary-25: #BFE7D8;
+
+  /* Color secundario: ideal para headers, barras, títulos fuertes */
+  --color-secondary: #145A52;
+  --color-secondary-75: #4F837D;
+  --color-secondary-50: #8AACA8;
+  --color-secondary-25: #C4D6D3;
+
+  /* Color de acento: alertas, destacados, badges */
+  --color-accent: #FF9132;
+
+  /* Textos */
+  --color-ink: #333333;
+  --color-ink-75: #666666;
+  --color-ink-50: #999999;
+  --color-ink-25: #CCCCCC;
+
+  /* Fondos y bordes */
+  --color-surface: #FFFFFF;
+  --color-surface-soft: #F7F9F8;
+  --color-border: #CCCCCC;
+
+  /* Estados */
+  --color-success: #00A064;
+  --color-warning: #FF9132;
+  --color-danger: #E74C3C;
 }
 
 html, body {
