@@ -18,13 +18,13 @@
   >
     <!-- LOGO -->
     <div
-      class="flex h-20 items-center justify-center border-b border-white/10 px-4"
+      class="flex h-20 items-center justify-center border-b-2 border-white/10 px-4 bg-white rounded-b-2xl"
     >
       <img
         src="login/logo1.png"
         alt="Logo de la empresa"
         class="object-contain transition-all duration-300"
-        [ngClass]="menuColapsado ? 'h-10 max-w-10' : 'h-12 max-w-[180px]'"
+        [ngClass]="menuColapsado ? 'h-10 max-w-10' : 'h-15 max-w-[180px]'"
       />
     </div>
 
@@ -82,7 +82,7 @@
                 />
               </span>
 
-              <span *ngIf="!menuColapsado" class="truncate text-sm font-bold">
+              <span *ngIf="!menuColapsado" class="truncate text-sm font-bold text-white">
                 {{ menu.title }}
               </span>
             </div>
