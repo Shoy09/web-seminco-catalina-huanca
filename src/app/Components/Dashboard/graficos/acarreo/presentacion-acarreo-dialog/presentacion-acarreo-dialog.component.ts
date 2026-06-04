@@ -12,6 +12,8 @@ import { CommonModule } from '@angular/common';
 import { MetrosPerforadosRangoHoraComponent } from '../../horizontal/horas/metros-perforados-rango-hora/metros-perforados-rango-hora.component';
 import { TablaMetrosPerforadosEquipoComponent } from '../../horizontal/horas/tabla-metros-perforados-equipo/tabla-metros-perforados-equipo.component';
 import { OperacionVolquete } from '../../../../../models/OperacionVolquete';
+import { ToneladasRangoHoraComponent } from '../../scoops/horas/toneladas-rango-hora/toneladas-rango-hora.component';
+import { TablaToneladasEquipoComponent } from '../../scoops/horas/tabla-toneladas-equipo/tabla-toneladas-equipo.component';
 
 export interface PresentacionAcarreoDialogData {
   operaciones: OperacionBaseVolquete[];
@@ -26,20 +28,34 @@ export interface PresentacionAcarreoDialogData {
     CommonModule,
     MetrosPerforadosRangoHoraComponent,
     TablaMetrosPerforadosEquipoComponent,
+    ToneladasRangoHoraComponent,
+    TablaToneladasEquipoComponent
   ],
   templateUrl: './presentacion-acarreo-dialog.component.html',
   styleUrl: './presentacion-acarreo-dialog.component.css',
 })
 export class PresentacionAcarreoDialogComponent {
   hojaActual: string = 'hoja1';
+  materialSeleccionado: string = 'TOTAL';
   turnoAplicado: string = '';
   isFullscreen: boolean = false;
   operaciones: OperacionBaseVolquete[] = [];
   fechaInicio: string = '';
   fechaFin: string = '';
 
+  DataToneladasPorHoraBase: any[] = [];
+  DataToneladasPorLaborYRangoHoraBase: any[] = [];
+
   DataToneladasPorHora: any[] = [];
   DataToneladasPorLaborYRangoHora: any[] = [];
+
+  private readonly MATERIALES = [
+    'MINERAL',
+    'DESMONTE',
+    'RELLENO',
+    'RELAVE',
+    'OTROS',
+  ];
 
   constructor(
     public dialogRef: MatDialogRef<PresentacionAcarreoDialogComponent>,
@@ -73,12 +89,13 @@ export class PresentacionAcarreoDialogComponent {
   procesarTodo(): void {
     if (!this.data.operaciones.length) return;
 
-    this.DataToneladasPorHora = this.TonPorRangoHoraCompleto(
+    this.DataToneladasPorHoraBase = this.TonPorRangoHoraCompleto(
       this.turnoAplicado,
     );
-    this.DataToneladasPorLaborYRangoHora = this.TonPorLaborYRangoHora(
+    this.DataToneladasPorLaborYRangoHoraBase = this.TonPorLaborYRangoHora(
       this.turnoAplicado,
     );
+    this.aplicarFiltroMaterialPorHoja();
   }
 
   TonPorRangoHoraCompleto(turno: string = '') {
@@ -503,8 +520,193 @@ export class PresentacionAcarreoDialogComponent {
   }
   cambiarHoja(hoja: string): void {
     this.hojaActual = hoja;
-    //console.log('Cambiando a hoja:', hoja);
+
+    if (hoja === 'hoja1' || hoja === 'hoja2' || hoja === 'hoja3') {
+      this.aplicarFiltroMaterialPorHoja();
+    }
   }
+
+  private aplicarFiltroMaterialPorHoja(): void {
+    this.materialSeleccionado = this.obtenerMaterialPorHoja();
+
+    this.DataToneladasPorHora = this.filtrarDataRangoHoraPorMaterial(
+      this.DataToneladasPorHoraBase,
+      this.materialSeleccionado,
+    );
+
+    this.DataToneladasPorLaborYRangoHora =
+      this.filtrarDataLaborRangoHoraPorMaterial(
+        this.DataToneladasPorLaborYRangoHoraBase,
+        this.materialSeleccionado,
+      );
+  }
+
+  private filtrarDataRangoHoraPorMaterial(
+    data: any[],
+    material: string,
+  ): any[] {
+    const materialKey = String(material || 'TOTAL')
+      .trim()
+      .toUpperCase();
+
+    if (!Array.isArray(data)) return [];
+
+    if (materialKey === 'TOTAL' || materialKey === 'TODOS') {
+      return data;
+    }
+
+    return data.map((item) => {
+      const valorMaterial = Number(
+        item[materialKey] ?? item[materialKey.toLowerCase()] ?? 0,
+      );
+
+      const totalOriginal = Number(item.total || 0);
+
+      const proporcion = totalOriginal > 0 ? valorMaterial / totalOriginal : 0;
+
+      const nuevoItem: any = {
+        ...item,
+        total: Number(valorMaterial.toFixed(2)),
+        totalCucharasDistribuidas: Number(
+          (Number(item.totalCucharasDistribuidas || 0) * proporcion).toFixed(2),
+        ),
+        equipos: {},
+      };
+
+      this.MATERIALES.forEach((mat) => {
+        nuevoItem[mat] = 0;
+        nuevoItem[mat.toLowerCase()] = 0;
+      });
+
+      nuevoItem[materialKey] = Number(valorMaterial.toFixed(2));
+
+      const equipos = item.equipos || {};
+
+      Object.keys(equipos).forEach((equipo) => {
+        const equipoData = equipos[equipo];
+
+        const valorEquipoMaterial = Number(
+          equipoData?.materiales?.[materialKey] || 0,
+        );
+
+        if (valorEquipoMaterial <= 0) return;
+
+        const totalEquipoOriginal = Number(equipoData.total || 0);
+
+        const proporcionEquipo =
+          totalEquipoOriginal > 0
+            ? valorEquipoMaterial / totalEquipoOriginal
+            : 0;
+
+        nuevoItem.equipos[equipo] = {
+          ...equipoData,
+          total: Number(valorEquipoMaterial.toFixed(2)),
+          materiales: {
+            [materialKey]: Number(valorEquipoMaterial.toFixed(2)),
+          },
+          labores: this.filtrarObjetoProporcional(
+            equipoData.labores,
+            proporcionEquipo,
+          ),
+          destinos: this.filtrarObjetoProporcional(
+            equipoData.destinos,
+            proporcionEquipo,
+          ),
+        };
+      });
+
+      return nuevoItem;
+    });
+  }
+
+  private filtrarDataLaborRangoHoraPorMaterial(
+    data: any[],
+    material: string,
+  ): any[] {
+    const materialKey = String(material || 'TOTAL')
+      .trim()
+      .toUpperCase();
+
+    if (!Array.isArray(data)) return [];
+
+    if (materialKey === 'TOTAL' || materialKey === 'TODOS') {
+      return data;
+    }
+
+    return data.map((laborData) => {
+      const nuevosRangos = (laborData.rangos || []).map((rangoData: any) => {
+        const valorMaterial = Number(
+          rangoData[materialKey] ?? rangoData[materialKey.toLowerCase()] ?? 0,
+        );
+
+        const totalOriginal = Number(rangoData.total || 0);
+
+        const proporcion =
+          totalOriginal > 0 ? valorMaterial / totalOriginal : 0;
+
+        const nuevoRango: any = {
+          ...rangoData,
+          total: Number(valorMaterial.toFixed(2)),
+          totalCucharasDistribuidas: Number(
+            (
+              Number(rangoData.totalCucharasDistribuidas || 0) * proporcion
+            ).toFixed(2),
+          ),
+          materiales: {
+            [materialKey]: Number(valorMaterial.toFixed(2)),
+          },
+        };
+
+        this.MATERIALES.forEach((mat) => {
+          nuevoRango[mat] = 0;
+          nuevoRango[mat.toLowerCase()] = 0;
+        });
+
+        nuevoRango[materialKey] = Number(valorMaterial.toFixed(2));
+
+        return nuevoRango;
+      });
+
+      return {
+        ...laborData,
+        rangos: nuevosRangos,
+      };
+    });
+  }
+
+  private filtrarObjetoProporcional(
+    obj: any,
+    proporcion: number,
+  ): { [key: string]: number } {
+    const resultado: { [key: string]: number } = {};
+
+    if (!obj || typeof obj !== 'object') return resultado;
+
+    Object.keys(obj).forEach((key) => {
+      const valor = Number(obj[key] || 0) * proporcion;
+
+      if (valor > 0) {
+        resultado[key] = Number(valor.toFixed(2));
+      }
+    });
+
+    return resultado;
+  }
+
+  private obtenerMaterialPorHoja(): string {
+    switch (this.hojaActual) {
+      case 'hoja2':
+        return 'MINERAL';
+
+      case 'hoja3':
+        return 'DESMONTE';
+
+      case 'hoja1':
+      default:
+        return 'TOTAL';
+    }
+  }
+
   toggleFullscreen(): void {
     const dialogContainer = document.querySelector('.dialog-container');
 

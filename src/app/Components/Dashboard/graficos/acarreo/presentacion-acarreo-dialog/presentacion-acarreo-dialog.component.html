@@ -38,7 +38,21 @@
         [class.active]="hojaActual === 'hoja1'"
         (click)="cambiarHoja('hoja1')"
       >
-        🚜 Horas
+        Horas
+      </button>
+      <button
+        class="nav-btn"
+        [class.active]="hojaActual === 'hoja2'"
+        (click)="cambiarHoja('hoja2')"
+      >
+        Mineral
+      </button>
+      <button
+        class="nav-btn"
+        [class.active]="hojaActual === 'hoja3'"
+        (click)="cambiarHoja('hoja3')"
+      >
+        Desmonte
       </button>
     </div>
   </div>
@@ -81,6 +95,52 @@
       </div>
     </div>
   </div>
+
+  <div *ngIf="hojaActual === 'hoja2'" class="hoja-content">
+  
+  <!-- Gráfico de Toneladas por Rango de Hora (1 columna - alto completo) -->
+  <div class="graficos-wrapper one-column-full">
+    <div class="graph-card">
+      <app-toneladas-rango-hora [data]="DataToneladasPorHora" [turno]="turnoAplicado" titulo='TONELADAS DE MINERAL POR RANGO DE HORA'/>
+    </div>
+  </div>
+
+  <!-- Tabla de Toneladas por Equipo y Rango de Hora (1 columna - alto completo) -->
+  <div class="graficos-wrapper one-column-full">
+    <div class="graph-card">
+      <app-tabla-toneladas-equipo
+        [data]="DataToneladasPorLaborYRangoHora"
+        [turno]="turnoAplicado"
+        titulo="TONELADAS MINERAL POR LABOR Y RANGO DE HORA"
+        materialFiltro="MINERAL">
+      </app-tabla-toneladas-equipo>
+    </div>
+  </div>
+
+</div>
+
+<div *ngIf="hojaActual === 'hoja3'" class="hoja-content">
+  
+  <!-- Gráfico de Toneladas por Rango de Hora (1 columna - alto completo) -->
+  <div class="graficos-wrapper one-column-full">
+    <div class="graph-card">
+      <app-toneladas-rango-hora [data]="DataToneladasPorHora" [turno]="turnoAplicado" titulo='TONELADAS DE DESMONTE POR RANGO DE HORA'/>
+    </div>
+  </div>
+
+  <!-- Tabla de Toneladas por Equipo y Rango de Hora (1 columna - alto completo) -->
+  <div class="graficos-wrapper one-column-full">
+    <div class="graph-card">
+      <app-tabla-toneladas-equipo
+        [data]="DataToneladasPorLaborYRangoHora"
+        [turno]="turnoAplicado"
+        titulo="TONELADAS DESMONTE POR LABOR Y RANGO DE HORA"
+        materialFiltro="DESMONTE">
+      </app-tabla-toneladas-equipo>
+    </div>
+  </div>
+
+</div>
 
   <!-- Footer con acciones -->
   <div class="dialog-footer">
