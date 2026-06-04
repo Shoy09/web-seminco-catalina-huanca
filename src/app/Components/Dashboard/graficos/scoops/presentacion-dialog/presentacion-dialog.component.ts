@@ -3666,10 +3666,7 @@ private obtenerMaterialPorHoja(): string {
     for (const registro of registrosArray) {
       const codigo = String(registro.codigo || '').trim();
 
-      const estadoRegistro = normalizarTexto(registro.estado);
-
-      const esOperativo =
-        estadoRegistro === 'OPERATIVO' || this.esCodigoOperativo(codigo);
+      const esOperativo = this.esCodigoOperativo(codigo);
 
       if (!esOperativo) continue;
 
