@@ -1,0 +1,182 @@
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [closable]="true"
+  [dismissableMask]="false"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '95vw', maxWidth: '760px' }"
+  [contentStyle]="{ padding: '0', overflow: 'hidden' }"
+  appendTo="body"
+  (onHide)="cerrar()"
+>
+  <div class="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-2xl bg-surface shadow-xl">
+
+    <!-- HEADER FIJO -->
+    <div class="shrink-0 border-b border-border px-6 py-5">
+      <h2 class="text-2xl font-extrabold text-secondary">
+        Editar Perfil
+      </h2>
+
+      <p class="mt-1 text-sm text-ink-75">
+        Actualiza tus datos personales y credenciales de acceso.
+      </p>
+    </div>
+
+    <!-- CONTENIDO CON SCROLL -->
+    <div class="min-h-0 flex-1 overflow-y-auto px-6 py-5">
+      <form [formGroup]="formularioUsuario" class="space-y-5">
+
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Nombre</label>
+            <input
+              pInputText
+              type="text"
+              formControlName="nombre"
+              placeholder="Ingrese nombre"
+              class="w-full"
+            />
+            <small class="text-danger" *ngIf="campoInvalido('nombre')">
+              {{ obtenerError('nombre') }}
+            </small>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Apellidos</label>
+            <input
+              pInputText
+              type="text"
+              formControlName="apellidos"
+              placeholder="Ingrese apellidos"
+              class="w-full"
+            />
+            <small class="text-danger" *ngIf="campoInvalido('apellidos')">
+              {{ obtenerError('apellidos') }}
+            </small>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Cargo</label>
+            <input
+              pInputText
+              type="text"
+              formControlName="cargo"
+              placeholder="Ingrese cargo"
+              class="w-full"
+            />
+            <small class="text-danger" *ngIf="campoInvalido('cargo')">
+              {{ obtenerError('cargo') }}
+            </small>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Empresa</label>
+            <input
+              pInputText
+              type="text"
+              formControlName="empresa"
+              placeholder="Ingrese empresa"
+              class="w-full"
+            />
+            <small class="text-danger" *ngIf="campoInvalido('empresa')">
+              {{ obtenerError('empresa') }}
+            </small>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Guardia</label>
+            <input
+              pInputText
+              type="text"
+              formControlName="guardia"
+              placeholder="Ingrese guardia"
+              class="w-full"
+            />
+            <small class="text-danger" *ngIf="campoInvalido('guardia')">
+              {{ obtenerError('guardia') }}
+            </small>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Equipo Autorizado</label>
+            <input
+              pInputText
+              type="text"
+              formControlName="equipoAutorizado"
+              placeholder="Ingrese equipo autorizado"
+              class="w-full"
+            />
+            <small class="text-danger" *ngIf="campoInvalido('equipoAutorizado')">
+              {{ obtenerError('equipoAutorizado') }}
+            </small>
+          </div>
+
+          <div class="flex flex-col gap-2 md:col-span-2">
+            <label class="text-sm font-bold text-ink">Correo</label>
+            <input
+              pInputText
+              type="email"
+              formControlName="correo"
+              placeholder="Ingrese correo"
+              class="w-full"
+            />
+            <small class="text-danger" *ngIf="campoInvalido('correo')">
+              {{ obtenerError('correo') }}
+            </small>
+          </div>
+
+          <div class="flex flex-col gap-2 md:col-span-2">
+            <label class="text-sm font-bold text-ink">Contraseña</label>
+
+            <p-password
+              formControlName="contraseña"
+              [toggleMask]="true"
+              [feedback]="false"
+              placeholder="Ingrese nueva contraseña"
+              styleClass="w-full"
+              inputStyleClass="w-full">
+            </p-password>
+
+            <small class="text-danger" *ngIf="campoInvalido('contraseña')">
+              {{ obtenerError('contraseña') }}
+            </small>
+
+            <small class="text-ink-75">
+              Deja este campo vacío si no deseas cambiar la contraseña.
+            </small>
+          </div>
+
+        </div>
+
+      </form>
+    </div>
+
+    <!-- FOOTER FIJO -->
+    <div class="shrink-0 flex justify-end gap-3 border-t border-border px-6 py-4">
+
+      <button
+        pButton
+        type="button"
+        label="Cancelar"
+        icon="pi pi-times"
+        severity="danger"
+        outlined="true"
+        (click)="cerrar()">
+      </button>
+
+      <button
+        pButton
+        type="button"
+        label="Guardar"
+        icon="pi pi-save"
+        severity="success"
+        [disabled]="formularioUsuario.invalid"
+        (click)="guardarCambios()">
+      </button>
+
+    </div>
+
+  </div>
+</p-dialog>

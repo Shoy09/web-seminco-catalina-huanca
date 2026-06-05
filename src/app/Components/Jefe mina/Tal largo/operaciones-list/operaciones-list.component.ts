@@ -197,7 +197,7 @@ export class OperacionesListComponent implements OnInit {
 
   irDetalle(op: OperacionBase) {
     this.router.navigate([
-      '/Dashboard/jefe-mina/tal-largo/operacion',
+      '/validaciones/jefe-mina/tal-largo/operacion',
       op.id
     ]);
   }

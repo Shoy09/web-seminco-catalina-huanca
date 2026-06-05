@@ -10,8 +10,8 @@
   <aside
     class="fixed left-0 top-0 z-50 flex h-screen flex-col border-r border-white/10 bg-menu-bg text-menu-text shadow-2xl transition-all duration-300"
     [ngClass]="{
-      'w-[280px]': !menuColapsado,
-      'w-[84px]': menuColapsado,
+      'md:w-[84px]': menuColapsado,
+      'md:w-[280px]': !menuColapsado,
       'translate-x-0': menuMovilAbierto,
       '-translate-x-full md:translate-x-0': !menuMovilAbierto,
     }"
@@ -55,16 +55,17 @@
           <button
             type="button"
             pRipple
+            (click)="onMenuPrincipalClick(i, menu)"
             class="group flex w-full items-center rounded-xl px-3 py-3 text-left transition-all duration-200"
             [ngClass]="{
               'justify-center': menuColapsado,
               'justify-between': !menuColapsado,
-              'bg-primary text-menu-text shadow-lg': menuOpenIndex === i,
-              'text-menu-text/80 hover:bg-white/10 hover:text-menu-text':
-                menuOpenIndex !== i,
+              'bg-secondary text-white shadow-lg':
+                menuOpenIndex === i || isMenuPadreActivo(menu),
+              'text-menu-text/80 hover:bg-secondary hover:text-white':
+                menuOpenIndex !== i && !isMenuPadreActivo(menu),
             }"
-            (click)="AbrirCerrar(i, menu)"
-            [title]="menuColapsado ? menu.title : ''"
+            [title]="menu.label"
           >
             <div class="flex min-w-0 items-center gap-3">
               <span
@@ -75,20 +76,13 @@
                     : 'bg-white/10 group-hover:bg-white/15'
                 "
               >
-                <img
-                  [src]="menu.icon"
-                  alt="Icono"
-                  class="h-5 w-5 object-contain"
-                />
+                <i [class]="menu.icon"></i>
               </span>
-
-              <span *ngIf="!menuColapsado" class="truncate text-sm font-bold text-menu-text">
-                {{ menu.title }}
-              </span>
+              {{!menuColapsado ? menu.label : ''}}
             </div>
 
             <i
-              *ngIf="!menuColapsado && menu.title !== 'Home'"
+              *ngIf="!menuColapsado"
               class="pi text-xs transition-transform duration-200"
               [ngClass]="
                 menuOpenIndex === i ? 'pi-chevron-up' : 'pi-chevron-down'
@@ -98,7 +92,7 @@
 
           <!-- SUBMENU -->
           <div
-            *ngIf="!menuColapsado && menu.title !== 'Home'"
+            *ngIf="!menuColapsado"
             class="overflow-hidden transition-all duration-300"
             [ngClass]="
               menuOpenIndex === i
@@ -107,16 +101,15 @@
             "
           >
             <ul class="ml-12 mt-1 space-y-1 border-l border-white/10 pl-3">
-              <li
-                *ngFor="let subItem of menu.subItems"
-                (click)="selectSubItemResponsive(i, subItem)"
-              >
+              <li *ngFor="let subItem of menu.items">
                 <a
-                  [routerLink]="['/Dashboard', subItem.path]"
-                  routerLinkActive="bg-white/15 text-menu-text"
-                  class="block rounded-lg px-3 py-2 text-sm font-medium text-menu-text/70 transition hover:bg-white/10 hover:text-menu-text"
+                  [routerLink]="subItem.routerLink"
+                  [routerLinkActiveOptions]="{ exact: true }"
+                  routerLinkActive="bg-primary/25 text-secondary shadow-sm font-bold border-l-4 border-primary"
+                  class="block rounded-lg px-3 py-2 text-sm font-medium text-menu-text/70 transition hover:bg-secondary/30 hover:text-menu-text"
+                  (click)="cerrarMenuMovil()"
                 >
-                  {{ subItem.title }}
+                  {{ subItem.label }}
                 </a>
               </li>
             </ul>
@@ -171,7 +164,7 @@
           type="button"
           pRipple
           class="hidden h-10 w-10 items-center justify-center rounded-xl text-secondary transition hover:bg-primary-25 md:flex"
-          (click)="toggleMenu()"
+          (click)="colapsarMenu()"
           title="Contraer / expandir menú"
         >
           <i

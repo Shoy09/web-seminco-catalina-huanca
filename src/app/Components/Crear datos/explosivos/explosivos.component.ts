@@ -5,10 +5,27 @@ import { ExplosivoService } from '../../../services/explosivo.service';
 import { AccesorioService } from '../../../services/accesorio.service';
 import { ExplosivosUniService } from '../../../services/explosivos-uni.service';
 import { NumeroRetardosService } from '../../../services/numero-retardos.service';
-
+import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
+import { FileUploadModule } from 'primeng/fileupload';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
+import { TableModule } from 'primeng/table';
+import { RippleModule } from 'primeng/ripple';
+import { ToastService } from '../../../services/toast.service';
 @Component({
   selector: 'app-explosivos',
-  imports: [FormsModule, CommonModule],
+  imports: [
+    FormsModule,
+    CommonModule,
+    ButtonModule,
+    DialogModule,
+    FileUploadModule,
+    InputTextModule,
+    SelectModule,
+    TableModule,
+    RippleModule,
+  ],
   templateUrl: './explosivos.component.html',
   styleUrl: './explosivos.component.css',
 })
@@ -43,6 +60,7 @@ export class ExplosivosComponent implements OnInit {
     private accesorioService: AccesorioService,
     private ExplosivosUniService: ExplosivosUniService,
     private numeroRetardosService: NumeroRetardosService,
+    private toastService: ToastService,
     // private DestinatarioCorreoService: DestinatarioCorreoService
   ) {} // Inyecta el servicio
 
@@ -192,6 +210,20 @@ export class ExplosivosComponent implements OnInit {
     this.modalAbierto = false;
     this.modalContenido = null;
   }
+
+  procesarDocumentoCarga(event: any): void {
+  const archivo: File | undefined = event.files?.[0];
+
+  if (!archivo) {
+    this.toastService.warn(
+      'Archivo no seleccionado',
+      'Debe seleccionar un documento para continuar.'
+    );
+    return;
+  }
+
+  console.log('Documento seleccionado:', archivo);
+}
 
   guardarDatos() {
     if (Object.values(this.nuevoDato).some((val) => val !== '')) {

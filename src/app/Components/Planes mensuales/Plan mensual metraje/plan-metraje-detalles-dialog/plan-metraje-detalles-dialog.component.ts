@@ -2,14 +2,16 @@ import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { PlanMetraje } from '../../../../models/plan_metraje.model';
-
+import { ButtonModule } from 'primeng/button';
+import { TagModule } from 'primeng/tag';
 @Component({
   selector: 'app-plan-metraje-detalles-dialog',
-  imports: [CommonModule, MatDialogModule],
+  imports: [CommonModule, MatDialogModule, ButtonModule, TagModule],
   templateUrl: './plan-metraje-detalles-dialog.component.html',
   styleUrls: ['./plan-metraje-detalles-dialog.component.css']
 })
 export class PlanMetrajeDetallesDialogComponent {
+  
 
   constructor(
     public dialogRef: MatDialogRef<PlanMetrajeDetallesDialogComponent>,

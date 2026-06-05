@@ -1,21 +1,30 @@
 // tabla.component.ts
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
-import { FormularioOperacionComponent } from "../formulario-operacion/formulario-operacion.component";
-import { FormularioPerforacionComponent } from "../formulario-perforacion/formulario-perforacion.component";
+import {
+  Component,
+  Input,
+  OnChanges,
+  SimpleChanges,
+  Output,
+  EventEmitter,
+} from '@angular/core';
+import { FormularioOperacionComponent } from '../formulario-operacion/formulario-operacion.component';
+import { FormularioPerforacionComponent } from '../formulario-perforacion/formulario-perforacion.component';
 import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
 
 interface Operacion {
   // 🔥 Solo labor_inicio (los demás campos ya no existen)
   labor_inicio: string;
   observaciones?: string;
-  
+
   // 🔥 Campos específicos de PERFORACIÓN
   n_cucharas?: number;
   ubicacion_destino?: string;
   ubicacion_destino_id?: number;
-  
+
   // 🔥 NUEVOS CAMPOS
   material?: string;
   mineral?: string;
@@ -39,12 +48,17 @@ interface Registro {
 @Component({
   selector: 'app-tabla',
   standalone: true,
-  imports: [CommonModule, FormularioOperacionComponent, FormularioPerforacionComponent],
+  imports: [
+    CommonModule,
+    FormularioOperacionComponent,
+    FormularioPerforacionComponent,
+    TableModule,
+    ButtonModule,
+  ],
   templateUrl: './tabla.component.html',
-  styleUrls: ['./tabla.component.css']
+  styleUrls: ['./tabla.component.css'],
 })
 export class TablaComponent implements OnChanges {
-
   @Input() data: any[] = [];
   @Output() dataChange = new EventEmitter<any[]>();
 
@@ -65,7 +79,6 @@ export class TablaComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['data'] && this.data) {
       this.mapearDatos();
-      console.log('🔥 DATA TABLA ACTUALIZADA:', this.data);
     }
   }
 
@@ -89,8 +102,8 @@ export class TablaComponent implements OnChanges {
         desmonte: '0',
         relave: '0',
         relleno: '0',
-        numero_volquete: ''
-      }
+        numero_volquete: '',
+      },
     }));
   }
 
@@ -108,7 +121,7 @@ export class TablaComponent implements OnChanges {
       estado: item.estado,
       codigo: item.codigo,
       horaInicio: item.horaInicio,
-      horaFin: item.horaFin
+      horaFin: item.horaFin,
     };
     this.mostrarOperacion = true;
   }
@@ -123,12 +136,12 @@ export class TablaComponent implements OnChanges {
   onDelete(item: Registro) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
-      disableClose: true
+      disableClose: true,
     });
 
-    dialogRef.afterClosed().subscribe(confirmado => {
+    dialogRef.afterClosed().subscribe((confirmado) => {
       if (!confirmado) return;
-      this.datos = this.datos.filter(r => r !== item);
+      this.datos = this.datos.filter((r) => r !== item);
       this.emitirCambios();
     });
   }
@@ -139,8 +152,10 @@ export class TablaComponent implements OnChanges {
       this.registroEnEdicion.codigo = datosActualizados.codigo;
       this.registroEnEdicion.horaInicio = datosActualizados.horaInicio;
       this.registroEnEdicion.horaFin = datosActualizados.horaFin;
-      this.registroEnEdicion.color = this.getColorEstado(datosActualizados.estado);
-      
+      this.registroEnEdicion.color = this.getColorEstado(
+        datosActualizados.estado,
+      );
+
       this.emitirCambios();
     }
     this.cerrarFormOperacion();
@@ -161,11 +176,14 @@ export class TablaComponent implements OnChanges {
         relave: datosPerforacion.relave,
         relleno: datosPerforacion.relleno,
         numero_volquete: datosPerforacion.numero_volquete,
-        observaciones: datosPerforacion.observaciones
+        observaciones: datosPerforacion.observaciones,
       };
-      
-      console.log('✅ Datos de perforación actualizados:', this.registroEnEdicion.operacion);
-      
+
+      console.log(
+        '✅ Datos de perforación actualizados:',
+        this.registroEnEdicion.operacion,
+      );
+
       // Emitir cambios al padre
       this.emitirCambios();
     }
@@ -174,15 +192,15 @@ export class TablaComponent implements OnChanges {
 
   emitirCambios() {
     // Reconstruir el array en el formato original
-    const dataActualizada = this.datos.map(registro => ({
+    const dataActualizada = this.datos.map((registro) => ({
       numero: registro.nro,
       estado: registro.estado,
       codigo: registro.codigo,
       hora_inicio: registro.horaInicio,
       hora_final: registro.horaFin,
-      operacion: registro.operacion
+      operacion: registro.operacion,
     }));
-    
+
     this.dataChange.emit(dataActualizada);
   }
 

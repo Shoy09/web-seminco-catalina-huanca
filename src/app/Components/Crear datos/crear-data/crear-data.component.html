@@ -1,142 +1,366 @@
-<!-- Contenedor de pestañas y formulario -->
-<div class="form-container">
-  <!-- Pestañas -->
-  <div class="tabs">
-    <button class="tab-btn" [class.active]="formularioActivo === 'botones'" (click)="mostrarFormulario('botones')">
-      Crear nueva data <img src="mas.svg" class="side-image" />
+<div class="mx-auto w-full max-w-7xl rounded-2xl border border-border bg-surface p-5 shadow-sm">
+
+  <!-- TABS SUPERIORES -->
+  <div class="mb-6 flex flex-col gap-3 sm:flex-row">
+    <button
+      type="button"
+      pRipple
+      class="flex flex-1 items-center justify-center gap-3 rounded-2xl border px-5 py-4 text-sm font-extrabold transition"
+      [ngClass]="
+        formularioActivo === 'botones'
+          ? 'border-primary bg-primary text-white shadow-lg'
+          : 'border-border bg-white text-secondary hover:bg-primary-25'
+      "
+      (click)="mostrarFormulario('botones')"
+    >
+      <i class="pi pi-plus-circle text-lg"></i>
+      Crear nueva data
     </button>
-    <button class="tab-btn" [class.active]="formularioActivo === 'documento'" (click)="mostrarFormulario('documento')">
-      Carga de datos <img src="archivo.svg" class="side-image" />
+
+    <button
+      type="button"
+      pRipple
+      class="flex flex-1 items-center justify-center gap-3 rounded-2xl border px-5 py-4 text-sm font-extrabold transition"
+      [ngClass]="
+        formularioActivo === 'documento'
+          ? 'border-primary bg-primary text-white shadow-lg'
+          : 'border-border bg-white text-secondary hover:bg-primary-25'
+      "
+      (click)="mostrarFormulario('documento')"
+    >
+      <i class="pi pi-file-import text-lg"></i>
+      Carga de datos
     </button>
   </div>
 
-  <!-- Formulario de botones -->
-  <div *ngIf="formularioActivo === 'botones'" class="ventana">
-    <div class="button-container-wrapper">
-      <div class="button-container" *ngFor="let button of buttonc" (click)="abrirModal(button)">
-        <p class="button-nombre">{{ button.nombre }}</p>
-        <img [src]="button.icon" alt="Ícono" class="button-icon">
-      </div>
+  <!-- ============================= -->
+  <!-- CREAR NUEVA DATA -->
+  <!-- ============================= -->
+
+  <section *ngIf="formularioActivo === 'botones'" class="rounded-2xl bg-surface-soft p-5">
+    <div class="mb-5">
+      <h2 class="text-2xl font-extrabold text-secondary">
+        Crear nueva data
+      </h2>
+      <p class="mt-1 text-sm text-ink-75">
+        Selecciona el tipo de información que deseas registrar.
+      </p>
     </div>
-  </div>
 
-  <!-- Modal -->
-  <div class="modal-overlay" *ngIf="modalAbierto">
-    <div class="modal">
-      <button class="close-icon" (click)="cerrarModal()">✖</button>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <button
+        type="button"
+        pRipple
+        *ngFor="let button of buttonc"
+        (click)="abrirModal(button)"
+        class="group flex min-h-32 flex-col items-center justify-center gap-4 rounded-2xl border border-border bg-white p-5 text-center shadow-sm transition hover:-translate-y-1 hover:border-primary hover:bg-primary-25 hover:shadow-lg"
+      >
+        <img
+          [src]="button.icon"
+          alt="Ícono"
+          class="h-12 w-12 object-contain transition group-hover:scale-110"
+        />
 
-      <div class="modal-content">
-        <div class="subtitu">
-          <h2>{{ modalContenido?.nombre }}</h2>
-          <p>{{ editando ? 'Editando ' : 'Creación del tipo de ' }}{{ modalContenido?.nombre }}</p>
-        </div>
-
-        <!-- FORMULARIO DEL MODAL -->
-        <form (submit)="editando ? actualizarDatos() : guardarDatos()" class="forme">
-          <div class="form-group" *ngFor="let campo of modalContenido?.campos">
-            <label>{{ campo.label }}</label>
-            <div class="input-container">
-
-              <!-- Si es SELECT -->
-              <ng-container *ngIf="campo.tipo === 'select'; else inputField">
-                <select
-                  [(ngModel)]="nuevoDato[campo.nombre]"
-                  [name]="campo.nombre"
-                  required
-                  class="form-input"
-                  (change)="onCampoChange(campo.nombre)">
-                  <option *ngFor="let opcion of campo.opciones" [value]="opcion">{{ opcion }}</option>
-                </select>
-              </ng-container>
-
-              <!-- Si es INPUT -->
-              <ng-template #inputField>
-                <input
-                  [type]="campo.tipo"
-                  [(ngModel)]="nuevoDato[campo.nombre]"
-                  [name]="campo.nombre"
-                  required
-                  class="form-input">
-              </ng-template>
-            </div>
-          </div>
-
-          <!-- BOTONES DEL FORMULARIO -->
-          <div class="button-group">
-            <ng-container *ngIf="!editando; else editButtons">
-              <button type="submit" class="btn-submit">Guardar+</button>
-              <button type="button" class="btn-submit" (click)="triggerFileInput()">
-                Importar Excel <img src="excel.png" class="side-image" />
-              </button>
-              <input type="file" id="fileInput" style="display: none;"
-                     (change)="procesarArchivoExcel($event)" accept=".xlsx, .xls" />
-            </ng-container>
-
-            <ng-template #editButtons>
-              <button type="submit" class="btn-submit">Actualizar</button>
-              <button type="button" class="btn-submit" (click)="cancelarEdicion()">Cancelar</button>
-            </ng-template>
-          </div>
-        </form>
-
-        <!-- TABLA DENTRO DEL MODAL -->
-        <div class="tabla-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th *ngFor="let campo of modalContenido?.campos">{{ campo.label }}</th>
-                <th>Opciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let dato of modalContenido?.datos; let i = index">
-                <td>{{ i + 1 }}</td>
-                <td *ngFor="let campo of modalContenido?.campos">{{ dato[campo.nombre] }}</td>
-                <td>
-                  <img src="boton-editar.png" alt="Editar" class="action-icon" (click)="editarDato(dato, i)">
-                  <img src="dele.svg" alt="Eliminar" class="action-icon" (click)="eliminar(dato)">
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Formulario de carga de documento -->
-  <div *ngIf="formularioActivo === 'documento'" class="ventana">
-    <form class="custom-form">
-      <div class="form-row">
-        <div class="form-groupu">
-          <label for="year" class="titu">Año</label>
-          <select id="year">
-            <option selected>Seleccione un año</option>
-            <option *ngFor="let year of years">{{ year }}</option>
-          </select>
-        </div>
-
-        <div class="form-groupu">
-          <label for="month" class="titu">Mes</label>
-          <select id="month">
-            <option selected>Seleccione un mes</option>
-            <option *ngFor="let mes of meses">{{ mes }}</option>
-          </select>
-        </div>
-
-        <div class="form-groupu">
-          <label for="fileUpload" class="titu">Documento</label>
-          <div class="file-upload">
-            <label for="fileUpload" class="btn-upload">Subir documento</label>
-            <input type="file" id="fileUpload" hidden>
-            <input type="text" class="file-name" placeholder="Seleccione un archivo" readonly>
-          </div>
-        </div>
-      </div>
-      <button type="submit" class="btn-submit">
-        Carga de datos <img src="folder.svg" class="side-image" />
+        <span class="text-sm font-extrabold text-secondary">
+          {{ button.nombre }}
+        </span>
       </button>
+    </div>
+  </section>
+
+  <!-- ============================= -->
+  <!-- CARGA DE DOCUMENTO -->
+  <!-- ============================= -->
+
+  <section *ngIf="formularioActivo === 'documento'" class="rounded-2xl bg-surface-soft p-5">
+    <div class="mb-5">
+      <h2 class="text-2xl font-extrabold text-secondary">
+        Carga de datos
+      </h2>
+      <p class="mt-1 text-sm text-ink-75">
+        Selecciona el periodo y sube el documento correspondiente.
+      </p>
+    </div>
+
+    <form class="grid grid-cols-1 gap-4 lg:grid-cols-4">
+
+      <!-- Año -->
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-bold text-ink">
+          Año
+        </label>
+
+        <p-select
+          [options]="years"
+          placeholder="Seleccione un año"
+          styleClass="w-full"
+          appendTo="body">
+        </p-select>
+      </div>
+
+      <!-- Mes -->
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-bold text-ink">
+          Mes
+        </label>
+
+        <p-select
+          [options]="meses"
+          placeholder="Seleccione un mes"
+          styleClass="w-full"
+          appendTo="body">
+        </p-select>
+      </div>
+
+      <!-- Documento -->
+      <div class="flex flex-col gap-2 lg:col-span-2">
+        <label class="text-sm font-bold text-ink">
+          Documento
+        </label>
+
+        <p-fileupload
+          mode="basic"
+          chooseLabel="Subir documento"
+          chooseIcon="pi pi-upload"
+          accept=".xlsx,.xls,.csv"
+          [auto]="true"
+          styleClass="w-full p-button-outlined"
+          (onSelect)="procesarDocumentoCarga($event)">
+        </p-fileupload>
+      </div>
+
+      <!-- Botón -->
+      <div class="flex items-end lg:col-span-4">
+        <button
+          pButton
+          type="submit"
+          label="Cargar datos"
+          icon="pi pi-folder-open"
+          severity="success">
+        </button>
+      </div>
+
     </form>
-  </div>
+  </section>
+
 </div>
+
+<!-- ============================= -->
+<!-- MODAL PRIME NG -->
+<!-- ============================= -->
+
+<p-dialog
+  [(visible)]="modalAbierto"
+  [modal]="true"
+  [closable]="true"
+  [dismissableMask]="false"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: 'min(1100px, 95vw)' }"
+  [contentStyle]="{ overflow: 'visible' }"
+  (onHide)="cerrarModal()"
+>
+  <ng-template pTemplate="header">
+    <div>
+      <h2 class="text-xl font-extrabold text-secondary">
+        {{ modalContenido?.nombre }}
+      </h2>
+
+      <p class="mt-1 text-sm text-ink-75">
+        {{ editando ? 'Editando ' : 'Creación del tipo de ' }}{{ modalContenido?.nombre }}
+      </p>
+    </div>
+  </ng-template>
+
+  <div class="space-y-6">
+
+    <!-- FORMULARIO DEL MODAL -->
+    <form
+      class="rounded-2xl border border-border bg-surface-soft p-5"
+      (ngSubmit)="editando ? actualizarDatos() : guardarDatos()"
+    >
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+
+        <div
+          class="flex flex-col gap-2"
+          *ngFor="let campo of modalContenido?.campos"
+        >
+          <label class="text-sm font-bold text-ink">
+            {{ campo.label }}
+          </label>
+
+          <!-- SELECT -->
+          <ng-container *ngIf="campo.tipo === 'select'; else inputField">
+            <p-select
+              [options]="campo.opciones"
+              [(ngModel)]="nuevoDato[campo.nombre]"
+              [name]="campo.nombre"
+              placeholder="Seleccione una opción"
+              required
+              styleClass="w-full"
+              appendTo="body"
+              (onChange)="onCampoChange(campo.nombre)">
+            </p-select>
+          </ng-container>
+
+          <!-- INPUT -->
+          <ng-template #inputField>
+            <input
+              pInputText
+              [type]="campo.tipo || 'text'"
+              [(ngModel)]="nuevoDato[campo.nombre]"
+              [name]="campo.nombre"
+              required
+              class="w-full"
+              [placeholder]="campo.label"
+            />
+          </ng-template>
+        </div>
+
+      </div>
+
+      <!-- BOTONES DEL FORMULARIO -->
+      <div class="mt-5 flex flex-col gap-3 border-t border-border pt-5 sm:flex-row sm:justify-end">
+
+        <ng-container *ngIf="!editando; else editButtons">
+
+          <button
+            pButton
+            type="submit"
+            label="Guardar"
+            icon="pi pi-save"
+            severity="success">
+          </button>
+
+          <p-fileupload
+            mode="basic"
+            chooseLabel="Importar Excel"
+            chooseIcon="pi pi-file-excel"
+            accept=".xlsx,.xls"
+            [auto]="true"
+            styleClass="p-button-outlined p-button-success"
+            (onSelect)="procesarArchivoExcelPrime($event)">
+          </p-fileupload>
+
+        </ng-container>
+
+        <ng-template #editButtons>
+          <button
+            pButton
+            type="submit"
+            label="Actualizar"
+            icon="pi pi-save"
+            severity="success">
+          </button>
+
+          <button
+            pButton
+            type="button"
+            label="Cancelar"
+            icon="pi pi-times"
+            severity="danger"
+            outlined="true"
+            (click)="cancelarEdicion()">
+          </button>
+        </ng-template>
+
+      </div>
+    </form>
+
+    <!-- TABLA DENTRO DEL MODAL -->
+    <div class="rounded-2xl border border-border bg-white p-4 shadow-sm">
+
+      <div class="mb-4 flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-extrabold text-secondary">
+            Registros
+          </h3>
+          <p class="text-sm text-ink-75">
+            Lista de datos registrados para {{ modalContenido?.nombre }}.
+          </p>
+        </div>
+      </div>
+
+      <p-table
+        [value]="modalContenido?.datos || []"
+        [paginator]="true"
+        [rows]="8"
+        [rowsPerPageOptions]="[5, 8, 15]"
+        [tableStyle]="{ 'min-width': '800px' }"
+        styleClass="p-datatable-sm"
+        [showGridlines]="true"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th class="w-16 text-center">#</th>
+
+            <th *ngFor="let campo of modalContenido?.campos">
+              {{ campo.label }}
+            </th>
+
+            <th class="w-32 text-center">
+              Opciones
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-dato let-rowIndex="rowIndex">
+          <tr>
+            <td class="text-center font-bold">
+              {{ rowIndex + 1 }}
+            </td>
+
+            <td *ngFor="let campo of modalContenido?.campos">
+              {{ dato[campo.nombre] }}
+            </td>
+
+            <td>
+              <div class="flex items-center justify-center gap-2">
+
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-pencil"
+                  severity="info"
+                  rounded="true"
+                  text="true"
+                  title="Editar"
+                  (click)="editarDato(dato, rowIndex)">
+                </button>
+
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-trash"
+                  severity="danger"
+                  rounded="true"
+                  text="true"
+                  title="Eliminar"
+                  (click)="eliminar(dato)">
+                </button>
+
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td
+              [attr.colspan]="(modalContenido?.campos?.length || 0) + 2"
+            >
+              <div class="flex flex-col items-center justify-center gap-2 py-8 text-ink-75">
+                <i class="pi pi-info-circle text-2xl"></i>
+                <span class="font-semibold">
+                  No hay registros disponibles.
+                </span>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+    </div>
+
+  </div>
+</p-dialog>

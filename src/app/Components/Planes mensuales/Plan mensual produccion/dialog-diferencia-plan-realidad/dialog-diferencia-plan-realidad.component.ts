@@ -1,18 +1,18 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogContent, MatDialogActions } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { PlanProduccion } from '../../../../models/plan_produccion.model';
-import { MatProgressBar } from "@angular/material/progress-bar";
 import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
+import { ButtonModule } from 'primeng/button';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { TagModule } from 'primeng/tag';
 
 @Component({
   selector: 'app-dialog-diferencia-plan-realidad',
-  imports: [MatDialogContent, MatDialogActions, MatButtonModule, MatProgressBar, CommonModule],
+  imports: [CommonModule, ButtonModule, ProgressBarModule, TagModule],
   templateUrl: './dialog-diferencia-plan-realidad.component.html',
-  styleUrls: ['./dialog-diferencia-plan-realidad.component.css']
+  styleUrls: ['./dialog-diferencia-plan-realidad.component.css'],
 })
 export class DialogDiferenciaPlanRealidadComponent implements OnInit {
-
   tipoLabor: string = '';
   labor: string = '';
   ala: string = '';
@@ -24,7 +24,8 @@ export class DialogDiferenciaPlanRealidadComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<DialogDiferenciaPlanRealidadComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: PlanProduccion & {  mes: string; anio: number  },
+    @Inject(MAT_DIALOG_DATA)
+    public data: PlanProduccion & { mes: string; anio: number },
   ) {
     this.tipoLabor = data.tipo_labor || '';
     this.labor = data.labor || '';
@@ -34,23 +35,18 @@ export class DialogDiferenciaPlanRealidadComponent implements OnInit {
     this.anio = data.anio;
   }
 
-  ngOnInit(): void {
+  ngOnInit(): void {}
+
+  get laborCompleta(): string {
+    return (
+      [this.tipoLabor, this.labor, this.ala].filter((val) => val).join(' ') ||
+      '-'
+    );
   }
 
+  procesarExploraciones(): void {}
 
-get laborCompleta(): string {
-  return [this.tipoLabor, this.labor, this.ala].filter(val => val).join(' ') || '-';
-}
-
-
-  procesarExploraciones(): void {
-
-  
-  }
-
-  calcularToneladasRestantes(): void {
-
-  }
+  calcularToneladasRestantes(): void {}
 
   cerrar(): void {
     this.dialogRef.close();

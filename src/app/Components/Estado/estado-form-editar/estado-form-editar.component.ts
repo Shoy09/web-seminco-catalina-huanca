@@ -3,10 +3,11 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Estado } from '../../../models/Estado';
 import { EstadoService } from '../../../services/estado.service';
-
+import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from 'primeng/button';
 @Component({
   selector: 'app-estado-form-editar',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, InputTextModule, ButtonModule],
   templateUrl: './estado-form-editar.component.html',
   styleUrl: './estado-form-editar.component.css'
 })

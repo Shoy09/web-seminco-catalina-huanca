@@ -4,38 +4,49 @@ import { PlanProduccionService } from '../../../../services/plan-produccion.serv
 import { ToastrService } from 'ngx-toastr';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
-
+import { ToastService } from '../../../../services/toast.service';
+import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from 'primeng/button';
+import { SelectModule } from 'primeng/select';
+import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-edit-plan-produccion',
-  imports: [FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    InputTextModule,
+    ButtonModule,
+    SelectModule,
+  ],
   templateUrl: './edit-plan-produccion.component.html',
-  styleUrl: './edit-plan-produccion.component.css'
+  styleUrl: './edit-plan-produccion.component.css',
 })
-export class EditPlanProduccionComponent { 
+export class EditPlanProduccionComponent {
+  programadoOptions: string[] = ['Programado', 'No Programado'];
+
   constructor(
     public dialogRef: MatDialogRef<EditPlanProduccionComponent>,
     @Inject(MAT_DIALOG_DATA) public plan: PlanProduccion,
     private planService: PlanProduccionService,
-    private _toastr: ToastrService
+    private toast: ToastService,
   ) {}
 
   guardar(): void {
     if (this.plan.id !== undefined) {
       this.planService.updatePlanProduccion(this.plan.id, this.plan).subscribe({
         next: (respuesta) => {
-          this._toastr.success('Plan actualizado con éxito', 'Éxito'); 
+          this.toast.success('Plan actualizado con éxito', 'Éxito');
           this.dialogRef.close(respuesta); // Cierra el diálogo con los datos actualizados
         },
         error: (error) => {
-          this._toastr.error('Error al actualizar el plan', 'Error');
-        }
+          this.toast.error('Error al actualizar el plan', 'Error');
+        },
       });
     } else {
-      this._toastr.warning('El plan no tiene un ID válido', 'Advertencia');
+      this.toast.warn('El plan no tiene un ID válido', 'Advertencia');
     }
   }
-  
-  
+
   cancelar(): void {
     this.dialogRef.close(); // Cerramos sin enviar cambios
   }

@@ -1,32 +1,48 @@
 import { Component, Inject } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ToastrService } from 'ngx-toastr';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { PlanMetrajeService } from '../../../../services/plan-metraje.service';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import {
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
 import { PlanMetraje } from '../../../../models/plan_metraje.model';
 import { CommonModule } from '@angular/common';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
+import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from 'primeng/button';
+import { SelectModule } from 'primeng/select';
+import { ToastService } from '../../../../services/toast.service';
 @Component({
   selector: 'app-create-plan-metraje',
-  imports: [MatFormFieldModule, MatDialogModule, CommonModule, MatInputModule, FormsModule, ReactiveFormsModule, MatSelectModule ],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    InputTextModule,
+    ButtonModule,
+    SelectModule,
+  ],
   templateUrl: './create-plan-metraje.component.html',
-  styleUrl: './create-plan-metraje.component.css'
+  styleUrl: './create-plan-metraje.component.css',
 })
 export class CreatePlanMetrajeComponent {
   planForm: FormGroup;
   camposDinamicos: string[] = []; // Campos dinámicos 1A - 28B
+  programadoOptions: string[] = ['Programado', 'No Programado'];
 
   constructor(
     private fb: FormBuilder,
     private PlanMetrajeService: PlanMetrajeService,
     public dialogRef: MatDialogRef<CreatePlanMetrajeComponent>,
-    private _toastr: ToastrService,
-    @Inject(MAT_DIALOG_DATA) public data: any
-  ) { 
+    private toast: ToastService,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+  ) {
     this.camposDinamicos = this.generarCamposDinamicos();
-    
+
     this.planForm = this.fb.group({
       anio: [{ value: data.anio, disabled: true }],
       mes: [{ value: data.mes, disabled: true }],
@@ -69,16 +85,15 @@ export class CreatePlanMetrajeComponent {
   cancelar(): void {
     this.dialogRef.close();
   }
-  
-  
+
   guardar(): void {
     if (this.planForm.valid) {
       this.planForm.get('anio')?.enable();
       this.planForm.get('mes')?.enable();
       this.planForm.get('programado')?.enable();
-  
+
       const formData = this.planForm.value;
-  
+
       const nuevoPlan: PlanMetraje = {
         anio: formData.anio,
         mes: formData.mes,
@@ -108,18 +123,21 @@ export class CreatePlanMetrajeComponent {
       this.camposDinamicos.forEach((campo) => {
         nuevoPlan[`columna_${campo}`] = formData[campo] || null;
       });
-  
+
       this.PlanMetrajeService.createPlanMetraje(nuevoPlan).subscribe({
         next: () => {
-          this._toastr.success('Plan creado exitosamente', 'Éxito');
+          this.toast.success('Plan creado exitosamente', 'Éxito');
           this.dialogRef.close(true);
         },
         error: () => {
-          this._toastr.error('Hubo un problema al crear el plan', 'Error');
-        }
+          this.toast.error('Hubo un problema al crear el plan', 'Error');
+        },
       });
     } else {
-      this._toastr.warning('Por favor, complete todos los campos requeridos', 'Advertencia');
+      this.toast.warn(
+        'Por favor, complete todos los campos requeridos',
+        'Advertencia',
+      );
     }
   }
 }

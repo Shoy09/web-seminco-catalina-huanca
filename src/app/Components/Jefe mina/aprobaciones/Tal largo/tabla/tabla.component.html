@@ -1,60 +1,120 @@
-<div class="table-wrapper">
-  <div class="table-responsive">
-    <table class="main-table">
-      <thead>
-        <tr>
-          <th>N°</th>
-          <th>Estado</th>
-          <th>Código</th>
-          <th>Hora Inicio</th>
-          <th>Hora Fin</th>
-          <th class="text-center">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let item of datos">
-          <td>{{ item.nro }}</td>
-          <td>
-            <span
-              class="status-badge"
-              [style.color]="item.color"
-              [style.background-color]="item.color + '15'"
-            >
-              <i class="fas fa-check-circle"></i>
-              {{ item.estado }}
-            </span>
-          </td>
-          <td class="font-bold">{{ item.codigo }}</td>
-          <td>{{ item.horaInicio }}</td>
-          <td>{{ item.horaFin }}</td>
-          <td>
-            <div class="action-container">
-              <button class="btn-icon edit" (click)="onEdit(item)">
-                <i class="fas fa-pencil-alt"></i>
-              </button>
+<div class="w-full rounded-2xl border border-border bg-surface p-4 shadow-sm">
+  <p-table
+    [value]="datos"
+    [tableStyle]="{ 'min-width': '800px' }"
+    styleClass="p-datatable-sm"
+    [showGridlines]="true"
+  >
+    <!-- HEADER -->
+    <ng-template pTemplate="header">
+      <tr>
+        <th class="w-16 text-center">N°</th>
+        <th>Estado</th>
+        <th>Código</th>
+        <th>Hora Inicio</th>
+        <th>Hora Fin</th>
+        <th class="w-44 text-center">Acciones</th>
+      </tr>
+    </ng-template>
 
-              <!-- 🔥 NUEVO BOTÓN EJECUTADO -->
-              <button class="btn-icon execute" (click)="onExecute(item)">
-                <i class="fas fa-check"></i>
-              </button>
+    <!-- BODY -->
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td class="text-center font-bold text-ink">
+          {{ item.nro }}
+        </td>
+        <td>
+          <span
+            class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold"
+            [style.color]="item.color"
+            [style.background-color]="item.color + '15'"
+          >
+            <i class="pi pi-check-circle"></i>
+            {{ item.estado }}
+          </span>
+        </td>
 
-              <button class="btn-icon delete" (click)="onDelete(item)">
-                <i class="fas fa-trash-alt"></i>
-              </button>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+        <td>
+          <span class="font-extrabold text-secondary">
+            {{ item.codigo }}
+          </span>
+        </td>
+
+        <td>
+          <span class="font-medium text-ink">
+            {{ item.horaInicio || "-" }}
+          </span>
+        </td>
+
+        <td>
+          <span class="font-medium text-ink">
+            {{ item.horaFin || "-" }}
+          </span>
+        </td>
+
+        <td>
+          <div class="flex items-center justify-center gap-2">
+            <button
+              pButton
+              type="button"
+              icon="pi pi-pencil"
+              severity="info"
+              rounded="true"
+              text="true"
+              title="Editar"
+              (click)="onEdit(item)"
+            ></button>
+
+            <button
+              pButton
+              type="button"
+              icon="pi pi-check"
+              severity="success"
+              rounded="true"
+              text="true"
+              title="Ejecutar"
+              (click)="onExecute(item)"
+            ></button>
+
+            <button
+              pButton
+              type="button"
+              icon="pi pi-trash"
+              severity="danger"
+              rounded="true"
+              text="true"
+              title="Eliminar"
+              (click)="onDelete(item)"
+            ></button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <!-- SIN DATOS -->
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="6">
+          <div
+            class="flex flex-col items-center justify-center gap-2 py-8 text-ink-75"
+          >
+            <i class="pi pi-info-circle text-2xl"></i>
+            <span class="font-semibold"> No hay registros disponibles. </span>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
 </div>
-<!-- 🔥 AQUÍ LLAMAS LOS MODALES -->
+
+<!-- MODALES -->
 <app-formulario-operacion
   [visible]="mostrarOperacion"
   [turno]="turno"
   [data]="operacionFormSeleccionada"
   (confirmar)="onConfirmarOperacion($event)"
-  (cerrarForm)="mostrarOperacion = false">
+  (cerrarForm)="mostrarOperacion = false"
+>
 </app-formulario-operacion>
 
 <app-formulario-perforacion
@@ -62,5 +122,6 @@
   [operacion]="operacionSeleccionada"
   [estado]="registroEnEdicion?.estado || ''"
   (guardar)="onGuardarPerforacion($event)"
-  (cerrar)="mostrarPerforacion = false">
+  (cerrar)="mostrarPerforacion = false"
+>
 </app-formulario-perforacion>

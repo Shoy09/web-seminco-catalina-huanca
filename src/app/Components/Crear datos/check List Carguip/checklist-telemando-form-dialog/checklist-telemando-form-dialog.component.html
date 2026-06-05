@@ -1,23 +1,78 @@
-<h2 mat-dialog-title>{{ titulo }}</h2>
+<div class="w-full max-w-xl rounded-2xl bg-surface p-6 shadow-xl">
 
-<mat-dialog-content>
-  <form [formGroup]="form" class="form-container">
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Nombre del Checklist</mat-label>
-      <input matInput formControlName="nombre" placeholder="Ingrese el nombre del checklist">
-      <mat-icon matSuffix>checklist</mat-icon>
-      <mat-error *ngIf="nombreInvalido">
-        <span *ngIf="nombre?.errors?.['required']">El nombre es obligatorio</span>
-        <span *ngIf="nombre?.errors?.['minlength']">Mínimo 3 caracteres</span>
-        <span *ngIf="nombre?.errors?.['maxlength']">Máximo 100 caracteres</span>
-      </mat-error>
-    </mat-form-field>
+  <!-- HEADER -->
+  <div class="mb-6 border-b border-border pb-4">
+    <h2 class="text-2xl font-extrabold text-secondary">
+      {{ titulo }}
+    </h2>
+
+    <p class="mt-1 text-sm text-ink-75">
+      {{ modo === 'crear' ? 'Registra un nuevo checklist de telemando.' : 'Actualiza la información del checklist seleccionado.' }}
+    </p>
+  </div>
+
+  <!-- FORMULARIO -->
+  <form [formGroup]="form" class="space-y-5">
+
+    <div class="flex flex-col gap-2">
+      <label for="nombre" class="text-sm font-bold text-ink">
+        Nombre del Checklist
+      </label>
+
+      <span class="p-input-icon-right w-full">
+        <input
+          id="nombre"
+          pInputText
+          type="text"
+          formControlName="nombre"
+          placeholder="Ingrese el nombre del checklist"
+          class="w-full"
+        />
+      </span>
+
+      <small
+        class="text-danger"
+        *ngIf="nombreInvalido"
+      >
+        <span *ngIf="nombre?.errors?.['required']">
+          El nombre es obligatorio.
+        </span>
+
+        <span *ngIf="nombre?.errors?.['minlength']">
+          Mínimo 3 caracteres.
+        </span>
+
+        <span *ngIf="nombre?.errors?.['maxlength']">
+          Máximo 100 caracteres.
+        </span>
+      </small>
+    </div>
+
+    <!-- BOTONES -->
+    <div class="mt-6 flex justify-end gap-3 border-t border-border pt-5">
+
+      <button
+        pButton
+        type="button"
+        label="Cancelar"
+        icon="pi pi-times"
+        severity="danger"
+        outlined="true"
+        (click)="cancelar()">
+      </button>
+
+      <button
+        pButton
+        type="button"
+        [label]="modo === 'crear' ? 'Crear' : 'Actualizar'"
+        icon="pi pi-save"
+        severity="success"
+        [disabled]="form.invalid"
+        (click)="guardar()">
+      </button>
+
+    </div>
+
   </form>
-</mat-dialog-content>
 
-<mat-dialog-actions align="end">
-  <button mat-button (click)="cancelar()">Cancelar</button>
-  <button mat-flat-button color="primary" (click)="guardar()" [disabled]="form.invalid">
-    {{ modo === 'crear' ? 'Crear' : 'Actualizar' }}
-  </button>
-</mat-dialog-actions>
+</div>

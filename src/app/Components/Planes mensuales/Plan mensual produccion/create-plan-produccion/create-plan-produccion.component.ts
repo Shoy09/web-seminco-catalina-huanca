@@ -1,30 +1,45 @@
 import { Component, Inject } from '@angular/core';
 import { PlanProduccion } from '../../../../models/plan_produccion.model';
-import { ToastrService } from 'ngx-toastr';
 import { PlanProduccionService } from '../../../../services/plan-produccion.service';
-import { FormGroup, FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import {
+  FormGroup,
+  FormBuilder,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import {
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-
+import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from 'primeng/button';
+import { SelectModule } from 'primeng/select';
+import { ToastService } from '../../../../services/toast.service';
 @Component({
   selector: 'app-create-plan-produccion',
-  imports: [MatFormFieldModule, MatDialogModule, CommonModule, MatInputModule, FormsModule, ReactiveFormsModule, MatSelectModule ],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    InputTextModule,
+    ButtonModule,
+    SelectModule,
+    
+  ],
   templateUrl: './create-plan-produccion.component.html',
-  styleUrl: './create-plan-produccion.component.css'
+  styleUrl: './create-plan-produccion.component.css',
 })
 export class CreatePlanProduccionComponent {
   planForm: FormGroup;
   camposDinamicos: string[] = [];
-
+  programadoOptions: string[] = ['Programado', 'No Programado'];
   constructor(
     private fb: FormBuilder,
     private planProduccionService: PlanProduccionService,
     public dialogRef: MatDialogRef<CreatePlanProduccionComponent>,
-    private _toastr: ToastrService,
-    @Inject(MAT_DIALOG_DATA) public data: any
+    private toast: ToastService,
+    @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
     this.camposDinamicos = this.generarCamposDinamicos();
 
@@ -112,7 +127,7 @@ export class CreatePlanProduccionComponent {
         cut_off_1: formData.cut_off_1,
         cut_off_2: formData.cut_off_2,
         programado: formData.programado,
-      }; 
+      };
 
       // Agregar campos dinámicos
       this.camposDinamicos.forEach((campo) => {
@@ -121,15 +136,24 @@ export class CreatePlanProduccionComponent {
 
       this.planProduccionService.createPlanProduccion(nuevoPlan).subscribe({
         next: () => {
-          this._toastr.success('Plan de producción creado exitosamente', 'Éxito');
+          this.toast.success(
+            'Plan de producción creado exitosamente',
+            'Éxito',
+          );
           this.dialogRef.close(true);
         },
         error: () => {
-          this._toastr.error('Hubo un problema al crear el plan de producción', 'Error');
-        }
+          this.toast.error(
+            'Hubo un problema al crear el plan de producción',
+            'Error',
+          );
+        },
       });
     } else {
-      this._toastr.warning('Por favor, complete todos los campos requeridos', 'Advertencia');
+      this.toast.warn(
+        'Por favor, complete todos los campos requeridos',
+        'Advertencia',
+      );
     }
   }
 }

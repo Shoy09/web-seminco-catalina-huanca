@@ -19,25 +19,25 @@ export class EquiposMenuComponent {
   equipos: EquipoJEFE[] = [
     { 
       nombre: 'PERFORACIÓN TALADROS LARGOS', 
-      ruta: '/Dashboard/jefe-mina/tal-largo',
+      ruta: '/validaciones/jefe-mina/tal-largo',
       icono: 'fas fa-hard-hat',
       color: '#3498db'
     },
     { 
       nombre: 'PERFORACIÓN HORIZONTAL', 
-      ruta: '/Dashboard/jefe-mina/tal-horizontal',
+      ruta: '/validaciones/jefe-mina/tal-horizontal',
       icono: 'fas fa-tachometer-alt',
       color: '#2ecc71'
     },
     { 
       nombre: 'EMPERNADOR', 
-      ruta: '/Dashboard/jefe-mina/empernador',
+      ruta: '/validaciones/jefe-mina/empernador',
       icono: 'fas fa-wrench',
       color: '#e74c3c'
     },
     { 
       nombre: 'SCISSOR', 
-      ruta: '/Dashboard/jefe-mina/scissor',
+      ruta: '/validaciones/jefe-mina/scissor',
       icono: 'fas fa-cut',
       color: '#f39c12'
     },
@@ -61,7 +61,7 @@ export class EquiposMenuComponent {
     // },
     { 
       nombre: 'SCOOPTRAM', 
-      ruta: '/Dashboard/jefe-mina/scooptram',
+      ruta: '/validaciones/jefe-mina/scooptram',
       icono: 'fas fa-tractor',
       color: '#34495e'
     },

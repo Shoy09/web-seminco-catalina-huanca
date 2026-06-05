@@ -1,11 +1,19 @@
 // tabla.component.ts
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
-import { FormularioOperacionComponent } from "../formulario-operacion/formulario-operacion.component";
-import { FormularioPerforacionComponent } from "../formulario-perforacion/formulario-perforacion.component";
+import {
+  Component,
+  Input,
+  OnChanges,
+  SimpleChanges,
+  Output,
+  EventEmitter,
+} from '@angular/core';
+import { FormularioOperacionComponent } from '../formulario-operacion/formulario-operacion.component';
+import { FormularioPerforacionComponent } from '../formulario-perforacion/formulario-perforacion.component';
 import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
-
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
 // 🔥 INTERFAZ ACTUALIZADA CON BARRAS COMO ARRAY
 interface Barra {
   n_fila: number | null;
@@ -35,12 +43,17 @@ interface Registro {
 @Component({
   selector: 'app-tabla',
   standalone: true,
-  imports: [CommonModule, FormularioOperacionComponent, FormularioPerforacionComponent],
+  imports: [
+    CommonModule,
+    FormularioOperacionComponent,
+    FormularioPerforacionComponent,
+    TableModule,
+    ButtonModule,
+  ],
   templateUrl: './tabla.component.html',
-  styleUrls: ['./tabla.component.css']
+  styleUrls: ['./tabla.component.css'],
 })
 export class TablaComponent implements OnChanges {
-
   @Input() data: any[] = [];
   @Output() dataChange = new EventEmitter<any[]>();
   @Input() turno: string = '';
@@ -76,8 +89,8 @@ export class TablaComponent implements OnChanges {
       operacion: item.operacion || {
         labor: '',
         observaciones: '',
-        barras: []
-      }
+        barras: [],
+      },
     }));
   }
 
@@ -95,7 +108,7 @@ export class TablaComponent implements OnChanges {
       estado: item.estado,
       codigo: item.codigo,
       horaInicio: item.horaInicio,
-      horaFin: item.horaFin
+      horaFin: item.horaFin,
     };
     this.mostrarOperacion = true;
   }
@@ -109,23 +122,25 @@ export class TablaComponent implements OnChanges {
   onDelete(item: Registro) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
-      disableClose: true
+      disableClose: true,
     });
-  
-    dialogRef.afterClosed().subscribe(confirmado => {
+
+    dialogRef.afterClosed().subscribe((confirmado) => {
       if (!confirmado) return;
-      this.datos = this.datos.filter(r => r !== item);
+      this.datos = this.datos.filter((r) => r !== item);
       this.emitirCambios();
     });
   }
-  
+
   onConfirmarOperacion(datosActualizados: any) {
     if (this.registroEnEdicion) {
       this.registroEnEdicion.estado = datosActualizados.estado;
       this.registroEnEdicion.codigo = datosActualizados.codigo;
       this.registroEnEdicion.horaInicio = datosActualizados.horaInicio;
       this.registroEnEdicion.horaFin = datosActualizados.horaFin;
-      this.registroEnEdicion.color = this.getColorEstado(datosActualizados.estado);
+      this.registroEnEdicion.color = this.getColorEstado(
+        datosActualizados.estado,
+      );
       this.emitirCambios();
     }
     this.cerrarFormOperacion();
@@ -137,9 +152,9 @@ export class TablaComponent implements OnChanges {
       this.registroEnEdicion.operacion = {
         labor: datosPerforacion.labor,
         observaciones: datosPerforacion.observaciones,
-        barras: datosPerforacion.barras || []
+        barras: datosPerforacion.barras || [],
       };
-      
+
       console.log('✅ Perforación guardada:', this.registroEnEdicion.operacion);
       this.emitirCambios();
     }
@@ -147,15 +162,15 @@ export class TablaComponent implements OnChanges {
   }
 
   emitirCambios() {
-    const dataActualizada = this.datos.map(registro => ({
+    const dataActualizada = this.datos.map((registro) => ({
       numero: registro.nro,
       estado: registro.estado,
       codigo: registro.codigo,
       hora_inicio: registro.horaInicio,
       hora_final: registro.horaFin,
-      operacion: registro.operacion
+      operacion: registro.operacion,
     }));
-    
+
     console.log('📤 EMITIENDO:', dataActualizada);
     this.dataChange.emit(dataActualizada);
   }

@@ -1,30 +1,141 @@
-<div class="container">
-    <h2>Editar Estado</h2>
-  
-    <form [formGroup]="estadoForm" (ngSubmit)="guardarCambios()">
-      <div class="form-group">
-        <label for="estado_principal">Estado Principal</label>
-        <input id="estado_principal" formControlName="estado_principal" required />
+<div class="w-full max-w-3xl rounded-2xl bg-surface p-6 shadow-xl">
+
+  <!-- Header -->
+  <div class="mb-6 border-b border-border pb-4">
+    <h2 class="text-2xl font-extrabold text-secondary">
+      Editar Estado
+    </h2>
+
+    <p class="mt-1 text-sm text-ink-75">
+      Modifica la información del estado seleccionado.
+    </p>
+  </div>
+
+  <!-- Formulario -->
+  <form [formGroup]="estadoForm" (ngSubmit)="guardarCambios()" class="space-y-5">
+
+    <!-- Estado Principal / Código -->
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+
+      <div class="flex flex-col gap-2">
+        <label for="estado_principal" class="text-sm font-bold text-ink">
+          Estado Principal
+        </label>
+
+        <input
+          id="estado_principal"
+          pInputText
+          type="text"
+          formControlName="estado_principal"
+          placeholder="Ingrese estado principal"
+          class="w-full"
+        />
+
+        <small
+          class="text-danger"
+          *ngIf="estadoForm.get('estado_principal')?.invalid && estadoForm.get('estado_principal')?.touched"
+        >
+          El estado principal es obligatorio.
+        </small>
       </div>
-  
-      <div class="form-group">
-        <label for="codigo">Código</label>
-        <input id="codigo" formControlName="codigo" required />
+
+      <div class="flex flex-col gap-2">
+        <label for="codigo" class="text-sm font-bold text-ink">
+          Código
+        </label>
+
+        <input
+          id="codigo"
+          pInputText
+          type="text"
+          formControlName="codigo"
+          placeholder="Ingrese código"
+          class="w-full"
+        />
+
+        <small
+          class="text-danger"
+          *ngIf="estadoForm.get('codigo')?.invalid && estadoForm.get('codigo')?.touched"
+        >
+          El código es obligatorio.
+        </small>
       </div>
-  
-      <div class="form-group">
-        <label for="tipo_estado">Tipo de Estado</label>
-        <input id="tipo_estado" formControlName="tipo_estado" required />
+
+    </div>
+
+    <!-- Tipo Estado / Categoría -->
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+
+      <div class="flex flex-col gap-2">
+        <label for="tipo_estado" class="text-sm font-bold text-ink">
+          Tipo de Estado
+        </label>
+
+        <input
+          id="tipo_estado"
+          pInputText
+          type="text"
+          formControlName="tipo_estado"
+          placeholder="Ingrese tipo de estado"
+          class="w-full"
+        />
+
+        <small
+          class="text-danger"
+          *ngIf="estadoForm.get('tipo_estado')?.invalid && estadoForm.get('tipo_estado')?.touched"
+        >
+          El tipo de estado es obligatorio.
+        </small>
       </div>
-  
-      <div class="form-group">
-        <label for="categoria">Categoría</label>
-        <input id="categoria" formControlName="categoria" required />
+
+      <div class="flex flex-col gap-2">
+        <label for="categoria" class="text-sm font-bold text-ink">
+          Categoría
+        </label>
+
+        <input
+          id="categoria"
+          pInputText
+          type="text"
+          formControlName="categoria"
+          placeholder="Ingrese categoría"
+          class="w-full"
+        />
+
+        <small
+          class="text-danger"
+          *ngIf="estadoForm.get('categoria')?.invalid && estadoForm.get('categoria')?.touched"
+        >
+          La categoría es obligatoria.
+        </small>
       </div>
-  
-      <div class="button-container">
-        <button type="submit" [disabled]="!estadoForm.valid">Guardar</button>
-        <button type="button" class="cancel-btn" (click)="cerrar()">Cancelar</button>
-      </div>
-    </form>
+
+    </div>
+
+    <!-- Botones -->
+    <div class="mt-6 flex justify-end gap-3 border-t border-border pt-5">
+
+      <button
+        pButton
+        type="button"
+        label="Cancelar"
+        icon="pi pi-times"
+        severity="danger"
+        outlined="true"
+        (click)="cerrar()">
+      </button>
+
+      <button
+        pButton
+        type="submit"
+        label="Guardar"
+        icon="pi pi-save"
+        severity="success"
+        [disabled]="estadoForm.invalid">
+      </button>
+
+    </div>
+
+  </form>
+
 </div>

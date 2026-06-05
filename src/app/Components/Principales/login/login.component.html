@@ -1,52 +1,124 @@
-<!DOCTYPE html>
-<html lang="es">
+<div class="min-h-screen w-full bg-surface-soft">
+  <div class="grid min-h-screen grid-cols-1 lg:grid-cols-2">
+    <!-- PANEL IZQUIERDO / LOGIN -->
+    <section
+      class="flex min-h-screen items-center justify-center px-5 py-8 sm:px-8 lg:px-12"
+    >
+      <div
+        class="w-full max-w-md rounded-3xl border border-border bg-white p-6 shadow-xl sm:p-8"
+      >
+        <!-- LOGO -->
+        <div class="mb-8 flex justify-center">
+          <img
+            src="login/logo1.png"
+            alt="Logo"
+            class="h-20 max-w-[220px] object-contain sm:h-24"
+          />
+        </div>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login Mejorado</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" rel="stylesheet">
-</head>
+        <!-- TITULO -->
+        <div class="mb-7 text-center">
+          <h1 class="text-2xl font-extrabold text-secondary sm:text-3xl">
+            Bienvenido
+          </h1>
 
-<body>
+          <p class="mt-2 text-sm font-medium text-ink-75">
+            Ingresa tus credenciales para acceder al sistema.
+          </p>
+        </div>
 
-  <div class="split-container">
+        <!-- FORMULARIO -->
+        <form class="space-y-5" (ngSubmit)="login()">
+          <!-- USUARIO -->
+          <div class="flex flex-col gap-2">
+            <label for="usuario" class="text-sm font-bold text-ink">
+              Usuario
+            </label>
 
-    <div class="left-panel">
-      <img src="login/logo1.png" class="header-image" alt="Logo" />
-      
-      <form class="login-form" (ngSubmit)="login()">
-        <div class="form-group">
-          <label for="usuario">Usuario</label>
-          <input type="text" id="usuario" class="form-control" placeholder="Ingresa tu Usuario"
-                 [(ngModel)]="codigo_dni" name="usuario" required pattern="\d+" title="Solo se permiten números">
-        </div>        
-        
-        <div class="form-group">
-          <label for="password">Contraseña</label>
-          <div class="password-wrapper">
-            <input [type]="showPassword ? 'text' : 'password'" id="password" class="form-control password-input"
-              placeholder="Ingresa tu contraseña" [(ngModel)]="password" name="password" required>
-            <i class="mdi password-toggle" [ngClass]="showPassword ? 'mdi-eye password-toggle' : 'mdi-eye-off'"
-              (click)="togglePassword()"></i>
+            <span class="p-input-icon-left w-full">
+              <input
+                pInputText
+                id="usuario"
+                type="text"
+                inputmode="numeric"
+                pattern="\d+"
+                title="Solo se permiten números"
+                placeholder="Ingresa tu usuario"
+                [(ngModel)]="codigo_dni"
+                name="usuario"
+                required
+                class="w-full"
+              />
+            </span>
           </div>
-        </div>
 
-        <div class="botoncentra">
-          <button type="submit" class="btn btn-primary">Ingresar</button>
-          <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
-        </div>
-      </form>
-    </div> 
+          <!-- CONTRASEÑA -->
+          <div class="flex flex-col gap-2">
+            <label for="password" class="text-sm font-bold text-ink">
+              Contraseña
+            </label>
 
-    <div class="right-panel">
-      <img src="login/slohomc.png" class="side-image" alt="Imagen de fondo" />
-      <div class="overlay"></div>
-    </div>
+            <div class="relative">
+              <span class="p-input-icon-left w-full">
+                <input
+                  pInputText
+                  id="password"
+                  [type]="showPassword ? 'text' : 'password'"
+                  placeholder="Ingresa tu contraseña"
+                  [(ngModel)]="password"
+                  name="password"
+                  required
+                  class="w-full pr-12"
+                />
+              </span>
 
+              <button
+                type="button"
+                class="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-ink-75 transition hover:bg-primary-25 hover:text-secondary"
+                (click)="togglePassword()"
+                title="Mostrar/Ocultar contraseña"
+              >
+                <i
+                  class="pi text-base"
+                  [ngClass]="showPassword ? 'pi-eye' : 'pi-eye-slash'"
+                ></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- BOTÓN LOGIN -->
+          <button
+            pButton
+            pRipple
+            type="submit"
+            label="Ingresar"
+            icon="pi pi-sign-in"
+            class="mt-2 w-full justify-center !bg-secondary !border-secondary !text-white !font-bold shadow-md transition hover:!bg-secondary/90 hover:shadow-lg"
+          ></button>
+
+          <!-- OLVIDASTE CONTRASEÑA -->
+          <div class="text-center">
+            <a
+              href="#"
+              class="text-sm font-semibold text-secondary transition hover:text-primary"
+            >
+              ¿Olvidaste tu contraseña?
+            </a>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- PANEL DERECHO / IMAGEN -->
+    <section class="relative hidden min-h-screen overflow-hidden lg:block">
+      <img
+        src="login/slohomc.png"
+        alt="Imagen de fondo"
+        class="h-full w-full object-cover"
+      />
+
+      <!-- OVERLAY -->
+      <div class="absolute inset-0 bg-secondary/45"></div>
+    </section>
   </div>
-
-</body>
-
-</html>
+</div>

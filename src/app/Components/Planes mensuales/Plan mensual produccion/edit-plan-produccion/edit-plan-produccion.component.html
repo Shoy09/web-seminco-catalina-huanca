@@ -1,150 +1,414 @@
-<div class="dialog-container">
-    <h2>Editar Plan de Producción</h2>
+<div class="flex max-h-[90vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-surface shadow-xl">
 
-    <div class="dialog-content">
-        <form>
-            <div class="form-group">
-                <label>Año:</label>
-                <input type="number" [(ngModel)]="plan.anio" name="anio" readonly>
-            </div>
+  <!-- HEADER FIJO -->
+  <div class="shrink-0 border-b border-border px-6 py-5">
+    <h2 class="text-2xl font-extrabold text-secondary">
+      Editar Plan de Producción
+    </h2>
 
-            <div class="form-group">
-                <label>Mes:</label>
-                <input type="text" [(ngModel)]="plan.mes" name="mes" readonly>
-            </div>
+    <p class="mt-1 text-sm text-ink-75">
+      Modifica la información del plan de producción seleccionado.
+    </p>
+  </div>
 
-            <div class="form-group">
-                <label>Semana:</label>
-                <input type="text" [(ngModel)]="plan.semana" name="semana">
-            </div>
+  <!-- CONTENIDO CON SCROLL -->
+  <div class="min-h-0 flex-1 overflow-y-auto px-6 py-5">
 
-            <div class="form-group">
-                <label>Mina:</label>
-                <input type="text" [(ngModel)]="plan.mina" name="mina">
-            </div>
+    <form class="space-y-6">
 
-            <div class="form-group">
-                <label>Zona:</label>
-                <input type="text" [(ngModel)]="plan.zona" name="zona">
-            </div>
+      <!-- DATOS GENERALES -->
+      <section>
+        <h3 class="mb-4 text-lg font-extrabold text-secondary">
+          Datos generales
+        </h3>
 
-            <div class="form-group">
-                <label>Área:</label>
-                <input type="text" [(ngModel)]="plan.area" name="area">
-            </div>
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
 
-            <div class="form-group">
-                <label>Fase:</label>
-                <input type="text" [(ngModel)]="plan.fase" name="fase">
-            </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Año</label>
+            <input
+              pInputText
+              type="number"
+              [(ngModel)]="plan.anio"
+              name="anio"
+              readonly
+              class="w-full bg-surface-soft font-bold text-secondary"
+            />
+          </div>
 
-            <div class="form-group">
-                <label>Minado Tipo:</label>
-                <input type="text" [(ngModel)]="plan.minado_tipo" name="minado_tipo">
-            </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Mes</label>
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="plan.mes"
+              name="mes"
+              readonly
+              class="w-full bg-surface-soft font-bold text-secondary"
+            />
+          </div>
 
-            <div class="form-group">
-                <label>Tipo Labor:</label>
-                <input type="text" [(ngModel)]="plan.tipo_labor" name="tipo_labor">
-            </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Semana</label>
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="plan.semana"
+              name="semana"
+              class="w-full"
+            />
+          </div>
 
-            <div class="form-group">
-                <label>Tipo Mineral:</label>
-                <input type="text" [(ngModel)]="plan.tipo_mineral" name="tipo_mineral">
-            </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Mina</label>
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="plan.mina"
+              name="mina"
+              class="w-full"
+            />
+          </div>
 
-            <div class="form-group">
-                <label>Estructura Veta:</label>
-                <input type="text" [(ngModel)]="plan.estructura_veta" name="estructura_veta">
-            </div>
+        </div>
+      </section>
 
-            <div class="form-group">
-                <label>Nivel:</label>
-                <input type="text" [(ngModel)]="plan.nivel" name="nivel">
-            </div>
+      <!-- UBICACIÓN Y CLASIFICACIÓN -->
+      <section>
+        <h3 class="mb-4 text-lg font-extrabold text-secondary">
+          Ubicación y clasificación
+        </h3>
 
-            <div class="form-group">
-                <label>Block:</label>
-                <input type="text" [(ngModel)]="plan.block" name="block">
-            </div>
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
 
-            <div class="form-group">
-                <label>Labor:</label>
-                <input type="text" [(ngModel)]="plan.labor" name="labor">
-            </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Zona</label>
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="plan.zona"
+              name="zona"
+              class="w-full"
+            />
+          </div>
 
-            <div class="form-group">
-                <label>Ala:</label>
-                <input type="text" [(ngModel)]="plan.ala" name="ala">
-            </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Área</label>
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="plan.area"
+              name="area"
+              class="w-full"
+            />
+          </div>
 
-            <div class="form-group">
-                <label>Ancho Veta:</label>
-                <input type="number" [(ngModel)]="plan.ancho_veta" name="ancho_veta">
-            </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Fase</label>
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="plan.fase"
+              name="fase"
+              class="w-full"
+            />
+          </div>
 
-            <div class="form-group">
-                <label>Ancho Minado Semanal:</label>
-                <input type="number" [(ngModel)]="plan.ancho_minado_sem" name="ancho_minado_sem">
-            </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Minado Tipo</label>
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="plan.minado_tipo"
+              name="minado_tipo"
+              class="w-full"
+            />
+          </div>
 
-            <div class="form-group">
-                <label>Ancho Minado Mensual:</label>
-                <input type="number" [(ngModel)]="plan.ancho_minado_mes" name="ancho_minado_mes">
-            </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Tipo Labor</label>
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="plan.tipo_labor"
+              name="tipo_labor"
+              class="w-full"
+            />
+          </div>
 
-            <div class="form-group">
-                <label>Ag (gr):</label>
-                <input type="number" [(ngModel)]="plan.ag_gr" name="ag_gr">
-            </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Tipo Mineral</label>
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="plan.tipo_mineral"
+              name="tipo_mineral"
+              class="w-full"
+            />
+          </div>
 
-            <div class="form-group">
-                <label>% Cu:</label>
-                <input type="number" [(ngModel)]="plan.porcentaje_cu" name="porcentaje_cu">
-            </div>
+        </div>
+      </section>
 
-            <div class="form-group">
-                <label>% Pb:</label>
-                <input type="number" [(ngModel)]="plan.porcentaje_pb" name="porcentaje_pb">
-            </div>
+      <!-- INFORMACIÓN DE LABOR -->
+      <section>
+        <h3 class="mb-4 text-lg font-extrabold text-secondary">
+          Información de labor
+        </h3>
 
-            <div class="form-group">
-                <label>% Zn:</label>
-                <input type="number" [(ngModel)]="plan.porcentaje_zn" name="porcentaje_zn">
-            </div>
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
 
-            <div class="form-group">
-                <label>VPT Actual:</label>
-                <input type="number" [(ngModel)]="plan.vpt_act" name="vpt_act">
-            </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Estructura Veta</label>
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="plan.estructura_veta"
+              name="estructura_veta"
+              class="w-full"
+            />
+          </div>
 
-            <div class="form-group">
-                <label>VPT Final:</label>
-                <input type="number" [(ngModel)]="plan.vpt_final" name="vpt_final">
-            </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Nivel</label>
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="plan.nivel"
+              name="nivel"
+              class="w-full"
+            />
+          </div>
 
-            <div class="form-group">
-                <label>Cut Off 1:</label>
-                <input type="number" [(ngModel)]="plan.cut_off_1" name="cut_off_1">
-            </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Block</label>
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="plan.block"
+              name="block"
+              class="w-full"
+            />
+          </div>
 
-            <div class="form-group">
-                <label>TONELAJE:</label>
-                <input type="number" [(ngModel)]="plan.cut_off_2" name="cut_off_2">
-            </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Labor</label>
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="plan.labor"
+              name="labor"
+              class="w-full"
+            />
+          </div>
 
-            <div class="form-group">
-                <label>Programado:</label>
-                <select [(ngModel)]="plan.programado" name="programado">
-                    <option value="Programado">Programado</option>
-                    <option value="No Programado">No Programado</option>
-                </select>
-            </div>
-        </form>
-    </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Ala</label>
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="plan.ala"
+              name="ala"
+              class="w-full"
+            />
+          </div>
 
-    <div class="button-group">
-        <button class="save-btn" (click)="guardar()">Guardar</button>
-        <button class="cancel-btn" (click)="cancelar()">Cancelar</button>
-    </div>
+        </div>
+      </section>
+
+      <!-- PARÁMETROS DE MINADO -->
+      <section>
+        <h3 class="mb-4 text-lg font-extrabold text-secondary">
+          Parámetros de minado
+        </h3>
+
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Ancho Veta</label>
+            <input
+              pInputText
+              type="number"
+              [(ngModel)]="plan.ancho_veta"
+              name="ancho_veta"
+              class="w-full"
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Ancho Minado Semanal</label>
+            <input
+              pInputText
+              type="number"
+              [(ngModel)]="plan.ancho_minado_sem"
+              name="ancho_minado_sem"
+              class="w-full"
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Ancho Minado Mensual</label>
+            <input
+              pInputText
+              type="number"
+              [(ngModel)]="plan.ancho_minado_mes"
+              name="ancho_minado_mes"
+              class="w-full"
+            />
+          </div>
+
+        </div>
+      </section>
+
+      <!-- LEYES Y VALORES ECONÓMICOS -->
+      <section>
+        <h3 class="mb-4 text-lg font-extrabold text-secondary">
+          Leyes y valores económicos
+        </h3>
+
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Ag (gr)</label>
+            <input
+              pInputText
+              type="number"
+              [(ngModel)]="plan.ag_gr"
+              name="ag_gr"
+              class="w-full"
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">% Cu</label>
+            <input
+              pInputText
+              type="number"
+              [(ngModel)]="plan.porcentaje_cu"
+              name="porcentaje_cu"
+              class="w-full"
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">% Pb</label>
+            <input
+              pInputText
+              type="number"
+              [(ngModel)]="plan.porcentaje_pb"
+              name="porcentaje_pb"
+              class="w-full"
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">% Zn</label>
+            <input
+              pInputText
+              type="number"
+              [(ngModel)]="plan.porcentaje_zn"
+              name="porcentaje_zn"
+              class="w-full"
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">VPT Actual</label>
+            <input
+              pInputText
+              type="number"
+              [(ngModel)]="plan.vpt_act"
+              name="vpt_act"
+              class="w-full"
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">VPT Final</label>
+            <input
+              pInputText
+              type="number"
+              [(ngModel)]="plan.vpt_final"
+              name="vpt_final"
+              class="w-full"
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Cut Off 1</label>
+            <input
+              pInputText
+              type="number"
+              [(ngModel)]="plan.cut_off_1"
+              name="cut_off_1"
+              class="w-full"
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">TONELAJE</label>
+            <input
+              pInputText
+              type="number"
+              [(ngModel)]="plan.cut_off_2"
+              name="cut_off_2"
+              class="w-full"
+            />
+          </div>
+
+        </div>
+      </section>
+
+      <!-- PROGRAMACIÓN -->
+      <section>
+        <h3 class="mb-4 text-lg font-extrabold text-secondary">
+          Programación
+        </h3>
+
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Programado</label>
+
+            <p-select
+              [options]="programadoOptions"
+              [(ngModel)]="plan.programado"
+              name="programado"
+              placeholder="Seleccione"
+              styleClass="w-full"
+              appendTo="body">
+            </p-select>
+          </div>
+
+        </div>
+      </section>
+
+    </form>
+
+  </div>
+
+  <!-- FOOTER FIJO -->
+  <div class="shrink-0 flex justify-end gap-3 border-t border-border px-6 py-4">
+
+    <button
+      pButton
+      type="button"
+      label="Cancelar"
+      icon="pi pi-times"
+      severity="danger"
+      outlined="true"
+      (click)="cancelar()">
+    </button>
+
+    <button
+      pButton
+      type="button"
+      label="Guardar"
+      icon="pi pi-save"
+      severity="success"
+      (click)="guardar()">
+    </button>
+
+  </div>
+
 </div>

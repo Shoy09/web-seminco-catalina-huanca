@@ -1,13 +1,14 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogContent, MatDialogActions } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { PlanMensual } from '../../../../models/plan-mensual.model';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
+import { ButtonModule } from 'primeng/button';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { TagModule } from 'primeng/tag';
 
 @Component({
   selector: 'app-dialog-diferencia-plan-realidad',
-  imports: [MatDialogContent, MatDialogActions, MatProgressBarModule, MatButtonModule, CommonModule],
+  imports: [CommonModule, ButtonModule, ProgressBarModule, TagModule],
   templateUrl: './dialog-diferencia-plan-realidad.component.html',
   styleUrls: ['./dialog-diferencia-plan-realidad.component.css']
 })

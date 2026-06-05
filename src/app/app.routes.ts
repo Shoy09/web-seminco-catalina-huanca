@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './Components/Principales/login/login.component';
-import { PrincipalComponent } from './Components/Principales/principal/principal.component';
+import { LayoutComponent } from './Components/Principales/layout/layout.component';
 import { HomeComponent } from './Components/Principales/home/home.component';
 import { EstadosComponent } from './Components/Estado/estados/estados.component';
 import { UsuariosComponent } from './Components/Usuario/usuarios/usuarios.component';
@@ -38,66 +38,142 @@ import { LineaPrincipalComponent } from './Components/Dashboard/graficos/Linea d
 import { PrincipalScissorComponent } from './Components/Jefe mina/aprobaciones/scissor/principal/principal.component';
 import { PrincipalGraficoAcarreoComponent } from './Components/Dashboard/graficos/acarreo/principal-grafico-acarreo/principal-grafico-acarreo.component';
 
-
-
-
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
-
   {
-    path: 'Dashboard',
-    component: PrincipalComponent, // Layout principal con menú
+    path: '',
+    component: LayoutComponent, // Layout principal con menú
     children: [
-      { path: 'estados', component: EstadosComponent },
-      { path: 'crear-data', component: CrearDataComponent },
-      { path: 'plan-avance', component: PlanMensualListComponent },
-      { path: 'plan-metraje', component: PlanMetrajeListComponent },
-      { path: 'plan-produccion', component: PlanProduccionListComponent },
-      { path: 'usuarios', component: UsuariosComponent },
+      {
+        path: 'dashboard',
+        children: [
+          {
+            path: 'grafico-horizontal',
+            component: PrincipalGraficoHorizontalComponent,
+          },
+          {
+            path: 'grafico-tal-largo',
+            component: PrincipalGraficoLargoComponent,
+          },
+          {
+            path: 'grafico-sostenimiento',
+            component: PrincipalGraficoSostenimientoComponent,
+          },
+          {
+            path: 'grafico-scoops',
+            component: PrincipalGraficoScoopsComponent,
+          },
+          {
+            path: 'grafico-acarreo',
+            component: PrincipalGraficoAcarreoComponent,
+          },
+
+          { path: 'linea-de-tiempo', component: LineaPrincipalComponent },
+        ],
+      },
+      {
+        path: 'validaciones',
+        children: [
+          { path: 'jefe-mina', component: EquiposMenuComponent },
+          { path: 'jefe-mina/tal-largo', component: OperacionesListComponent },
+          {
+            path: 'jefe-mina/tal-largo/operacion/:id',
+            component: PrincipalTalLargoComponent,
+          },
+
+          {
+            path: 'jefe-mina/tal-horizontal',
+            component: OperacionesListHorizontalComponent,
+          },
+          {
+            path: 'jefe-mina/tal-horizontal/operacion/:id',
+            component: PrincipalTalHorizontalComponent,
+          },
+
+          {
+            path: 'jefe-mina/empernador',
+            component: OperacionesListEmpernadorComponent,
+          },
+          {
+            path: 'jefe-mina/empernador/operacion/:id',
+            component: PrincipalSostenimientoComponent,
+          },
+
+          {
+            path: 'jefe-mina/scooptram',
+            component: OperacionesListScooComponent,
+          },
+          {
+            path: 'jefe-mina/scooptram/operacion/:id',
+            component: PrincipalScoopsComponent,
+          },
+
+          {
+            path: 'jefe-mina/dumper',
+            component: OperacionesListDumperComponent,
+          },
+
+          {
+            path: 'jefe-mina/scissor',
+            component: OperacionesLisScissorComponent,
+          },
+          {
+            path: 'jefe-mina/scissor/operacion/:id',
+            component: PrincipalScissorComponent,
+          },
+
+          {
+            path: 'jefe-mina/rompebancos',
+            component: OperacionesListRompebancosComponent,
+          },
+          // {path:'jefe-mina/rompebancos/operacion/:id', component:PrincipalRompebancosComponent},
+
+          {
+            path: 'jefe-mina/scalamin',
+            component: OperacionesListScalaminComponent,
+          },
+          {
+            path: 'jefe-mina/anfochanger',
+            component: OperacionesListAnfochaComponent,
+          },
+
+          { path: 'power-bi', component: PowerBiPublicComponent },
+        ],
+      },
+      {
+        path: 'planes',
+        children: [
+          { path: 'plan-avance', component: PlanMensualListComponent },
+          { path: 'plan-metraje', component: PlanMetrajeListComponent },
+          { path: 'plan-produccion', component: PlanProduccionListComponent },
+        ],
+      },
+      {
+        path: 'carga',
+        children: [
+          { path: 'estados', component: EstadosComponent },
+          { path: 'crear-data', component: CrearDataComponent },
+          { path: 'checklist', component: CheckListListaComponent },
+          {
+            path: 'checklist-telemando',
+            component: ChecklistTelemandoListaComponent,
+          },
+          { path: 'explosivos', component: ExplosivosComponent },
+          {
+            path: 'explosivos-graficos',
+            component: ExplosivosGraficosComponent,
+          },
+        ],
+      },
+      {
+        path: 'roles',
+        children: [{ path: 'usuarios', component: UsuariosComponent }],
+      },
       { path: 'perfil', component: UsuarioComponent },
-      { path: 'autocad', component: AutocadMineroComponent },
-      { path: 'checklist', component: CheckListListaComponent },
-      { path: 'checklist-telemando', component: ChecklistTelemandoListaComponent },
-      { path: 'jefe-mina', component: EquiposMenuComponent },
-      //Procesos
-      { path: 'jefe-mina/tal-largo', component: OperacionesListComponent },
-      {path:'jefe-mina/tal-largo/operacion/:id', component:PrincipalTalLargoComponent},
-
-      { path: 'jefe-mina/tal-horizontal', component: OperacionesListHorizontalComponent },
-      {path:'jefe-mina/tal-horizontal/operacion/:id', component:PrincipalTalHorizontalComponent},
-
-      { path: 'jefe-mina/empernador', component: OperacionesListEmpernadorComponent },
-      {path:'jefe-mina/empernador/operacion/:id', component:PrincipalSostenimientoComponent},
-
-      { path: 'jefe-mina/scooptram', component: OperacionesListScooComponent },
-      {path:'jefe-mina/scooptram/operacion/:id', component:PrincipalScoopsComponent},
-      
-      { path: 'jefe-mina/dumper', component: OperacionesListDumperComponent },
-
-      { path: 'jefe-mina/scissor', component: OperacionesLisScissorComponent },
-      {path:'jefe-mina/scissor/operacion/:id', component:PrincipalScissorComponent},
-
-      { path: 'jefe-mina/rompebancos', component: OperacionesListRompebancosComponent },
-      // {path:'jefe-mina/rompebancos/operacion/:id', component:PrincipalRompebancosComponent},
-
-      
-      { path: 'jefe-mina/scalamin', component: OperacionesListScalaminComponent },
-      { path: 'jefe-mina/anfochanger', component: OperacionesListAnfochaComponent },
-      
-{ path: 'power-bi', component: PowerBiPublicComponent },
-{ path: 'grafico-horizontal', component: PrincipalGraficoHorizontalComponent },
-{ path: 'grafico-tal-largo', component: PrincipalGraficoLargoComponent },
-{path: 'grafico-sostenimiento', component: PrincipalGraficoSostenimientoComponent},
-{path: 'grafico-scoops', component: PrincipalGraficoScoopsComponent},
-{path: 'grafico-acarreo', component: PrincipalGraficoAcarreoComponent},
-
-
-{ path: 'explosivos', component: ExplosivosComponent },
-{ path: 'explosivos-graficos', component: ExplosivosGraficosComponent },
-{ path: 'linea-de-tiempo', component: LineaPrincipalComponent },
-    ]
+    ],
   },
-
   { path: '**', redirectTo: '/login' },
 ];
+
+/* { path: 'autocad', component: AutocadMineroComponent }, */

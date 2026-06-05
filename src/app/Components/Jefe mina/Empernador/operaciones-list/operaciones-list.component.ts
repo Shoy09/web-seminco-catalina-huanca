@@ -213,7 +213,7 @@ export class OperacionesListEmpernadorComponent implements OnInit {
 
   irDetalle(op: OperacionBase) {
   this.router.navigate([
-    '/Dashboard/jefe-mina/empernador/operacion',
+    '/validaciones/jefe-mina/empernador/operacion',
     op.id
   ]);
 }

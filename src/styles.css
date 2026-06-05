@@ -54,6 +54,8 @@
   /* Menú */
   --color-menu-bg: #fff;
   --color-menu-text: #333;
+  --color-menu-hover-bg: #f0f0f0;
+  --color-menu-hover-text: white;
 }
 
 html, body {

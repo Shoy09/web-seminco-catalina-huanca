@@ -193,7 +193,7 @@ export class OperacionesListScooComponent implements OnInit {
   
   irDetalle(op: OperacionBase) {
   this.router.navigate([
-    '/Dashboard/jefe-mina/scooptram/operacion',
+    '/validaciones/jefe-mina/scooptram/operacion',
     op.id
   ]);
 }

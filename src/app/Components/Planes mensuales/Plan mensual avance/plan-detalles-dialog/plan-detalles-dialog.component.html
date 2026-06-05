@@ -1,35 +1,210 @@
-<h2 mat-dialog-title>Detalles del Plan Mensual</h2>
-<mat-dialog-content>
-  <table>
-    <tr><td><strong>Año:</strong></td><td>{{ plan.anio }}</td></tr>
-    <tr><td><strong>Mes:</strong></td><td>{{ plan.mes }}</td></tr>
-    <tr><td><strong>Minado/Tipo:</strong></td><td>{{ plan.minado_tipo }}</td></tr>
-    <tr><td><strong>Zona:</strong></td><td>{{ plan.zona }}</td></tr>
-    <tr><td><strong>Tipo Mineral:</strong></td><td>{{ plan.tipo_mineral }}</td></tr>
-    <tr><td><strong>Fase:</strong></td><td>{{ plan.fase }}</td></tr>
-    <tr><td><strong>Labor:</strong></td><td>{{ plan.labor }}</td></tr>
-    <tr><td><strong>Empresa:</strong></td><td>{{ plan.empresa }}</td></tr>
-    <tr><td><strong>Área:</strong></td><td>{{ plan.area }}</td></tr>
-    <tr><td><strong>Estructura/Veta:</strong></td><td>{{ plan.estructura_veta }}</td></tr>
-    <tr><td><strong>Nivel:</strong></td><td>{{ plan.nivel }}</td></tr>
-    <tr><td><strong>Tipo Labor:</strong></td><td>{{ plan.tipo_labor }}</td></tr>
-    <tr><td><strong>Ala:</strong></td><td>{{ plan.ala }}</td></tr>
-    <tr><td><strong>Avance (m):</strong></td><td>{{ plan.avance_m }}</td></tr>
-    <tr><td><strong>Ancho (m):</strong></td><td>{{ plan.ancho_m }}</td></tr>
-    <tr><td><strong>Alto (m):</strong></td><td>{{ plan.alto_m }}</td></tr>
-    <tr><td><strong>TMS:</strong></td><td>{{ plan.tms }}</td></tr>
-    <tr><td><strong>Programacion:</strong></td><td>{{ plan.programado }}</td></tr>
+<div class="flex max-h-[90vh] w-full max-w-5xl flex-col rounded-2xl bg-surface shadow-xl">
 
-    <!-- Iterar sobre los campos agrupados -->
-    <tr *ngFor="let grupo of obtenerCamposAgrupados()">
-      <td *ngIf="grupo.keyA"><strong>{{ grupo.displayA }}:</strong></td>
-      <td *ngIf="grupo.keyA">{{ plan[grupo.keyA] }}</td>
-      <td *ngIf="grupo.keyB"><strong>{{ grupo.displayB }}:</strong></td>
-      <td *ngIf="grupo.keyB">{{ plan[grupo.keyB] }}</td>
-    </tr>
-  </table>
-</mat-dialog-content>
+  <!-- HEADER -->
+  <div class="shrink-0 border-b border-border p-6">
+    <h2 class="text-2xl font-extrabold text-secondary">
+      Detalles del Plan Mensual
+    </h2>
 
-<mat-dialog-actions align="end">
-  <button mat-button (click)="cerrarDialogo()">Cerrar</button>
-</mat-dialog-actions>
+    <p class="mt-1 text-sm text-ink-75">
+      Consulta la información completa del plan seleccionado.
+    </p>
+  </div>
+
+  <!-- CONTENIDO CON SCROLL -->
+  <div class="flex-1 overflow-y-auto p-6">
+
+    <!-- RESUMEN PRINCIPAL -->
+    <div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+
+      <div class="rounded-2xl border border-border bg-surface-soft p-4">
+        <span class="text-xs font-bold uppercase text-ink-75">Año</span>
+        <p class="mt-1 text-lg font-extrabold text-secondary">
+          {{ plan.anio }}
+        </p>
+      </div>
+
+      <div class="rounded-2xl border border-border bg-surface-soft p-4">
+        <span class="text-xs font-bold uppercase text-ink-75">Mes</span>
+        <p class="mt-1 text-lg font-extrabold text-secondary">
+          {{ plan.mes }}
+        </p>
+      </div>
+
+      <div class="rounded-2xl border border-border bg-surface-soft p-4">
+        <span class="text-xs font-bold uppercase text-ink-75">Labor</span>
+        <p class="mt-1 text-lg font-extrabold text-secondary">
+          {{ plan.labor }}
+        </p>
+      </div>
+
+      <div class="rounded-2xl border border-border bg-surface-soft p-4">
+        <span class="text-xs font-bold uppercase text-ink-75">Programación</span>
+        <p class="mt-1">
+          <p-tag
+            [value]="plan.programado"
+            [severity]="plan.programado === 'Programado' ? 'success' : 'warn'">
+          </p-tag>
+        </p>
+      </div>
+
+    </div>
+
+    <!-- DATOS GENERALES -->
+    <div class="mb-6 rounded-2xl border border-border bg-white p-5 shadow-sm">
+      <h3 class="mb-4 text-lg font-extrabold text-secondary">
+        Datos generales
+      </h3>
+
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+
+        <div class="detalle-item">
+          <span>Minado/Tipo</span>
+          <strong>{{ plan.minado_tipo }}</strong>
+        </div>
+
+        <div class="detalle-item">
+          <span>Empresa</span>
+          <strong>{{ plan.empresa }}</strong>
+        </div>
+
+        <div class="detalle-item">
+          <span>Zona</span>
+          <strong>{{ plan.zona }}</strong>
+        </div>
+
+        <div class="detalle-item">
+          <span>Área</span>
+          <strong>{{ plan.area }}</strong>
+        </div>
+
+        <div class="detalle-item">
+          <span>Tipo Mineral</span>
+          <strong>{{ plan.tipo_mineral }}</strong>
+        </div>
+
+        <div class="detalle-item">
+          <span>Fase</span>
+          <strong>{{ plan.fase }}</strong>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- INFORMACIÓN DE LABOR -->
+    <div class="mb-6 rounded-2xl border border-border bg-white p-5 shadow-sm">
+      <h3 class="mb-4 text-lg font-extrabold text-secondary">
+        Información de labor
+      </h3>
+
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+
+        <div class="detalle-item">
+          <span>Estructura/Veta</span>
+          <strong>{{ plan.estructura_veta }}</strong>
+        </div>
+
+        <div class="detalle-item">
+          <span>Nivel</span>
+          <strong>{{ plan.nivel }}</strong>
+        </div>
+
+        <div class="detalle-item">
+          <span>Tipo Labor</span>
+          <strong>{{ plan.tipo_labor }}</strong>
+        </div>
+
+        <div class="detalle-item">
+          <span>Labor</span>
+          <strong>{{ plan.labor }}</strong>
+        </div>
+
+        <div class="detalle-item">
+          <span>Ala</span>
+          <strong>{{ plan.ala }}</strong>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PARÁMETROS -->
+    <div class="mb-6 rounded-2xl border border-border bg-white p-5 shadow-sm">
+      <h3 class="mb-4 text-lg font-extrabold text-secondary">
+        Parámetros del plan
+      </h3>
+
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+
+        <div class="detalle-item">
+          <span>Avance (m)</span>
+          <strong>{{ plan.avance_m }}</strong>
+        </div>
+
+        <div class="detalle-item">
+          <span>Ancho (m)</span>
+          <strong>{{ plan.ancho_m }}</strong>
+        </div>
+
+        <div class="detalle-item">
+          <span>Alto (m)</span>
+          <strong>{{ plan.alto_m }}</strong>
+        </div>
+
+        <div class="detalle-item">
+          <span>TMS</span>
+          <strong>{{ plan.tms }}</strong>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CAMPOS AGRUPADOS / DINÁMICOS -->
+    <div
+      *ngIf="obtenerCamposAgrupados().length > 0"
+      class="rounded-2xl border border-border bg-white p-5 shadow-sm"
+    >
+      <h3 class="mb-4 text-lg font-extrabold text-secondary">
+        Distribución / Campos adicionales
+      </h3>
+
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+
+        <ng-container *ngFor="let grupo of obtenerCamposAgrupados()">
+
+          <div
+            *ngIf="grupo.keyA"
+            class="detalle-item"
+          >
+            <span>{{ grupo.displayA }}</span>
+            <strong>{{ plan[grupo.keyA] }}</strong>
+          </div>
+
+          <div
+            *ngIf="grupo.keyB"
+            class="detalle-item"
+          >
+            <span>{{ grupo.displayB }}</span>
+            <strong>{{ plan[grupo.keyB] }}</strong>
+          </div>
+
+        </ng-container>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER FIJO -->
+  <div class="shrink-0 flex justify-end border-t border-border p-5">
+    <button
+      pButton
+      type="button"
+      label="Cerrar"
+      icon="pi pi-times"
+      severity="secondary"
+      outlined="true"
+      (click)="cerrarDialogo()">
+    </button>
+  </div>
+
+</div>

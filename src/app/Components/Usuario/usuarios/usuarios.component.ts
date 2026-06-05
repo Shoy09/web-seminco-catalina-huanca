@@ -1,8 +1,5 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
 import { UsuarioDialogComponent } from '../usuario-dialog/usuario-dialog.component';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';

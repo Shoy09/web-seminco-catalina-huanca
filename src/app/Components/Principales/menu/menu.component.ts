@@ -4,22 +4,30 @@ import { Router, RouterModule } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { MenuModule } from 'primeng/menu';
 import { RippleModule } from 'primeng/ripple';
+import { PanelMenuModule } from 'primeng/panelmenu';
+import { TooltipModule } from 'primeng/tooltip';
+
 @Component({
   selector: 'app-menu',
   standalone: true,
-  imports: [CommonModule, RouterModule, MenuModule, RippleModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    MenuModule,
+    RippleModule,
+    PanelMenuModule,
+    TooltipModule,
+  ],
   templateUrl: './menu.component.html',
   styleUrl: './menu.component.css',
 })
 export class MenuComponent {
-  rolUsuario: string = '';
-
   userMenuItems: MenuItem[] = [
     {
       label: 'Editar perfil',
       icon: 'pi pi-user-edit',
       command: () => {
-        this.editarPerfil();
+        this.router.navigate(['/perfil']);
       },
     },
     {
@@ -34,146 +42,140 @@ export class MenuComponent {
       },
     },
   ];
-  // 🔥 MENÚ ORIGINAL (con nuevas rutas al final)
-  menus = [
+
+  menus: MenuItem[] = [
     {
-      title: 'Dashboard',
-      icon: 'das.svg',
-      subItems: [
-        { title: 'Perforacion Tal.Largo', path: 'grafico-tal-largo' },
-        { title: 'Perforacion Horizontal', path: 'grafico-horizontal' },
-        { title: 'Perforacion Sostenimiento', path: 'grafico-sostenimiento' },
-        { title: 'Carguío', path: 'grafico-scoops' },
-        { title: 'Acarreo', path: 'grafico-acarreo' },
-        { title: 'Explosivos', path: 'explosivos-graficos' },
-        { title: 'Linea de tiempo', path: 'linea-de-tiempo' },
+      label: 'Dashboard',
+      icon: 'pi pi-chart-bar',
+      items: [
+        {
+          label: 'Perforación Tal. Largo',
+          routerLink: ['/dashboard/grafico-tal-largo'],
+        },
+        {
+          label: 'Perforación Horizontal',
+          routerLink: ['/dashboard/grafico-horizontal'],
+        },
+        {
+          label: 'Perforación Sostenimiento',
+          routerLink: ['/dashboard/grafico-sostenimiento'],
+        },
+        { label: 'Carguío', routerLink: ['/dashboard/grafico-scoops'] },
+        { label: 'Acarreo', routerLink: ['/dashboard/grafico-acarreo'] },
+        { label: 'Explosivos', routerLink: ['/dashboard/explosivos-graficos'] },
+        {
+          label: 'Línea de tiempo',
+          routerLink: ['/dashboard/linea-de-tiempo'],
+        },
       ],
     },
     {
-      title: 'Validaciones',
-      icon: 'vota-si.svg',
-      subItems: [{ title: 'Mina', path: 'jefe-mina' }],
+      label: 'Validaciones',
+      icon: 'pi pi-check-circle',
+      items: [{ label: 'Mina', routerLink: ['/validaciones/jefe-mina'] }],
     },
     {
-      title: 'Planes',
-      icon: 'plan.svg',
-      subItems: [
-        { title: 'Plan de Avance', path: 'plan-avance' },
-        { title: 'Plan de Metraje', path: 'plan-metraje' },
-        { title: 'Plan de Producción', path: 'plan-produccion' },
+      label: 'Planes',
+      icon: 'pi pi-calendar',
+      items: [
+        { label: 'Plan de Avance', routerLink: ['/planes/plan-avance'] },
+        { label: 'Plan de Metraje', routerLink: ['/planes/plan-metraje'] },
+        {
+          label: 'Plan de Producción',
+          routerLink: ['/planes/plan-produccion'],
+        },
       ],
     },
     {
-      title: 'Carga de Datos',
-      icon: 'data.svg',
-      subItems: [
-        { title: 'Estados', path: 'estados' },
-        { title: 'Crear Data', path: 'crear-data' },
-        { title: 'Checklist', path: 'checklist' },
-        { title: 'Checklist Carguio', path: 'checklist-telemando' },
-        { title: 'Explosivos', path: 'explosivos' },
+      label: 'Carga de Datos',
+      icon: 'pi pi-database',
+      items: [
+        { label: 'Estados', routerLink: ['/carga/estados'] },
+        { label: 'Crear Data', routerLink: ['/carga/crear-data'] },
+        { label: 'Checklist', routerLink: ['/carga/checklist'] },
+        {
+          label: 'Checklist Carguío',
+          routerLink: ['/carga/checklist-telemando'],
+        },
+        { label: 'Explosivos', routerLink: ['/carga/explosivos'] },
       ],
     },
     {
-      title: 'Roles',
-      icon: 'usuario.png',
-      subItems: [
-        { title: 'Usuarios', path: 'usuarios' },
-        { title: 'Perfil', path: 'perfil' },
-      ],
+      label: 'Roles',
+      icon: 'pi pi-users',
+      items: [{ label: 'Usuarios', routerLink: ['/roles/usuarios'] }],
     },
   ];
 
   menuOpenIndex: number | null = null;
-  selectedSubItemIndex: number | null = null;
-  selectedSubItem: string | null = null;
-
   menuColapsado = false;
   menuMovilAbierto = false;
 
-  constructor(private router: Router) {
-    // 🔥 Leer rol guardado en login
-    this.rolUsuario = localStorage.getItem('rol') || '';
+  constructor(private router: Router) {}
+  ngOnInit(): void {}
 
-    // 🔥 Filtrar según rol
-    this.filtrarMenusPorRol();
+  isMenuPadreActivo(menu: any): boolean {
+    if (!menu?.items?.length) return false;
 
-    if (this.router.url === '/' || this.router.url === '/Dashboard') {
-      this.router.navigate(['/Dashboard/crear-data']);
-    }
+    return menu.items.some((subItem: any) => {
+      if (!subItem.routerLink) return false;
+
+      const urlTree = this.router.createUrlTree(
+        Array.isArray(subItem.routerLink)
+          ? subItem.routerLink
+          : [subItem.routerLink],
+      );
+
+      return this.router.isActive(urlTree, {
+        paths: 'exact',
+        queryParams: 'ignored',
+        fragment: 'ignored',
+        matrixParams: 'ignored',
+      });
+    });
   }
 
   toggleMenuMovil(): void {
     this.menuMovilAbierto = !this.menuMovilAbierto;
   }
 
-  editarPerfil(): void {
-    console.log('Editar perfil');
+  onMenuPrincipalClick(index: number, menu: any): void {
+    // Si el menú está colapsado, ir al primer subitem
+    if (this.menuColapsado) {
+      const primerSubItem = menu.items?.[0];
+
+      if (primerSubItem?.routerLink) {
+        this.router.navigate(primerSubItem.routerLink);
+      }
+
+      return;
+    }
+
+    // Si NO está colapsado, solo abre/cierra submenu
+    this.toggleMenu(index);
   }
 
   cerrarMenuMovil(): void {
     this.menuMovilAbierto = false;
   }
 
-  selectSubItemResponsive(i: number, subItem: any): void {
-    this.selectSubItem(i, subItem);
-
-    if (window.innerWidth < 768) {
-      this.cerrarMenuMovil();
-    }
-  }
-
-  // 🔐 FILTRO POR ROL (solo afecta subItems con propiedad roles)
-  filtrarMenusPorRol() {
-    this.menus = this.menus.map((menu) => {
-      const subItemsFiltrados = menu.subItems.filter((subItem: any) => {
-        // Si NO tiene roles → visible para todos
-        if (!subItem.roles) return true;
-
-        // Si tiene roles → validar
-        return subItem.roles.includes(this.rolUsuario);
-      });
-
-      return {
-        ...menu,
-        subItems: subItemsFiltrados,
-      };
-    });
-  }
-
-  AbrirCerrar(index: number, menu: any) {
-    if (menu.title === 'Home') {
-      this.router.navigate(['/Dashboard/crear-data']);
-    } else if (this.menuColapsado) {
-      if (menu.subItems && menu.subItems.length > 0) {
-        const ruta = `/Dashboard/${menu.subItems[0].path}`;
-        this.router.navigate([ruta]);
-        this.selectedSubItemIndex = 0;
-        this.selectedSubItem = menu.subItems[0].path;
-      }
-    } else {
-      this.menuOpenIndex = this.menuOpenIndex === index ? null : index;
-    }
-  }
-
-  selectSubItem(index: number, subItem: any) {
-    this.selectedSubItemIndex = index;
-    this.selectedSubItem = subItem.path;
-
-    const ruta = `/Dashboard/${subItem.path}`;
-    this.router.navigate([ruta]);
-  }
-
-  convertirRuta(subItem: string): string {
-    return subItem.toLowerCase().replace(/ /g, '-');
-  }
-
-  toggleMenu() {
+  colapsarMenu() {
     this.menuColapsado = !this.menuColapsado;
   }
-
+  toggleMenu(index: number) {
+    // Si el menú ya está abierto, lo cierra. Si no, abre el seleccionado.
+    if (this.menuOpenIndex === index) {
+      this.menuOpenIndex = null;
+    } else {
+      this.menuOpenIndex = index;
+    }
+  }
   cerrarSesion() {
     localStorage.clear();
     this.router.navigate(['/login']);
+  }
+
+  private isMobile(): boolean {
+    return window.innerWidth < 768; // md breakpoint de Tailwind
   }
 }

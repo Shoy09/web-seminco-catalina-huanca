@@ -3,11 +3,11 @@ import { MenuComponent } from "../menu/menu.component";
 import { RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-principal',
+  selector: 'app-layout',
   imports: [MenuComponent, RouterModule],
-  templateUrl: './principal.component.html',
-  styleUrl: './principal.component.css'
+  templateUrl: './layout.component.html',
+  styleUrl: './layout.component.css'
 })
-export class PrincipalComponent {
+export class LayoutComponent {
 
 }

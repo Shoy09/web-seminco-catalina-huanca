@@ -1,134 +1,365 @@
-<h2 mat-dialog-title>Ingresar Plan de Metraje</h2>
-<div mat-dialog-content class="dialog-content">
-    <form [formGroup]="planForm">
-        <!-- Campos Fijos -->
-        <mat-form-field appearance="outline">
-            <mat-label>Año</mat-label>
-            <input matInput type="number" formControlName="anio">
-        </mat-form-field>
+<div class="flex max-h-[90vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-surface shadow-xl">
 
-        <mat-form-field appearance="outline">
-            <mat-label>Mes</mat-label>
-            <input matInput type="text" formControlName="mes">
-        </mat-form-field>
+  <!-- HEADER FIJO -->
+  <div class="shrink-0 border-b border-border px-6 py-5">
+    <h2 class="text-2xl font-extrabold text-secondary">
+      Ingresar Plan de Metraje
+    </h2>
 
-        <mat-form-field appearance="outline">
-            <mat-label>Semana</mat-label>
-            <input matInput type="text" formControlName="semana">
-        </mat-form-field>
+    <p class="mt-1 text-sm text-ink-75">
+      Registra la información del plan de metraje mensual o semanal.
+    </p>
+  </div>
 
-        <mat-form-field appearance="outline">
-            <mat-label>Mina</mat-label>
-            <input matInput type="text" formControlName="mina">
-        </mat-form-field>
+  <!-- CONTENIDO CON SCROLL -->
+  <div class="min-h-0 flex-1 overflow-y-auto px-6 py-5">
 
-        <mat-form-field appearance="outline">
-            <mat-label>Zona</mat-label>
-            <input matInput type="text" formControlName="zona">
-        </mat-form-field>
+    <form [formGroup]="planForm" class="space-y-6">
 
-        <mat-form-field appearance="outline">
-            <mat-label>Área</mat-label>
-            <input matInput type="text" formControlName="area">
-        </mat-form-field>
+      <!-- DATOS GENERALES -->
+      <section>
+        <h3 class="mb-4 text-lg font-extrabold text-secondary">
+          Datos generales
+        </h3>
 
-        <mat-form-field appearance="outline">
-            <mat-label>Fase</mat-label>
-            <input matInput type="text" formControlName="fase">
-        </mat-form-field>
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
 
-        <mat-form-field appearance="outline">
-            <mat-label>Tipo de Minado</mat-label>
-            <input matInput type="text" formControlName="minado_tipo">
-        </mat-form-field>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Año</label>
+            <input
+              pInputText
+              type="number"
+              formControlName="anio"
+              placeholder="Ej. 2026"
+              class="w-full"
+            />
+          </div>
 
-        <mat-form-field appearance="outline">
-            <mat-label>Tipo de Labor</mat-label>
-            <input matInput type="text" formControlName="tipo_labor">
-        </mat-form-field>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Mes</label>
+            <input
+              pInputText
+              type="text"
+              formControlName="mes"
+              placeholder="Ej. Enero"
+              class="w-full"
+            />
+          </div>
 
-        <mat-form-field appearance="outline">
-            <mat-label>Tipo de Mineral</mat-label>
-            <input matInput type="text" formControlName="tipo_mineral">
-        </mat-form-field>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Semana</label>
+            <input
+              pInputText
+              type="text"
+              formControlName="semana"
+              placeholder="Semana"
+              class="w-full"
+            />
+          </div>
 
-        <mat-form-field appearance="outline">
-            <mat-label>Estructura/Veta</mat-label>
-            <input matInput type="text" formControlName="estructura_veta">
-        </mat-form-field>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Mina</label>
+            <input
+              pInputText
+              type="text"
+              formControlName="mina"
+              placeholder="Mina"
+              class="w-full"
+            />
+          </div>
 
-        <mat-form-field appearance="outline">
-            <mat-label>Nivel</mat-label>
-            <input matInput type="text" formControlName="nivel">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Block</mat-label>
-            <input matInput type="text" formControlName="block">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Labor</mat-label>
-            <input matInput type="text" formControlName="labor">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Ala</mat-label>
-            <input matInput type="text" formControlName="ala">
-        </mat-form-field>
-
-        <!-- Campos Numéricos -->
-        <mat-form-field appearance="outline">
-            <mat-label>Ancho Veta</mat-label>
-            <input matInput type="number" formControlName="ancho_veta">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Ancho Minado (Semana)</mat-label>
-            <input matInput type="number" formControlName="ancho_minado_sem">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Ancho Minado (Mes)</mat-label>
-            <input matInput type="number" formControlName="ancho_minado_mes">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Burden</mat-label>
-            <input matInput type="number" formControlName="burden">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Espaciamiento</mat-label>
-            <input matInput type="number" formControlName="espaciamiento">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Longitud de Perforación</mat-label>
-            <input matInput type="number" formControlName="longitud_perforacion">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Programado</mat-label>
-            <mat-select formControlName="programado">
-                <mat-option value="Programado">Programado</mat-option>
-                <mat-option value="No Programado">No Programado</mat-option>
-            </mat-select>
-        </mat-form-field>
-
-        <!-- Campos Dinámicos -->
-        <div class="campos-dinamicos-container">
-            <div *ngFor="let campo of camposDinamicos" class="campo-item">
-                <mat-form-field appearance="outline">
-                    <mat-label>{{ campo }}</mat-label>
-                    <input matInput type="number" [formControlName]="campo">
-                </mat-form-field>
-            </div>
         </div>
-    </form>
-</div>
+      </section>
 
-<div mat-dialog-actions class="button-group">
-    <button mat-button color="warn" (click)="cancelar()">Cancelar</button>
-    <button mat-button color="primary" (click)="guardar()" [disabled]="!planForm.valid">Guardar</button>
+      <!-- UBICACIÓN Y CLASIFICACIÓN -->
+      <section>
+        <h3 class="mb-4 text-lg font-extrabold text-secondary">
+          Ubicación y clasificación
+        </h3>
+
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Zona</label>
+            <input
+              pInputText
+              type="text"
+              formControlName="zona"
+              placeholder="Zona"
+              class="w-full"
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Área</label>
+            <input
+              pInputText
+              type="text"
+              formControlName="area"
+              placeholder="Área"
+              class="w-full"
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Fase</label>
+            <input
+              pInputText
+              type="text"
+              formControlName="fase"
+              placeholder="Fase"
+              class="w-full"
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Tipo de Minado</label>
+            <input
+              pInputText
+              type="text"
+              formControlName="minado_tipo"
+              placeholder="Tipo de minado"
+              class="w-full"
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Tipo de Labor</label>
+            <input
+              pInputText
+              type="text"
+              formControlName="tipo_labor"
+              placeholder="Tipo de labor"
+              class="w-full"
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Tipo de Mineral</label>
+            <input
+              pInputText
+              type="text"
+              formControlName="tipo_mineral"
+              placeholder="Tipo de mineral"
+              class="w-full"
+            />
+          </div>
+
+        </div>
+      </section>
+
+      <!-- INFORMACIÓN DE LABOR -->
+      <section>
+        <h3 class="mb-4 text-lg font-extrabold text-secondary">
+          Información de labor
+        </h3>
+
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Estructura/Veta</label>
+            <input
+              pInputText
+              type="text"
+              formControlName="estructura_veta"
+              placeholder="Estructura o veta"
+              class="w-full"
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Nivel</label>
+            <input
+              pInputText
+              type="text"
+              formControlName="nivel"
+              placeholder="Nivel"
+              class="w-full"
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Block</label>
+            <input
+              pInputText
+              type="text"
+              formControlName="block"
+              placeholder="Block"
+              class="w-full"
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Labor</label>
+            <input
+              pInputText
+              type="text"
+              formControlName="labor"
+              placeholder="Labor"
+              class="w-full"
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Ala</label>
+            <input
+              pInputText
+              type="text"
+              formControlName="ala"
+              placeholder="Ala"
+              class="w-full"
+            />
+          </div>
+
+        </div>
+      </section>
+
+      <!-- PARÁMETROS DE METRAJE -->
+      <section>
+        <h3 class="mb-4 text-lg font-extrabold text-secondary">
+          Parámetros de metraje
+        </h3>
+
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Ancho Veta</label>
+            <input
+              pInputText
+              type="number"
+              formControlName="ancho_veta"
+              placeholder="0.00"
+              class="w-full"
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Ancho Minado (Semana)</label>
+            <input
+              pInputText
+              type="number"
+              formControlName="ancho_minado_sem"
+              placeholder="0.00"
+              class="w-full"
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Ancho Minado (Mes)</label>
+            <input
+              pInputText
+              type="number"
+              formControlName="ancho_minado_mes"
+              placeholder="0.00"
+              class="w-full"
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Burden</label>
+            <input
+              pInputText
+              type="number"
+              formControlName="burden"
+              placeholder="0.00"
+              class="w-full"
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Espaciamiento</label>
+            <input
+              pInputText
+              type="number"
+              formControlName="espaciamiento"
+              placeholder="0.00"
+              class="w-full"
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Longitud de Perforación</label>
+            <input
+              pInputText
+              type="number"
+              formControlName="longitud_perforacion"
+              placeholder="0.00"
+              class="w-full"
+            />
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-ink">Programado</label>
+
+            <p-select
+              [options]="programadoOptions"
+              formControlName="programado"
+              placeholder="Seleccione"
+              styleClass="w-full"
+              appendTo="body">
+            </p-select>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- CAMPOS DINÁMICOS -->
+      <section *ngIf="camposDinamicos?.length">
+        <h3 class="mb-4 text-lg font-extrabold text-secondary">
+          Distribución diaria / campos dinámicos
+        </h3>
+
+        <div class="rounded-2xl border border-border bg-surface-soft p-4">
+          <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
+
+            <div
+              *ngFor="let campo of camposDinamicos"
+              class="flex flex-col gap-2"
+            >
+              <label class="text-xs font-bold text-ink">
+                {{ campo }}
+              </label>
+
+              <input
+                pInputText
+                type="number"
+                [formControlName]="campo"
+                placeholder="0"
+                class="w-full"
+              />
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </form>
+
+  </div>
+
+  <!-- FOOTER FIJO -->
+  <div class="shrink-0 flex justify-end gap-3 border-t border-border px-6 py-4">
+
+    <button
+      pButton
+      type="button"
+      label="Cancelar"
+      icon="pi pi-times"
+      severity="danger"
+      outlined="true"
+      (click)="cancelar()">
+    </button>
+
+    <button
+      pButton
+      type="button"
+      label="Guardar"
+      icon="pi pi-save"
+      severity="success"
+      [disabled]="planForm.invalid"
+      (click)="guardar()">
+    </button>
+
+  </div>
+
 </div>

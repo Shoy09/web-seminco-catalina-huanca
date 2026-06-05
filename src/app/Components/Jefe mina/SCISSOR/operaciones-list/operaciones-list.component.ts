@@ -125,7 +125,7 @@ export class OperacionesLisScissorComponent implements OnInit {
 
   irDetalle(op: OperacionBase) {
   this.router.navigate([
-    '/Dashboard/jefe-mina/scissor/operacion',
+    '/validaciones/jefe-mina/scissor/operacion',
     op.id
   ]);
 }

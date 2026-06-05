@@ -215,7 +215,7 @@ export class OperacionesListHorizontalComponent implements OnInit {
 
   irDetalle(op: OperacionBase) {
   this.router.navigate([
-    '/Dashboard/jefe-mina/tal-horizontal/operacion',
+    '/validaciones/jefe-mina/tal-horizontal/operacion',
     op.id
   ]);
 }
