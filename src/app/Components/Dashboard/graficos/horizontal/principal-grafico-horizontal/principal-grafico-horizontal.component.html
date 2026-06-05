@@ -1,47 +1,105 @@
-<div class="filtro-fechas">
-  <div class="campo">
-    <label>Fecha inicio</label>
-    <input type="date" [(ngModel)]="fechaInicio">
+<div class="mb-5 rounded-2xl border border-border bg-surface p-4 shadow-sm">
+
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-6">
+
+    <!-- FECHA INICIO -->
+    <div class="flex flex-col gap-2">
+      <label class="text-sm font-bold text-ink">
+        Fecha inicio
+      </label>
+
+      <input
+        pInputText
+        type="date"
+        [(ngModel)]="fechaInicio"
+        class="w-full"
+      />
+    </div>
+
+    <!-- FECHA FIN -->
+    <div class="flex flex-col gap-2">
+      <label class="text-sm font-bold text-ink">
+        Fecha fin
+      </label>
+
+      <input
+        pInputText
+        type="date"
+        [(ngModel)]="fechaFin"
+        class="w-full"
+      />
+    </div>
+
+    <!-- TURNO -->
+    <div class="flex flex-col gap-2">
+      <label class="text-sm font-bold text-ink">
+        Turno
+      </label>
+
+      <p-select
+        [options]="turnos"
+        [(ngModel)]="turnoSeleccionado"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Todos"
+        styleClass="w-full"
+        appendTo="body">
+      </p-select>
+    </div>
+
+    <!-- BOTÓN APLICAR -->
+    <div class="flex items-end">
+      <button
+        pButton
+        type="button"
+        label="Aplicar"
+        icon="pi pi-filter"
+        class="w-full !bg-secondary !border-secondary !text-white hover:!bg-secondary/90"
+        (click)="aplicarFiltro()">
+      </button>
+    </div>
+
+    <!-- BOTÓN QUITAR FILTRO -->
+    <div class="flex items-end">
+      <button
+        pButton
+        type="button"
+        label="Quitar filtro"
+        icon="pi pi-filter-slash"
+        severity="secondary"
+        outlined="true"
+        class="w-full"
+        (click)="quitarFiltro()">
+      </button>
+    </div>
+
+    <!-- BOTÓN PRESENTACIÓN -->
+    <div class="flex items-end">
+      <button
+        pButton
+        type="button"
+        label="Presentación"
+        icon="pi pi-chart-bar"
+        severity="success"
+        class="w-full"
+        (click)="Presentacion()">
+      </button>
+    </div>
+
   </div>
 
-  <div class="campo">
-    <label>Fecha fin</label>
-    <input type="date" [(ngModel)]="fechaFin">
+  <!-- BOTÓN ZOOM -->
+  <div class="mt-4 flex justify-end">
+    <button
+      pButton
+      type="button"
+      [label]="showZoom ? 'Ocultar zoom' : 'Mostrar zoom'"
+      [icon]="showZoom ? 'pi pi-eye-slash' : 'pi pi-search-plus'"
+      severity="info"
+      outlined="true"
+      (click)="toggleDataZoom()">
+    </button>
   </div>
-
-  <div class="campo">
-  <label>Turno</label>
-  <select [(ngModel)]="turnoSeleccionado">
-    <option value="">Todos</option>
-    <option value="DÍA">Día</option>
-    <option value="NOCHE">Noche</option>
-  </select>
-</div>
-
-
-  <button class="btn-aplicar" (click)="aplicarFiltro()">
-    Aplicar
-  </button>
-
-  <button class="btn-aplicar" (click)="quitarFiltro()">
-    Quitar filtro
-  </button>
-
-  <button class="btn-aplicar" (click)="Presentacion()">
-    presentación
-  </button>
-
-  <button class="btn-aplicar" (click)="toggleDataZoom()">
-    {{ showZoom ? 'Ocultar zoom' : 'Mostrar zoom' }}
-  </button>
-
-  <!-- <button class="btn-aplicar" (click)="generarPDF()">
-  Exportar PDF
-</button> -->
-
-<!-- <button class="btn-aplicar" (click)="toggleVista()">
-  {{ vistaPrincipal ? 'Ver gráfico de linea' : 'Gráficos principales' }}
-</button> -->
 
 </div>
 

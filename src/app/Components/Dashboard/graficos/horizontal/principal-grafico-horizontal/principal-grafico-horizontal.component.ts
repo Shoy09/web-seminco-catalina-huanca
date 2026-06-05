@@ -49,6 +49,9 @@ import { MttrAnoComponent } from '../../scoops/Graficos components/MTBF-MTTR/MTT
 
 import { PresentacionHorizontalDialogComponent } from '../presentacion-dialog/presentacion-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { ButtonModule } from 'primeng/button';
+import { SelectModule } from 'primeng/select';
+import { InputTextModule } from 'primeng/inputtext';
 @Component({
   selector: 'app-principal-grafico-horizontal',
   imports: [
@@ -82,6 +85,9 @@ import { MatDialog } from '@angular/material/dialog';
     MttrSemanasComponent,
     MttrMesComponent,
     MttrAnoComponent,
+    ButtonModule,
+    SelectModule,
+    InputTextModule,
   ],
   templateUrl: './principal-grafico-horizontal.component.html',
   styleUrl: './principal-grafico-horizontal.component.css',
@@ -130,6 +136,12 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
     nFrentes: 0,
     totalMetros: 0,
   };
+
+  turnos = [
+  { label: 'Todos', value: '' },
+  { label: 'Día', value: 'DÍA' },
+  { label: 'Noche', value: 'NOCHE' },
+];
 
   datosGraficoEstados: any[] = [];
 
