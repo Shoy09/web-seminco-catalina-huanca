@@ -1,44 +1,57 @@
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import * as XLSX from 'xlsx';
 import { CheckListFromComponent } from '../check-list-from/check-list-from.component';
 import { CheckListItemService } from '../../../../services/checklist-item.service';
 import { CheckListItem } from '../../../../models/checklist-item.model';
 import { LoadingDialogComponent } from '../../../Reutilizables/loading-dialog/loading-dialog.component';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
 @Component({
   selector: 'app-opciones-dialog',
   standalone: true,
-  imports: [MatDialogModule, MatIconModule],
+  imports: [ButtonModule, RippleModule],
   templateUrl: './opciones-dialog.component.html',
-  styleUrl: './opciones-dialog.component.css'
+  styleUrl: './opciones-dialog.component.css',
 })
 export class OpcionesDialogComponent {
   constructor(
     private checkdService: CheckListItemService,
     public dialogRef: MatDialogRef<OpcionesDialogComponent>,
     private dialog: MatDialog,
-    @Inject(MAT_DIALOG_DATA) public data: { 
-  proceso: string,
-  categorias: string[]
-}
+    @Inject(MAT_DIALOG_DATA)
+    public data: {
+      proceso: string;
+      categorias: string[];
+    },
   ) {}
 
   seleccionar(opcion: string) {
     if (opcion === 'estado') {
       this.dialogRef.close();
       this.dialog.open(CheckListFromComponent, {
-  width: '400px',
-  data: { 
-    proceso: this.data.proceso,
-    categorias: this.data.categorias
-  }
-});
+        width: '95vw',
+        maxWidth: '1200px',
+        maxHeight: '90vh',
+        autoFocus: false,
+        panelClass: 'checklist-form-dialog',
+        data: {
+          proceso: this.data.proceso,
+          categorias: this.data.categorias,
+        },
+      });
     } else if (opcion === 'excel') {
       this.abrirExploradorArchivos();
     } else {
       this.dialogRef.close(opcion);
     }
+  }
+  cerrarDialogo(): void {
+    this.dialogRef.close();
   }
 
   abrirExploradorArchivos() {
@@ -60,47 +73,49 @@ export class OpcionesDialogComponent {
     document.body.removeChild(input);
   }
 
-async procesarArchivoExcel(archivo: File) {
-  const reader = new FileReader();
+  async procesarArchivoExcel(archivo: File) {
+    const reader = new FileReader();
 
-  reader.onload = async (e: any) => {
-    const data = new Uint8Array(e.target.result);
-    const workbook = XLSX.read(data, { type: 'array' });
+    reader.onload = async (e: any) => {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
 
-    const firstSheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[firstSheetName];
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
 
-    if (!worksheet) {
-      console.error(`No se encontró la hoja llamada "${firstSheetName}"`);
-      return;
-    }
+      if (!worksheet) {
+        console.error(`No se encontró la hoja llamada "${firstSheetName}"`);
+        return;
+      }
 
-    const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet, {
+        header: 1,
+      });
 
-    // Omitir encabezados y filtrar filas válidas
-    const checklistItems: CheckListItem[] = jsonData
-      .slice(1) // Omitir encabezado
-      .filter(fila => fila[0] && fila[1]) // Solo filas con categoria y nombre
-      .map((fila) => ({
-        proceso: this.data.proceso,
-        categoria: fila[0].toString().trim(), // Asegurar string y limpiar espacios
-        nombre: fila[1].toString().trim()
-      }));
+      // Omitir encabezados y filtrar filas válidas
+      const checklistItems: CheckListItem[] = jsonData
+        .slice(1) // Omitir encabezado
+        .filter((fila) => fila[0] && fila[1]) // Solo filas con categoria y nombre
+        .map((fila) => ({
+          proceso: this.data.proceso,
+          categoria: fila[0].toString().trim(), // Asegurar string y limpiar espacios
+          nombre: fila[1].toString().trim(),
+        }));
 
-    if (checklistItems.length === 0) {
-      console.warn('No hay items válidos para procesar.');
-      return;
-    }
+      if (checklistItems.length === 0) {
+        console.warn('No hay items válidos para procesar.');
+        return;
+      }
 
-    console.log(`Procesando ${checklistItems.length} items válidos...`);
-    
-    this.mostrarPantallaCarga();
-    await this.enviarItemsALaBD(checklistItems);
-    this.cerrarPantallaCarga();
-  };
+      console.log(`Procesando ${checklistItems.length} items válidos...`);
 
-  reader.readAsArrayBuffer(archivo);
-}
+      this.mostrarPantallaCarga();
+      await this.enviarItemsALaBD(checklistItems);
+      this.cerrarPantallaCarga();
+    };
+
+    reader.readAsArrayBuffer(archivo);
+  }
 
   async enviarItemsALaBD(items: CheckListItem[]) {
     let itemsInsertados = 0;
@@ -119,7 +134,7 @@ async procesarArchivoExcel(archivo: File) {
 
   mostrarPantallaCarga() {
     this.dialog.open(LoadingDialogComponent, {
-      disableClose: true
+      disableClose: true,
     });
   }
 

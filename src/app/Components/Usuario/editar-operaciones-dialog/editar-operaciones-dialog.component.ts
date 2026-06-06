@@ -1,21 +1,26 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common'; // <-- IMPORTANTE
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { CommonModule } from '@angular/common';
+import {
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+} from '@angular/material/dialog';
 import { UsuarioService } from '../../../services/usuario.service';
 import { FormsModule } from '@angular/forms';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-
+import { CheckboxModule } from 'primeng/checkbox';
+import { ButtonModule } from 'primeng/button';
 @Component({
   selector: 'app-editar-operaciones-dialog',
-  standalone: true, // <-- IMPORTANTE
+  standalone: true,
   imports: [
-    CommonModule,        // <-- AGREGA ESTO
+    CommonModule,
     MatDialogModule,
-    MatCheckboxModule,
-    FormsModule
+    FormsModule,
+    CheckboxModule,
+    ButtonModule,
   ],
   templateUrl: './editar-operaciones-dialog.component.html',
-  styleUrls: ['./editar-operaciones-dialog.component.css']
+  styleUrls: ['./editar-operaciones-dialog.component.css'],
 })
 export class EditarOperacionesDialogComponent implements OnInit {
   operacionesDisponibles = [
@@ -27,7 +32,7 @@ export class EditarOperacionesDialogComponent implements OnInit {
     'SERVICIOS AUXILIARES',
     'ACEROS DE PERFORACIÓN',
     'PERFORACIÓN HORIZONTAL',
-    'PERFORACIÓN TALADROS LARGOS'
+    'PERFORACIÓN TALADROS LARGOS',
   ];
 
   operacionesSeleccionadas: { [key: string]: boolean } = {};
@@ -35,41 +40,50 @@ export class EditarOperacionesDialogComponent implements OnInit {
   constructor(
     private usuarioService: UsuarioService,
     public dialogRef: MatDialogRef<EditarOperacionesDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { id: number, operacionesAutorizadas: { [key: string]: boolean } }
+    @Inject(MAT_DIALOG_DATA)
+    public data: {
+      id: number;
+      operacionesAutorizadas: { [key: string]: boolean };
+    },
   ) {}
 
-ngOnInit() {
-  console.log('Datos recibidos en el diálogo:', this.data);
+  ngOnInit() {
+    console.log('Datos recibidos en el diálogo:', this.data);
 
-  // Inicializa todas en false
-  this.operacionesDisponibles.forEach(op => {
-    this.operacionesSeleccionadas[op] = false;
-  });
+    // Inicializa todas en false
+    this.operacionesDisponibles.forEach((op) => {
+      this.operacionesSeleccionadas[op] = false;
+    });
 
-  // Si ya vienen operaciones autorizadas, inicializamos con ellas
-  if (this.data.operacionesAutorizadas) {
-    for (const key in this.data.operacionesAutorizadas) {
-      if (this.operacionesSeleccionadas.hasOwnProperty(key)) {
-        this.operacionesSeleccionadas[key] = this.data.operacionesAutorizadas[key];
+    // Si ya vienen operaciones autorizadas, inicializamos con ellas
+    if (this.data.operacionesAutorizadas) {
+      for (const key in this.data.operacionesAutorizadas) {
+        if (this.operacionesSeleccionadas.hasOwnProperty(key)) {
+          this.operacionesSeleccionadas[key] =
+            this.data.operacionesAutorizadas[key];
+        }
       }
     }
   }
 
-  console.log('Estado inicial de operacionesSeleccionadas:', this.operacionesSeleccionadas);
-}
+  cancelar(): void {
+    this.dialogRef.close(false);
+  }
 
+  guardar() {
+    // Mostramos en consola exactamente lo que se enviará
+    console.log('Enviando a la API:', {
+      id: this.data.id,
+      operaciones_autorizadas: this.operacionesSeleccionadas,
+    });
 
-guardar() {
-  // Mostramos en consola exactamente lo que se enviará
-  console.log('Enviando a la API:', {
-    id: this.data.id,
-    operaciones_autorizadas: this.operacionesSeleccionadas
-  });
-
-  this.usuarioService.actualizarOperacionesAutorizadas(this.data.id, this.operacionesSeleccionadas).subscribe(() => {
-    this.dialogRef.close('actualizado');
-  });
-}
-
-
+    this.usuarioService
+      .actualizarOperacionesAutorizadas(
+        this.data.id,
+        this.operacionesSeleccionadas,
+      )
+      .subscribe(() => {
+        this.dialogRef.close('actualizado');
+      });
+  }
 }

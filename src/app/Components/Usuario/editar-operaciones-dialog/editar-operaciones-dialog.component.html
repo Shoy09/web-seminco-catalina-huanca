@@ -1,10 +1,60 @@
-<h2 mat-dialog-title>Editar Operaciones Autorizadas</h2>
-<mat-dialog-content>
-  <mat-checkbox *ngFor="let op of operacionesDisponibles" [(ngModel)]="operacionesSeleccionadas[op]">
-    {{ op }}
-  </mat-checkbox>
-</mat-dialog-content>
-<mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close>Cancelar</button>
-  <button mat-raised-button color="primary" (click)="guardar()">Guardar</button>
-</mat-dialog-actions>
+<div
+  class="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-2xl bg-surface shadow-xl"
+>
+  <!-- HEADER FIJO -->
+  <div class="shrink-0 border-b border-border px-6 py-5">
+    <h2 class="text-2xl font-extrabold text-secondary">
+      Editar Operaciones Autorizadas
+    </h2>
+
+    <p class="mt-1 text-sm text-ink-75">
+      Selecciona las operaciones que tendrá autorizadas el usuario.
+    </p>
+  </div>
+
+  <!-- CONTENIDO CON SCROLL -->
+  <div class="min-h-0 flex-1 overflow-y-auto px-6 py-5">
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div
+        *ngFor="let op of operacionesDisponibles; let i = index"
+        class="flex items-center gap-3 rounded-xl border border-border bg-surface-soft px-4 py-3 transition hover:border-primary hover:bg-primary-25"
+      >
+        <p-checkbox
+          [(ngModel)]="operacionesSeleccionadas[op]"
+          [binary]="true"
+          [inputId]="'op-' + i"
+        >
+        </p-checkbox>
+
+        <label
+          [for]="'op-' + i"
+          class="cursor-pointer text-sm font-bold text-ink"
+        >
+          {{ op }}
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER FIJO -->
+  <div class="shrink-0 flex justify-end gap-3 border-t border-border px-6 py-4">
+    <button
+      pButton
+      type="button"
+      label="Cancelar"
+      icon="pi pi-times"
+      severity="danger"
+      outlined="true"
+      (click)="cancelar()"
+    ></button>
+
+    <button
+      pButton
+      type="button"
+      label="Guardar"
+      icon="pi pi-save"
+      severity="success"
+      (click)="guardar()"
+    ></button>
+  </div>
+</div>

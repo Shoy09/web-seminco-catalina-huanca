@@ -86,7 +86,11 @@ export class CheckListListaComponent implements OnInit {
 
   abrirSeleccionProcesoDialogo() {
     const dialogRef = this.dialog.open(SeleccionProcesoDialogComponent, {
-      width: '400px',
+      width: '95vw',
+      maxWidth: '1200px',
+      maxHeight: '90vh',
+      autoFocus: false,
+      panelClass: 'seleccion-proceso-dialog',
     });
 
     dialogRef.afterClosed().subscribe((procesoSeleccionado) => {

@@ -1,40 +1,118 @@
-<div class="container">
-  <h2>Crear Nuevo Checklist</h2>
+<div class="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-2xl bg-surface shadow-xl">
 
-  <form [formGroup]="checkListForm" (ngSubmit)="onSubmit()">
+  <!-- HEADER FIJO -->
+  <div class="shrink-0 border-b border-border px-6 py-5">
+    <h2 class="text-2xl font-extrabold text-secondary">
+      Crear Nuevo Checklist
+    </h2>
 
-    <!-- Proceso (solo lectura) -->
-    <div class="form-group">
-      <label for="proceso">Proceso</label>
-      <input id="proceso" formControlName="proceso" readonly />
-    </div>
+    <p class="mt-1 text-sm text-ink-75">
+      Registra un nuevo ítem de checklist para el proceso seleccionado.
+    </p>
+  </div>
 
-    <!-- Categoría -->
-<div class="form-group">
-  <label for="categoria">Categoría</label>
-  <select id="categoria" formControlName="categoria" required>
-  <option value="" disabled>Seleccionar categoría</option>
+  <!-- CONTENIDO CON SCROLL -->
+  <div class="min-h-0 flex-1 overflow-y-auto px-6 py-5">
 
-  <option *ngFor="let cat of categorias" [value]="cat">
-    {{cat}}
-  </option>
+    <form [formGroup]="checkListForm" (ngSubmit)="onSubmit()" class="space-y-5">
 
-</select>
-</div>
+      <!-- PROCESO -->
+      <div class="flex flex-col gap-2">
+        <label for="proceso" class="text-sm font-bold text-ink">
+          Proceso
+        </label>
 
+        <input
+          id="proceso"
+          pInputText
+          type="text"
+          formControlName="proceso"
+          readonly
+          class="w-full bg-surface-soft font-bold text-secondary"
+        />
+      </div>
 
-    <!-- Nombre -->
-    <div class="form-group">
-      <label for="nombre">Nombre</label>
-      <input id="nombre" formControlName="nombre" required />
-    </div>
+      <!-- CATEGORÍA -->
+      <div class="flex flex-col gap-2">
+        <label for="categoria" class="text-sm font-bold text-ink">
+          Categoría
+        </label>
 
-    <!-- Botones -->
-    <div class="button-container">
-      <button type="submit" [disabled]="checkListForm.invalid">Crear</button>
-      <button type="button" class="cancel-btn" (click)="onCancel()">Cancelar</button>
-    </div>
-  </form>
+        <p-select
+          inputId="categoria"
+          [options]="categorias"
+          formControlName="categoria"
+          placeholder="Seleccionar categoría"
+          styleClass="w-full"
+          appendTo="body">
+        </p-select>
 
-  <p *ngIf="mensaje" class="mensaje">{{ mensaje }}</p>
+        <small
+          class="text-danger"
+          *ngIf="checkListForm.get('categoria')?.invalid && checkListForm.get('categoria')?.touched"
+        >
+          La categoría es obligatoria.
+        </small>
+      </div>
+
+      <!-- NOMBRE -->
+      <div class="flex flex-col gap-2">
+        <label for="nombre" class="text-sm font-bold text-ink">
+          Nombre
+        </label>
+
+        <input
+          id="nombre"
+          pInputText
+          type="text"
+          formControlName="nombre"
+          placeholder="Ingrese el nombre del checklist"
+          class="w-full"
+        />
+
+        <small
+          class="text-danger"
+          *ngIf="checkListForm.get('nombre')?.invalid && checkListForm.get('nombre')?.touched"
+        >
+          El nombre es obligatorio.
+        </small>
+      </div>
+
+      <!-- MENSAJE -->
+      <div
+        *ngIf="mensaje"
+        class="rounded-xl border border-primary-50 bg-primary-25 px-4 py-3 text-sm font-bold text-secondary"
+      >
+        {{ mensaje }}
+      </div>
+
+    </form>
+
+  </div>
+
+  <!-- FOOTER FIJO -->
+  <div class="shrink-0 flex justify-end gap-3 border-t border-border px-6 py-4">
+
+    <button
+      pButton
+      type="button"
+      label="Cancelar"
+      icon="pi pi-times"
+      severity="danger"
+      outlined="true"
+      (click)="onCancel()">
+    </button>
+
+    <button
+      pButton
+      type="button"
+      label="Crear"
+      icon="pi pi-save"
+      severity="success"
+      [disabled]="checkListForm.invalid"
+      (click)="onSubmit()">
+    </button>
+
+  </div>
+
 </div>

@@ -1,38 +1,51 @@
-import { CommonModule } from "@angular/common";
-import { Component, Inject } from "@angular/core";
-import { ReactiveFormsModule, FormGroup, FormBuilder, Validators } from "@angular/forms";
-import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
-import { CheckListItemService } from "../../../../services/checklist-item.service";
-import { CheckListItem } from "../../../../models/checklist-item.model";
-
+import { CommonModule } from '@angular/common';
+import { Component, Inject } from '@angular/core';
+import {
+  ReactiveFormsModule,
+  FormGroup,
+  FormBuilder,
+  Validators,
+} from '@angular/forms';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { CheckListItemService } from '../../../../services/checklist-item.service';
+import { CheckListItem } from '../../../../models/checklist-item.model';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
+import { ButtonModule } from 'primeng/button';
 @Component({
   selector: 'app-check-list-from',
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [
+    ReactiveFormsModule,
+    CommonModule,
+    InputTextModule,
+    SelectModule,
+    ButtonModule,
+  ],
   templateUrl: './check-list-from.component.html',
-  styleUrl: './check-list-from.component.css'
+  styleUrl: './check-list-from.component.css',
 })
-export class CheckListFromComponent  {
+export class CheckListFromComponent {
   checkListForm: FormGroup;
   mensaje: string = '';
-categorias: string[] = [];
+  categorias: string[] = [];
   constructor(
-  private fb: FormBuilder,
-  private checkListService: CheckListItemService,
-  public dialogRef: MatDialogRef<CheckListFromComponent>,
-  @Inject(MAT_DIALOG_DATA) public data: { 
-    proceso: string,
-    categorias: string[]
+    private fb: FormBuilder,
+    private checkListService: CheckListItemService,
+    public dialogRef: MatDialogRef<CheckListFromComponent>,
+    @Inject(MAT_DIALOG_DATA)
+    public data: {
+      proceso: string;
+      categorias: string[];
+    },
+  ) {
+    this.categorias = data.categorias;
+
+    this.checkListForm = this.fb.group({
+      proceso: [{ value: this.data.proceso, disabled: true }],
+      categoria: ['', Validators.required],
+      nombre: ['', Validators.required],
+    });
   }
-) {
-
-  this.categorias = data.categorias;
-
-  this.checkListForm = this.fb.group({
-    proceso: [{ value: this.data.proceso, disabled: true }],
-    categoria: ['', Validators.required],
-    nombre: ['', Validators.required]
-  });
-}
 
   onSubmit() {
     if (this.checkListForm.valid) {
@@ -49,7 +62,7 @@ categorias: string[] = [];
         error: (error) => {
           console.error('Error al crear el checklist:', error);
           this.mensaje = 'Ocurrió un error al crear el checklist.';
-        }
+        },
       });
     }
   }

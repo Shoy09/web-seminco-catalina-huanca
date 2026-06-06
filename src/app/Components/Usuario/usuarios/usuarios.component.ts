@@ -67,7 +67,11 @@ export class UsuariosComponent implements OnInit {
 
   abrirDialogoCrear() {
     const dialogRef = this.dialog.open(UsuarioDialogComponent, {
-      width: '400px',
+      width: '95vw',
+      maxWidth: '1200px',
+      maxHeight: '90vh',
+      autoFocus: false,
+      panelClass: 'crear-usuario-dialog',
       data: null,
     });
 
@@ -86,16 +90,13 @@ export class UsuariosComponent implements OnInit {
       .slice(0, 2);
   }
 
-  abrirDialogoOperaciones(operaciones: { [clave: string]: boolean }) {
-    this.dialog.open(OperacionesDialogComponent, {
-      width: '400px',
-      data: Object.keys(operaciones).filter((k) => operaciones[k]),
-    });
-  }
-
   abrirDialogoEditar(usuario: Usuario) {
     const dialogRef = this.dialog.open(UsuarioDialogComponent, {
-      width: '400px',
+      width: '95vw',
+      maxWidth: '1200px',
+      maxHeight: '90vh',
+      autoFocus: false,
+      panelClass: 'editar-usuario-dialog',
       data: usuario,
     });
 
@@ -312,7 +313,11 @@ export class UsuariosComponent implements OnInit {
     operacionesAutorizadas: { [key: string]: boolean },
   ) {
     const dialogRef = this.dialog.open(EditarOperacionesDialogComponent, {
-      width: '400px',
+      width: '95vw',
+      maxWidth: '1200px',
+      maxHeight: '90vh',
+      autoFocus: false,
+      panelClass: 'editar-operaciones-dialog',
       data: {
         id: usuarioId,
         operacionesAutorizadas: operacionesAutorizadas,

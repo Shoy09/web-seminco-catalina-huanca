@@ -1,7 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { PlanProduccion } from '../../../../models/plan_produccion.model';
 import { PlanProduccionService } from '../../../../services/plan-produccion.service';
-import { ToastrService } from 'ngx-toastr';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { ToastService } from '../../../../services/toast.service';

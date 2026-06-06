@@ -3,13 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import * as XLSX from 'xlsx-js-style';
-import { ToastrService } from 'ngx-toastr';
 import { ExplosivoService } from '../../../../services/explosivo.service';
 import { AccesorioService } from '../../../../services/accesorio.service';
 import { Accesorio } from '../../../../models/Accesorio';
 import { Explosivo } from '../../../../models/Explosivo';
 import { NubeDatosTrabajoExploracionesService } from '../../../../services/nube-datos-trabajo-exploraciones.service';
 import { NubeDatosTrabajoExploraciones } from '../../../../models/nube-datos-trabajo-exploraciones';
+import { ToastService } from '../../../../services/toast.service';
 
 @Component({
   selector: 'app-explosivos-graficos',
@@ -27,7 +27,7 @@ export class ExplosivosGraficosComponent implements OnInit {
 fechaHasta: string = '';
 turnoSeleccionado: string = '';
 turnos: string[] = ['DÍA', 'NOCHE'];
-  constructor(private explosivosService: NubeDatosTrabajoExploracionesService, private _toastr: ToastrService, private explosivoService: ExplosivoService,
+  constructor(private explosivosService: NubeDatosTrabajoExploracionesService, private toast: ToastService, private explosivoService: ExplosivoService,
       private accesorioService: AccesorioService,) {}
 
   ngOnInit(): void {
@@ -101,11 +101,11 @@ cargarAccesorios(): void {
       };
 
       // Mostrar notificación de éxito
-      this._toastr.success('Datos cargados correctamente', '✔ Éxito');
+      this.toast.success('Datos cargados correctamente', '✔ Éxito');
     },
     error: (err) => {
       console.error('❌ Error al obtener datos:', err);
-      this._toastr.error('Error al cargar los datos, token invalido', '❌ Error');
+      this.toast.error('Error al cargar los datos, token invalido', '❌ Error');
     }
   });
 }
