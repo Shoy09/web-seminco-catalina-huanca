@@ -58,6 +58,7 @@ import { HorasOperativasSemanaComponent } from '../Graficos components/HorasOper
 import { generarDiasEntreFechas, MESES_CORTOS, obtenerPeriodo, obtenerPeriodoDesdeKey, obtenerRangoSemanaISO, obtenerSemanaISO, parseFechaLocal, parseFechaSimple } from '../../../../../utils/fecha-utils';
 import { ParetoUtilizacionComponent } from "../../horizontal/Graficos components/Pareto/pareto-utilizacion/pareto-utilizacion.component";
 import { ParetoDisponibilidadComponent } from "../../horizontal/Graficos components/Pareto/pareto-disponibilidad/pareto-disponibilidad.component";
+import { ToneladasScoopService } from '../../../../../services/toneladas-scoop.service';
 
 
 @Component({
@@ -175,6 +176,8 @@ dataHorasOperativasDia: any[] = [];
 dataHorasOperativasSemana: any[] = [];
 dataHorasOperativasMes: any[] = [];
 
+toneladasScoops: any[] = [];
+
 constructor(
     private planMensualService: PlanMensualService,
     private fechasPlanMensualService: FechasPlanMensualService,
@@ -183,6 +186,7 @@ constructor(
         private excelImportService: ExcelImportService,
         private equipoService: EquipoService,
         private dialog: MatDialog,
+private toneladasScoopService: ToneladasScoopService
   ) {}
 
   ngOnInit(): void {
@@ -197,13 +201,27 @@ constructor(
     this.cargarOperaciones();
     this.obtenerEstadosPorProceso('SCOOPTRAM');
     this.obtenerEquiposPorProceso('SCOOPTRAM');
+
+    this.cargarToneladasScoops();
   }
+
+  cargarToneladasScoops(): void {
+  this.toneladasScoopService.getToneladasScoops().subscribe({
+    next: (data) => {
+      this.toneladasScoops = data;
+      console.log('Toneladas Scoops:', data);
+    },
+    error: (err) => {
+      console.error('Error al cargar toneladas scoop:', err);
+    }
+  });
+}
 
   toggleDataZoom(): void {
     this.showZoom = !this.showZoom;
   }
 
-  Presentacion() {
+Presentacion() {
   if (!this.operacionesFiltradas || this.operacionesFiltradas.length === 0) {
     console.warn('No hay datos filtrados para mostrar');
     return;
@@ -218,12 +236,12 @@ constructor(
       fechaInicio: this.fechaInicio,
       fechaFin: this.fechaFin,
       equipos: this.equiposProceso,
+      toneladasScoops: this.toneladasScoops
     },
     disableClose: false,
     autoFocus: true
   });
 
-  // Opcional: Escuchar cuando se cierre el diálogo
   dialogRef.afterClosed().subscribe(result => {
     console.log('Diálogo cerrado', result);
   });

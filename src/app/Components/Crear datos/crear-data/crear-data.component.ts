@@ -16,6 +16,7 @@ import { OrigenDestinoService } from '../../../services/origen-destino.service';
 import { GuardiaService } from '../../../services/guardia.service';
 import { MaterialService } from '../../../services/material.service';
 import { EmpresaService } from '../../../services/empresa.service';
+import { ToneladasScoopService } from '../../../services/toneladas-scoop.service';
 
 
 @Component({
@@ -56,7 +57,8 @@ datoOriginal: any = null;
   private origenDestinoService: OrigenDestinoService,
   private guardiaService: GuardiaService,
     private materialService: MaterialService,
-  private empresaService: EmpresaService
+  private empresaService: EmpresaService,
+  private toneladasScoopService: ToneladasScoopService,
   ) {} // Inyecta los servicios
 
   ngOnInit() {
@@ -216,6 +218,36 @@ datoOriginal: any = null;
   campos: [
     { nombre: 'tipo_perno', label: 'Tipo de Perno', tipo: 'text' },
     { nombre: 'longitud', label: 'Longitud', tipo: 'number' }
+  ]
+},
+{
+  nombre: 'Toneladas Scoops',
+  icon: 'mas.svg',
+  tipo: 'ToneladasScoop',
+  datos: [],
+  campos: [
+    {
+      nombre: 'fecha',
+      label: 'Fecha',
+      tipo: 'date'
+    },
+    {
+      nombre: 'turno',
+      label: 'Turno',
+      tipo: 'select',
+      opciones: ['DIA', 'NOCHE']
+    },
+    {
+  nombre: 'mineral',
+  label: 'Mineral',
+  tipo: 'select',
+  opciones: []
+},
+    {
+      nombre: 'factor',
+      label: 'Factor',
+      tipo: 'number'
+    }
   ]
 },
 {
@@ -410,6 +442,19 @@ else if (this.modalContenido.tipo === 'Mallas') {
       this.cancelarEdicion();
     },
     error: (err) => console.error('Error al actualizar Empresa:', err)
+  });
+}else if (this.modalContenido.tipo === 'ToneladasScoop') {
+
+  if (datosActualizados.fecha) {
+    datosActualizados.fecha = this.formatearFecha(datosActualizados.fecha);
+  }
+
+  this.toneladasScoopService.updateToneladasScoop(id, datosActualizados).subscribe({
+    next: (data) => {
+      this.modalContenido.datos[this.indiceEditando] = data;
+      this.cancelarEdicion();
+    },
+    error: (err) => console.error('Error al actualizar Toneladas Scoop:', err)
   });
 }
 
@@ -673,6 +718,28 @@ else if (button.tipo === 'Mallas') {
     },
     error: (err) => console.error('Error al cargar Empresas:', err)
   });
+}else if (button.tipo === 'ToneladasScoop') {
+
+  this.toneladasScoopService.getToneladasScoops().subscribe({
+    next: (data) => {
+      this.modalContenido.datos = data;
+    },
+    error: (err) => console.error('Error al cargar Toneladas Scoop:', err)
+  });
+
+  this.materialService.getMaterialesByProceso('SCOOPTRAM').subscribe({
+    next: (materiales) => {
+
+      const campoMineral = this.modalContenido.campos.find(
+        (c: any) => c.nombre === 'mineral'
+      );
+
+      if (campoMineral) {
+        campoMineral.opciones = materiales.map(m => m.nombre);
+      }
+    },
+    error: (err) => console.error('Error al cargar materiales:', err)
+  });
 }
 
   }
@@ -801,6 +868,18 @@ else if (this.modalContenido.tipo === 'Mallas') {
     },
     error: (err) => console.error('Error al guardar Empresa:', err)
   });
+}else if (this.modalContenido.tipo === 'ToneladasScoop') {
+
+  if (nuevoRegistro.fecha) {
+    nuevoRegistro.fecha = this.formatearFecha(nuevoRegistro.fecha);
+  }
+
+  this.toneladasScoopService.createToneladasScoop(nuevoRegistro).subscribe({
+    next: (data) => {
+      this.modalContenido.datos.push(data);
+    },
+    error: (err) => console.error('Error al guardar Toneladas Scoop:', err)
+  });
 }
 
       this.nuevoDato = {};
@@ -915,9 +994,28 @@ else if (this.modalContenido.tipo === 'Mallas') {
     },
     error: (err) => console.error('Error al eliminar Empresa:', err)
   });
+}else if (this.modalContenido.tipo === 'ToneladasScoop') {
+  this.toneladasScoopService.deleteToneladasScoop(item.id).subscribe({
+    next: () => {
+      this.modalContenido.datos = this.modalContenido.datos.filter(
+        (dato: any) => dato.id !== item.id
+      );
+    },
+    error: (err) => console.error('Error al eliminar Toneladas Scoop:', err)
+  });
 }
 
   }
+
+  formatearFecha(fecha: string | Date): string {
+  const d = new Date(fecha);
+
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
 
   descargar(item: any): void {}
 }

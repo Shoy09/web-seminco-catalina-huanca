@@ -92,10 +92,12 @@ DataUtilizacionGuardia: any[] = [];
 DataToneladasPorHora: any[] = [];
 DataToneladasPorEquipoYRangoHora: any[] = [];
 
+toneladasScoops: any[] = [];
+
 private equiposProceso: any[] = [];
 isFullscreen: boolean = false;
 
-  constructor(
+constructor(
   public dialogRef: MatDialogRef<PresentacionDialogComponent>,
   @Inject(MAT_DIALOG_DATA) public data: any
 ) {
@@ -107,6 +109,11 @@ isFullscreen: boolean = false;
   // Extraer equiposProceso de los datos recibidos
   this.equiposProceso = data.equipos || [];
   //console.log('Equipos proceso:', this.equiposProceso);
+
+  this.toneladasScoops = data.toneladasScoops || [];
+  
+  // ✅ AGREGAR ESTE CONSOLE.LOG PARA VER LO QUE RECIBES
+  console.log('📊 toneladasScoops recibido:', this.toneladasScoops);
 }
 
     ngOnInit(): void {

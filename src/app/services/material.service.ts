@@ -17,6 +17,13 @@ export class MaterialService {
     return this.apiService.getDatos(`${this.baseUrl}/`);
   }
 
+  getMaterialesByProceso(proceso: string): Observable<Material[]> {
+    return this.apiService.getDatos(
+      `${this.baseUrl}/proceso/${encodeURIComponent(proceso)}`
+    );
+  }
+
+
   // Obtener un material por ID
   getMaterialById(id: number): Observable<Material> {
     return this.apiService.getDatos(`${this.baseUrl}/${id}`);
