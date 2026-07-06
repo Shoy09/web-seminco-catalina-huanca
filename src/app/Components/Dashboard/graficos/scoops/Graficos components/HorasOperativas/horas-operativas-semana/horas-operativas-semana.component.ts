@@ -31,7 +31,6 @@ export class HorasOperativasSemanaComponent implements OnInit, OnChanges {
   }
 
   procesarDatos(): void {
-    console.log('DATA HORAS OPERATIVAS DÍA:', this.data);
 
     if (!this.data || this.data.length === 0) {
       this.chartOptions = {};

@@ -1,150 +1,311 @@
-.dashboard-container {
+:host {
   display: flex;
-  gap: 20px;
+  flex-direction: column;
   width: 100%;
-  align-items: stretch;
+  height: 100%;
+  flex: 1;
 }
 
+/* ============================= */
+/* CONTENEDOR PRINCIPAL */
+/* ============================= */
+
+.dashboard-container {
+  width: 100%;
+  min-height: 620px;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 18px;
+
+  align-items: stretch;
+
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+/* ============================= */
+/* COLUMNA IZQUIERDA - GRÁFICO */
+/* ============================= */
+
 .grafico-columna {
-  flex: 3;
   min-width: 0;
+  min-height: 620px;
+
+  display: flex;
+  flex-direction: column;
+
+  background: #ffffff;
+  border: 1px solid rgba(20, 90, 82, 0.12);
+  border-radius: 16px;
+
+  padding: 12px;
+  box-sizing: border-box;
+
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 }
 
 .grafico-echarts {
   width: 100%;
-  height: 500px;
+  height: 100%;
+  min-height: 590px;
+
+  flex: 1;
 }
 
-/* Columna derecha compacta */
-.totales-columna {
-  flex: 0.8;
-  min-width: 200px;
-  background: white;
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e9ecef;
+/* ============================= */
+/* COLUMNA DERECHA */
+/* ============================= */
+
+.sidebar-columna {
+  width: 100%;
+  min-width: 320px;
+  max-width: 380px;
+
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  min-height: 0;
+}
+
+.contenedor-inferior {
+  flex: 1;
+  min-height: 0;
+
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: 14px;
+}
+
+/* ============================= */
+/* TARJETAS DERECHA */
+/* ============================= */
+
+.totales-columna,
+.equipos-columna {
+  min-height: 0;
+
+  background: #ffffff;
+  border: 1px solid rgba(20, 90, 82, 0.12);
+  border-radius: 16px;
+
+  padding: 14px;
+  box-sizing: border-box;
+
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header de cada tarjeta */
+
+.totales-header {
+  flex: 0 0 auto;
+
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+
+  border-bottom: 1px solid rgba(20, 90, 82, 0.12);
 }
 
 .totales-header h4 {
   margin: 0;
-  font-size: 0.85rem;
-  color: #6c757d;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  border-left: 3px solid #27ae60;
-  padding-left: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ch-forest-green, #145a52);
+  letter-spacing: 0.3px;
 }
+
+/* Lista interna */
 
 .totales-lista {
+  flex: 1;
+  min-height: 0;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  padding-right: 4px;
+
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
+/* Scroll limpio */
+
+.totales-lista::-webkit-scrollbar {
+  width: 6px;
+}
+
+.totales-lista::-webkit-scrollbar-thumb {
+  background: rgba(20, 90, 82, 0.35);
+  border-radius: 10px;
+}
+
+.totales-lista::-webkit-scrollbar-track {
+  background: rgba(20, 90, 82, 0.06);
+  border-radius: 10px;
+}
+
+/* Item de material/equipo */
+
 .total-item {
-  padding: 8px 12px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-  cursor: pointer;
+  flex: 0 0 auto;
+
+  background: linear-gradient(
+    135deg,
+    rgba(0, 160, 100, 0.08),
+    rgba(191, 231, 216, 0.18)
+  );
+
+  border: 1px solid rgba(0, 160, 100, 0.12);
+  border-radius: 12px;
+
+  padding: 9px 10px;
+  box-sizing: border-box;
+
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .total-item:hover {
-  background: #e9ecef;
-  transform: translateX(3px);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
 .total-item-info {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
+  gap: 10px;
 }
 
 .total-item-nombre {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #495057;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #333333;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .total-item-valor {
-  font-size: 1rem;
-  font-weight: bold;
-  color: #212529;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ch-catalina-green, #00a064);
+
+  white-space: nowrap;
 }
 
-.total-item-valor::after {
-  content: '';
-}
-
-/* Colores en el borde izquierdo */
-.total-mineral {
-  border-left: 3px solid #9df6c2;
-}
-
-.total-desmonte {
-  border-left: 3px solid #1eff7c;
-}
-
-.total-relave {
-  border-left: 3px solid #2ecc71;
-}
-
-.total-relleno {
-  border-left: 3px solid #27ae60;
-}
+/* Total general inferior */
 
 .total-general {
+  flex: 0 0 auto;
+
+  margin-top: 10px;
+  padding: 10px 12px;
+
+  background: var(--ch-forest-green, #145a52);
+  color: #ffffff;
+
+  border-radius: 12px;
+
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: baseline;
-  padding-top: 12px;
-  margin-top: 4px;
-  border-top: 2px solid #e9ecef;
-  font-size: 0.85rem;
+  gap: 12px;
 }
 
+.total-general-label,
 .total-general span {
-  color: #6c757d;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
 }
 
+.total-general-value,
 .total-general strong {
-  font-size: 1.1rem;
-  color: #27ae60;
-  font-weight: bold;
+  font-size: 14px;
+  font-weight: 900;
+  white-space: nowrap;
 }
+
+/* ============================= */
+/* MENSAJE SIN DATOS */
+/* ============================= */
 
 .sin-datos {
+  margin: 12px;
+  padding: 18px;
+
+  background: #ffffff;
+  border: 1px dashed rgba(20, 90, 82, 0.25);
+  border-radius: 14px;
+
   text-align: center;
-  padding: 50px;
-  color: #adb5bd;
-  font-size: 0.9rem;
+  color: #666666;
+  font-weight: 700;
 }
 
-/* Responsive */
+.sin-datos p {
+  margin: 0;
+}
+
+/* ============================= */
+/* RESPONSIVE */
+/* ============================= */
+
+@media (max-width: 1200px) {
+  .dashboard-container {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .grafico-columna {
+    min-height: 500px;
+  }
+
+  .grafico-echarts {
+    min-height: 470px;
+  }
+
+  .sidebar-columna {
+    max-width: none;
+    min-width: 0;
+  }
+
+  .contenedor-inferior {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+  }
+
+  .totales-columna,
+  .equipos-columna {
+    min-height: 260px;
+  }
+}
+
 @media (max-width: 768px) {
   .dashboard-container {
-    flex-direction: column;
+    padding: 8px;
+    gap: 12px;
   }
-  
-  .totales-columna {
-    min-width: auto;
+
+  .grafico-columna {
+    min-height: 430px;
   }
-  
-  .totales-lista {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+
+  .grafico-echarts {
+    min-height: 400px;
   }
-  
-  .total-general {
-    grid-column: 1 / -1;
+
+  .contenedor-inferior {
+    grid-template-columns: 1fr;
+  }
+
+  .totales-columna,
+  .equipos-columna {
+    min-height: 240px;
   }
 }
