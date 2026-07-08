@@ -3,7 +3,7 @@ import { ApiService } from './api.service';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { ToneladasScoop } from '../models/ToneladasScoop';
 
-@Injectable({
+@Injectable({ 
   providedIn: 'root'
 })
 export class ToneladasScoopService {
