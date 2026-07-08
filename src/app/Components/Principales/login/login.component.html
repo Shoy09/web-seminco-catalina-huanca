@@ -38,7 +38,34 @@
           <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
         </div>
       </form>
-    </div> 
+      
+<!-- ── Separador ─────────────────────────────────────────────────── -->
+    <div class="sso-divider">
+      <span>o continúa con</span>
+    </div>
+
+    <!-- ── Botón Microsoft SSO ──────────────────────────────────────── -->
+    <button class="btn-microsoft"
+            (click)="loginMicrosoft()"
+            [disabled]="cargandoSSO"
+            type="button">
+
+      <!-- Logo Microsoft SVG oficial -->
+      <svg *ngIf="!cargandoSSO" xmlns="http://www.w3.org/2000/svg"
+           width="20" height="20" viewBox="0 0 21 21">
+        <rect x="1"  y="1"  width="9" height="9" fill="#f25022"/>
+        <rect x="11" y="1"  width="9" height="9" fill="#7fba00"/>
+        <rect x="1"  y="11" width="9" height="9" fill="#00a4ef"/>
+        <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+      </svg>
+
+      <!-- Spinner mientras redirige -->
+      <span *ngIf="cargandoSSO" class="spinner-ms"></span>
+
+      <span>{{ cargandoSSO ? 'Redirigiendo...' : 'Iniciar sesión con Microsoft' }}</span>
+    </button>
+
+  </div>
 
     <div class="right-panel">
       <img src="login/slohomc.png" class="side-image" alt="Imagen de fondo" />
