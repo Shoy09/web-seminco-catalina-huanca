@@ -1,19 +1,73 @@
-<!-- equipos-menu.component.html -->
-<div class="equipos-container">
-  <div class="header">
-    <h1 class="titulo">Operaciones por Equipo</h1>
-    <p class="subtitulo">Seleccione un equipo para gestionar sus operaciones</p>
-  </div>
-  
-  <div class="botones-grid">
-    <button 
-      *ngFor="let equipo of equipos" 
-      class="boton-equipo"
-      (click)="navigateToEquipo(equipo.ruta)">
-      <div class="boton-contenido">
-        <i [class]="equipo.icono + ' icono'"></i>
-        <span class="boton-texto">{{ equipo.nombre }}</span>
+<div class="space-y-5">
+  <!-- Header -->
+  <section class="overflow-hidden rounded-3xl border border-border bg-surface shadow-sm">
+    <div class="bg-gradient-to-r from-secondary via-secondary-75 to-primary p-5 text-white">
+      <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div class="max-w-3xl">
+          <h1 class="mt-2 text-2xl font-black">Operaciones por Equipo</h1>
+          <p class="mt-1 text-sm text-white/80">
+            Seleccione un equipo para gestionar sus operaciones y métricas de rendimiento.
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-3 py-2 backdrop-blur-sm">
+          <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/15">
+            <i class="pi pi-sitemap text-lg text-white"></i>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-white/75">Equipos disponibles</p>
+            <p class="text-xl font-black">{{ equipos.length }}</p>
+          </div>
+        </div>
       </div>
-    </button>
-  </div>
+    </div>
+  </section>
+
+  <!-- Grid de equipos - Más compacto -->
+  <section class="rounded-3xl border border-border bg-surface p-4 shadow-sm">
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+      <button
+        *ngFor="let equipo of equipos"
+        (click)="navigateToEquipo(equipo.ruta)"
+        class="group relative overflow-hidden rounded-xl border border-border bg-surface p-3 text-center transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary-25"
+      >
+        <!-- Fondo decorativo más pequeño -->
+        <div class="absolute -right-6 -top-6 h-16 w-16 rounded-full bg-primary-25 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+        <div class="absolute -bottom-6 -left-6 h-16 w-16 rounded-full bg-secondary-25 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+        
+        <!-- Contenido compacto -->
+        <div class="relative z-10 flex flex-col items-center">
+          <!-- Icono más pequeño -->
+          <div class="mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary-25 to-secondary-25 text-primary transition-all duration-300 group-hover:scale-105 group-hover:from-primary group-hover:to-secondary group-hover:text-white">
+            <i [class]="equipo.icono + ' text-xl'"></i>
+          </div>
+          
+          <!-- Nombre más pequeño -->
+          <h3 class="text-sm font-semibold text-ink transition-colors group-hover:text-secondary">
+            {{ equipo.nombre }}
+          </h3>
+          
+          <!-- Línea decorativa más delgada -->
+          <div class="mt-1.5 h-0.5 w-6 rounded-full bg-primary-25 transition-all duration-300 group-hover:w-8 group-hover:bg-primary"></div>
+          
+          <!-- Subtítulo más pequeño y oculto en móvil -->
+          <p class="mt-1.5 text-[10px] text-ink-50 hidden sm:block">
+            Gestionar
+          </p>
+          
+          <!-- Indicador más sutil -->
+          <div class="mt-2 flex items-center gap-1 text-[10px] font-medium text-primary opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+            <span>Ver</span>
+            <i class="pi pi-arrow-right text-[10px]"></i>
+          </div>
+        </div>
+      </button>
+    </div>
+
+    <!-- Mensaje vacío -->
+    <div *ngIf="equipos.length === 0" class="py-8 text-center">
+      <i class="pi pi-inbox text-3xl text-ink-25"></i>
+      <p class="mt-2 text-sm text-ink-75">No hay equipos disponibles para mostrar</p>
+    </div>
+  </section>
 </div>

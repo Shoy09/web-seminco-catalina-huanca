@@ -37,6 +37,7 @@ import { PrincipalGraficoScoopsComponent } from './Components/Dashboard/graficos
 import { LineaPrincipalComponent } from './Components/Dashboard/graficos/Linea de tiempo/linea.principal/linea.principal.component';
 import { PrincipalScissorComponent } from './Components/Jefe mina/aprobaciones/scissor/principal/principal.component';
 import { PrincipalGraficoAcarreoComponent } from './Components/Dashboard/graficos/acarreo/principal-grafico-acarreo/principal-grafico-acarreo.component';
+import { NotificacionesEmailComponent } from './Components/Notificaciones/notificaciones-email/notificaciones-email.component';
 
 
 
@@ -96,6 +97,7 @@ export const routes: Routes = [
 { path: 'explosivos', component: ExplosivosComponent },
 { path: 'explosivos-graficos', component: ExplosivosGraficosComponent },
 { path: 'linea-de-tiempo', component: LineaPrincipalComponent },
+{ path: 'notificaciones-email', component: NotificacionesEmailComponent },
     ]
   },
 

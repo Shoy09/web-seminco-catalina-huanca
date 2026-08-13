@@ -1,68 +1,143 @@
-<div class="layout-container" [ngClass]="{ 'colapsado': menuColapsado }">
-    <!-- Menú lateral -->
-    <aside class="sidebar" [class.colapsado]="menuColapsado">
-      <div class="logo-container">
-        <img src="login/logo1.png" alt="Logo de la empresa" class="logo">
-      </div>
-      <div class="user" *ngIf="!menuColapsado">
-        <img src="lp.svg" alt="Logo de la empresa" class="logop">
-        <div class="user-info">
-          <p class="nombre"></p>
-          <p class="rol">Administrador</p>
+<div class="min-h-screen bg-surface-soft text-ink">
+  <!-- OVERLAY MOBILE -->
+  <div *ngIf="menuMovilAbierto"
+    class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden"
+    (click)="cerrarMenuMovil()"></div>
+
+  <!-- SIDEBAR -->
+  <aside
+    class="fixed left-0 top-0 z-50 flex h-screen flex-col border-r border-white/10 bg-menu-bg text-menu-text shadow-2xl transition-all duration-300"
+    [ngClass]="{
+      'md:w-[84px]': menuColapsado,
+      'md:w-[280px]': !menuColapsado,
+      'translate-x-0': menuMovilAbierto,
+      '-translate-x-full md:translate-x-0': !menuMovilAbierto
+    }">
+
+    <!-- LOGO -->
+    <div class="flex h-20 items-center justify-center border-b-2 border-white/10 px-4 bg-white rounded-b-2xl">
+      <img src="login/logo1.png" alt="Logo de la empresa"
+        class="object-contain transition-all duration-300"
+        [ngClass]="menuColapsado ? 'h-10 max-w-10' : 'h-15 max-w-[180px]'" />
+    </div>
+
+    <!-- USER INFO -->
+    <div *ngIf="!menuColapsado" class="mx-3 mt-4 rounded-2xl border border-white/10 bg-white/10 p-3">
+      <div class="flex items-center gap-3">
+        <img src="lp.svg" alt="Usuario" class="h-11 w-11 rounded-full bg-white object-cover p-1" />
+        <div class="min-w-0">
+          <p class="truncate text-sm font-bold text-menu-text">Usuario</p>
+          <p class="text-xs font-medium text-menu-text/70">{{ rolUsuario || 'Administrador' }}</p>
         </div>
-        <!-- Eliminamos el toggleCerrarSesion del menú lateral -->
       </div>
+    </div>
 
-      <ul class="menu">
+    <!-- MENU -->
+    <nav class="mt-4 flex-1 overflow-y-auto px-3 pb-4">
+      <ul class="space-y-1">
         <li *ngFor="let menu of menus; let i = index">
-          <div class="menuopc"
-               [ngClass]="{'show': menuOpenIndex === i, 'active': menuOpenIndex === i, 'home-item': menu.title === 'Home'}"
-               (click)="AbrirCerrar(i, menu)">
-            <img [src]="menu.icon" alt="Icono" class="logosm">
-            <div class="menu-opci">
-              <button class="menu-item">{{ menu.title }}</button>
+          <!-- ITEM PRINCIPAL -->
+          <button type="button" pRipple (click)="onMenuPrincipalClick(i, menu)"
+            class="group flex w-full items-center rounded-xl px-3 py-3 text-left transition-all duration-200"
+            [ngClass]="{
+              'justify-center': menuColapsado,
+              'justify-between': !menuColapsado,
+              'bg-secondary text-white shadow-lg': menuOpenIndex === i || isMenuPadreActivo(menu),
+              'text-menu-text/80 hover:bg-secondary hover:text-white': menuOpenIndex !== i && !isMenuPadreActivo(menu)
+            }"
+            [title]="menu.label || ''">
+            <div class="flex min-w-0 items-center gap-3">
+              <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition"
+                [ngClass]="menuOpenIndex === i ? 'bg-white/20' : 'bg-white/10 group-hover:bg-white/15'">
+                <i [class]="menu.icon"></i>
+              </span>
+              <span *ngIf="!menuColapsado" class="truncate text-sm font-semibold">{{ menu.label }}</span>
             </div>
-            <img *ngIf="menu.title !== 'Home'" src="down.svg" alt="Flecha" class="logodow">
-          </div>
+            <i *ngIf="!menuColapsado" class="pi text-xs transition-transform duration-200"
+              [ngClass]="menuOpenIndex === i ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+          </button>
 
-          <ul [ngClass]="{'submenu': true, 'show': menuOpenIndex === i && menu.title !== 'Home'}">
-            <li *ngFor="let subItem of menu.subItems" (click)="selectSubItem(i, subItem)">
-              <a [routerLink]="['/Dashboard', subItem.path]" routerLinkActive="selected">
-                {{ subItem.title }}
-              </a>
-            </li>
-          </ul>
+          <!-- SUBMENU -->
+          <div *ngIf="!menuColapsado" class="overflow-hidden transition-all duration-300"
+            [ngClass]="menuOpenIndex === i ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'">
+            <ul class="ml-12 mt-1 space-y-1 border-l border-white/10 pl-3">
+              <li *ngFor="let subItem of menu.items">
+                <a [routerLink]="subItem.routerLink"
+                  [routerLinkActiveOptions]="{ exact: true }"
+                  routerLinkActive="bg-primary/25 text-secondary shadow-sm font-bold border-l-4 border-primary"
+                  class="block rounded-lg px-3 py-2 text-sm font-medium text-menu-text/70 transition hover:bg-secondary/30 hover:text-menu-text"
+                  (click)="cerrarMenuMovil()">
+                  {{ subItem.label }}
+                </a>
+              </li>
+            </ul>
+          </div>
         </li>
       </ul>
-    </aside>
+    </nav>
 
-    <!-- Botón flotante para colapsar/expandir -->
-    <div class="floating-toggle" (click)="toggleMenu()">
-      <img src="menu-hamburguesa.svg" alt="Menú">
+    <!-- CERRAR SESIÓN SIDEBAR -->
+    <div class="border-t border-white/10 p-3">
+      <button type="button" pRipple
+        class="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold text-menu-text/80 transition hover:bg-white/10 hover:text-menu-text"
+        [ngClass]="menuColapsado ? 'justify-center' : ''"
+        (click)="cerrarSesion()"
+        [title]="menuColapsado ? 'Cerrar sesión' : ''">
+        <i class="pi pi-sign-out text-lg"></i>
+        <span *ngIf="!menuColapsado">Cerrar sesión</span>
+      </button>
     </div>
-    
-    <div class="main-container">
-      <!-- Barra superior -->
-      <header class="top-bar">
-        <div class="top-bar-right">
-          <div class="notifications">
-            <img src="bell.png" alt="Notificaciones" class="bell-icon">
-          </div>
-          <div class="user-menu-container">
-  <div class="user-icon" (click)="toggleCerrarSesion()">
-    <img src="lp.svg" alt="Usuario" class="user-image">
-  </div>
-  <div class="cerrar-sesion" *ngIf="mostrarCerrarSesion">
-    <button class="bcs">Editar perfil</button>
-    <button (click)="cerrarSesion()" class="bcs">Cerrar sesión</button>
-  </div>
-</div>
+  </aside>
+
+  <!-- MAIN LAYOUT -->
+  <div class="min-h-screen transition-all duration-300"
+    [ngClass]="{ 'md:pl-[84px]': menuColapsado, 'md:pl-[280px]': !menuColapsado }">
+
+    <!-- TOP BAR -->
+    <header class="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-white/90 px-4 shadow-sm backdrop-blur md:px-6">
+      <!-- IZQUIERDA -->
+      <div class="flex items-center gap-3">
+        <!-- HAMBURGUESA MOBILE -->
+        <button type="button" pRipple
+          class="flex h-10 w-10 items-center justify-center rounded-xl text-secondary transition hover:bg-primary-25 md:hidden"
+          (click)="toggleMenuMovil()">
+          <i class="pi pi-bars text-xl"></i>
+        </button>
+        <!-- BOTÓN COLAPSAR DESKTOP -->
+        <button type="button" pRipple
+          class="hidden h-10 w-10 items-center justify-center rounded-xl text-secondary transition hover:bg-primary-25 md:flex"
+          (click)="colapsarMenu()"
+          title="Contraer / expandir menú">
+          <i class="pi text-lg" [ngClass]="menuColapsado ? 'pi-bars' : 'pi-angle-left'"></i>
+        </button>
+      </div>
+
+      <!-- DERECHA -->
+      <div class="flex items-center gap-3">
+        <!-- NOTIFICACIONES -->
+        <button type="button" pRipple
+          class="relative flex h-10 w-10 items-center justify-center rounded-xl text-ink-75 transition hover:bg-primary-25 hover:text-secondary"
+          title="Notificaciones">
+          <i class="pi pi-bell text-lg"></i>
+          <span class="absolute right-2 top-2 h-2 w-2 rounded-full bg-accent"></span>
+        </button>
+
+        <!-- USER MENU -->
+        <div class="relative">
+          <button type="button" pRipple
+            class="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-secondary shadow-sm transition hover:bg-primary-25 hover:text-primary"
+            (click)="userMenu.toggle($event)"
+            title="Menú de usuario">
+            <i class="pi pi-user text-lg"></i>
+          </button>
+          <p-menu #userMenu [model]="userMenuItems" [popup]="true" appendTo="body"></p-menu>
         </div>
-      </header>
+      </div>
+    </header>
 
-      <!-- Contenido de la página -->
-      <main class="content">
-          <ng-content></ng-content>
-      </main>
-    </div>
+    <!-- CONTENT -->
+    <main class="min-h-[calc(100vh-4rem)] overflow-x-hidden p-4 md:p-6">
+      <ng-content></ng-content>
+    </main>
+  </div>
 </div>
