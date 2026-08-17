@@ -22,23 +22,6 @@ import { TooltipModule } from 'primeng/tooltip';
 export class MenuComponent {
   rolUsuario: string = '';
 
-  userMenuItems: MenuItem[] = [
-    {
-      label: 'Editar perfil',
-      icon: 'pi pi-user-edit',
-      command: () => {
-        this.router.navigate(['/Dashboard/perfil']);
-      },
-    },
-    { separator: true },
-    {
-      label: 'Cerrar sesión',
-      icon: 'pi pi-sign-out',
-      command: () => {
-        this.cerrarSesion();
-      },
-    },
-  ];
 
   menus: MenuItem[] = [
     {

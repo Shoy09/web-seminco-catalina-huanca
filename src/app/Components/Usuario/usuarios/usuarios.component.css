@@ -1,67 +1,39 @@
-.usuarios-container {
-    max-width: 1200px; /* Aumentamos el ancho máximo del contenedor */
-    margin: auto;
-    padding: 20px;
-    width: 95%; /* Permitimos que ocupe más espacio */
+/* Quitar sombra y fondo blanco propio de mat-table */
+.mat-mdc-table {
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
-h2 {
-    text-align: center;
-    color: #3f51b5;
+/* Celdas del header */
+.mat-mdc-header-cell {
+  background-color: var(--color-surface-soft) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+  padding: 12px 16px !important;
 }
 
-.usuarios-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    gap: 10px;
+/* Celdas de datos */
+.mat-mdc-cell {
+  border-bottom: 1px solid var(--color-border) !important;
+  padding: 0 16px !important;
 }
 
-mat-form-field {
-    width: 300px;
+/* Filas */
+.mat-mdc-row {
+  background: var(--color-surface) !important;
+}
+.mat-mdc-row:hover {
+  background: var(--color-surface-soft) !important;
 }
 
-table {
-    width: 100%;
+/* Paginador sin fondo propio */
+.mat-mdc-paginator {
+  background: transparent !important;
 }
 
-.mat-mdc-form-field {
-    margin-left: 10px;
-}
-
-mat-paginator {
-    margin-top: 15px;
-}
-
-.operacion-chip {
-    background-color: #e0e0e0;
-    border-radius: 12px;
-    padding: 2px 8px;
-    margin-right: 4px;
-    font-size: 13px;
-    display: inline-block;
-}
-
-/* Especificamos anchos para las columnas */
-.mat-column-codigo_dni {
-    width: 15%;
-}
-
-.mat-column-nombre {
-    width: 25%;
-}
-
-.mat-column-operaciones {
-    width: 35%; /* Aumentamos considerablemente el ancho de esta columna */
-    word-break: break-word; /* Para manejar texto largo */
-}
-
-.mat-column-rol {
-    width: 15%;
-}
-
-.mat-column-acciones {
-    width: 10%;
-    text-align: center;
+/* Iconos dentro de botones con tamaño consistente */
+.mat-icon {
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  line-height: 18px !important;
 }

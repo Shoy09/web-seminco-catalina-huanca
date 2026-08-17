@@ -13,6 +13,7 @@ export interface Usuario {
   correo?: string;              // Opcional
   password?: string;            // Solo necesario en la creación
   firma?: string;
+  activo?: number;              // 0 = desactivado por SCIM desde Azure, 1 = activo
   operaciones_autorizadas?: {   // Nuevo campo JSON opcional
     [clave: string]: boolean;
   };

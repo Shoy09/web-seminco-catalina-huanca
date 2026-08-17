@@ -13,6 +13,8 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import * as XLSX from 'xlsx';
 import { Usuario } from '../../../models/Usuario';
 import { UsuarioService } from '../../../services/usuario.service';
@@ -20,6 +22,7 @@ import { LoadingDialogComponent } from '../../Reutilizables/loading-dialog/loadi
 import { OperacionesDialogComponent } from '../operaciones-dialog.component';
 import { EditarOperacionesDialogComponent } from '../editar-operaciones-dialog/editar-operaciones-dialog.component';
 import { Subscription } from 'rxjs';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-usuarios',
@@ -33,7 +36,10 @@ import { Subscription } from 'rxjs';
     MatDialogModule,
     MatInputModule,
     MatFormFieldModule,
+    MatSelectModule,
+    MatTooltipModule,
     CommonModule,
+    FormsModule
   ],
   templateUrl: './usuarios.component.html',
   styleUrl: './usuarios.component.css',
@@ -43,12 +49,14 @@ export class UsuariosComponent implements OnInit {
     'codigo_dni',
     'nombre',
     'rol',
+    'activo',
     'operaciones',
     'acciones',
   ];
   Object = Object;
   dataSource = new MatTableDataSource<Usuario>([]);
-
+  filtroRol: string = '';
+  filtroTexto: string = '';
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -59,6 +67,54 @@ export class UsuariosComponent implements OnInit {
 
   ngOnInit() {
     this.obtenerUsuarios();
+  }
+  
+  get hayFiltrosActivos(): boolean {
+    return this.filtroTexto.trim().length > 0 || this.filtroRol.trim().length > 0;
+  }
+
+  limpiarFiltros(): void {
+    this.filtroRol = '';
+    this.filtroTexto = '';
+    this.dataSource.filter = '';
+    this.aplicarFiltros();
+  }
+
+  aplicarFiltros(): void {
+    this.dataSource.filterPredicate = (data: Usuario, filter: string) => {
+      // Filtro de texto libre
+      if (this.filtroTexto && this.filtroTexto.trim()) {
+        const searchTerm = this.filtroTexto.trim().toLowerCase();
+        const searchableFields = [
+          data.nombres || '',
+          data.apellidos || '',
+          data.codigo_dni || '',
+          data.correo || '',
+          data.rol || ''
+        ];
+        const matchesSearch = searchableFields.some(field =>
+          field.toLowerCase().includes(searchTerm)
+        );
+        if (!matchesSearch) return false;
+      }
+
+      // Filtro por rol
+      if (this.filtroRol && this.filtroRol.trim()) {
+        if (data.rol?.toLowerCase() !== this.filtroRol.toLowerCase()) {
+          return false;
+        }
+      }
+
+      return true;
+    };
+
+    // Trigger re-evaluación del filtro
+    this.dataSource.filter = (this.filtroTexto || this.filtroRol) ? ' ' : '';
+  }
+
+  aplicarFiltro(event: Event): void {
+    this.filtroTexto = (event.target as HTMLInputElement).value;
+    this.aplicarFiltros();
   }
 
   obtenerUsuarios() {
@@ -116,11 +172,6 @@ export class UsuariosComponent implements OnInit {
         this.obtenerUsuarios();
       });
     }
-  }
-
-  aplicarFiltro(event: Event) {
-    const valorFiltro = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = valorFiltro.trim().toLowerCase();
   }
 
   seleccionarArchivo() {

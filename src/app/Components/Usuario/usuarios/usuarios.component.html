@@ -1,92 +1,268 @@
-<div class="usuarios-container">
-  <h2>Lista de Usuarios</h2>
+<div class="space-y-5">
+  <!-- Header -->
+  <section class="overflow-hidden rounded-3xl border border-border bg-surface shadow-sm">
+    <div class="bg-gradient-to-r from-secondary via-secondary-75 to-primary p-5 text-white">
+      <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div class="max-w-3xl">
+          <h1 class="mt-2 text-2xl font-black">Lista de Usuarios</h1>
+          <p class="mt-1 text-sm text-white/80">
+            Administra los usuarios del sistema con sus roles y operaciones autorizadas.
+          </p>
+        </div>
 
-  <div class="usuarios-actions">
-    <button mat-raised-button color="primary" (click)="abrirDialogoCrear()">
-      Nuevo Usuario
-    </button>
-  
-    <button mat-raised-button color="warn" class="btn-masivo" (click)="seleccionarArchivo()">
-      Ingreso masivo
-    </button>
-    
-    <!-- Input de tipo file oculto -->
-    <input type="file" id="fileInput" (change)="cargarArchivo($event)" hidden>
-    
-    <mat-form-field appearance="outline">
-      <mat-label>Buscar Usuario</mat-label>
-      <input matInput (keyup)="aplicarFiltro($event)" placeholder="Ingrese nombre, correo o DNI">
-    </mat-form-field>
-  </div>
+        <div class="flex items-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-3 py-2 backdrop-blur-sm">
+          <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/15">
+            <i class="pi pi-users text-lg text-white"></i>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-white/75">Usuarios registrados</p>
+            <p class="text-xl font-black">{{ dataSource.filteredData.length }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-  <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
+  <!-- Filtros y acciones -->
+  <section class="rounded-3xl border border-border bg-surface p-4 shadow-sm">
+    <div class="flex flex-col gap-3 lg:flex-row lg:items-end">
 
-    <!-- DNI -->
-    <ng-container matColumnDef="codigo_dni">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> DNI </th>
-      <td mat-cell *matCellDef="let usuario">{{ usuario.codigo_dni }}</td>
-    </ng-container>
+      <!-- Buscador -->
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-bold uppercase tracking-wide text-ink-50">Buscar</label>
+        <mat-form-field appearance="outline" class="w-full lg:w-64">
+          <mat-icon matPrefix class="text-ink-50">search</mat-icon>
+          <input
+            matInput
+            [(ngModel)]="filtroTexto"
+            (input)="aplicarFiltro($event)"
+            placeholder="Nombre, correo o DNI"
+          />
+        </mat-form-field>
+      </div>
 
-    <!-- Nombre -->
-    <ng-container matColumnDef="nombre">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Nombre </th>
-      <td mat-cell *matCellDef="let usuario">{{ usuario.nombres }} {{ usuario.apellidos }}</td>
-    </ng-container>
+      <!-- Filtro por rol -->
+      <div class="flex flex-col gap-1">
+  <label class="text-xs font-bold uppercase tracking-wide text-ink-50">Rol</label>
 
-<!-- Operaciones Autorizadas -->
-<ng-container matColumnDef="operaciones">
-  <th mat-header-cell *matHeaderCellDef mat-sort-header> Operaciones </th>
-  <td mat-cell *matCellDef="let usuario">
-    <ng-container *ngIf="usuario.operaciones_autorizadas">
-      <!-- Muestra hasta 2 operaciones -->
-      <span *ngFor="let key of obtenerPrimerasOperaciones(usuario.operaciones_autorizadas)" class="operacion-chip">
-        {{ key }}
-      </span>
+  <mat-form-field appearance="outline" class="w-full lg:w-48">
+    <mat-icon matPrefix class="text-ink-50">badge</mat-icon>
 
-      <!-- Muestra el icono si hay más de 2
-      <ng-container *ngIf="Object.keys(usuario.operaciones_autorizadas).length > 2">
-        <button mat-icon-button color="primary" (click)="abrirDialogoOperaciones(usuario.operaciones_autorizadas)">
-          <mat-icon>visibility</mat-icon>
+    <mat-select
+      [(ngModel)]="filtroRol"
+      (ngModelChange)="aplicarFiltros()"
+      placeholder="Todos los roles"
+    >
+      <mat-option value="">Todos</mat-option>
+      <mat-option value="Trabajador">Trabajador</mat-option>
+      <mat-option value="OPERADOR">OPERADOR</mat-option>
+      <mat-option value="Master">Master</mat-option>
+      <mat-option value="Admin">Admin</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+
+      <!-- Botón limpiar (solo visible si hay filtros activos) -->
+      <div class="flex items-end pb-[1.15rem]" *ngIf="hayFiltrosActivos">
+        <button
+          mat-stroked-button
+          (click)="limpiarFiltros()"
+          class="!rounded-xl !h-[56px]"
+        >
+          <mat-icon class="!h-4 !w-4 !text-sm">filter_alt_off</mat-icon>
+          <span class="text-sm">Quitar filtros</span>
         </button>
-      </ng-container> -->
+      </div>
+
+      <!-- Espaciador -->
+      <div class="flex-1"></div>
+
+      <!-- Botones de acción -->
+      <div class="flex items-end gap-2 pb-[1.15rem]">
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="abrirDialogoCrear()"
+          class="!rounded-xl !h-[56px]"
+        >
+          <mat-icon class="!h-4 !w-4 !text-sm">add</mat-icon>
+          <span class="text-sm">Nuevo Usuario</span>
+        </button>
+
+        <button
+          mat-raised-button
+          color="warn"
+          (click)="seleccionarArchivo()"
+          class="!rounded-xl !h-[56px]"
+        >
+          <mat-icon class="!h-4 !w-4 !text-sm">upload_file</mat-icon>
+          <span class="text-sm">Ingreso masivo</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Input de archivo oculto -->
+    <input type="file" id="fileInput" (change)="cargarArchivo($event)" hidden accept=".xlsx,.xls">
+  </section>
+
+  <!-- Tabla -->
+  <section class="rounded-3xl border border-border bg-surface shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table
+        mat-table
+        [dataSource]="dataSource"
+        matSort
+        class="w-full"
+        matSortActive="codigo_dni"
+        matSortDirection="asc"
+        style="background: transparent;"
+      >
+        <!-- DNI -->
+        <ng-container matColumnDef="codigo_dni">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="!bg-surface-soft !text-ink-50 !text-xs !font-bold !uppercase !tracking-wide">DNI</th>
+          <td mat-cell *matCellDef="let usuario" class="!py-3">
+            <span *ngIf="usuario.codigo_dni; else sinDni"
+              class="inline-flex rounded-lg bg-primary-25 px-2.5 py-1 text-xs font-bold text-secondary">
+              {{ usuario.codigo_dni }}
+            </span>
+            <ng-template #sinDni>
+              <span class="text-xs text-ink-25 italic">—</span>
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <!-- Nombre -->
+        <ng-container matColumnDef="nombre">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="!bg-surface-soft !text-ink-50 !text-xs !font-bold !uppercase !tracking-wide">Nombre</th>
+          <td mat-cell *matCellDef="let usuario" class="!py-3">
+            <div class="flex flex-col">
+              <span class="font-semibold text-ink">{{ usuario.nombres }} {{ usuario.apellidos }}</span>
+              <span class="text-xs text-ink-50" *ngIf="usuario.correo">{{ usuario.correo }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Rol -->
+        <ng-container matColumnDef="rol">
+  <th mat-header-cell *matHeaderCellDef mat-sort-header
+      class="!bg-surface-soft !text-ink-50 !text-xs !font-bold !uppercase !tracking-wide">
+    Rol
+  </th>
+
+  <td mat-cell *matCellDef="let usuario" class="!py-3">
+    <ng-container *ngIf="usuario.rol; else sinRol">
+      <span
+        class="inline-flex rounded-full px-3 py-1 text-xs font-semibold"
+        [ngClass]="{
+          'bg-primary-25 text-secondary': usuario.rol === 'Admin',
+          'bg-secondary-25 text-secondary': usuario.rol === 'Trabajador',
+          'bg-green-100 text-green-800': usuario.rol === 'OPERADOR',
+          'bg-blue-100 text-blue-800': usuario.rol === 'Master',
+          'bg-surface-soft text-ink-50 border border-border':
+            usuario.rol !== 'Admin' &&
+            usuario.rol !== 'Trabajador' &&
+            usuario.rol !== 'OPERADOR' &&
+            usuario.rol !== 'Master'
+        }">
+        {{ usuario.rol }}
+      </span>
     </ng-container>
 
-    <!-- SIEMPRE muestra el ícono de editar -->
-    <button mat-icon-button color="accent" (click)="abrirDialogoEdicion(usuario.id, usuario.operaciones_autorizadas)">
-      <mat-icon>edit</mat-icon>
-    </button>
+    <ng-template #sinRol>
+      <span class="text-xs text-ink-25 italic">Sin rol</span>
+    </ng-template>
   </td>
 </ng-container>
 
+        <!-- Activo -->
+        <ng-container matColumnDef="activo">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header class="!bg-surface-soft !text-ink-50 !text-xs !font-bold !uppercase !tracking-wide">Estado</th>
+          <td mat-cell *matCellDef="let usuario" class="!py-3">
+            <span
+              class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold"
+              [ngClass]="{
+                'bg-green-100 text-green-700': usuario.activo === 1 || usuario.activo === undefined,
+                'bg-red-50 text-danger border border-red-200': usuario.activo === 0
+              }"
+            >
+              <span
+                class="h-1.5 w-1.5 rounded-full"
+                [ngClass]="{
+                  'bg-green-500': usuario.activo === 1 || usuario.activo === undefined,
+                  'bg-danger': usuario.activo === 0
+                }"
+              ></span>
+              {{ usuario.activo === 0 ? 'Inactivo' : 'Activo' }}
+            </span>
+          </td>
+        </ng-container>
 
+        <!-- Operaciones -->
+        <ng-container matColumnDef="operaciones">
+          <th mat-header-cell *matHeaderCellDef class="!bg-surface-soft !text-ink-50 !text-xs !font-bold !uppercase !tracking-wide">Operaciones</th>
+          <td mat-cell *matCellDef="let usuario" class="!py-3">
+            <div class="flex flex-wrap items-center gap-1.5">
+              <ng-container *ngIf="usuario.operaciones_autorizadas">
+                <span
+                  *ngFor="let key of obtenerPrimerasOperaciones(usuario.operaciones_autorizadas)"
+                  class="inline-flex rounded-md bg-secondary-25 px-2 py-0.5 text-xs font-medium text-secondary whitespace-nowrap"
+                >
+                  {{ key }}
+                </span>
+                <span
+                  *ngIf="Object.keys(usuario.operaciones_autorizadas).length > 2"
+                  class="inline-flex rounded-md bg-surface-soft border border-border px-2 py-0.5 text-xs text-ink-50 font-medium"
+                >
+                  +{{ Object.keys(usuario.operaciones_autorizadas).length - 2 }}
+                </span>
+              </ng-container>
 
+              <button
+                (click)="abrirDialogoEdicion(usuario.id!, usuario.operaciones_autorizadas)"
+                matTooltip="Editar operaciones"
+                class="flex h-7 w-7 items-center justify-center rounded-lg border border-border bg-surface text-ink-50 transition hover:bg-primary-25 hover:text-secondary hover:border-primary"
+              >
+                <mat-icon class="!h-4 !w-4 !text-base !leading-none">edit</mat-icon>
+              </button>
+            </div>
+          </td>
+        </ng-container>
 
-    
-    <!-- rol -->
-    <ng-container matColumnDef="rol">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header> Rol </th>
-      <td mat-cell *matCellDef="let usuario">{{ usuario.rol }}</td>
-    </ng-container>
+        <!-- Acciones -->
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef class="!bg-surface-soft !text-ink-50 !text-xs !font-bold !uppercase !tracking-wide !text-center">Acciones</th>
+          <td mat-cell *matCellDef="let usuario" class="!py-3 !text-center">
+            <div class="flex justify-center gap-1.5">
+              <button
+                (click)="abrirDialogoEditar(usuario)"
+                matTooltip="Editar usuario"
+                class="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-surface text-ink-50 transition hover:bg-primary-25 hover:text-secondary hover:border-primary"
+              >
+                <mat-icon class="!h-4 !w-4 !text-base !leading-none">edit</mat-icon>
+              </button>
+              <button
+                (click)="eliminarUsuario(usuario.id!)"
+                matTooltip="Eliminar usuario"
+                class="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-surface text-ink-50 transition hover:bg-red-50 hover:text-danger hover:border-danger"
+              >
+                <mat-icon class="!h-4 !w-4 !text-base !leading-none">delete</mat-icon>
+              </button>
+            </div>
+          </td>
+        </ng-container>
 
-    <!-- Acciones -->
-    <ng-container matColumnDef="acciones">
-      <th mat-header-cell *matHeaderCellDef> Acciones </th>
-      <td mat-cell *matCellDef="let usuario">
-        <!-- <button mat-icon-button color="accent" (click)="abrirDialogoEditar(usuario)">
-          <mat-icon>edit</mat-icon>
-        </button> -->
-        <button mat-icon-button color="warn" (click)="eliminarUsuario(usuario.id!)">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </td>
-    </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns" class="!border-b border-border"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="!border-b border-border transition hover:!bg-surface-soft"></tr>
+      </table>
+    </div>
 
-    <!-- Header y filas -->
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-
-  </table>
-
-  <!-- Paginador -->
-  <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+    <!-- Paginador -->
+    <div class="border-t border-border">
+      <mat-paginator
+        [pageSize]="10"
+        [pageSizeOptions]="[5, 10, 20]"
+        showFirstLastButtons
+      ></mat-paginator>
+    </div>
+  </section>
 </div>
