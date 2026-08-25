@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -81,16 +81,6 @@ export class PernosLaborComponent implements OnChanges {
     const yAxisMax = Math.ceil(maxValor * 1.2);
 
     this.chartOptions = {
-      title: {
-        text: 'PERNOS POR LABOR',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: '#333'
-        }
-      },
       tooltip: {
         trigger: 'axis',
         axisPointer: { type: 'shadow' },
@@ -129,9 +119,6 @@ export class PernosLaborComponent implements OnChanges {
       },
       yAxis: {
         type: 'value',
-        name: 'Cantidad de Pernos Instalados',
-        nameLocation: 'middle',
-        nameGap: 45,
         min: 0,
         max: yAxisMax,
         interval: this.calcularIntervalo(yAxisMax),
@@ -141,7 +128,6 @@ export class PernosLaborComponent implements OnChanges {
         }
       },
       series: [{
-        name: 'Total Pernos',
         type: 'bar',
         data: seriesData,
         itemStyle: {

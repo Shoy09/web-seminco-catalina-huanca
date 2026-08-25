@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -130,16 +130,6 @@ export class GanttDiagramComponent implements OnChanges {
     }
 
     this.chartOptions = {
-      title: {
-        text: this.title,
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: '#2c3e50'
-        }
-      },
       tooltip: {
         trigger: 'item',
         axisPointer: {
@@ -184,9 +174,6 @@ export class GanttDiagramComponent implements OnChanges {
       },
       xAxis: {
         type: 'value',
-        name: 'Hora del Día',
-        nameLocation: 'middle',
-        nameGap: 35,
         min: this.minHora,
         max: this.maxHora,
         interval: 1,
@@ -243,12 +230,6 @@ export class GanttDiagramComponent implements OnChanges {
 
   getEmptyChartOptions(): any {
     return {
-      title: {
-        text: this.title,
-        left: 'center',
-        top: 10,
-        textStyle: { fontSize: 16, fontWeight: 'bold', color: '#2c3e50' }
-      },
       graphic: {
         type: 'text',
         left: 'center',

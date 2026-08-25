@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -53,7 +53,9 @@ export class HorasOperativasDiaComponent implements OnInit, OnChanges {
   }
 
   actualizarGrafico(): void {
-    const datosOrdenados = [...this.data];
+    const datosOrdenados = this.data.filter(item => Number(item.horasOperativas || 0) > 0);
+
+    if (!datosOrdenados.length) { this.chartOptions = {}; return; }
 
     const periodos = datosOrdenados.map((item) => item.periodo);
 
@@ -65,17 +67,6 @@ export class HorasOperativasDiaComponent implements OnInit, OnChanges {
     const escalaMax = Math.ceil(maxValor / 10) * 10;
 
     this.chartOptions = {
-      title: {
-        text: 'HORAS OPERATIVAS POR DÍA',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 12,
-          fontWeight: 'bold',
-          color: '#333',
-          fontFamily: 'Arial'
-        }
-      },
 
       tooltip: {
         trigger: 'axis',
@@ -133,7 +124,6 @@ export class HorasOperativasDiaComponent implements OnInit, OnChanges {
 
       series: [
         {
-          name: 'Horas operativas',
           type: 'bar',
           barWidth: '45%',
           data: valores,

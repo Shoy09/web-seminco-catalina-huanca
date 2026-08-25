@@ -1,92 +1,161 @@
-/* Contenedor principal de los gráficos */
-.graficos-container {
+/* ── Iconos Material ─────────────────────────────────────────── */
+.ic-header, .ic-sm, .ic-seccion {
+  font-family: 'Material Icons';
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  font-style: normal;
+  font-weight: normal;
+  -webkit-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
+}
+.ic-header  { font-size: 20px; opacity: 0.85; }
+.ic-sm      { font-size: 14px; flex-shrink: 0; }
+.ic-seccion { font-size: 16px; }
+
+/* ── Botones header ──────────────────────────────────────────── */
+.btn-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.9);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 0.5rem;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  line-height: 1;
+}
+.btn-header:hover { background: rgba(255,255,255,0.2); }
+
+/* ── Filtros ─────────────────────────────────────────────────── */
+.label-filtro {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #999999;
+  white-space: nowrap;
+}
+
+.input-filtro {
+  height: 1.875rem;
+  border-radius: 0.5rem;
+  border: 1px solid #CCCCCC;
+  background-color: #F7F9F8;
+  font-size: 0.75rem;
+  color: #333333;
+  padding: 0 0.5rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.input-filtro:hover  { border-color: #999999; }
+.input-filtro:focus  {
+  border-color: #38BDF8;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(56,189,248,0.18);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  height: 1.875rem;
+  padding: 0 0.75rem;
+  background: #38BDF8;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  box-shadow: 0 1px 3px rgba(56,189,248,0.3);
+}
+.btn-primary:hover { opacity: 0.88; }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  height: 1.875rem;
+  padding: 0 0.75rem;
+  background: transparent;
+  color: #666666;
+  border: 1px solid #CCCCCC;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.btn-ghost:hover { border-color: #999999; color: #333333; }
+
+/* ── Encabezados de sección ──────────────────────────────────── */
+.seccion-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #344963;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-left: 3px solid #38BDF8;
+  padding-left: 0.625rem;
+  margin-top: 0.25rem;
+}
+
+/* ── Grid de gráficos ────────────────────────────────────────── */
+.graficos-grid {
   display: grid;
-  /* Crea columnas automáticas que miden mínimo 350px y máximo 1 fracción del espacio disponible */
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 350px), 1fr));
-  gap: 20px; /* Espacio entre los gráficos */
-  padding: 20px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.col-span-full {
+  grid-column: 1 / -1;
+}
+
+.graficos-grid > * {
+  min-height: 340px;
+  display: block;
   width: 100%;
-  box-sizing: border-box;
 }
 
-/* Estilos para CADA componente hijo (los gráficos) */
-.graficos-container > * {
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  padding: 15px;
-  min-height: 300px; /* Altura mínima para que el gráfico respire */
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  box-sizing: border-box;
-  overflow: hidden; /* Evita que el gráfico se desborde */
+.graficos-grid > .col-span-full {
+  min-height: 0;
 }
 
-/* Excepciones: Elementos que quieres que ocupen TODA la fila (Ancho completo) */
-/* Ejemplo: El scheduler o los gráficos tipo Pareto/Gantt suelen requerir más espacio */
-.graficos-container > app-scheduler,
-.graficos-container > app-pareto-utilizacion,
-.graficos-container > app-pareto-disponibilidad {
-  grid-column: 1 / -1; /* Forzar a ocupar todo el ancho disponible */
+@media (max-width: 1200px) {
+  .graficos-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 768px) {
+  .graficos-grid { grid-template-columns: 1fr; }
 }
 
-/* Ajustes responsivos para la barra de filtros de arriba */
-.filtro-fechas {
-  display: flex;
-  flex-wrap: wrap; /* Si no caben, bajan a la siguiente línea */
-  gap: 15px;
-  padding: 20px;
-  align-items: flex-end;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #e9ecef;
-}
-
-.filtro-fechas .campo {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 200px; /* Crece y se encoge, con un tamaño base de 200px */
-}
-
-.filtro-fechas .campo input,
-.filtro-fechas .campo select,
-.filtro-fechas .btn-aplicar {
-  width: 100%;
-  height: 38px;
-  box-sizing: border-box;
-}
-
-.filtro-fechas .btn-aplicar {
-  flex: 0 1 150px; /* Los botones no crecen infinitamente, max 150px */
-}
-
-/* Control del Spinner de carga en pantalla completa */
+/* ── Overlay PDF ─────────────────────────────────────────────── */
 .overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background: rgba(11,31,58,0.7);
+  z-index: 9999;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
-  color: white;
+  color: #fff;
+  font-size: 15px;
+  gap: 12px;
+  backdrop-filter: blur(3px);
 }
-
-
-/* Por defecto (móviles), ocupan 1 sola columna automática */
-.graficos-container > app-ranking-operador-rendimiento,
-.graficos-container > app-ranking-operador-utilizacion {
-  grid-column: auto;
+.spinner {
+  width: 44px;
+  height: 44px;
+  border: 4px solid rgba(255,255,255,0.25);
+  border-top-color: #38BDF8;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
-
-/* En pantallas medianas y grandes (Tablets de más de 768px y Monitores) */
-@media (min-width: 768px) {
-  .graficos-container > app-ranking-operador-rendimiento,
-  .graficos-container > app-ranking-operador-utilizacion {
-    grid-column: span 3; /* Se estiran para tomar 2 columnas de ancho */
-  }
-}
+@keyframes spin { to { transform: rotate(360deg); } }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -58,17 +58,6 @@ export class PromediosMaterialesEquipoComponent implements OnInit {
     const escalaMax = Math.ceil(maxValor / 10) * 10;
 
     this.chartOptions = {
-      title: {
-        text: 'PROMEDIOS MATERIALES - EQUIPO',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 14,        // Título más pequeño
-          fontWeight: 'bold',
-          color: '#333',
-          fontFamily: 'Arial'
-        }
-      },
 
       tooltip: {
         trigger: 'axis',
@@ -126,8 +115,6 @@ export class PromediosMaterialesEquipoComponent implements OnInit {
 
       xAxis: {
         type: 'value',
-        nameLocation: 'middle',
-        nameGap: 35,
         min: 0,
         max: escalaMax,
         axisLabel: {
@@ -172,7 +159,6 @@ export class PromediosMaterialesEquipoComponent implements OnInit {
 
       series: [
         {
-          name: 'Promedio Materiales',
           type: 'bar',
           barWidth: '50%',
           data: valores.map((valor, index) => ({

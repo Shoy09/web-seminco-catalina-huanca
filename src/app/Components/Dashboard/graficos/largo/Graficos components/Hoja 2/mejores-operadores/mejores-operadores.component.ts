@@ -35,12 +35,24 @@ export class MejoresOperadoresComponent implements OnChanges {
       return;
     }
 
-    // Ordenar por M/Hr de mayor a menor
-    const sortedData = [...this.data].sort((a, b) => {
+    // Ordenar por M/Hr de mayor a menor, filtrando registros sin actividad
+    const sortedData = [...this.data]
+      .filter(item => {
+        const mhr = item.m_hr || item.fr_mhr_hp || 0;
+        const metros = item.metros_perforados || 0;
+        return mhr > 0 || metros > 0;
+      })
+      .sort((a, b) => {
       const mhrA = a.m_hr || a.fr_mhr_hp || 0;
       const mhrB = b.m_hr || b.fr_mhr_hp || 0;
       return mhrB - mhrA;
     });
+
+    if (!sortedData.length) {
+      this.displayedData = [];
+      this.paginatedData = [];
+      return;
+    }
 
     // Formatear los datos
     this.displayedData = sortedData.map(item => ({

@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   Input,
   OnChanges,
@@ -54,29 +54,22 @@ export class DisponibilidadEquipoComponent implements OnChanges {
 
   actualizarGrafico(): void {
 
-    if (!this.data?.length) return;
+    if (!this.data?.length) { this.chartOptions = {}; return; }
+
+    const datosFiltrados = this.data.filter(item => Number(item.disponibilidad || 0) > 0);
+    if (!datosFiltrados.length) { this.chartOptions = {}; return; }
 
     // 🔥 labels
-    const equipos = this.data.map(item =>
+    const equipos = datosFiltrados.map(item =>
       item.modeloEquipo
     );
 
     // 🔥 valores %
-    const valores = this.data.map(item =>
+    const valores = datosFiltrados.map(item =>
       item.disponibilidad
     );
 
     this.chartOptions = {
-      title: {
-        text: 'DISPONIBILIDAD POR EQUIPO',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: CHART_COLORS.grey
-        }
-      },
 
       tooltip: {
         trigger: 'axis',
@@ -87,7 +80,7 @@ export class DisponibilidadEquipoComponent implements OnChanges {
         formatter: (params: any) => {
 
           const data = params[0];
-          const item = this.data[data.dataIndex];
+          const item = datosFiltrados[data.dataIndex];
 
           return `
             <strong>${item.modeloEquipo}</strong><br/>
@@ -141,8 +134,6 @@ export class DisponibilidadEquipoComponent implements OnChanges {
 
       series: [
         {
-          name: 'Disponibilidad',
-
           type: 'bar',
 
           barWidth: '55%',

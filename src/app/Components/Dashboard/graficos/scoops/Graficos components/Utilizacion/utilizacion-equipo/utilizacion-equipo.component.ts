@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   Input,
   OnChanges,
@@ -54,29 +54,22 @@ export class UtilizacionEquipoComponent implements OnChanges {
 
   actualizarGrafico(): void {
 
-    if (!this.data?.length) return;
+    if (!this.data?.length) { this.chartOptions = {}; return; }
+
+    const datosFiltrados = this.data.filter(item => Number(item.utilizacion || 0) > 0);
+    if (!datosFiltrados.length) { this.chartOptions = {}; return; }
 
     // 🔥 labels
-    const equipos = this.data.map(item =>
+    const equipos = datosFiltrados.map(item =>
       item.modeloEquipo
     );
 
     // 🔥 valores % de utilización
-    const valores = this.data.map(item =>
+    const valores = datosFiltrados.map(item =>
       item.utilizacion
     );
 
     this.chartOptions = {
-      title: {
-        text: 'UTILIZACIÓN POR EQUIPO',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: CHART_COLORS.grey
-        }
-      },
 
       tooltip: {
         trigger: 'axis',
@@ -87,7 +80,7 @@ export class UtilizacionEquipoComponent implements OnChanges {
         formatter: (params: any) => {
 
           const data = params[0];
-          const item = this.data[data.dataIndex];
+          const item = datosFiltrados[data.dataIndex];
 
           // 🔥 Calcular horas netas disponibles
           const horasNetas = item.horasTotales - item.horasMtto;
@@ -150,8 +143,6 @@ export class UtilizacionEquipoComponent implements OnChanges {
 
       series: [
         {
-          name: 'Utilización',
-
           type: 'bar',
 
           barWidth: '55%',

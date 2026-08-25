@@ -1,246 +1,257 @@
-<div class="max-w-4xl mx-auto p-4">
-  <!-- HEADER con icono -->
-  <div class="mb-8">
-    <div class="flex items-center gap-3 mb-2">
-      <div class="p-3 rounded-xl bg-primary/10">
-        <i class="pi pi-envelope text-2xl text-primary"></i>
-      </div>
-      <div>
-        <h1 class="text-2xl font-bold text-secondary">Envío de Correos</h1>
-        <p class="text-sm" style="color: rgba(0,0,0,0.5)">
-          Envía notificaciones por correo electrónico con o sin archivo PDF adjunto
-        </p>
+<div class="space-y-5">
+
+  <!-- Header -->
+  <section class="overflow-hidden rounded-3xl border border-border bg-surface shadow-sm">
+    <div class="bg-gradient-to-r from-secondary via-secondary-75 to-primary p-5 text-white">
+      <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div class="max-w-3xl">
+          <h1 class="mt-2 text-2xl font-black">Envío de Correos</h1>
+          <p class="mt-1 text-sm text-white/80">
+            Envía notificaciones por correo electrónico con o sin archivo PDF adjunto.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 rounded-2xl border border-white/20 bg-white/10 px-3 py-2 backdrop-blur-sm">
+          <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/15">
+            <i class="pi pi-envelope text-lg text-white"></i>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-[0.16em] text-white/75">Destinatarios</p>
+            <p class="text-xl font-black">{{ destinatarios.length }}</p>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- CARD PRINCIPAL -->
-  <div class="bg-white rounded-2xl shadow-lg border border-border/50 p-8 space-y-8">
+  <!-- Formulario -->
+  <form [formGroup]="form" (ngSubmit)="enviar()" novalidate class="space-y-4">
 
-    <form [formGroup]="form" (ngSubmit)="enviar()" novalidate>
+    <!-- Destinatarios -->
+    <section class="rounded-3xl border border-border bg-surface shadow-sm overflow-hidden">
+      <div class="flex items-center justify-between border-b border-border bg-surface-soft px-5 py-3">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-wide text-ink-50">Destinatarios</p>
+          <p class="text-sm font-semibold text-ink">Agrega uno o más correos de destino</p>
+        </div>
+        <button
+          type="button"
+          (click)="agregarDestinatario()"
+          class="flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-1.5 text-xs font-bold text-ink-50 transition hover:bg-primary-25 hover:text-secondary hover:border-primary"
+        >
+          <i class="pi pi-plus text-xs"></i>
+          Agregar
+        </button>
+      </div>
 
-      <!-- SECCIÓN: DESTINATARIOS -->
-      <div class="space-y-4">
-        <div class="flex items-center justify-between">
-          <div>
-            <label class="text-sm font-semibold text-secondary flex items-center gap-2">
-              <i class="pi pi-users text-primary text-sm"></i>
-              Destinatarios
-              <span class="text-xs font-normal px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
-                {{ destinatarios.length }}
-              </span>
-            </label>
-            <p class="text-xs mt-0.5" style="color: rgba(0,0,0,0.35)">
-              Agrega uno o más destinatarios
-            </p>
+      <div class="p-5 space-y-3" formArrayName="destinatarios">
+        <div
+          *ngFor="let ctrl of destinatarios.controls; let i = index"
+          [formGroupName]="i"
+          class="flex items-center gap-2 animate-fadeIn"
+        >
+          <!-- Número -->
+          <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-surface-soft text-xs font-bold text-ink-50">
+            {{ i + 1 }}
+          </span>
+
+          <!-- Input -->
+          <div class="relative flex-1">
+            <i class="pi pi-envelope absolute left-3 top-1/2 -translate-y-1/2 text-sm text-ink-25"></i>
+            <input
+              formControlName="email"
+              type="email"
+              placeholder="correo@empresa.com"
+              class="w-full rounded-xl border bg-surface-soft py-2.5 pl-9 pr-9 text-sm text-ink outline-none transition focus:border-primary focus:bg-surface focus:shadow-sm"
+              [class.border-danger]="ctrl.get('email')?.invalid && ctrl.get('email')?.touched"
+              [class.border-green-400]="ctrl.get('email')?.valid && ctrl.get('email')?.touched"
+              [class.border-border]="!(ctrl.get('email')?.touched)"
+            />
+            <i *ngIf="ctrl.get('email')?.valid && ctrl.get('email')?.touched"
+               class="pi pi-check-circle absolute right-3 top-1/2 -translate-y-1/2 text-sm text-green-500"></i>
           </div>
-          <button type="button"
-            class="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-primary transition-all hover:shadow-md"
-            style="background-color: rgba(56,189,248,0.1)"
-            (click)="agregarDestinatario()">
-            <i class="pi pi-plus text-xs"></i>
-            Agregar
+
+          <!-- Eliminar -->
+          <button
+            type="button"
+            *ngIf="destinatarios.length > 1"
+            (click)="eliminarDestinatario(i)"
+            matTooltip="Eliminar"
+            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border bg-surface text-ink-50 transition hover:bg-red-50 hover:text-danger hover:border-danger"
+          >
+            <i class="pi pi-times text-xs"></i>
           </button>
         </div>
 
-        <div formArrayName="destinatarios" class="space-y-3">
-          <div *ngFor="let ctrl of destinatarios.controls; let i = index"
-            [formGroupName]="i"
-            class="flex items-center gap-3 animate-fadeIn">
-            <div class="relative flex-1">
-              <i class="pi pi-envelope absolute left-4 top-1/2 -translate-y-1/2 text-sm" style="color:rgba(0,0,0,0.3)"></i>
-              <input
-                formControlName="email"
-                type="email"
-                placeholder="correo@empresa.com"
-                class="w-full rounded-xl border border-border bg-gray-50/50 py-3 pl-11 pr-4 text-sm text-ink outline-none transition-all focus:border-primary focus:bg-white focus:shadow-sm"
-                [class.border-red-400]="ctrl.get('email')?.invalid && ctrl.get('email')?.touched"
-                [class.border-green-400]="ctrl.get('email')?.valid && ctrl.get('email')?.touched"
-              />
-              <!-- Validación visual -->
-              <div *ngIf="ctrl.get('email')?.valid && ctrl.get('email')?.touched" 
-                   class="absolute right-3 top-1/2 -translate-y-1/2">
-                <i class="pi pi-check-circle text-green-500 text-sm"></i>
-              </div>
-            </div>
-            <button type="button"
-              *ngIf="destinatarios.length > 1"
-              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-red-200 text-red-400 transition-all hover:bg-red-50 hover:text-red-600 hover:border-red-300"
-              (click)="eliminarDestinatario(i)"
-              title="Eliminar destinatario">
-              <i class="pi pi-times text-sm"></i>
-            </button>
-          </div>
-        </div>
-
-        <p *ngIf="hayDestinatarioInvalido" class="flex items-center gap-2 text-xs text-red-500">
+        <p *ngIf="hayDestinatarioInvalido" class="flex items-center gap-2 text-xs text-danger">
           <i class="pi pi-exclamation-circle"></i>
           Ingresa una dirección de correo válida en cada campo
         </p>
       </div>
+    </section>
 
-      <!-- SEPARADOR -->
-      <div class="border-t border-border/50"></div>
-
-      <!-- SECCIÓN: ASUNTO -->
-      <div class="space-y-2">
-        <label class="text-sm font-semibold text-secondary flex items-center gap-2">
-          <i class="pi pi-tag text-primary text-sm"></i>
-          Asunto <span class="text-red-400">*</span>
-        </label>
-        <input
-          formControlName="subject"
-          type="text"
-          placeholder="Ej: Reporte de operaciones - Semana 45"
-          class="w-full rounded-xl border border-border bg-gray-50/50 py-3 px-4 text-sm text-ink outline-none transition-all focus:border-primary focus:bg-white focus:shadow-sm"
-          [class.border-red-400]="form.get('subject')?.invalid && form.get('subject')?.touched"
-        />
-        <p *ngIf="form.get('subject')?.invalid && form.get('subject')?.touched"
-          class="flex items-center gap-2 text-xs text-red-500">
-          <i class="pi pi-exclamation-circle"></i>
-          El asunto es requerido
-        </p>
+    <!-- Asunto + Mensaje -->
+    <section class="rounded-3xl border border-border bg-surface shadow-sm overflow-hidden">
+      <div class="border-b border-border bg-surface-soft px-5 py-3">
+        <p class="text-xs font-bold uppercase tracking-wide text-ink-50">Contenido del correo</p>
       </div>
 
-      <!-- SECCIÓN: MENSAJE -->
-      <div class="space-y-2">
-        <label class="text-sm font-semibold text-secondary flex items-center gap-2">
-          <i class="pi pi-file-edit text-primary text-sm"></i>
-          Mensaje
-          <span *ngIf="!tienePdf" class="text-red-400">*</span>
-          <span *ngIf="tienePdf" class="text-xs font-normal ml-1" style="color:rgba(0,0,0,0.4)">
-            (opcional cuando hay PDF)
-          </span>
-        </label>
-        <div class="relative">
-          <textarea
-            formControlName="message"
-            rows="6"
-            placeholder="Escribe el cuerpo del mensaje..."
-            class="w-full resize-none rounded-xl border border-border bg-gray-50/50 py-3 px-4 text-sm text-ink outline-none transition-all focus:border-primary focus:bg-white focus:shadow-sm"
-            [class.border-red-400]="!tienePdf && form.get('message')?.invalid && form.get('message')?.touched"
-          ></textarea>
-          <!-- Contador de caracteres -->
-          <div class="absolute bottom-3 right-3 text-xs" style="color:rgba(0,0,0,0.3)">
-            {{ form.get('message')?.value?.length || 0 }} caracteres
+      <div class="p-5 space-y-4">
+
+        <!-- Asunto -->
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-bold uppercase tracking-wide text-ink-50">
+            Asunto <span class="text-danger">*</span>
+          </label>
+          <div class="relative">
+            <i class="pi pi-tag absolute left-3 top-1/2 -translate-y-1/2 text-sm text-ink-25"></i>
+            <input
+              formControlName="subject"
+              type="text"
+              placeholder="Ej: Reporte de operaciones – Semana 45"
+              class="w-full rounded-xl border bg-surface-soft py-2.5 pl-9 pr-4 text-sm text-ink outline-none transition focus:border-primary focus:bg-surface focus:shadow-sm"
+              [class.border-danger]="form.get('subject')?.invalid && form.get('subject')?.touched"
+              [class.border-border]="!(form.get('subject')?.invalid && form.get('subject')?.touched)"
+            />
+          </div>
+          <p *ngIf="form.get('subject')?.invalid && form.get('subject')?.touched"
+             class="flex items-center gap-1 text-xs text-danger">
+            <i class="pi pi-exclamation-circle"></i> El asunto es requerido
+          </p>
+        </div>
+
+        <!-- Mensaje -->
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-bold uppercase tracking-wide text-ink-50">
+            Mensaje
+            <span *ngIf="!tienePdf" class="text-danger">*</span>
+            <span *ngIf="tienePdf" class="ml-1 normal-case font-normal text-ink-25">(opcional si hay PDF)</span>
+          </label>
+          <div class="relative">
+            <textarea
+              formControlName="message"
+              rows="5"
+              placeholder="Escribe el cuerpo del mensaje..."
+              class="w-full resize-none rounded-xl border bg-surface-soft py-3 px-4 text-sm text-ink outline-none transition focus:border-primary focus:bg-surface focus:shadow-sm"
+              [class.border-danger]="!tienePdf && form.get('message')?.invalid && form.get('message')?.touched"
+              [class.border-border]="!(!tienePdf && form.get('message')?.invalid && form.get('message')?.touched)"
+            ></textarea>
+            <span class="absolute bottom-3 right-3 text-[10px] text-ink-25">
+              {{ form.get('message')?.value?.length || 0 }} caracteres
+            </span>
           </div>
         </div>
+
+      </div>
+    </section>
+
+    <!-- Adjuntar PDF -->
+    <section class="rounded-3xl border border-border bg-surface shadow-sm overflow-hidden">
+      <div class="flex items-center justify-between border-b border-border bg-surface-soft px-5 py-3">
+        <div class="flex items-center gap-3">
+          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-red-50">
+            <i class="pi pi-file-pdf text-red-500 text-sm"></i>
+          </div>
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wide text-ink-50">Adjuntar PDF</p>
+            <p class="text-sm font-semibold text-ink">Máximo 10 MB</p>
+          </div>
+        </div>
+
+        <!-- Toggle switch -->
+        <button
+          type="button"
+          (click)="togglePdf()"
+          [attr.aria-checked]="tienePdf"
+          role="switch"
+          class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none"
+          [class.bg-secondary]="tienePdf"
+          [class.bg-border]="!tienePdf"
+        >
+          <span
+            class="pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200"
+            [class.translate-x-5]="tienePdf"
+            [class.translate-x-0]="!tienePdf"
+          ></span>
+        </button>
       </div>
 
-      <!-- SECCIÓN: ADJUNTAR PDF -->
-      <div class="rounded-xl border-2 border-border/50 bg-gray-50/30 p-5 space-y-4 transition-all hover:border-primary/30">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="p-2 rounded-lg bg-red-50">
-              <i class="pi pi-file-pdf text-red-500 text-base"></i>
+      <!-- Zona de carga (visible si toggle activo) -->
+      <div *ngIf="tienePdf" class="p-5 space-y-3 animate-slideDown">
+
+        <!-- Sin archivo: zona de drop -->
+        <div
+          *ngIf="!archivoPdf"
+          (click)="pdfInput.click()"
+          class="flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-border py-10 text-center cursor-pointer transition hover:border-primary hover:bg-primary-25"
+        >
+          <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-surface-soft">
+            <i class="pi pi-upload text-2xl text-ink-25"></i>
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-ink">Haz clic para seleccionar un PDF</p>
+            <p class="text-xs text-ink-50 mt-0.5">Solo archivos .pdf — Máximo 10 MB</p>
+          </div>
+          <input #pdfInput id="pdfInput" type="file" accept=".pdf,application/pdf"
+            class="hidden" (change)="onArchivoSeleccionado($event)" />
+        </div>
+
+        <!-- Con archivo seleccionado -->
+        <div
+          *ngIf="archivoPdf"
+          class="flex items-center justify-between rounded-2xl border border-border bg-surface-soft px-4 py-3 animate-slideDown"
+        >
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-50">
+              <i class="pi pi-file-pdf text-red-500 text-lg"></i>
             </div>
-            <div>
-              <span class="text-sm font-semibold text-secondary">Adjuntar PDF</span>
-              <p class="text-xs" style="color:rgba(0,0,0,0.35)">Máximo 10 MB</p>
+            <div class="min-w-0">
+              <p class="truncate text-sm font-semibold text-ink">{{ nombreArchivo || 'documento.pdf' }}</p>
+              <p class="text-xs text-ink-50">{{ archivoPdf.size | filesize }} · Listo para enviar</p>
             </div>
           </div>
-          <!-- TOGGLE SWITCH mejorado -->
-          <button type="button"
-            class="relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50"
-            [style.background-color]="tienePdf ? '#38BDF8' : '#d1d5db'"
-            (click)="togglePdf()"
-            [attr.aria-checked]="tienePdf"
-            role="switch">
-            <span
-              class="pointer-events-none inline-block h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200"
-              [class.translate-x-5]="tienePdf"
-              [class.translate-x-0]="!tienePdf">
-            </span>
+          <button
+            type="button"
+            (click)="quitarArchivo()"
+            matTooltip="Quitar archivo"
+            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border bg-surface text-ink-50 transition hover:bg-red-50 hover:text-danger hover:border-danger"
+          >
+            <i class="pi pi-times text-xs"></i>
           </button>
         </div>
 
-        <!-- ZONA DE CARGA PDF -->
-        <div *ngIf="tienePdf" class="space-y-3 animate-slideDown">
-          <div *ngIf="!archivoPdf"
-            class="flex flex-col items-center justify-center rounded-xl border-2 border-dashed py-10 text-center transition-all cursor-pointer hover:border-primary hover:bg-primary/5"
-            style="border-color: rgba(56,189,248,0.3); background-color: rgba(56,189,248,0.02)"
-            (click)="pdfInput.click()">
-            <div class="p-4 rounded-full bg-primary/10 mb-3">
-              <i class="pi pi-upload text-3xl" style="color:rgba(56,189,248,0.6)"></i>
-            </div>
-            <p class="text-sm font-medium text-secondary">Haz clic para seleccionar un PDF</p>
-            <p class="text-xs mt-1" style="color:rgba(0,0,0,0.35)">Solo archivos .pdf - Máximo 10 MB</p>
-            <input #pdfInput id="pdfInput" type="file" accept=".pdf,application/pdf"
-              class="hidden" (change)="onArchivoSeleccionado($event)" />
-          </div>
-
-          <!-- ARCHIVO SELECCIONADO -->
-          <div *ngIf="archivoPdf"
-            class="flex items-center justify-between rounded-xl border-2 px-5 py-4 animate-slideDown"
-            style="border-color: rgba(56,189,248,0.3); background-color: rgba(56,189,248,0.05)">
-            <div class="flex items-center gap-4 min-w-0">
-              <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-100">
-                <i class="pi pi-file-pdf text-red-500 text-xl"></i>
-              </div>
-              <div class="min-w-0">
-                <p class="truncate text-sm font-semibold text-ink">{{ nombreArchivo || 'documento.pdf' }}</p>
-                <p class="text-xs" style="color:rgba(0,0,0,0.4)">
-                  {{ archivoPdf.size | filesize }} - Listo para enviar
-                </p>
-              </div>
-            </div>
-            <button type="button"
-              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-red-400 transition-all hover:bg-red-50 hover:text-red-600"
-              (click)="quitarArchivo()" title="Quitar archivo">
-              <i class="pi pi-times"></i>
-            </button>
-          </div>
-
-          <p *ngIf="errorArchivo" class="flex items-center gap-2 text-xs text-red-500">
-            <i class="pi pi-exclamation-circle"></i>
-            {{ errorArchivo }}
-          </p>
-        </div>
-      </div>
-
-      <!-- REMITENTE INFO -->
-      <!-- <div class="flex items-start gap-3 rounded-xl bg-blue-50/50 border border-blue-100 px-5 py-4">
-        <i class="pi pi-info-circle text-blue-500 text-lg shrink-0 mt-0.5"></i>
-        <div>
-          <p class="text-xs" style="color:rgba(0,0,0,0.6)">
-            <span class="font-semibold">Remitente:</span>
-            <span class="font-mono text-xs">CH-OperacionesMina&#64;catalinahuancamine.com</span>
-          </p>
-          <p class="text-xs mt-0.5" style="color:rgba(0,0,0,0.35)">
-            Los correos se enviarán desde esta dirección institucional
-          </p>
-        </div>
-      </div> -->
-
-      <!-- SEPARADOR ANTES DEL BOTÓN -->
-      <div class="border-t border-border/50 pt-4"></div>
-
-      <!-- BOTON ENVIAR - SEPARADO Y CON MÁS ESPACIO -->
-      <div class="mt-6">
-        <button type="submit"
-          [disabled]="!esFormularioValido() || enviando"
-          class="w-full relative flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-secondary to-secondary/90 py-4 px-6 text-sm font-bold text-white shadow-lg transition-all hover:shadow-xl hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50 disabled:scale-100">
-          <ng-container *ngIf="enviando">
-            <i class="pi pi-spin pi-spinner text-lg"></i>
-            <span>Enviando correo{{ destinatarios.length > 1 ? 's' : '' }}...</span>
-          </ng-container>
-          <ng-container *ngIf="!enviando">
-            <i class="pi pi-send text-lg"></i>
-            <span>Enviar correo{{ destinatarios.length > 1 ? 's' : '' }}</span>
-            <span *ngIf="destinatarios.length > 1" 
-                  class="absolute right-4 top-1/2 -translate-y-1/2 text-xs bg-white/20 px-2 py-0.5 rounded-full">
-              {{ destinatarios.length }}
-            </span>
-          </ng-container>
-        </button>
-        
-        <!-- Mensaje informativo adicional debajo del botón -->
-        <p class="text-center text-xs mt-3" style="color:rgba(0,0,0,0.3)">
-          <i class="pi pi-shield mr-1"></i>
-          Todos los correos son enviados de forma segura
+        <p *ngIf="errorArchivo" class="flex items-center gap-2 text-xs text-danger">
+          <i class="pi pi-exclamation-circle"></i> {{ errorArchivo }}
         </p>
       </div>
+    </section>
 
-    </form>
-  </div>
+    <!-- Botón enviar -->
+    <section class="rounded-3xl border border-border bg-surface shadow-sm p-5">
+      <button
+        type="submit"
+        [disabled]="!esFormularioValido() || enviando"
+        class="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-secondary via-secondary-75 to-primary py-3.5 text-sm font-bold text-white shadow-sm transition hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        <ng-container *ngIf="enviando">
+          <i class="pi pi-spin pi-spinner text-base"></i>
+          <span>Enviando correo{{ destinatarios.length > 1 ? 's' : '' }}...</span>
+        </ng-container>
+        <ng-container *ngIf="!enviando">
+          <i class="pi pi-send text-base"></i>
+          <span>Enviar correo{{ destinatarios.length > 1 ? 's' : '' }}</span>
+          <span
+            *ngIf="destinatarios.length > 1"
+            class="ml-1 rounded-full bg-white/20 px-2 py-0.5 text-xs"
+          >
+            {{ destinatarios.length }}
+          </span>
+        </ng-container>
+      </button>
+      <p class="mt-2 text-center text-xs text-ink-25">
+        <i class="pi pi-shield mr-1"></i>
+        Todos los correos son enviados de forma segura
+      </p>
+    </section>
+
+  </form>
 </div>

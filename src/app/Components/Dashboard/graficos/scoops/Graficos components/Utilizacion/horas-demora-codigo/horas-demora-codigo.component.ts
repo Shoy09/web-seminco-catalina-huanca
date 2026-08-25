@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   Input,
   OnChanges,
@@ -59,7 +59,7 @@ export class HorasDemoraCodigoComponent implements OnChanges {
     if (!this.data?.length) return;
 
     // 🔥 ordenar datos de mayor a menor por horas
-    const datosOrdenados = [...this.data].sort((a, b) => b.horasDemora - a.horasDemora);
+    const datosOrdenados = [...this.data].filter(item => Number(item.horasDemora || 0) > 0).sort((a, b) => b.horasDemora - a.horasDemora);
     
     // 🔥 solo el código (sin descripción)
     const codigos = datosOrdenados.map(item => item.codigo);
@@ -68,16 +68,6 @@ export class HorasDemoraCodigoComponent implements OnChanges {
     const valores = datosOrdenados.map(item => item.horasDemora);
 
     this.chartOptions = {
-      title: {
-        text: 'DIAGRAMA DE PARETO',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: '#333'
-        }
-      },
 
       tooltip: {
         trigger: 'axis',
@@ -120,9 +110,6 @@ export class HorasDemoraCodigoComponent implements OnChanges {
 
       yAxis: {
         type: 'value',
-        name: 'Horas',
-        nameLocation: 'middle',
-        nameGap: 40,
         axisLabel: {
           formatter: '{value}h'
         },
@@ -136,7 +123,6 @@ export class HorasDemoraCodigoComponent implements OnChanges {
 
       series: [
         {
-          name: 'Horas de Demora',
           type: 'bar',
           barWidth: '55%',
           data: valores,

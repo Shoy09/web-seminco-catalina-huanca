@@ -1,107 +1,143 @@
-<div class="filtro-fechas">
-  <div class="campo">
-    <label>Fecha inicio</label>
-    <input type="date" [(ngModel)]="fechaInicio">
+<div class="space-y-3">
+
+  <!-- ══ BARRA DE CONTROL ════════════════════════════════════════ -->
+  <section class="overflow-hidden rounded-2xl border border-border bg-surface shadow-sm">
+
+    <div class="flex items-center justify-between bg-gradient-to-r from-secondary via-secondary-75 to-primary px-4 py-2.5 text-white">
+      <div class="flex items-center gap-2">
+        <span class="material-icons ic-header">construction</span>
+        <span class="text-sm font-bold tracking-tight">Sostenimiento — Empernador</span>
+        <span class="hidden text-xs text-white/50 sm:inline">— Dashboard de Indicadores</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="btn-header" (click)="generarPDF()">
+          <span class="material-icons ic-sm">picture_as_pdf</span>
+          PDF
+        </button>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3 px-3 py-2">
+      <div class="flex items-center gap-1.5">
+        <label class="label-filtro">Desde</label>
+        <input type="date" [(ngModel)]="fechaInicio" class="input-filtro" />
+      </div>
+      <div class="flex items-center gap-1.5">
+        <label class="label-filtro">Hasta</label>
+        <input type="date" [(ngModel)]="fechaFin" class="input-filtro" />
+      </div>
+      <div class="flex items-center gap-1.5">
+        <label class="label-filtro">Turno</label>
+        <select [(ngModel)]="turnoSeleccionado" class="input-filtro cursor-pointer">
+          <option value="">Todos</option>
+          <option value="DÍA">Día</option>
+          <option value="NOCHE">Noche</option>
+        </select>
+      </div>
+      <button (click)="aplicarFiltro()" class="btn-primary">
+        <span class="material-icons ic-sm">filter_alt</span>
+        Aplicar
+      </button>
+      <button (click)="quitarFiltro()" class="btn-ghost">
+        <span class="material-icons ic-sm">close</span>
+        Limpiar
+      </button>
+    </div>
+  </section>
+
+  <ng-container *ngIf="vistaPrincipal">
+
+    <!-- ══ RESUMEN KPI ══════════════════════════════════════════ -->
+    <app-resumen [data]="resumen" data-page="1"></app-resumen>
+
+    <!-- ══ PRODUCCIÓN ══════════════════════════════════════════ -->
+    <div class="seccion-header">
+      <span class="material-icons ic-seccion">construction</span>
+      <span>Producción</span>
+    </div>
+    <div class="graficos-grid">
+      <app-pernos-equipo          [data]="DataPernosPorEquipo"      data-page="1" />
+      <app-pernos-dia             [data]="dataPernoDia"             data-page="1" />
+      <app-pernos-labor           [data]="DataPernosPorLabor"       data-page="1" />
+      <app-pernos-instalados-tipo [data]="dataPernosInstalados"     data-page="1" />
+      <app-mhr-equipo             [data]="dataMHREquipo"            data-page="1" />
+      <app-metros-equipo          [data]="dataMetrosEquipo"         data-page="1" />
+    </div>
+
+    <!-- ══ RENDIMIENTO ═════════════════════════════════════════ -->
+    <div class="seccion-header">
+      <span class="material-icons ic-seccion">trending_up</span>
+      <span>Rendimiento</span>
+    </div>
+    <div class="graficos-grid">
+      <app-rendimiento-equipo [data]="DataDMyUTI" data-page="1" />
+    </div>
+
+    <!-- ══ MANTENIMIENTO Y TIEMPOS ════════════════════════════ -->
+    <div class="seccion-header">
+      <span class="material-icons ic-seccion">build</span>
+      <span>Mantenimiento y Tiempos</span>
+    </div>
+    <div class="graficos-grid">
+      <app-demoras-operativas   [data]="DataEstadosSOS"       data-page="1" />
+      <app-demoras-inoperativas [data]="dataDemoraIno"        data-page="1" />
+      <app-horas-mantenimiento  [data]="dataHoraMantenimiento" data-page="1" />
+      <app-horometro-empernador [data]="dataHorometrosEquipo" data-page="1" />
+      <app-total-horometros     [data]="dataHorometroGeneral" data-page="1" />
+    </div>
+
+    <!-- ══ DETALLE ════════════════════════════════════════════ -->
+    <div class="seccion-header">
+      <span class="material-icons ic-seccion">table_chart</span>
+      <span>Detalle</span>
+    </div>
+    <div class="graficos-grid">
+      <app-pernos-minado-tipo       [data]="dataPernosMinadoTipo"  data-page="2" />
+      <app-horas-primera-perforacion [data]="dataProcesoLaborFR"   data-page="3" />
+      <app-detalle-equipo           [data]="dataIndicadores"       data-page="4" class="col-span-full" />
+      <app-detalle-sostenimiento    [data]="dataIndicadoresLabor"  data-page="5" class="col-span-full" />
+    </div>
+
+    <!-- ══ OPERADORES ══════════════════════════════════════════ -->
+    <div class="seccion-header">
+      <span class="material-icons ic-seccion">people</span>
+      <span>Operadores</span>
+    </div>
+    <div class="graficos-grid">
+      <app-mejores-operadores [data]="dataFrPorOperadorTurno" data-page="5" />
+      <app-ranking-operador   [data]="dataFrPorOperadorTurno" data-page="5" />
+      <app-observaciones      [data]="dataLaborFRDetallado"   data-page="5" class="col-span-full" />
+    </div>
+
+    <!-- ══ ANÁLISIS DE TURNOS ══════════════════════════════════ -->
+    <div class="seccion-header">
+      <span class="material-icons ic-seccion">scatter_plot</span>
+      <span>Análisis de Turnos</span>
+    </div>
+    <div class="graficos-grid">
+      <app-scatter-turnos
+        *ngIf="turnoAplicado === '' || turnoAplicado === 'DÍA'"
+        [data]="dataHorasNumericas" data-page="6"
+        class="col-span-full">
+      </app-scatter-turnos>
+      <app-scatter-turnos-noche
+        *ngIf="turnoAplicado === '' || turnoAplicado === 'NOCHE'"
+        [data]="dataHorasNumericas" data-page="6"
+        class="col-span-full">
+      </app-scatter-turnos-noche>
+    </div>
+
+  </ng-container>
+
+  <!-- Vista Gantt -->
+  <div class="graficos-grid" *ngIf="!vistaPrincipal">
+    <app-scheduler [data]="ganttData" data-page="6" class="col-span-full"></app-scheduler>
   </div>
 
-  <div class="campo">
-    <label>Fecha fin</label>
-    <input type="date" [(ngModel)]="fechaFin">
-  </div>
-
-  <div class="campo">
-  <label>Turno</label>
-  <select [(ngModel)]="turnoSeleccionado">
-    <option value="">Todos</option>
-    <option value="DÍA">Día</option>
-    <option value="NOCHE">Noche</option>
-  </select>
 </div>
 
-
-  <button class="btn-aplicar" (click)="aplicarFiltro()">
-    Aplicar
-  </button>
-
-  <button class="btn-aplicar" (click)="quitarFiltro()">
-    Quitar filtro
-  </button>
-
-  <button class="btn-aplicar" (click)="generarPDF()">
-  Exportar PDF
-</button>
-
-<!-- <button class="btn-aplicar" (click)="toggleVista()">
-  {{ vistaPrincipal ? 'Ver gráfico de linea' : 'Gráficos principales' }}
-</button> -->
-
-</div>
-
-<div class="graficos-container" *ngIf="vistaPrincipal">
-  <!-- Hoja 1 pdf -->
-  <app-resumen class="full-width" [data]="resumen" data-page="1"></app-resumen>
-
-  <app-pernos-equipo  [data]="DataPernosPorEquipo" data-page="1"></app-pernos-equipo>
-
-  <app-pernos-dia [data]="dataPernoDia" data-page="1"></app-pernos-dia>
-
-  <app-pernos-labor [data]="DataPernosPorLabor" data-page="1"></app-pernos-labor>
-
-  <app-rendimiento-equipo [data]="DataDMyUTI" data-page="1"></app-rendimiento-equipo>
-
-  <app-demoras-operativas [data]="DataEstadosSOS" data-page="1"></app-demoras-operativas>
-
-  <app-demoras-inoperativas [data]="dataDemoraIno" data-page="1"></app-demoras-inoperativas>
-
-  <app-horas-mantenimiento [data]="dataHoraMantenimiento" data-page="1"></app-horas-mantenimiento>
-
-  <app-pernos-instalados-tipo [data]="dataPernosInstalados" data-page="1"></app-pernos-instalados-tipo>
-
-  <app-mhr-equipo [data]="dataMHREquipo" data-page="1"></app-mhr-equipo>
-
-  <app-metros-equipo [data]="dataMetrosEquipo" data-page="1"></app-metros-equipo>
-
-  <app-horometro-empernador [data]="dataHorometrosEquipo" data-page="1"></app-horometro-empernador>
-
-  <app-total-horometros [data]="dataHorometroGeneral" data-page="1"></app-total-horometros>
-
-   <!-- Hoja 2 pdf -->
-
-
-
-<app-pernos-minado-tipo [data]="dataPernosMinadoTipo" data-page="2"></app-pernos-minado-tipo>
-
-<app-horas-primera-perforacion [data]="dataProcesoLaborFR" data-page="3"></app-horas-primera-perforacion>
-
-<app-detalle-equipo class="full-width" [data]="dataIndicadores" data-page="4"></app-detalle-equipo>
-
-<app-detalle-sostenimiento class="full-width" [data]="dataIndicadoresLabor" data-page="5"></app-detalle-sostenimiento>
-
-<app-mejores-operadores class="full-width" [data]="dataFrPorOperadorTurno" data-page="5"></app-mejores-operadores>
-<app-ranking-operador [data]="dataFrPorOperadorTurno" data-page="5"></app-ranking-operador>
-
-  <app-observaciones class="full-width" [data]="dataLaborFRDetallado" data-page="5"></app-observaciones>
-
-     <app-scatter-turnos 
-  *ngIf="turnoAplicado === '' || turnoAplicado === 'DÍA'"
-  class="full-width"
-  [data]="dataHorasNumericas" data-page="6">
-</app-scatter-turnos>
-
-<app-scatter-turnos-noche 
-  *ngIf="turnoAplicado === '' || turnoAplicado === 'NOCHE'"
-  class="full-width"
-  [data]="dataHorasNumericas" data-page="6">
-</app-scatter-turnos-noche>
- 
-</div>
-
-<div class="graficos-container" *ngIf="!vistaPrincipal">
-
-<app-scheduler class="full-width" [data]="ganttData" data-page="6"></app-scheduler>
-</div>
- 
+<!-- Overlay PDF -->
 <div class="overlay" *ngIf="cargandoPDF">
   <div class="spinner"></div>
   <p>Generando PDF...</p>
-</div>  
+</div>

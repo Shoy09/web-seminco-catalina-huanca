@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { MenuModule } from 'primeng/menu';
 import { RippleModule } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
+import { UsuarioService } from '../../../services/usuario.service';
 
 @Component({
   selector: 'app-menu',
@@ -19,8 +20,9 @@ import { TooltipModule } from 'primeng/tooltip';
   templateUrl: './menu.component.html',
   styleUrl: './menu.component.css',
 })
-export class MenuComponent {
-  rolUsuario: string = '';
+export class MenuComponent implements OnInit {
+  rolUsuario:    string = '';
+  nombreUsuario: string = 'Usuario';
 
 
   menus: MenuItem[] = [
@@ -30,8 +32,8 @@ export class MenuComponent {
       items: [
         { label: 'Perforación Tal. Largo',   routerLink: ['/Dashboard/grafico-tal-largo'] },
         { label: 'Perforación Horizontal',    routerLink: ['/Dashboard/grafico-horizontal'] },
-        { label: 'Perforación Sostenimiento', routerLink: ['/Dashboard/grafico-sostenimiento'] },
-        { label: 'Carguío',                   routerLink: ['/Dashboard/grafico-scoops'] },
+        { label: 'Empernador', routerLink: ['/Dashboard/grafico-sostenimiento'] },
+        { label: 'Scooptram',                   routerLink: ['/Dashboard/grafico-scoops'] },
         { label: 'Acarreo',                   routerLink: ['/Dashboard/grafico-acarreo'] },
         { label: 'Explosivos',                routerLink: ['/Dashboard/explosivos-graficos'] },
         { label: 'Línea de tiempo',           routerLink: ['/Dashboard/linea-de-tiempo'] },
@@ -86,8 +88,25 @@ export class MenuComponent {
   menuMovilAbierto = false;
   mostrarCerrarSesion = false;
 
-  constructor(private router: Router) {
-    this.rolUsuario = localStorage.getItem('rol') || '';
+  constructor(private router: Router, private usuarioService: UsuarioService) {
+    this.rolUsuario    = localStorage.getItem('rol')             || '';
+    this.nombreUsuario = localStorage.getItem('nombre_completo') || 'Usuario';
+  }
+
+  ngOnInit(): void {
+    // Si el nombre no está en localStorage, lo cargamos desde el servidor
+    if (!localStorage.getItem('nombre_completo')) {
+      this.usuarioService.obtenerPerfil().subscribe({
+        next: (usuario) => {
+          const nombreCompleto = `${usuario.nombres || ''} ${usuario.apellidos || ''}`.trim();
+          this.nombreUsuario = nombreCompleto || 'Usuario';
+          this.rolUsuario    = usuario.rol    || this.rolUsuario;
+          localStorage.setItem('nombre_completo', this.nombreUsuario);
+          localStorage.setItem('rol', this.rolUsuario);
+        },
+        error: () => {}
+      });
+    }
   }
 
   isMenuPadreActivo(menu: any): boolean {

@@ -1,100 +1,79 @@
-.dashboard-container {
-  padding: 20px;
-  background: #f5f7fa;
-  border-radius: 12px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  height: 100%; /* Para que ocupe todo el espacio */
-}
-
-.dashboard-title {
-  text-align: center;
-  color: #2c3e50;
-  margin-bottom: 30px;
-  font-size: 24px;
-  font-weight: bold;
-  letter-spacing: 2px;
-}
-
-/* FORZAR 2 COLUMNAS SIEMPRE */
-.cards-grid {
+/* KPI grid — 4 columnas */
+.kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 🔥 4 columnas */
-  gap: 20px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
 }
 
-.card {
-  background: white;
+/* Card */
+.kpi-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fff;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 16px 18px;
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.kpi-card:hover {
+  box-shadow: 0 4px 16px rgba(11,31,58,0.1);
+  transform: translateY(-2px);
+}
+
+/* Franja de color izquierda */
+.kpi-stripe {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 14px 0 0 14px;
+}
+
+/* Icono */
+.kpi-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
   border-radius: 12px;
-  padding: 20px;
-  text-align: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  cursor: pointer;
+  flex-shrink: 0;
 }
 
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+/* Cuerpo */
+.kpi-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
 }
 
-.card-icon {
-  color: #3498db;
-  margin-bottom: 15px;
-}
-
-.card-icon svg {
-  width: 40px;
-  height: 40px;
-}
-
-.card-label {
-  font-size: 14px;
-  color: #7f8c8d;
+.kpi-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #94A3B8;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 10px;
-  font-weight: 600;
+  letter-spacing: 0.07em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.card-value {
-  font-size: 36px;
-  font-weight: bold;
-  color: #2c3e50;
+.kpi-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: #0B1F3A;
+  line-height: 1;
 }
 
-/* Colores diferentes para cada tarjeta */
-.card:nth-child(1) .card-icon {
-  color: #e74c3c;
-}
-
-.card:nth-child(2) .card-icon {
-  color: #3498db;
-}
-
-.card:nth-child(3) .card-icon {
-  color: #2ecc71;
-}
-
-.card:nth-child(4) .card-icon {
-  color: #f39c12;
-}
-
-.cards-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-}
-
-/* Tablets */
 @media (max-width: 1024px) {
-  .cards-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
 }
-
-/* Móviles */
 @media (max-width: 600px) {
-  .cards-grid {
-    grid-template-columns: 1fr;
-  }
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+  .kpi-value { font-size: 22px; }
 }

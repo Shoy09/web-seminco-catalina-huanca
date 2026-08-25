@@ -1,3 +1,20 @@
-<div class="gantt-container">
-  <div echarts [options]="chartOptions" class="gantt-chart"></div>
+﻿<div class="card-wrapper">
+  <div class="card-header">
+    <span class="card-accent"></span>
+    <span class="card-title">Diagrama Gantt</span>
+  </div>
+
+  @if (!chartOptions || !chartOptions['series']) {
+    <div class="empty-state">
+      <span class="material-icons empty-icon">bar_chart</span>
+      <span class="empty-text">Sin datos para el período seleccionado</span>
+    </div>
+  } @else {
+    <div
+      echarts
+      [options]="chartOptions"
+      class="chart"
+      [autoResize]="true"
+    ></div>
+  }
 </div>

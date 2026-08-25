@@ -26,6 +26,37 @@ export class OperacionesListComponent implements OnInit {
   fechaFin: string = '';
   turnoSeleccionado: string = '';
   turnoAplicado: string = '';
+
+  // Toggle panel de filtros
+  mostrarFiltros: boolean = false;
+
+  // Paginación
+  paginaActual: number = 1;
+  registrosPorPagina: number = 10;
+  opcionesPagina: number[] = [10, 15, 20];
+
+  get totalPaginas(): number {
+    return Math.ceil(this.operacionesFiltradas.length / this.registrosPorPagina);
+  }
+
+  get operacionesPaginadas(): OperacionBase[] {
+    const inicio = (this.paginaActual - 1) * this.registrosPorPagina;
+    return this.operacionesFiltradas.slice(inicio, inicio + this.registrosPorPagina);
+  }
+
+  get paginas(): number[] {
+    return Array.from({ length: this.totalPaginas }, (_, i) => i + 1);
+  }
+
+  cambiarPagina(pagina: number): void {
+    if (pagina < 1 || pagina > this.totalPaginas) return;
+    this.paginaActual = pagina;
+  }
+
+  cambiarRegistrosPorPagina(cantidad: number | string): void {
+    this.registrosPorPagina = +cantidad;
+    this.paginaActual = 1;
+  }
   
   constructor(
     private operacionesService: OperacionesService,
@@ -42,12 +73,6 @@ export class OperacionesListComponent implements OnInit {
     }
 
     this.jefe_guardia = nombre;
-    
-    // 🔥 SETEO AUTOMÁTICO
-    const hoy = this.getFechaHoy();
-    this.fechaInicio = hoy;
-    this.fechaFin = hoy;
-    this.turnoSeleccionado = this.getTurnoActual();
 
     this.cargarDatos();
   }
@@ -83,12 +108,11 @@ export class OperacionesListComponent implements OnInit {
       .subscribe({
         next: (resp: any) => {
           this.operacionesOriginal = resp.data;
+          // Mostrar todos ordenados de más reciente a más antiguo
+          this.operacionesFiltradas = [...this.operacionesOriginal]
+            .sort((a, b) => (a.fecha < b.fecha ? 1 : a.fecha > b.fecha ? -1 : (b.id ?? 0) - (a.id ?? 0)));
           this.loading = false;
-          
           console.log('🔥 DATA OPERACIONES:', this.operacionesOriginal);
-          
-          // 🔥 APLICAR FILTRO AUTOMÁTICO
-          this.aplicarFiltro();
         },
         error: (err) => {
           console.error(err);
@@ -103,29 +127,31 @@ export class OperacionesListComponent implements OnInit {
   aplicarFiltro() {
     this.turnoAplicado = this.turnoSeleccionado;
 
-    this.operacionesFiltradas = this.operacionesOriginal.filter((op) => {
-      // Filtro por fecha inicio
-      if (this.fechaInicio && op.fecha < this.fechaInicio) return false;
-      
-      // Filtro por fecha fin
-      if (this.fechaFin && op.fecha > this.fechaFin) return false;
+    this.operacionesFiltradas = this.operacionesOriginal
+      .filter((op) => {
+        if (this.fechaInicio && op.fecha < this.fechaInicio) return false;
+        if (this.fechaFin && op.fecha > this.fechaFin) return false;
+        if (this.turnoAplicado && op.turno !== this.turnoAplicado) return false;
+        return true;
+      })
+      .sort((a, b) => (a.fecha < b.fecha ? 1 : a.fecha > b.fecha ? -1 : (b.id ?? 0) - (a.id ?? 0)));
 
-      // Filtro por turno
-      if (this.turnoAplicado && op.turno !== this.turnoAplicado) return false;
-
-      return true;
-    });
-    
+    this.mostrarFiltros = false;
+    this.paginaActual = 1;
     console.log('🔥 OPERACIONES FILTRADAS:', this.operacionesFiltradas);
   }
 
   // 🔥 QUITAR TODOS LOS FILTROS
   quitarFiltro() {
-    this.operacionesFiltradas = [...this.operacionesOriginal];
     this.fechaInicio = '';
     this.fechaFin = '';
     this.turnoAplicado = '';
     this.turnoSeleccionado = '';
+    this.mostrarFiltros = false;
+    this.paginaActual = 1;
+
+    this.operacionesFiltradas = [...this.operacionesOriginal]
+      .sort((a, b) => (a.fecha < b.fecha ? 1 : a.fecha > b.fecha ? -1 : (b.id ?? 0) - (a.id ?? 0)));
 
     console.log('🔥 FILTROS ELIMINADOS, mostrando todas las operaciones');
   }

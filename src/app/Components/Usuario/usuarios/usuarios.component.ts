@@ -127,7 +127,9 @@ export class UsuariosComponent implements OnInit {
 
   abrirDialogoCrear() {
     const dialogRef = this.dialog.open(UsuarioDialogComponent, {
-      width: '400px',
+      width: '680px',
+      maxWidth: '95vw',
+      autoFocus: false,
       data: null,
     });
 
@@ -155,7 +157,9 @@ export class UsuariosComponent implements OnInit {
 
   abrirDialogoEditar(usuario: Usuario) {
     const dialogRef = this.dialog.open(UsuarioDialogComponent, {
-      width: '400px',
+      width: '680px',
+      maxWidth: '95vw',
+      autoFocus: false,
       data: usuario,
     });
 

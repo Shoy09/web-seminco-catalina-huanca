@@ -1,33 +1,18 @@
-<div class="contenedor-mtbf-ano">
-  <div
-    class="gauge-card"
-    *ngFor="let item of tarjetas"
-    [attr.data-tooltip]="getTooltipText(item)"
-  >
-    <div class="gauge-title">
-      {{ item.titulo }}
-    </div>
-
-    <div class="gauge-container">
-      <div
-        class="gauge"
-        [style.--value]="item.porcentaje"
-        [style.--color]="item.color"
-      >
-        <div class="gauge-center">
-          <span class="valor">{{ item.valor }}</span>
-          <span class="unidad">{{ item.unidad }}</span>
+﻿<div class="card-wrapper">
+  <div class="card-header"><span class="card-accent"></span><span class="card-title">MTBF por Año</span></div>
+  @if (!tarjetas || tarjetas.length === 0) {
+    <div class="empty-state"><span class="material-icons empty-icon">bar_chart</span><span class="empty-text">Sin datos para el período seleccionado</span></div>
+  } @else {
+    <div class="contenedor-rendimiento">
+      <div class="gauge-card" *ngFor="let item of tarjetas" [attr.data-tooltip]="getTooltipText(item)">
+        <div class="gauge-title">{{ item.titulo }}</div>
+        <div class="gauge-container">
+          <div class="gauge" [style.--value]="item.porcentaje" [style.--color]="item.color">
+            <div class="gauge-center">{{ item.valor }}</div>
+          </div>
         </div>
-      </div>
-
-      <div class="gauge-scale">
-        <span>0</span>
-        <span>{{ objetivoMtbf }} hrs</span>
+        <div class="gauge-subinfo">{{ item.unidad }}</div>
       </div>
     </div>
-  </div>
-
-  <div *ngIf="tarjetas.length === 0" class="no-data">
-    No hay datos de MTBF disponibles
-  </div>
+  }
 </div>

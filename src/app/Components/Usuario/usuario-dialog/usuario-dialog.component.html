@@ -1,104 +1,205 @@
-<mat-card class="usuario-card">
-  <h2 mat-dialog-title class="titulo-dialogo">{{ editMode ? 'Editar Usuario' : 'Nuevo Usuario' }}</h2>
+<div class="w-full">
 
-  <mat-dialog-content>
-    <form [formGroup]="usuarioForm">
+  <!-- Título -->
+  <div class="flex items-center justify-between border-b border-border px-6 py-4">
+    <div>
+      <p class="text-[10px] font-bold uppercase tracking-widest text-ink-50">
+        {{ editMode ? 'Editando registro' : 'Nuevo registro' }}
+      </p>
+      <h2 class="text-lg font-black text-ink">
+        {{ editMode ? 'Editar Usuario' : 'Nuevo Usuario' }}
+      </h2>
+    </div>
+    <button mat-icon-button (click)="cancelar()" class="!text-ink-50 hover:!text-danger">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
 
-      <div class="input-group">
-        <mat-form-field appearance="outline">
-          <mat-label>DNI</mat-label>
-          <input matInput formControlName="codigo_dni">
-        </mat-form-field>
+  <!-- Contenido -->
+  <mat-dialog-content class="!px-6 !py-2">
+    <form [formGroup]="usuarioForm" class="flex flex-col gap-1">
 
-        <mat-form-field appearance="outline">
-          <mat-label>Nombre</mat-label>
-          <input matInput formControlName="nombres">
-        </mat-form-field>
+      <!-- Fila 1: DNI + Nombre -->
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div class="flex flex-col gap-0.5">
+          <label class="text-[10px] font-bold uppercase tracking-wide text-ink-50">DNI</label>
+          <mat-form-field appearance="outline" class="w-full compact-field">
+            <mat-icon matPrefix class="text-ink-50 !text-base">badge</mat-icon>
+            <input matInput formControlName="codigo_dni" placeholder="Ej: 12345678" />
+          </mat-form-field>
+        </div>
+        <div class="flex flex-col gap-0.5">
+          <label class="text-[10px] font-bold uppercase tracking-wide text-ink-50">Nombres</label>
+          <mat-form-field appearance="outline" class="w-full compact-field">
+            <mat-icon matPrefix class="text-ink-50 !text-base">person</mat-icon>
+            <input matInput formControlName="nombres" placeholder="Nombres" />
+          </mat-form-field>
+        </div>
       </div>
 
-      <div class="input-group">
-        <mat-form-field appearance="outline">
-          <mat-label>Apellidos</mat-label>
-          <input matInput formControlName="apellidos">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Correo</mat-label>
-          <input matInput formControlName="correo" type="email">
-        </mat-form-field>
+      <!-- Fila 2: Apellidos + Correo -->
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div class="flex flex-col gap-0.5">
+          <label class="text-[10px] font-bold uppercase tracking-wide text-ink-50">Apellidos</label>
+          <mat-form-field appearance="outline" class="w-full compact-field">
+            <mat-icon matPrefix class="text-ink-50 !text-base">person_outline</mat-icon>
+            <input matInput formControlName="apellidos" placeholder="Apellidos" />
+          </mat-form-field>
+        </div>
+        <div class="flex flex-col gap-0.5">
+          <label class="text-[10px] font-bold uppercase tracking-wide text-ink-50">Correo</label>
+          <mat-form-field appearance="outline" class="w-full compact-field">
+            <mat-icon matPrefix class="text-ink-50 !text-base">mail</mat-icon>
+            <input matInput formControlName="correo" type="email" placeholder="correo@ejemplo.com" />
+            <mat-error *ngIf="usuarioForm.get('correo')?.hasError('email')">Correo inválido</mat-error>
+          </mat-form-field>
+        </div>
       </div>
 
-      <div class="input-group">
-        <mat-form-field appearance="outline">
-  <mat-label>Cargo</mat-label>
-  <mat-select formControlName="cargo">
-    <mat-option *ngFor="let cargo of cargos" [value]="cargo">
-      {{ cargo }}
-    </mat-option>
-  </mat-select>
-</mat-form-field>
-
-
-        <mat-form-field appearance="outline">
-          <mat-label>Empresa</mat-label>
-          <input matInput formControlName="empresa">
-        </mat-form-field>
+      <!-- Fila 3: Cargo + Empresa -->
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div class="flex flex-col gap-0.5">
+          <label class="text-[10px] font-bold uppercase tracking-wide text-ink-50">Cargo</label>
+          <mat-form-field appearance="outline" class="w-full compact-field">
+            <mat-icon matPrefix class="text-ink-50 !text-base">work</mat-icon>
+            <mat-select formControlName="cargo" placeholder="Seleccionar cargo">
+              <mat-option *ngFor="let cargo of cargos" [value]="cargo">{{ cargo }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="flex flex-col gap-0.5">
+          <label class="text-[10px] font-bold uppercase tracking-wide text-ink-50">Empresa</label>
+          <mat-form-field appearance="outline" class="w-full compact-field">
+            <mat-icon matPrefix class="text-ink-50 !text-base">business</mat-icon>
+            <input matInput formControlName="empresa" placeholder="Nombre de la empresa" />
+          </mat-form-field>
+        </div>
       </div>
 
-      <div class="input-group">
-        <mat-form-field appearance="outline">
-          <mat-label>Guardia</mat-label>
-          <input matInput formControlName="guardia">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Autorizado Equipo</mat-label>
-          <input matInput formControlName="autorizado_equipo">
-        </mat-form-field>
+      <!-- Fila 4: Guardia + Autorizado Equipo -->
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div class="flex flex-col gap-0.5">
+          <label class="text-[10px] font-bold uppercase tracking-wide text-ink-50">Guardia</label>
+          <mat-form-field appearance="outline" class="w-full compact-field">
+            <mat-icon matPrefix class="text-ink-50 !text-base">security</mat-icon>
+            <input matInput formControlName="guardia" placeholder="Guardia asignada" />
+          </mat-form-field>
+        </div>
+        <div class="flex flex-col gap-0.5">
+          <label class="text-[10px] font-bold uppercase tracking-wide text-ink-50">Autorizado Equipo</label>
+          <mat-form-field appearance="outline" class="w-full compact-field">
+            <mat-icon matPrefix class="text-ink-50 !text-base">construction</mat-icon>
+            <input matInput formControlName="autorizado_equipo" placeholder="Equipo autorizado" />
+          </mat-form-field>
+        </div>
       </div>
 
-      <div class="input-group">
-        <mat-form-field appearance="outline">
-          <mat-label>Rol</mat-label>
-          <mat-select formControlName="rol">
-            <mat-option value="Admin">Admin</mat-option>
-            <mat-option value="Trabajador">Trabajador</mat-option>
-            <mat-option value="Master">Master</mat-option>
-          </mat-select>
-        </mat-form-field>
+      <!-- Fila 5: Rol + Operaciones -->
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div class="flex flex-col gap-0.5">
+          <label class="text-[10px] font-bold uppercase tracking-wide text-ink-50">Rol</label>
+          <mat-form-field appearance="outline" class="w-full compact-field">
+            <mat-icon matPrefix class="text-ink-50 !text-base">admin_panel_settings</mat-icon>
+            <mat-select formControlName="rol" placeholder="Seleccionar rol">
+              <mat-option value="Admin">Admin</mat-option>
+              <mat-option value="Trabajador">Trabajador</mat-option>
+              <mat-option value="Master">Master</mat-option>
+              <mat-option value="OPERADOR">OPERADOR</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="flex flex-col gap-0.5">
+          <label class="text-[10px] font-bold uppercase tracking-wide text-ink-50">Operaciones Autorizadas</label>
+          <mat-form-field appearance="outline" class="w-full compact-field">
+            <mat-icon matPrefix class="text-ink-50 !text-base">checklist</mat-icon>
+            <mat-select formControlName="operaciones_autorizadas" multiple placeholder="Seleccionar">
+              <mat-option *ngFor="let op of operacionesDisponibles" [value]="op">{{ op }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
       </div>
 
-      <div class="input-group">
-  <mat-form-field appearance="outline" class="full-width">
-    <mat-label>Operaciones Autorizadas</mat-label>
-    <mat-select formControlName="operaciones_autorizadas" multiple>
-      <mat-option *ngFor="let op of operacionesDisponibles" [value]="op">{{ op }}</mat-option>
-    </mat-select>
-  </mat-form-field>
-</div>
+      <!-- Contraseña al crear -->
+      <ng-container *ngIf="!editMode">
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div class="flex flex-col gap-0.5">
+            <label class="text-[10px] font-bold uppercase tracking-wide text-ink-50">Contraseña</label>
+            <mat-form-field appearance="outline" class="w-full compact-field">
+              <mat-icon matPrefix class="text-ink-50 !text-base">lock</mat-icon>
+              <input matInput formControlName="password" type="password" placeholder="Mínimo 6 caracteres" />
+              <mat-error *ngIf="usuarioForm.get('password')?.invalid">Mínimo 6 caracteres</mat-error>
+            </mat-form-field>
+          </div>
+          <div class="flex flex-col gap-0.5">
+            <label class="text-[10px] font-bold uppercase tracking-wide text-ink-50">Confirmar Contraseña</label>
+            <mat-form-field appearance="outline" class="w-full compact-field">
+              <mat-icon matPrefix class="text-ink-50 !text-base">lock_outline</mat-icon>
+              <input matInput formControlName="confirmPassword" type="password" placeholder="Repetir contraseña" />
+              <mat-error *ngIf="usuarioForm.hasError('noCoincide')">No coinciden</mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+      </ng-container>
 
-      
+      <!-- Cambiar contraseña al editar (colapsable) -->
+      <ng-container *ngIf="editMode">
+        <!-- Botón para expandir -->
+        <button
+          type="button"
+          (click)="toggleCambiarPassword()"
+          class="flex w-full items-center gap-2 rounded-xl border border-dashed px-3 py-2 text-xs font-bold uppercase tracking-wide transition"
+          [ngClass]="cambiarPassword
+            ? 'border-danger text-danger bg-red-50'
+            : 'border-border text-ink-50 hover:border-primary hover:text-secondary hover:bg-primary-25'"
+        >
+          <mat-icon class="!h-4 !w-4 !text-base !leading-none">
+            {{ cambiarPassword ? 'lock_open' : 'lock_reset' }}
+          </mat-icon>
+          {{ cambiarPassword ? 'Cancelar cambio de contraseña' : 'Cambiar contraseña' }}
+          <mat-icon class="!h-4 !w-4 !text-base !leading-none ml-auto">
+            {{ cambiarPassword ? 'expand_less' : 'expand_more' }}
+          </mat-icon>
+        </button>
 
-      <!-- Campos de contraseña solo si es un nuevo usuario -->
-      <div *ngIf="!editMode">
-        <mat-form-field appearance="outline">
-          <mat-label>Contraseña</mat-label>
-          <input matInput formControlName="password" type="password">
-          <mat-error *ngIf="usuarioForm.get('password')?.invalid">Debe tener al menos 6 caracteres</mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Confirmar Contraseña</mat-label>
-          <input matInput formControlName="confirmPassword" type="password">
-          <mat-error *ngIf="usuarioForm.hasError('noCoincide')">Las contraseñas no coinciden</mat-error>
-        </mat-form-field>
-      </div>
+        <!-- Campos de nueva contraseña -->
+        <div *ngIf="cambiarPassword" class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div class="flex flex-col gap-0.5">
+            <label class="text-[10px] font-bold uppercase tracking-wide text-ink-50">Nueva Contraseña</label>
+            <mat-form-field appearance="outline" class="w-full compact-field">
+              <mat-icon matPrefix class="text-ink-50 !text-base">lock</mat-icon>
+              <input matInput formControlName="password" type="password" placeholder="Mínimo 6 caracteres" />
+              <mat-error *ngIf="usuarioForm.get('password')?.invalid">Mínimo 6 caracteres</mat-error>
+            </mat-form-field>
+          </div>
+          <div class="flex flex-col gap-0.5">
+            <label class="text-[10px] font-bold uppercase tracking-wide text-ink-50">Confirmar Contraseña</label>
+            <mat-form-field appearance="outline" class="w-full compact-field">
+              <mat-icon matPrefix class="text-ink-50 !text-base">lock_outline</mat-icon>
+              <input matInput formControlName="confirmPassword" type="password" placeholder="Repetir contraseña" />
+              <mat-error *ngIf="usuarioForm.hasError('noCoincide')">No coinciden</mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+      </ng-container>
 
     </form>
   </mat-dialog-content>
 
-  <mat-dialog-actions align="end">
-    <button mat-raised-button color="warn" (click)="cancelar()">Cancelar</button>
-    <button mat-raised-button color="primary" [disabled]="usuarioForm.invalid" (click)="guardar()">Guardar</button>
+  <!-- Acciones -->
+  <mat-dialog-actions align="end" class="!px-6 !pb-5 !pt-2 gap-2">
+    <button mat-stroked-button (click)="cancelar()" class="!rounded-xl">
+      Cancelar
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      [disabled]="usuarioForm.invalid"
+      (click)="guardar()"
+      class="!rounded-xl"
+    >
+      <mat-icon class="!h-4 !w-4 !text-sm">{{ editMode ? 'save' : 'add' }}</mat-icon>
+      {{ editMode ? 'Actualizar' : 'Guardar' }}
+    </button>
   </mat-dialog-actions>
-</mat-card>
+
+</div>

@@ -1,103 +1,61 @@
-<div class="dashboard-container">
-
-  <!-- Columna izquierda: Gráfico -->
-  <div class="grafico-columna">
-    <div 
-      echarts 
-      [options]="chartOptions" 
-      [autoResize]="true" 
-      class="grafico-echarts">
-    </div>
+﻿<div class="card-wrapper">
+  <div class="card-header">
+    <span class="card-accent"></span>
+    <span class="card-title">{{ tituloGrafico || 'Metros Perforados por Rango de Hora' }}</span>
   </div>
 
-  <!-- Columna derecha -->
-  <div class="sidebar-columna">
+  @if (!chartOptions || !chartOptions['series']) {
+    <div class="empty-state">
+      <span class="material-icons empty-icon">bar_chart</span>
+      <span class="empty-text">Sin datos para el período seleccionado</span>
+    </div>
+  } @else {
+    <div class="inner-layout">
 
-    <div class="contenedor-inferior">
-
-      <!-- TOTAL POR TIPO / MATERIAL -->
-      <div class="totales-columna">
-
-        <div class="totales-header">
-          <h4>{{ tituloTotalTipo }}</h4>
+      <!-- Gráfico ECharts -->
+      <div class="chart-col">
+        <div
+          echarts
+          [options]="chartOptions"
+          [autoResize]="true"
+          class="chart">
         </div>
+      </div>
 
-        <div class="totales-lista">
-          <div
-            *ngFor="let tipo of tiposPerforacionFiltrados"
-            class="total-item"
-          >
-            <div class="total-item-info">
-              <span class="total-item-nombre">
-                {{ tipo }}
-              </span>
+      <!-- Sidebar de totales -->
+      <div class="sidebar-col">
 
-              <span class="total-item-valor">
-                {{ totalesPorTipo[tipo] | number:'1.2-2' }} {{ unidad }}
-              </span>
+        <!-- Total por tipo -->
+        <div class="totales-card">
+          <div class="totales-title">{{ tituloTotalTipo }}</div>
+          <div class="totales-list">
+            <div *ngFor="let tipo of tiposPerforacionFiltrados" class="total-item">
+              <span class="total-name">{{ tipo }}</span>
+              <span class="total-val">{{ totalesPorTipo[tipo] | number:'1.2-2' }} {{ unidad }}</span>
             </div>
+          </div>
+          <div class="total-footer">
+            <span>Total General</span>
+            <strong>{{ totalGeneral | number:'1.2-2' }} {{ unidad }}</strong>
           </div>
         </div>
 
-        <div class="total-general">
-          <span class="total-general-label">
-            TOTAL GENERAL
-          </span>
-
-          <strong class="total-general-value">
-            {{ totalGeneral | number:'1.2-2' }} {{ unidad }}
-          </strong>
-        </div>
-
-      </div>
-
-      <!-- TOTAL POR EQUIPO / VOLQUETE -->
-      <div class="equipos-columna">
-
-        <div class="totales-header">
-          <h4>{{ tituloTotalEquipo }}</h4>
-        </div>
-
-        <div class="totales-lista">
-
-          <div
-            *ngFor="let equipo of equiposFiltrados"
-            class="total-item"
-            [title]="obtenerTooltipEquipo(equipo)"
-          >
-            <div class="total-item-info">
-
-              <span class="total-item-nombre">
-                {{ equipo }}
-              </span>
-
-              <span class="total-item-valor">
-                {{ totalesPorEquipo[equipo] | number:'1.2-2' }} {{ unidad }}
-              </span>
-
+        <!-- Total por equipo -->
+        <div class="totales-card">
+          <div class="totales-title">{{ tituloTotalEquipo }}</div>
+          <div class="totales-list">
+            <div *ngFor="let equipo of equiposFiltrados" class="total-item" [title]="obtenerTooltipEquipo(equipo)">
+              <span class="total-name">{{ equipo }}</span>
+              <span class="total-val">{{ totalesPorEquipo[equipo] | number:'1.2-2' }} {{ unidad }}</span>
             </div>
           </div>
-
-        </div>
-
-        <div class="total-general">
-          <span class="total-general-label">
-            TOTAL {{ labelEquipo | uppercase }}
-          </span>
-
-          <strong class="total-general-value">
-            {{ totalGeneral | number:'1.2-2' }} {{ unidad }}
-          </strong>
+          <div class="total-footer">
+            <span>Total {{ labelEquipo | uppercase }}</span>
+            <strong>{{ totalGeneral | number:'1.2-2' }} {{ unidad }}</strong>
+          </div>
         </div>
 
       </div>
-
     </div>
-
-  </div>
-
-</div>
-
-<div *ngIf="!data?.length" class="sin-datos">
-  <p>{{ mensajeSinDatos }}</p>
+  }
 </div>

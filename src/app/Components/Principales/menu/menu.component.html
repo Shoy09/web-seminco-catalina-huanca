@@ -22,13 +22,34 @@
     </div>
 
     <!-- USER INFO -->
-    <div *ngIf="!menuColapsado" class="mx-3 mt-4 rounded-2xl border border-white/10 bg-white/10 p-3">
-      <div class="flex items-center gap-3">
-        <img src="lp.svg" alt="Usuario" class="h-11 w-11 rounded-full bg-white object-cover p-1" />
-        <div class="min-w-0">
-          <p class="truncate text-sm font-bold text-menu-text">Usuario</p>
-          <p class="text-xs font-medium text-menu-text/70">{{ rolUsuario || 'Administrador' }}</p>
+    <div *ngIf="!menuColapsado" class="mx-3 mt-4">
+      <div class="rounded-2xl border border-border bg-surface-soft px-4 py-3">
+        <div class="flex items-center gap-3">
+
+          <!-- Avatar con iniciales -->
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-secondary text-sm font-black text-white shadow-md">
+            {{ nombreUsuario | slice:0:2 | uppercase }}
+          </div>
+
+          <!-- Nombre y rol -->
+          <div class="min-w-0 flex-1">
+            <p class="truncate text-sm font-bold leading-tight text-ink uppercase">
+              {{ nombreUsuario }}
+            </p>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-ink-50 mt-0.5">
+              {{ rolUsuario || 'ADMIN' }}
+            </p>
+          </div>
+
         </div>
+      </div>
+    </div>
+
+    <!-- USER INFO colapsado -->
+    <div *ngIf="menuColapsado" class="mx-3 mt-4 flex justify-center">
+      <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-secondary text-sm font-black text-white shadow-md"
+           [title]="nombreUsuario">
+        {{ nombreUsuario | slice:0:2 | uppercase }}
       </div>
     </div>
 

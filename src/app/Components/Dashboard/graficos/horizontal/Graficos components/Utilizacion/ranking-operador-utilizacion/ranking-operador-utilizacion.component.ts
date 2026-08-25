@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 
@@ -71,16 +71,6 @@ export class RankingOperadorUtilizacionComponent implements OnChanges {
       operadores.length > 8 ? (8 / operadores.length) * 100 : 100;
 
     this.chartOptions = {
-      title: {
-        text: this.titulo,
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 14,
-          fontWeight: 'bold',
-          color: CHART_COLORS.grey,
-        },
-      },
 
       tooltip: {
         trigger: 'axis',
@@ -123,9 +113,6 @@ export class RankingOperadorUtilizacionComponent implements OnChanges {
 
       xAxis: {
         type: 'value',
-        name: 'Utilización (%)',
-        nameLocation: 'middle',
-        nameGap: 35,
         min: 0,
         max: 100,
         interval: 20,
@@ -184,7 +171,6 @@ export class RankingOperadorUtilizacionComponent implements OnChanges {
 
       series: [
         {
-          name: 'Utilización',
           type: 'bar',
           barWidth: '45%',
 

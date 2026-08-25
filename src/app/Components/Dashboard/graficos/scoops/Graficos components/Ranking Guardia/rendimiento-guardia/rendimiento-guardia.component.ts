@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -63,7 +63,10 @@ export class RendimientoRankingGuardiaComponent implements OnInit, OnChanges {
   actualizarGrafico(): void {
 
     const datosOrdenados = [...this.data]
+      .filter(item => Number(item.rendimiento || 0) > 0)
       .sort((a, b) => b.rendimiento - a.rendimiento);
+
+    if (!datosOrdenados.length) { this.chartOptions = {}; return; }
 
     const guardias = datosOrdenados.map((item) => `Guardia ${item.guardia}`);
 
@@ -76,17 +79,6 @@ export class RendimientoRankingGuardiaComponent implements OnInit, OnChanges {
     const maxValor = Math.max(...valores, 100);
 
     this.chartOptions = {
-      title: {
-        text: 'RENDIMIENTO POR GUARDIA',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 12,
-          fontWeight: 'bold',
-          color: '#333',
-          fontFamily: 'Arial',
-        },
-      },
 
       tooltip: {
         trigger: 'axis',
@@ -157,7 +149,6 @@ export class RendimientoRankingGuardiaComponent implements OnInit, OnChanges {
 
       series: [
         {
-          name: 'Rendimiento',
           type: 'bar',
           barWidth: '45%',
 

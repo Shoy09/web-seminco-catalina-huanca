@@ -1,3 +1,19 @@
-<div class="chart-container">
-  <div echarts [options]="chartOption" class="chart"></div>
+﻿<div class="card-wrapper">
+  <div class="card-header">
+    <span class="card-accent"></span>
+  </div>
+
+  @if (!chartOption || !chartOption['series']) {
+    <div class="empty-state">
+      <span class="material-icons empty-icon">bar_chart</span>
+      <span class="empty-text">Sin datos para el período seleccionado</span>
+    </div>
+  } @else {
+    <div
+      echarts
+      [options]="chartOption"
+      class="chart"
+      [autoResize]="true"
+    ></div>
+  }
 </div>

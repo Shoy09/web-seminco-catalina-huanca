@@ -1,0 +1,73 @@
+<div class="w-full">
+
+  <!-- Título -->
+  <div class="flex items-center justify-between border-b border-border px-6 py-4">
+    <div>
+      <p class="text-[10px] font-bold uppercase tracking-widest text-ink-50">
+        {{ data.editando ? 'Editando registro' : 'Nuevo registro' }}
+      </p>
+      <h2 class="text-lg font-black text-ink">{{ data.categoria.nombre }}</h2>
+    </div>
+    <button
+      mat-icon-button
+      (click)="cancelar()"
+      class="!text-ink-50 hover:!text-danger"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Contenido -->
+  <mat-dialog-content class="!p-6">
+    <form [formGroup]="form" class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div *ngFor="let campo of data.categoria.campos" class="flex flex-col gap-1">
+        <label class="text-xs font-bold uppercase tracking-wide text-ink-50">
+          {{ campo.label }}
+        </label>
+
+        <!-- SELECT -->
+        <ng-container *ngIf="campo.tipo === 'select'; else inputTpl">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-select
+              [formControlName]="campo.nombre"
+              (ngModelChange)="onCampoChange(campo.nombre)"
+            >
+              <mat-option *ngFor="let opcion of campo.opciones" [value]="opcion">
+                {{ opcion }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </ng-container>
+
+        <!-- INPUT -->
+        <ng-template #inputTpl>
+          <mat-form-field appearance="outline" class="w-full">
+            <input
+              matInput
+              [type]="campo.tipo"
+              [formControlName]="campo.nombre"
+            />
+          </mat-form-field>
+        </ng-template>
+      </div>
+    </form>
+  </mat-dialog-content>
+
+  <!-- Acciones -->
+  <mat-dialog-actions align="end" class="!px-6 !pb-5 !pt-2 gap-2">
+    <button mat-stroked-button (click)="cancelar()" class="!rounded-xl">
+      Cancelar
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      [disabled]="form.invalid"
+      (click)="guardar()"
+      class="!rounded-xl"
+    >
+      <mat-icon class="!h-4 !w-4 !text-sm">{{ data.editando ? 'save' : 'add' }}</mat-icon>
+      {{ data.editando ? 'Actualizar' : 'Guardar' }}
+    </button>
+  </mat-dialog-actions>
+
+</div>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { ScatterChart } from 'echarts/charts';
@@ -60,15 +60,6 @@ export class ScatterPlotComponent implements OnInit {
     });
     
     this.chartOptions = {
-      title: {
-        text: 'Mapa de Calor de Inicios de Perforación',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold'
-        }
-      },
       tooltip: {
         trigger: 'item',
         formatter: (params: any) => {
@@ -84,7 +75,6 @@ export class ScatterPlotComponent implements OnInit {
       },
       xAxis: {
         type: 'value',
-        name: 'Horas',
         min: 6.5,
         max: 19.5,
         axisLabel: {
@@ -99,7 +89,6 @@ export class ScatterPlotComponent implements OnInit {
       yAxis: {
         type: 'category',
         data: equipos,
-        name: 'Inicio de Perforación',
         axisLabel: {
           fontWeight: 'bold'
         }

@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 
@@ -57,9 +57,9 @@ export class DisponibilidadDiaComponent implements OnChanges {
       return;
     }
 
-    const datosOrdenados = [...this.data].sort((a, b) =>
-      String(a.key).localeCompare(String(b.key)),
-    );
+    const datosOrdenados = [...this.data]
+      .filter(item => Number(item.disponibilidad || 0) > 0)
+      .sort((a, b) => String(a.key).localeCompare(String(b.key)));
 
     const xAxisLabels = datosOrdenados.map((item) => {
       const partes = String(item.key || '').split('-');
@@ -131,17 +131,6 @@ export class DisponibilidadDiaComponent implements OnChanges {
     });
 
     this.chartOptions = {
-      title: {
-        text: 'DISPONIBILIDAD POR DÍA',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: CHART_COLORS.grey,
-          //fontFamily: 'Arial',
-        },
-      },
 
       tooltip: {
         trigger: 'axis',
@@ -208,9 +197,6 @@ export class DisponibilidadDiaComponent implements OnChanges {
 
       yAxis: {
         type: 'value',
-        name: 'Porcentaje (%)',
-        nameLocation: 'middle',
-        nameGap: 45,
         min: 0,
         max: 100,
         interval: 20,
@@ -248,7 +234,6 @@ export class DisponibilidadDiaComponent implements OnChanges {
 
       series: [
         {
-          name: 'Disponibilidad',
           type: 'bar',
           barWidth: '50%',
 

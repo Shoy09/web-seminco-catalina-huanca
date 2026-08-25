@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -39,16 +39,6 @@ export class RendimientoEquipoComponent implements OnChanges {
   // 🔥 BASE DEL GRAFICO (ESTÁTICO)
   getBaseOptions() {
     return {
-      title: {
-        text: 'DM y UTI por Equipo (%)',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: '#333'
-        }
-      },
       tooltip: {
         trigger: 'axis',
         axisPointer: { type: 'shadow' },
@@ -96,9 +86,6 @@ export class RendimientoEquipoComponent implements OnChanges {
       },
       yAxis: {
         type: 'value',
-        name: 'Porcentaje (%)',
-        nameLocation: 'middle',
-        nameGap: 45,
         min: 0,
         max: 100,
         interval: 20,
@@ -142,7 +129,6 @@ export class RendimientoEquipoComponent implements OnChanges {
 
       series: [
         {
-          name: 'DM',
           type: 'bar',
           data: dmData,
           barGap: '20%',
@@ -159,7 +145,6 @@ export class RendimientoEquipoComponent implements OnChanges {
           barWidth: '35%'
         },
         {
-          name: 'UTI',
           type: 'bar',
           data: utiData,
           itemStyle: {

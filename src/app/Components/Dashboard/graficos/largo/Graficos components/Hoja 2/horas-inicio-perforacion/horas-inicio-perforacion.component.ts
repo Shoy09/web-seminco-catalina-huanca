@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { LineChart } from 'echarts/charts';
@@ -49,9 +49,7 @@ export class HorasInicioPerforacionComponent implements OnChanges {
   }
 
   updateChart(): void {
-    if (!this.data || this.data.length === 0) {
-      return;
-    }
+    if (!this.data || this.data.length === 0) { this.chartOptions = {}; return; }
 
     // Ordenar datos por modelo_equipo para consistencia
     const sortedData = [...this.data].sort((a, b) => 
@@ -70,16 +68,6 @@ export class HorasInicioPerforacionComponent implements OnChanges {
     const yAxisMax = Math.ceil(maxValue + margin);
 
     this.chartOptions = {
-      title: {
-        text: 'Horas de Inicio de Perforación Turno DIA',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: '#2c3e50'
-        }
-      },
       tooltip: {
         trigger: 'axis',
         axisPointer: {
@@ -124,9 +112,6 @@ export class HorasInicioPerforacionComponent implements OnChanges {
       },
       yAxis: {
         type: 'value',
-        name: 'Hora del Día',
-        nameLocation: 'middle',
-        nameGap: 45,
         min: yAxisMin,
         max: yAxisMax,
         axisLabel: {
@@ -147,7 +132,6 @@ export class HorasInicioPerforacionComponent implements OnChanges {
       },
       series: [
         {
-          name: 'Hora de Inicio',
           type: 'line',
           data: seriesData,
           symbol: 'circle',
@@ -203,7 +187,6 @@ export class HorasInicioPerforacionComponent implements OnChanges {
             data: [
               { 
                 type: 'average', 
-                name: 'Promedio',
                 lineStyle: {
                   color: '#e74c3c',
                   width: 2,

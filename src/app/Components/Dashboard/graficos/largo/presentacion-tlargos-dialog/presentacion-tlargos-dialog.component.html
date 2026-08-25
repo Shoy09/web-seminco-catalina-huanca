@@ -1,75 +1,73 @@
 <div class="dialog-container" [class.fullscreen]="isFullscreen">
-  <!-- Header con información de filtros -->
+
+  <!-- ══ HEADER ════════════════════════════════════════════════ -->
   <div class="dialog-header">
-    <h2>Dashboard de Operaciones</h2>
-    <div class="header-buttons">
-      <button class="fullscreen-btn" (click)="toggleFullscreen()" [title]="isFullscreen ? 'Salir pantalla completa' : 'Pantalla completa'">
-        {{ isFullscreen ? '🗗' : '🗖' }}
+    <div class="flex items-center gap-2">
+      <span class="material-icons ic-header">analytics</span>
+      <span class="dialog-title">Taladro Largo — Presentación</span>
+    </div>
+    <div class="header-actions">
+      <!-- Badges de filtro -->
+      <span class="info-badge">{{ data.turnoAplicado || 'Todos los turnos' }}</span>
+      <span class="info-badge">{{ data.fechaInicio || '—' }} → {{ data.fechaFin || '—' }}</span>
+      <span class="info-badge accent">{{ data.operaciones.length || 0 }} registros</span>
+      <!-- Controles -->
+      <button class="icon-btn" (click)="toggleFullscreen()" [title]="isFullscreen ? 'Salir pantalla completa' : 'Pantalla completa'">
+        <span class="material-icons">{{ isFullscreen ? 'fullscreen_exit' : 'fullscreen' }}</span>
       </button>
-      <button class="close-btn" (click)="cerrar()">✕</button>
+      <button class="icon-btn close" (click)="cerrar()">
+        <span class="material-icons">close</span>
+      </button>
     </div>
   </div>
 
-  <div class="nav-bar">
-    <!-- Filtros a la izquierda -->
-    <div class="filtros-resumen">
-      <span class="filtro-badge">Turno: {{ data.turnoAplicado || 'Todos' }}</span>
-      <span class="filtro-badge">Fecha Inicio: {{ data.fechaInicio || 'Sin filtro' }}</span>
-      <span class="filtro-badge">Fecha Fin: {{ data.fechaFin || 'Sin filtro' }}</span>
-      <span class="filtro-badge">Total Registros: {{ data.operaciones.length || 0 }}</span>
-    </div>
-
-    <!-- Botones a la derecha -->
-    <div class="nav-buttons">
-  <button class="nav-btn" [class.active]="hojaActual === 'hoja1'" (click)="cambiarHoja('hoja1')">
-    🚜 Horas
-  </button>
-
-
-</div>
+  <!-- ══ NAV TABS ═══════════════════════════════════════════════ -->
+  <div class="nav-tabs">
+    <button
+      class="nav-tab"
+      [class.active]="hojaActual === 'hoja1'"
+      (click)="cambiarHoja('hoja1')"
+    >
+      <span class="material-icons tab-icon">schedule</span>
+      Horas
+    </button>
   </div>
 
-  <!-- CONTENIDO DE LAS HOJAS -->
+  <!-- ══ CONTENIDO ══════════════════════════════════════════════ -->
+  <div class="hoja-content" *ngIf="hojaActual === 'hoja1'">
 
-  <div *ngIf="hojaActual === 'hoja1'" class="hoja-content">
-  
-  <div class="graficos-wrapper one-column-full">
-    <div class="graph-card">
+    <div class="content-grid">
       <app-metros-perforados-rango-hora
         [data]="DataMetrosPerforadosPorHora"
         [turno]="turnoAplicado"
         unidad="m"
         tituloGrafico="METROS PERFORADOS POR RANGO DE HORA"
-        tituloTotalTipo="📊 TOTAL POR TIPO DE PERFORACIÓN"
-        tituloTotalEquipo="🚜 TOTAL POR EQUIPO"
+        tituloTotalTipo="TOTAL POR TIPO DE PERFORACIÓN"
+        tituloTotalEquipo="TOTAL POR EQUIPO"
         labelCategoria="tipo de perforación"
         labelEquipo="equipos"
-        mensajeSinDatos="No hay datos de metros perforados por rango de hora disponibles">
+        mensajeSinDatos="No hay datos disponibles">
       </app-metros-perforados-rango-hora>
-    </div>
-  </div>
 
-  <!-- Tabla de Metros Perforados por Equipo y Rango de Hora (1 columna - alto completo) -->
-  <div class="graficos-wrapper one-column-full">
-    <div class="graph-card">
       <app-tabla-metros-perforados-equipo
         [data]="DataMetrosPerforadosPorLaborYRangoHora"
         [turno]="turnoAplicado"
         unidad="m"
-        titulo="📏 METROS PERFORADOS POR LABOR Y RANGO DE HORA"
+        titulo="METROS PERFORADOS POR LABOR Y RANGO DE HORA"
         labelTotalLabor="TOTAL x LABOR"
         labelTotalRango="Total x Hora"
-        mensajeSinDatos="No hay datos de metros perforados disponibles para el turno seleccionado">
+        mensajeSinDatos="No hay datos disponibles">
       </app-tabla-metros-perforados-equipo>
     </div>
+
   </div>
 
-</div>
-
-
-
-  <!-- Footer con acciones -->
+  <!-- ══ FOOTER ═════════════════════════════════════════════════ -->
   <div class="dialog-footer">
-    <button class="btn-secundario" (click)="cerrar()">Cerrar</button>
+    <button class="btn-cerrar" (click)="cerrar()">
+      <span class="material-icons">close</span>
+      Cerrar
+    </button>
   </div>
+
 </div>

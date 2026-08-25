@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   Input,
   OnInit,
@@ -398,7 +398,6 @@ ${textoLabores || 'Sin labor'}
     });
 
     series.push({
-      name: 'TOTAL HORA',
       type: 'bar',
       yAxisIndex: 0,
       data: totales,
@@ -437,7 +436,6 @@ ${textoLabores || 'Sin labor'}
     });
 
     series.push({
-      name: 'ACUMULADO',
       type: 'line',
       yAxisIndex: 0,
       data: acumulativo,
@@ -478,7 +476,6 @@ ${textoLabores || 'Sin labor'}
 
     /* if (mostrarLineaCucharas) {
       series.push({
-        name: 'CUCHARAS',
         type: 'line',
         yAxisIndex: 1,
         data: cucharas,
@@ -520,19 +517,6 @@ ${textoLabores || 'Sin labor'}
     } */
 
     this.chartOptions = {
-      title: {
-        text: `${this.titulo} ${
-          this.turno ? `- TURNO ${this.turno}` : '- TODOS LOS TURNOS'
-        }`,
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: '#333',
-          fontFamily: 'Arial',
-        },
-      },
 
       tooltip: {
         trigger: 'axis',
@@ -646,9 +630,6 @@ ${textoLabores || 'Sin labor'}
       yAxis: [
         {
           type: 'value',
-          name: 'Toneladas',
-          nameLocation: 'middle',
-          nameGap: 45,
           min: 0,
           max: escalaMaxToneladas,
           axisLabel: {
@@ -664,9 +645,6 @@ ${textoLabores || 'Sin labor'}
         },
         /* {
           type: 'value',
-          name: 'Cucharas',
-          nameLocation: 'middle',
-          nameGap: 45,
           min: 0,
           max: escalaMaxCucharas,
           show: mostrarLineaCucharas,

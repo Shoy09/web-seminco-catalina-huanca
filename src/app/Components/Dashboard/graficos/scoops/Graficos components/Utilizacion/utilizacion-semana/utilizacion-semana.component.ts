@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 
@@ -54,7 +54,7 @@ export class UtilizacionSemanaComponent implements OnChanges {
       return;
     }
 
-    const datosOrdenados = [...this.data].sort((a, b) =>
+    const datosOrdenados = [...this.data].filter(item => Number(item.utilizacion || 0) > 0).sort((a, b) =>
       String(a.key).localeCompare(String(b.key)),
     );
 
@@ -66,16 +66,6 @@ export class UtilizacionSemanaComponent implements OnChanges {
       semanas.length > 7 ? (7 / semanas.length) * 100 : 100;
 
     this.chartOptions = {
-      title: {
-        text: 'UTILIZACIÓN POR SEMANA',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: CHART_COLORS.grey,
-        },
-      },
 
       tooltip: {
         trigger: 'axis',
@@ -139,9 +129,6 @@ export class UtilizacionSemanaComponent implements OnChanges {
 
       yAxis: {
         type: 'value',
-        name: 'Utilización (%)',
-        nameLocation: 'middle',
-        nameGap: 45,
         min: 0,
         max: 100,
         interval: 20,
@@ -177,7 +164,6 @@ export class UtilizacionSemanaComponent implements OnChanges {
 
       series: [
         {
-          name: 'Utilización',
           type: 'bar',
           barWidth: '55%',
 

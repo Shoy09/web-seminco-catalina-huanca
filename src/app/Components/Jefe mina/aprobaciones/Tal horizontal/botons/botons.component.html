@@ -1,13 +1,13 @@
-<div class="container-botones">
-  <button 
-    *ngFor="let btn of botones" 
-    class="btn-status" 
+﻿<div class="flex flex-wrap justify-center items-center gap-2 px-4 py-2.5 mx-4 my-1 rounded-xl bg-black/5">
+  <button
+    *ngFor="let btn of botones"
     [style.background-color]="btn.color"
-    (click)="accion(btn.value)">
-    <i class="fas" [ngClass]="btn.icon"></i>
+    (click)="accion(btn.value)"
+    class="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-white text-[11px] font-semibold uppercase
+           tracking-wide shadow-sm hover:-translate-y-0.5 hover:shadow-md hover:brightness-110
+           active:scale-95 transition-all duration-150 cursor-pointer border-0"
+  >
+    <i class="fas text-sm" [ngClass]="btn.icon"></i>
     <span>{{ btn.label }}</span>
   </button>
 </div>
-
-
-

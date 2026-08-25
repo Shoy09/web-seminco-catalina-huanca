@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { TitleComponent, TooltipComponent, LegendComponent } from 'echarts/components';
@@ -84,16 +84,6 @@ export class DisparosTipoPerforacionComponent implements OnChanges {
     }));
 
     return {
-      title: {
-        text: 'DISPAROS POR TIPO DE PERFORACIÓN',
-        left: 'center',
-        top: 20,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: '#333'
-        }
-      },
       tooltip: {
         trigger: 'item',
         formatter: '{b}: {c} n_disparos ({d}%)'
@@ -113,7 +103,6 @@ export class DisparosTipoPerforacionComponent implements OnChanges {
 },
       series: [
         {
-          name: 'Disparos',
           type: 'pie',
           radius: '55%',
           center: ['50%', '55%'],

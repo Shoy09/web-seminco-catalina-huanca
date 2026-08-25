@@ -1,10 +1,70 @@
-.scatter-container {
-  width: 100%;
-  height: 500px;
-  padding: 10px;
+﻿/* Card wrapper empresarial */
+.card-wrapper {
+  background: #fff;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: box-shadow 0.2s;
+}
+.card-wrapper:hover {
+  box-shadow: 0 4px 20px rgba(11,31,58,0.08);
 }
 
+/* Header */
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-bottom: 1px solid #F1F5F9;
+  background: #FAFBFC;
+  flex-shrink: 0;
+}
+.card-accent {
+  width: 3px;
+  height: 14px;
+  background: #38BDF8;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.card-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #344963;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+/* Estado vacío — no ocupa espacio innecesario */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 32px 16px;
+  color: #CBD5E1;
+}
+.empty-icon {
+  font-size: 36px;
+  line-height: 1;
+  color: #CBD5E1;
+  display: block;
+}
+.empty-text {
+  font-size: 12px;
+  font-weight: 500;
+  color: #94A3B8;
+  text-align: center;
+}
+
+/* Gráfico */
 .chart {
+  flex: 1;
   width: 100%;
-  height: 100%;
+  min-height: 320px;
+  padding: 8px 4px 4px 4px;
 }

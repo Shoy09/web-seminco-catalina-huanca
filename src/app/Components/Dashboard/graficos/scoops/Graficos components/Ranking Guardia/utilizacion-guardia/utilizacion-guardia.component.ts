@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -64,7 +64,10 @@ export class UtilizacionRankingGuardiaComponent implements OnInit, OnChanges {
   actualizarGrafico(): void {
 
     const datosOrdenados = [...this.data]
+      .filter(item => Number(item.utilizacion || 0) > 0)
       .sort((a, b) => b.utilizacion - a.utilizacion);
+
+    if (!datosOrdenados.length) { this.chartOptions = {}; return; }
 
     const guardias = datosOrdenados.map((item) => `Guardia ${item.guardia}`);
 
@@ -77,17 +80,6 @@ export class UtilizacionRankingGuardiaComponent implements OnInit, OnChanges {
     );
 
     this.chartOptions = {
-      title: {
-        text: 'UTILIZACIÓN POR GUARDIA',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 12,
-          fontWeight: 'bold',
-          color: '#333',
-          fontFamily: 'Arial'
-        }
-      },
 
       tooltip: {
         trigger: 'axis',
@@ -165,7 +157,6 @@ export class UtilizacionRankingGuardiaComponent implements OnInit, OnChanges {
 
       series: [
         {
-          name: 'Utilización',
           type: 'bar',
           barWidth: '45%',
 

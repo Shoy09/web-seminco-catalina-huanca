@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -48,7 +48,7 @@ export class RendimientoDiaComponent implements OnChanges {
       return;
     }
 
-    const datosOrdenados = [...this.data].sort((a, b) =>
+    const datosOrdenados = [...this.data].filter(item => Number(item.rendimiento || 0) > 0).sort((a, b) =>
       String(a.key).localeCompare(String(b.key))
     );
 
@@ -126,16 +126,6 @@ export class RendimientoDiaComponent implements OnChanges {
     const porcentajeVisible = xAxisLabels.length > 10 ? 35 : 100;
 
     this.chartOptions = {
-      title: {
-        text: 'RENDIMIENTO POR DÍA',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: CHART_COLORS.grey,
-        },
-      },
 
       tooltip: {
         trigger: 'axis',
@@ -202,9 +192,6 @@ export class RendimientoDiaComponent implements OnChanges {
 
       yAxis: {
         type: 'value',
-        name: 'Rendimiento (m/h)',
-        nameLocation: 'middle',
-        nameGap: 55,
         min: 0,
         max: escalaMax,
         axisLabel: {
@@ -239,7 +226,6 @@ export class RendimientoDiaComponent implements OnChanges {
 
       series: [
         {
-          name: 'Rendimiento',
           type: 'bar',
           barWidth: '50%',
           data: valores.map((valor) => ({

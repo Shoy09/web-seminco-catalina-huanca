@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { TitleComponent, TooltipComponent, LegendComponent } from 'echarts/components';
@@ -61,16 +61,6 @@ export class AvanceFaseComponent implements OnChanges {
     // 🔥 OPCIONES DEL GRAFICO
     // =========================================
     this.chartOptions = {
-      title: {
-        text: 'METROS POR TIPO DE MINADO',
-        left: 'center',
-        top: 20,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: '#333'
-        }
-      },
       tooltip: {
         trigger: 'item',
         formatter: '{b}: {c} m ({d}%)'
@@ -89,7 +79,6 @@ export class AvanceFaseComponent implements OnChanges {
 },
       series: [
         {
-          name: 'Metros',
           type: 'pie',
           radius: '70%',
           data: dataGrafico,

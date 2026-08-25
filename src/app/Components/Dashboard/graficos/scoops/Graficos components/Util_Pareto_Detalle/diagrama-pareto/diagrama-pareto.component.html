@@ -1,26 +1,16 @@
-<div class="pareto-container">
-  <!-- Botones de filtro -->
-  <div class="filtros-container">
-    <button 
-      class="filtro-btn" 
-      [class.active]="tipoFiltro === 'TODAS'"
-      (click)="cambiarFiltro('TODAS')">
-      📊 TODAS
-    </button>
-    <button 
-      class="filtro-btn no-operativa" 
-      [class.active]="tipoFiltro === 'NO OPERATIVA'"
-      (click)="cambiarFiltro('NO OPERATIVA')">
-      🔧 NO OPERATIVA
-    </button>
-    <button 
-      class="filtro-btn operativa" 
-      [class.active]="tipoFiltro === 'OPERATIVA'"
-      (click)="cambiarFiltro('OPERATIVA')">
-      ⚙️ OPERATIVA
-    </button>
+﻿<div class="card-wrapper">
+  <div class="card-header">
+    <span class="card-accent"></span>
+    <span class="card-title">Diagrama Pareto — Demoras</span>
+    <div class="filtros" style="margin-left:auto;display:flex;gap:4px;">
+      <button class="filtro-btn" [class.active]="tipoFiltro === 'TODAS'" (click)="cambiarFiltro('TODAS')">Todas</button>
+      <button class="filtro-btn no-op" [class.active]="tipoFiltro === 'NO OPERATIVA'" (click)="cambiarFiltro('NO OPERATIVA')">No Op.</button>
+      <button class="filtro-btn op" [class.active]="tipoFiltro === 'OPERATIVA'" (click)="cambiarFiltro('OPERATIVA')">Operativa</button>
+    </div>
   </div>
-
-  <!-- Gráfico -->
-  <div echarts [options]="chartOptions" class="chart"></div>
+  @if (!chartOptions || !chartOptions['series']) {
+    <div class="empty-state"><span class="material-icons empty-icon">bar_chart</span><span class="empty-text">Sin datos para el período seleccionado</span></div>
+  } @else {
+    <div echarts [options]="chartOptions" class="chart" [autoResize]="true"></div>
+  }
 </div>

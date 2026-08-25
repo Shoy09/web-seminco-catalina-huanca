@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -29,29 +29,18 @@ export class MhrEquipoComponent implements OnChanges {
   }
 
   updateChart(): void {
-    if (!this.data || this.data.length === 0) {
-      // Opcional: mostrar gráfico vacío o no mostrar nada
-      return;
-    }
+    if (!this.data || this.data.length === 0) { return; }
 
-    // Preparar datos para el gráfico
-    const xAxisData = this.data.map(item => 
+    const datosFiltrados = this.data.filter(item => Number(item.fr_mhr_hp || 0) > 0);
+    if (!datosFiltrados.length) { this.chartOptions = {}; return; }
+
+    const xAxisData = datosFiltrados.map(item =>
       `${item.modelo_equipo || 'N/A'}`
     );
-    
-    const seriesData = this.data.map(item => item.fr_mhr_hp || 0);
+
+    const seriesData = datosFiltrados.map(item => item.fr_mhr_hp || 0);
 
     this.chartOptions = {
-      title: {
-        text: 'M/HR POR EQUIPO',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 14,
-          fontWeight: 'bold',
-          color: '#333'
-        }
-      },
       tooltip: {
         trigger: 'axis',
         axisPointer: {
@@ -92,9 +81,6 @@ export class MhrEquipoComponent implements OnChanges {
       },
       yAxis: {
         type: 'value',
-        name: 'Metros/Hora',
-        nameLocation: 'middle',
-        nameGap: 45,
         min: 0,
         axisLabel: {
           fontSize: 11,
@@ -109,7 +95,6 @@ export class MhrEquipoComponent implements OnChanges {
       },
       series: [
         {
-          name: 'M/HR',
           type: 'bar',
           data: seriesData,
           itemStyle: {

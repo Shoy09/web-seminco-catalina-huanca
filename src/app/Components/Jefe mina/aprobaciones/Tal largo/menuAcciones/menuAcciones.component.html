@@ -1,240 +1,302 @@
-
-<div class="barra-acciones">
-  <div class="contenedor-items">
-    <div *ngFor="let item of acciones" 
-         class="item-accion" 
-         [class.activo]="accionSeleccionada === item.id"
+<!-- Barra de acciones -->
+<div class="mx-4 my-1 bg-white rounded-xl shadow-sm border border-black/5">
+  <div class="flex justify-around items-center px-2 py-0.5">
+    <div *ngFor="let item of acciones"
+         class="flex items-center gap-2 px-3.5 py-2.5 rounded-lg cursor-pointer text-slate-600
+                transition-all duration-150 select-none hover:bg-slate-50 hover:text-[#2b6777] text-xs font-semibold"
+         [ngClass]="accionSeleccionada === item.id ? 'bg-[#2b6777]/10 text-primary' : ''"
          (click)="seleccionarAccion(item.id)">
-      <i class="fa-solid" [ngClass]="item.icono"></i>
-      <span class="texto-accion">{{ item.texto }}</span>
+      <i class="fa-solid text-sm" [ngClass]="item.icono"></i>
+      <span>{{ item.texto }}</span>
     </div>
   </div>
 </div>
 
-<div class="modal-overlay" *ngIf="mostrarModalHorometro">
-  <div class="modal-card">
-    <div class="modal-header">
-      <div class="header-left">
-        <i class="fa-solid fa-gauge-high header-icon"></i>
-        <h1 class="header-title">Horómetros</h1>
+<!-- ══ MODAL HORÓMETROS ══ -->
+<div *ngIf="mostrarModalHorometro"
+     class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-px">
+  <div class="bg-white w-[90%] max-w-[850px] h-[calc(100vh-20px)] flex flex-col rounded-xl overflow-hidden
+              shadow-2xl animate-[slideDown_0.3s_ease-out]">
+
+    <div class="flex justify-between items-center px-6 py-3 bg-[#2b6777] text-white shrink-0">
+      <div class="flex items-center gap-3">
+        <i class="fa-solid fa-gauge-high text-xl"></i>
+        <h1 class="text-xl font-medium m-0 tracking-wide">Horómetros</h1>
       </div>
-      <span class="editable-badge">EDITABLE</span>
+      <span class="bg-[#8bc34a] text-white text-[10px] font-bold uppercase px-3 py-1 rounded-full">EDITABLE</span>
     </div>
 
-    <div class="modal-body">
-      <table class="horo-table">
+    <div class="flex-1 overflow-y-auto px-6 py-3 min-h-0">
+      <table class="w-full border-collapse">
         <thead>
           <tr>
-            <th>Nombre</th>
-            <th>Inicial</th>
-            <th>Final</th>
-            <th>OP</th>
-            <th>INOP</th>
+            <th class="text-left text-slate-500 text-xs font-semibold uppercase pb-2 border-b-2 border-slate-100">Nombre</th>
+            <th class="text-left text-slate-500 text-xs font-semibold uppercase pb-2 border-b-2 border-slate-100">Inicial</th>
+            <th class="text-left text-slate-500 text-xs font-semibold uppercase pb-2 border-b-2 border-slate-100">Final</th>
+            <th class="text-center text-slate-500 text-xs font-semibold uppercase pb-2 border-b-2 border-slate-100">OP</th>
+            <th class="text-center text-slate-500 text-xs font-semibold uppercase pb-2 border-b-2 border-slate-100">INOP</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let fila of filasHorometro">
-            <td class="col-nombre">{{ fila.nombre }}</td>
-            <td><input type="number" class="horo-input" [(ngModel)]="fila.inicial"></td>
-            <td><input type="number" class="horo-input" [(ngModel)]="fila.final"></td>
-            <td class="col-check">
-              <input type="checkbox" [checked]="fila.op" (change)="toggleStatus(fila, 'op')">
+          <tr *ngFor="let fila of filasHorometro" class="border-b border-slate-100">
+            <td class="py-2 pr-4 font-semibold text-slate-700 w-[30%]">{{ fila.nombre }}</td>
+            <td class="py-2 pr-4">
+              <input type="number" [(ngModel)]="fila.inicial"
+                class="w-[90px] px-2 py-2 border-[1.5px] border-slate-300 rounded-lg text-center
+                       font-medium text-sm bg-slate-50 focus:outline-none focus:border-[#2b6777]
+                       focus:ring-2 focus:ring-[#2b6777]/15 transition-all"/>
             </td>
-            <td class="col-check">
-              <input type="checkbox" [checked]="fila.inop" (change)="toggleStatus(fila, 'inop')">
+            <td class="py-2 pr-4">
+              <input type="number" [(ngModel)]="fila.final"
+                class="w-[90px] px-2 py-2 border-[1.5px] border-slate-300 rounded-lg text-center
+                       font-medium text-sm bg-slate-50 focus:outline-none focus:border-[#2b6777]
+                       focus:ring-2 focus:ring-[#2b6777]/15 transition-all"/>
+            </td>
+            <td class="py-2 text-center">
+              <input type="checkbox" [checked]="fila.op" (change)="toggleStatus(fila, 'op')"
+                class="w-4 h-4 cursor-pointer accent-[#2b6777]"/>
+            </td>
+            <td class="py-2 text-center">
+              <input type="checkbox" [checked]="fila.inop" (change)="toggleStatus(fila, 'inop')"
+                class="w-4 h-4 cursor-pointer accent-[#2b6777]"/>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <div class="modal-footer">
-      <button class="btn-cancelar" (click)="cerrarModales()">Cancelar</button>
-      <button class="btn-guardar" (click)="guardarHorometros()">
+    <div class="flex justify-end gap-4 px-6 py-2.5 bg-slate-50 border-t border-slate-200 shrink-0">
+      <button (click)="cerrarModales()"
+        class="px-5 py-2.5 border border-slate-300 rounded-lg text-slate-600 font-medium text-sm
+               hover:bg-slate-100 active:scale-95 transition-all cursor-pointer bg-transparent">Cancelar</button>
+      <button (click)="guardarHorometros()"
+        class="flex items-center gap-2 px-5 py-2.5 bg-[#2b6777] text-white rounded-lg font-semibold
+               text-sm shadow hover:bg-[#23525f] hover:-translate-y-0.5 active:scale-95 transition-all
+               cursor-pointer border-0">
         <i class="fa-solid fa-floppy-disk"></i> Guardar
       </button>
     </div>
   </div>
 </div>
 
-<div class="modal-overlay" *ngIf="mostrarModalCondiciones">
-  <div class="modal-card">
+<!-- ══ MODAL CONDICIONES ══ -->
+<div *ngIf="mostrarModalCondiciones"
+     class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-px">
+  <div class="bg-white w-[90%] max-w-[850px] h-[calc(100vh-20px)] flex flex-col rounded-xl overflow-hidden
+              shadow-2xl animate-[slideDown_0.3s_ease-out]">
 
-    <div class="modal-header">
-      <div class="header-left">
-        <i class="fa-solid fa-users-gear header-icon"></i>
-        <h1 class="header-title">Condiciones del Equipo</h1>
+    <div class="flex justify-between items-center px-6 py-3 bg-[#34495e] text-white shrink-0">
+      <div class="flex items-center gap-3">
+        <i class="fa-solid fa-users-gear text-xl"></i>
+        <h1 class="text-xl font-medium m-0 tracking-wide">Condiciones del Equipo</h1>
       </div>
-      <span class="editable-badge">EDITABLE</span>
+      <span class="bg-[#8bc34a] text-white text-[10px] font-bold uppercase px-3 py-1 rounded-full">EDITABLE</span>
     </div>
 
-    <div class="modal-body">
-      <!-- ESTADO OP / NO-OP -->
-      <div class="row-flex">
-        <div class="section-card half">
-          <label class="label-title">ESTADO</label>
-          <div class="checkbox-group">
-            <label>
-              <input type="checkbox" [(ngModel)]="condicionesData.operativo"> OP
+    <div class="flex-1 overflow-y-auto px-6 py-3 flex flex-col gap-2 min-h-0">
+
+      <!-- Estado + Lugar -->
+      <div class="flex gap-3">
+        <div class="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2.5">
+          <label class="flex items-center gap-2 text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-2">ESTADO</label>
+          <div class="flex flex-wrap gap-2">
+            <label class="flex items-center gap-2 text-sm font-semibold text-slate-600 cursor-pointer
+                          px-3.5 py-1.5 border-[1.5px] border-slate-300 rounded-lg bg-white hover:border-[#2b6777] transition-all">
+              <input type="checkbox" [(ngModel)]="condicionesData.operativo" class="w-4 h-4 accent-[#2b6777] cursor-pointer"/> OP
             </label>
-            <label>
-              <input type="checkbox" [(ngModel)]="condicionesData.noOperativo"> NO-OP
+            <label class="flex items-center gap-2 text-sm font-semibold text-slate-600 cursor-pointer
+                          px-3.5 py-1.5 border-[1.5px] border-slate-300 rounded-lg bg-white hover:border-[#2b6777] transition-all">
+              <input type="checkbox" [(ngModel)]="condicionesData.noOperativo" class="w-4 h-4 accent-[#2b6777] cursor-pointer"/> NO-OP
             </label>
           </div>
         </div>
-
-        <!-- LUGAR -->
-        <div class="section-card half">
-          <label class="label-title">LUGAR</label>
-          <input type="text" class="input-form" placeholder="Ubicación del equipo" [(ngModel)]="condicionesData.lugar">
+        <div class="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2.5">
+          <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-2">LUGAR</label>
+          <input type="text" placeholder="Ubicación del equipo" [(ngModel)]="condicionesData.lugar"
+            class="w-full px-3 py-2 border-[1.5px] border-slate-300 rounded-lg text-sm text-slate-700 bg-white
+                   focus:outline-none focus:border-[#2b6777] focus:ring-2 focus:ring-[#2b6777]/12 transition-all"/>
         </div>
       </div>
 
-      <!-- DESCRIPCIÓN -->
-      <div class="section-card">
-        <label class="label-title">DESCRIPCIÓN</label>
-        <textarea class="textarea-form" placeholder="Describa las condiciones observadas..." [(ngModel)]="condicionesData.descripcion"></textarea>
+      <!-- Descripción -->
+      <div class="bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2.5">
+        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-2">DESCRIPCIÓN</label>
+        <textarea placeholder="Describa las condiciones observadas..." [(ngModel)]="condicionesData.descripcion"
+          class="w-full px-3 py-2 border-[1.5px] border-slate-300 rounded-lg text-sm text-slate-700 bg-white resize-none
+                 min-h-[55px] focus:outline-none focus:border-[#2b6777] focus:ring-2 focus:ring-[#2b6777]/12 transition-all
+                 font-[inherit]"></textarea>
       </div>
 
-      <!-- ACEITES Y LUBRICANTES -->
-      <div class="section-card">
-        <label class="label-title">
-          <i class="fa-solid fa-oil-can"></i> ACEITES Y LUBRICANTES
+      <!-- Aceites -->
+      <div class="bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2.5">
+        <label class="flex items-center gap-2 text-[11px] font-bold text-slate-500 uppercase tracking-wide mb-2">
+          <i class="fa-solid fa-oil-can text-[#2b6777]"></i> ACEITES Y LUBRICANTES
         </label>
-        <div class="checkbox-group">
-          <label>
-            <input type="checkbox" [(ngModel)]="condicionesData.aceiteMotor"> MOTOR
-          </label>
-          <label>
-            <input type="checkbox" [(ngModel)]="condicionesData.aceiteHidraulico"> HIDRÁULICO
-          </label>
-          <label>
-            <input type="checkbox" [(ngModel)]="condicionesData.aceiteTransmision"> TRANSMISIÓN
+        <div class="flex flex-wrap gap-2">
+          <label *ngFor="let item of [{key:'aceiteMotor',label:'MOTOR'},{key:'aceiteHidraulico',label:'HIDRÁULICO'},{key:'aceiteTransmision',label:'TRANSMISIÓN'}]"
+            class="flex items-center gap-2 text-sm font-semibold text-slate-600 cursor-pointer
+                   px-3.5 py-1.5 border-[1.5px] border-slate-300 rounded-lg bg-white hover:border-[#2b6777] transition-all">
+            <input type="checkbox" [(ngModel)]="condicionesData[item.key]" class="w-4 h-4 accent-[#2b6777] cursor-pointer"/>
+            {{ item.label }}
           </label>
         </div>
       </div>
 
-      <!-- COMBUSTIBLE -->
-      <div class="section-card">
-        <div class="row-flex ai-center">
-          <label class="label-title no-m">
-            <i class="fa-solid fa-gas-pump"></i> COMBUSTIBLE
+      <!-- Combustible -->
+      <div class="bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2.5">
+        <div class="flex items-center gap-3">
+          <label class="flex items-center gap-2 text-[11px] font-bold text-slate-500 uppercase tracking-wide whitespace-nowrap">
+            <i class="fa-solid fa-gas-pump text-[#2b6777]"></i> COMBUSTIBLE
           </label>
-          <input type="text" class="input-form flex-1 m-left" placeholder="Ej: 1/2, 3/4, LLENO" [(ngModel)]="condicionesData.combustible">
+          <input type="text" placeholder="Ej: 1/2, 3/4, LLENO" [(ngModel)]="condicionesData.combustible"
+            class="flex-1 ml-3 px-3 py-2 border-[1.5px] border-slate-300 rounded-lg text-sm text-slate-700 bg-white
+                   focus:outline-none focus:border-[#2b6777] focus:ring-2 focus:ring-[#2b6777]/12 transition-all"/>
         </div>
       </div>
 
-      <!-- HORA DE LLENADO -->
-      <div class="section-card">
-        <div class="row-flex ai-center">
-          <label class="label-title no-m">
-            <i class="fa-solid fa-clock"></i> HORA DE LLENADO
+      <!-- Hora llenado -->
+      <div class="bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-2.5">
+        <div class="flex items-center gap-3">
+          <label class="flex items-center gap-2 text-[11px] font-bold text-slate-500 uppercase tracking-wide whitespace-nowrap">
+            <i class="fa-solid fa-clock text-[#2b6777]"></i> HORA DE LLENADO
           </label>
-          <div class="input-with-icon flex-1 m-left">
-            <input type="text" class="input-form" placeholder="Seleccionar hora" [(ngModel)]="condicionesData.horaLlenado">
-            <i class="fa-regular fa-clock icon-inside"></i>
+          <div class="relative flex-1 ml-3">
+            <input type="text" placeholder="Seleccionar hora" [(ngModel)]="condicionesData.horaLlenado"
+              class="w-full px-3 py-2 pr-9 border-[1.5px] border-slate-300 rounded-lg text-sm text-slate-700 bg-white
+                     focus:outline-none focus:border-[#2b6777] focus:ring-2 focus:ring-[#2b6777]/12 transition-all"/>
+            <i class="fa-regular fa-clock absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
           </div>
         </div>
       </div>
+
     </div>
 
-    <!-- FOOTER -->
-    <div class="modal-footer">
-      <button class="btn-cancelar" (click)="cerrarModales()">Cancelar</button>
-      <button class="btn-guardar" (click)="guardarCondiciones()">
+    <div class="flex justify-end gap-4 px-6 py-2.5 bg-slate-50 border-t border-slate-200 shrink-0">
+      <button (click)="cerrarModales()"
+        class="px-5 py-2.5 border border-slate-300 rounded-lg text-slate-600 font-medium text-sm
+               hover:bg-slate-100 active:scale-95 transition-all cursor-pointer bg-transparent">Cancelar</button>
+      <button (click)="guardarCondiciones()"
+        class="flex items-center gap-2 px-5 py-2.5 bg-[#2b6777] text-white rounded-lg font-semibold
+               text-sm shadow hover:bg-[#23525f] hover:-translate-y-0.5 active:scale-95 transition-all
+               cursor-pointer border-0">
         <i class="fa-solid fa-floppy-disk"></i> Guardar
       </button>
     </div>
-
   </div>
 </div>
 
-<div class="modal-overlay" *ngIf="mostrarModalChecklist">
-  <div class="modal-card">
-    
-    <div class="modal-header">
-      <div class="header-left">
-        <i class="fa-solid fa-list-check header-icon"></i>
-        <h1 class="header-title">Checklist de Operación</h1>
+<!-- ══ MODAL CHECKLIST ══ -->
+<div *ngIf="mostrarModalChecklist"
+     class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-px">
+  <div class="bg-white w-[90%] max-w-[850px] h-[calc(100vh-20px)] flex flex-col rounded-xl overflow-hidden
+              shadow-2xl animate-[slideDown_0.3s_ease-out]">
+
+    <div class="flex justify-between items-center px-6 py-3 bg-[#2b6777] text-white shrink-0">
+      <div class="flex items-center gap-3">
+        <i class="fa-solid fa-list-check text-xl"></i>
+        <h1 class="text-xl font-medium m-0 tracking-wide">Checklist de Operación</h1>
       </div>
-      <span class="editable-badge">EDITABLE</span>
+      <span class="bg-[#8bc34a] text-white text-[10px] font-bold uppercase px-3 py-1 rounded-full">EDITABLE</span>
     </div>
 
-    <div class="modal-body">
-      <div class="empty-state" *ngIf="itemsChecklist.length === 0">
-        <div class="empty-icon-container">
-          <i class="fa-solid fa-check-double"></i>
-          <div class="line-decorator"></div>
+    <div class="flex-1 overflow-y-auto px-6 py-3 flex flex-col min-h-0">
+
+      <!-- Empty state -->
+      <div *ngIf="itemsChecklist.length === 0"
+           class="flex-1 flex flex-col items-center justify-center text-slate-400 text-center">
+        <div class="relative mb-5">
+          <i class="fa-solid fa-check-double text-6xl text-slate-300"></i>
+          <div class="w-10 h-1 bg-slate-300 rounded-full mx-auto -mt-2"></div>
         </div>
-        <h3 class="empty-title">No hay items en el checklist</h3>
-        <p class="empty-subtitle">Esta operación no tiene items definidos</p>
+        <h3 class="text-lg font-semibold text-slate-500 m-0">No hay items en el checklist</h3>
+        <p class="text-sm text-slate-400 mt-1">Esta operación no tiene items definidos</p>
       </div>
 
-      <table class="horo-table" *ngIf="itemsChecklist.length > 0">
+      <table *ngIf="itemsChecklist.length > 0" class="w-full border-collapse">
         <thead>
           <tr>
-            <th>Item</th>
-            <th class="col-check">Estado</th>
-            <th>Observaciones</th>
+            <th class="text-left text-slate-500 text-xs font-semibold uppercase pb-2 border-b-2 border-slate-100">Item</th>
+            <th class="text-center text-slate-500 text-xs font-semibold uppercase pb-2 border-b-2 border-slate-100 w-20">Estado</th>
+            <th class="text-left text-slate-500 text-xs font-semibold uppercase pb-2 border-b-2 border-slate-100">Observaciones</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let item of itemsChecklist">
-            <td class="col-nombre">{{ item.descripcion }}</td>
-            <td class="col-check">
-              <input type="checkbox" [(ngModel)]="item.decision">
+          <tr *ngFor="let item of itemsChecklist" class="border-b border-slate-100">
+            <td class="py-2 pr-4 font-semibold text-slate-700 w-[30%]">{{ item.descripcion }}</td>
+            <td class="py-2 text-center">
+              <input type="checkbox" [(ngModel)]="item.decision"
+                class="w-4 h-4 cursor-pointer accent-[#2b6777]"/>
             </td>
-            <td>
-              <input type="text" class="input-form" [(ngModel)]="item.observacion" placeholder="...">
+            <td class="py-2">
+              <input type="text" [(ngModel)]="item.observacion" placeholder="..."
+                class="w-full px-3 py-1.5 border-[1.5px] border-slate-200 rounded-lg text-sm text-slate-700 bg-white
+                       focus:outline-none focus:border-[#2b6777] transition-all"/>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <div class="modal-footer">
-      <button class="btn-cancelar" (click)="cerrarModales()">Cancelar</button>
-      <button class="btn-guardar" (click)="guardarChecklist()">
+    <div class="flex justify-end gap-4 px-6 py-2.5 bg-slate-50 border-t border-slate-200 shrink-0">
+      <button (click)="cerrarModales()"
+        class="px-5 py-2.5 border border-slate-300 rounded-lg text-slate-600 font-medium text-sm
+               hover:bg-slate-100 active:scale-95 transition-all cursor-pointer bg-transparent">Cancelar</button>
+      <button (click)="guardarChecklist()"
+        class="flex items-center gap-2 px-5 py-2.5 bg-[#2b6777] text-white rounded-lg font-semibold
+               text-sm shadow hover:bg-[#23525f] hover:-translate-y-0.5 active:scale-95 transition-all
+               cursor-pointer border-0">
         <i class="fa-solid fa-floppy-disk"></i> Guardar
       </button>
     </div>
   </div>
 </div>
 
-<div class="modal-overlay" *ngIf="mostrarModalInspeccion">
-  <div class="modal-card">
-    
-    <div class="modal-header">
-      <div class="header-left">
-        <i class="fa-solid fa-magnifying-glass-chart header-icon"></i>
-        <h1 class="header-title">Inspección Visual</h1>
+<!-- ══ MODAL INSPECCIÓN VISUAL ══ -->
+<div *ngIf="mostrarModalInspeccion"
+     class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-px">
+  <div class="bg-white w-[90%] max-w-[850px] h-[calc(100vh-20px)] flex flex-col rounded-xl overflow-hidden
+              shadow-2xl animate-[slideDown_0.3s_ease-out]">
+
+    <div class="flex justify-between items-center px-6 py-3 bg-[#2b6777] text-white shrink-0">
+      <div class="flex items-center gap-3">
+        <i class="fa-solid fa-magnifying-glass-chart text-xl"></i>
+        <h1 class="text-xl font-medium m-0 tracking-wide">Inspección Visual</h1>
       </div>
-      <span class="editable-badge">EDITABLE</span>
+      <span class="bg-[#8bc34a] text-white text-[10px] font-bold uppercase px-3 py-1 rounded-full">EDITABLE</span>
     </div>
 
-    <div class="modal-body ai-center">
-      <div class="inspeccion-container">
-        
-        <div class="canvas-inspeccion">
-  <img *ngIf="imagenEquipoUrl" [src]="imagenEquipoUrl" class="img-fondo-inspeccion">
-  
-  <div class="empty-state-canvas" *ngIf="!imagenEquipoUrl">
-    <i class="fa-solid fa-image-slash"></i>
-    <span>Imagen no encontrada</span>
-  </div>
-</div>
+    <div class="flex-1 overflow-y-auto px-6 py-3 flex items-center justify-center min-h-0">
+      <div class="relative w-[380px] h-[380px] flex items-center justify-center">
 
-        <div *ngFor="let llanta of llantasInspeccion; let i = index" [ngClass]="'selector-pos pos-' + (i+1)">
-    <span class="num-pos">{{ i + 1 }}</span>
-    <input type="checkbox" class="check-pos" [(ngModel)]="llanta.estado">
-  </div>
+        <!-- Imagen equipo -->
+        <div class="w-[280px] h-[280px] bg-slate-100 border border-slate-200 rounded-3xl flex items-center justify-center">
+          <img *ngIf="imagenEquipoUrl" [src]="imagenEquipoUrl" class="w-full h-full object-contain rounded-3xl"/>
+          <div *ngIf="!imagenEquipoUrl" class="flex flex-col items-center text-slate-400 gap-2.5">
+            <i class="fa-solid fa-image-slash text-4xl opacity-50"></i>
+            <span class="text-sm">Imagen no encontrada</span>
+          </div>
+        </div>
+
+        <!-- Selectores de llantas posicionados absolutamente -->
+        <div *ngFor="let llanta of llantasInspeccion; let i = index"
+             [ngClass]="'absolute w-[65px] h-[75px] bg-white border-[1.5px] border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1.5 shadow-sm '
+               + (i === 0 ? 'top-0 right-0' : i === 1 ? 'bottom-0 right-0' : i === 2 ? 'top-0 left-0' : 'bottom-0 left-0')">
+          <span class="text-base font-bold text-slate-500">{{ i + 1 }}</span>
+          <input type="checkbox" [(ngModel)]="llanta.estado"
+            class="w-[18px] h-[18px] cursor-pointer accent-[#2b6777]"/>
+        </div>
 
       </div>
     </div>
 
-    <div class="modal-footer">
-      <button class="btn-cancelar" (click)="cerrarModales()">Cancelar</button>
-      <button class="btn-guardar" (click)="guardarInspeccion()">
+    <div class="flex justify-end gap-4 px-6 py-2.5 bg-slate-50 border-t border-slate-200 shrink-0">
+      <button (click)="cerrarModales()"
+        class="px-5 py-2.5 border border-slate-300 rounded-lg text-slate-600 font-medium text-sm
+               hover:bg-slate-100 active:scale-95 transition-all cursor-pointer bg-transparent">Cancelar</button>
+      <button (click)="guardarInspeccion()"
+        class="flex items-center gap-2 px-5 py-2.5 bg-[#2b6777] text-white rounded-lg font-semibold
+               text-sm shadow hover:bg-[#23525f] hover:-translate-y-0.5 active:scale-95 transition-all
+               cursor-pointer border-0">
         <i class="fa-solid fa-floppy-disk"></i> Guardar
       </button>
     </div>

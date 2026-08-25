@@ -1,186 +1,172 @@
-<div class="modal-overlay perf-overlay" *ngIf="visible">
-  <div class="modal-card perf-card">
-    <div class="perf-header">
-      <div class="header-left">
-        <i class="far fa-file-alt header-icon"></i>
-        <h1 class="header-title">Formulario de Perforación</h1>
+<div *ngIf="visible"
+     class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 p-2.5 overflow-hidden">
+  <div class="bg-white w-[95%] max-w-[1200px] max-h-[90vh] flex flex-col rounded-2xl shadow-2xl
+              animate-[modalIn_0.3s_ease-out] overflow-hidden">
+
+    <!-- Header -->
+    <div class="flex justify-between items-center px-6 py-3 shrink-0
+                bg-gradient-to-r from-[#2b6777] to-[#1a4b58] text-white border-b border-white/10">
+      <div class="flex items-center gap-2.5">
+        <i class="far fa-file-alt text-xl opacity-90"></i>
+        <h1 class="text-lg font-semibold m-0 tracking-tight">Formulario de Perforación</h1>
       </div>
-      <div class="header-right">
-        <span class="editable-badge">• EDITABLE</span>
-        <span class="estado-badge" [class]="estado.toLowerCase()">
+      <div class="flex items-center gap-2">
+        <span class="bg-gradient-to-r from-[#8bc34a] to-[#6f9e37] text-white text-[10px] font-bold
+                     uppercase tracking-wide px-3 py-1 rounded-full shadow">
+          ✎ EDITABLE
+        </span>
+        <span class="text-xs font-bold uppercase px-3 py-1 rounded-full"
+              [ngClass]="{
+                'bg-success/20 text-green-200':  estado === 'OPERATIVO',
+                'bg-warning/20 text-yellow-200': estado === 'DEMORA',
+                'bg-danger/20 text-red-200':     estado === 'MANTENIMIENTO',
+                'bg-slate-400/30 text-slate-200': !['OPERATIVO','DEMORA','MANTENIMIENTO'].includes(estado)
+              }">
           {{ estado }}
         </span>
       </div>
     </div>
 
-    <div class="validation-error" *ngIf="formularioInvalido">
+    <!-- Error de validación -->
+    <div *ngIf="formularioInvalido"
+         class="flex items-center gap-2 mx-6 mt-3 px-4 py-2 bg-red-50 border-l-4 border-red-500
+                text-red-700 text-xs font-semibold rounded-lg shrink-0">
       <i class="fas fa-exclamation-triangle"></i>
       Complete los campos obligatorios: Labor y al menos una barra con longitud válida.
     </div>
 
-    <form class="perf-form">
-      <!-- SECCIÓN LABOR (siempre visible) -->
-      <fieldset class="form-section">
-        <legend class="section-legend">
-          <i class="fas fa-warehouse icon"></i> Información de Labor
+    <!-- Formulario con scroll -->
+    <form class="flex-1 overflow-y-auto px-6 py-4 space-y-3
+                 [&::-webkit-scrollbar]:w-1.5
+                 [&::-webkit-scrollbar-track]:bg-slate-100 [&::-webkit-scrollbar-track]:rounded-full
+                 [&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar-thumb]:rounded-full">
+
+      <!-- Sección Labor -->
+      <fieldset class="border border-slate-200 rounded-xl px-4 py-3 bg-white">
+        <legend class="inline-flex items-center gap-1.5 px-2 text-[13px] font-bold text-[#1f3b43] bg-white">
+          <i class="fas fa-warehouse text-[#2b6777] text-sm"></i> Información de Labor
         </legend>
-        <div class="row-inputs">
-          <div class="input-field full-width">
-            <label class="field-label">
-              <i class="fas fa-warehouse label-icon"></i>
-              Labor <span class="required-star">*</span>
-            </label>
-            <input
-              type="text"
-              class="perf-input"
-              placeholder="Ej: TJ_2940_TL"
-              [(ngModel)]="datosPerforacion.labor"
-              name="labor"
-            />
-          </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-semibold text-slate-700 flex items-center gap-1">
+            <i class="fas fa-warehouse text-[#2b6777] text-[11px]"></i>
+            Labor <span class="text-red-500">*</span>
+          </label>
+          <input type="text" placeholder="Ej: TJ_2940_TL"
+            [(ngModel)]="datosPerforacion.labor" name="labor"
+            class="w-full px-3 py-2 border-[1.5px] border-slate-200 rounded-lg bg-white text-xs text-slate-800
+                   focus:outline-none focus:border-[#2b6777] focus:ring-2 focus:ring-[#2b6777]/15 transition-all"/>
         </div>
       </fieldset>
 
-      <!-- SECCIÓN BARRAS DINÁMICA -->
-      <fieldset class="form-section">
-        <legend class="section-legend">
-          <i class="fas fa-ruler-combined icon"></i> Barras de Perforación
-          <span class="required-star">*</span>
+      <!-- Sección Barras -->
+      <fieldset class="border border-slate-200 rounded-xl px-4 py-3 bg-white">
+        <legend class="inline-flex items-center gap-1.5 px-2 text-[13px] font-bold text-[#1f3b43] bg-white">
+          <i class="fas fa-ruler-combined text-[#2b6777] text-sm"></i>
+          Barras de Perforación <span class="text-red-500 ml-1">*</span>
         </legend>
-        
-        <div class="barras-header">
-          <div class="header-cell">N° Fila</div>
-          <div class="header-cell">N° Taladro</div>
-          <div class="header-cell">Longitud de perforación (m)</div>
-          <div class="header-cell">N° Barras</div>
-          <div class="header-cell">Tipo de perforación</div>
-          <div class="header-cell actions-header">Acciones</div>
+
+        <!-- Cabecera de tabla -->
+        <div class="grid gap-3 px-3 py-2 bg-slate-50 rounded-lg mb-2 border border-slate-200
+                    text-xs font-semibold text-slate-700
+                    [grid-template-columns:90px_90px_1fr_90px_1fr_70px]">
+          <div>N° Fila</div>
+          <div>N° Taladro</div>
+          <div>Longitud de perforación (m)</div>
+          <div>N° Barras</div>
+          <div>Tipo de perforación</div>
+          <div class="text-center">Acciones</div>
         </div>
-        
-        <div class="barras-list">
-          <div *ngFor="let barra of datosPerforacion.barras; let i = index" class="barra-fila">
-            <div class="fila-cell">
-              <input
-                type="number"
-                class="perf-input barra-input"
-                placeholder="N° Fila"
-                [(ngModel)]="barra.n_fila"
-                [name]="'n_fila_' + i"
-                min="0"
-                step="1"
-              />
-            </div>
-            
-            <div class="fila-cell">
-              <input
-                type="number"
-                class="perf-input barra-input"
-                placeholder="N° Taladro"
-                [(ngModel)]="barra.n_taladro"
-                [name]="'n_taladro_' + i"
-                min="0"
-                step="1"
-              />
-            </div>
-            
-            <div class="fila-cell">
-              <input
-                type="number"
-                step="0.1"
-                class="perf-input barra-input"
-                placeholder="Longitud (m)"
-                [(ngModel)]="barra.longitud_perforacion"
-                [name]="'longitud_' + i"
-              />
-            </div>
-            
-            <div class="fila-cell">
-              <input
-                type="number"
-                class="perf-input barra-input"
-                placeholder="N° Barras"
-                [(ngModel)]="barra.n_barras"
-                [name]="'n_barras_' + i"
-                min="0"
-                step="1"
-              />
-            </div>
-            
-            <div class="fila-cell">
-              <select
-                class="perf-select barra-select"
-                [(ngModel)]="barra.tipo_perforacion"
-                [name]="'tipo_' + i"
-              >
-                <option *ngFor="let tipo of tiposPerforacion" [value]="tipo">
-                  {{ tipo }}
-                </option>
-              </select>
-            </div>
-            
-            <div class="fila-cell actions-cell">
-              <button
-                type="button"
-                class="btn-eliminar-barra"
-                (click)="eliminarBarra(i)"
+
+        <!-- Lista de barras -->
+        <div class="max-h-[400px] overflow-y-auto mb-3
+                    [&::-webkit-scrollbar]:w-1.5
+                    [&::-webkit-scrollbar-track]:bg-slate-100
+                    [&::-webkit-scrollbar-thumb]:bg-slate-300">
+          <div *ngFor="let barra of datosPerforacion.barras; let i = index"
+               class="grid gap-3 items-center px-3 py-2 border-b border-slate-100
+                      hover:bg-slate-50 transition-colors
+                      [grid-template-columns:90px_90px_1fr_90px_1fr_70px]">
+            <input type="number" placeholder="N° Fila"
+              [(ngModel)]="barra.n_fila" [name]="'n_fila_' + i" min="0" step="1"
+              class="w-full px-2 py-1.5 border-[1.5px] border-slate-200 rounded-lg text-xs text-slate-800 bg-white
+                     focus:outline-none focus:border-[#2b6777] [appearance:textfield]
+                     [&::-webkit-inner-spin-button]:appearance-none"/>
+            <input type="number" placeholder="N° Taladro"
+              [(ngModel)]="barra.n_taladro" [name]="'n_taladro_' + i" min="0" step="1"
+              class="w-full px-2 py-1.5 border-[1.5px] border-slate-200 rounded-lg text-xs text-slate-800 bg-white
+                     focus:outline-none focus:border-[#2b6777] [appearance:textfield]
+                     [&::-webkit-inner-spin-button]:appearance-none"/>
+            <input type="number" step="0.1" placeholder="Longitud (m)"
+              [(ngModel)]="barra.longitud_perforacion" [name]="'longitud_' + i"
+              class="w-full px-2 py-1.5 border-[1.5px] border-slate-200 rounded-lg text-xs text-slate-800 bg-white
+                     focus:outline-none focus:border-[#2b6777] [appearance:textfield]
+                     [&::-webkit-inner-spin-button]:appearance-none"/>
+            <input type="number" placeholder="N° Barras"
+              [(ngModel)]="barra.n_barras" [name]="'n_barras_' + i" min="0" step="1"
+              class="w-full px-2 py-1.5 border-[1.5px] border-slate-200 rounded-lg text-xs text-slate-800 bg-white
+                     focus:outline-none focus:border-[#2b6777] [appearance:textfield]
+                     [&::-webkit-inner-spin-button]:appearance-none"/>
+            <select [(ngModel)]="barra.tipo_perforacion" [name]="'tipo_' + i"
+              class="w-full px-2 py-1.5 border-[1.5px] border-slate-200 rounded-lg text-xs text-slate-800 bg-white
+                     cursor-pointer focus:outline-none focus:border-[#2b6777]">
+              <option *ngFor="let tipo of tiposPerforacion" [value]="tipo">{{ tipo }}</option>
+            </select>
+            <div class="flex justify-center">
+              <button type="button" (click)="eliminarBarra(i)"
                 [disabled]="datosPerforacion.barras.length === 1"
-                title="Eliminar barra"
-              >
-                <i class="fas fa-trash-alt"></i>
+                class="text-red-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition-all
+                       disabled:text-slate-300 disabled:cursor-not-allowed cursor-pointer border-0 bg-transparent">
+                <i class="fas fa-trash-alt text-sm"></i>
               </button>
             </div>
           </div>
         </div>
-        
-        <div class="agregar-barra-container">
-          <button
-            type="button"
-            class="btn-agregar-barra"
-            (click)="agregarBarra()"
-          >
-            <i class="fas fa-plus-circle"></i>
-            Agregar Barra
+
+        <!-- Agregar barra -->
+        <div class="pt-2 border-t border-dashed border-slate-300">
+          <button type="button" (click)="agregarBarra()"
+            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-white
+                   bg-gradient-to-r from-[#2b6777] to-[#1f4e5c] shadow-sm
+                   hover:-translate-y-0.5 hover:shadow-md active:scale-95 transition-all cursor-pointer border-0">
+            <i class="fas fa-plus-circle text-sm"></i> Agregar Barra
           </button>
         </div>
       </fieldset>
 
-      <!-- SECCIÓN OBSERVACIONES (siempre visible) -->
-      <fieldset class="form-section">
-        <legend class="section-legend">
-          <i class="fas fa-comment icon"></i> Observaciones
+      <!-- Sección Observaciones -->
+      <fieldset class="border border-slate-200 rounded-xl px-4 py-3 bg-white">
+        <legend class="inline-flex items-center gap-1.5 px-2 text-[13px] font-bold text-[#1f3b43] bg-white">
+          <i class="fas fa-comment text-[#2b6777] text-sm"></i> Observaciones
         </legend>
-        <div class="input-field textarea-field">
-          <label class="field-label">
-            <i class="fas fa-pen label-icon"></i>
-            Observaciones adicionales
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-semibold text-slate-700 flex items-center gap-1">
+            <i class="fas fa-pen text-[#2b6777] text-[11px]"></i> Observaciones adicionales
           </label>
-          <textarea
-            class="perf-input perf-textarea"
-            rows="3"
-            placeholder="Ingrese observaciones importantes sobre la perforación..."
-            [(ngModel)]="datosPerforacion.observaciones"
-            name="observaciones"
-          ></textarea>
+          <textarea rows="3" placeholder="Ingrese observaciones importantes sobre la perforación..."
+            [(ngModel)]="datosPerforacion.observaciones" name="observaciones"
+            class="w-full px-3 py-2 border-[1.5px] border-slate-200 rounded-lg text-xs text-slate-800 bg-white
+                   resize-y min-h-[60px] focus:outline-none focus:border-[#2b6777] focus:ring-2
+                   focus:ring-[#2b6777]/15 transition-all font-[inherit]"></textarea>
         </div>
       </fieldset>
 
-      <!-- BOTONES -->
-      <div class="perf-footer-actions">
-        <button
-          type="button"
-          class="btn-cancelar"
-          (click)="cerrarFormPerforacion()"
-        >
-          <i class="fas fa-times"></i> Cancelar
-        </button>
-        <button
-          type="button"
-          class="btn-guardar"
-          (click)="guardarPerforacion()"
-        >
-          <i class="fas fa-save"></i> Guardar cambios
-        </button>
-      </div>
     </form>
+
+    <!-- Footer fijo -->
+    <div class="flex justify-end gap-3 px-6 py-3 border-t border-slate-100 bg-white shrink-0">
+      <button type="button" (click)="cerrarFormPerforacion()"
+        class="flex items-center gap-1.5 px-5 py-2 border-[1.5px] border-slate-200 rounded-lg
+               text-xs font-semibold text-slate-600 bg-white hover:bg-slate-50 hover:text-slate-800
+               active:scale-95 transition-all cursor-pointer">
+        <i class="fas fa-times"></i> Cancelar
+      </button>
+      <button type="button" (click)="guardarPerforacion()"
+        class="flex items-center gap-1.5 px-6 py-2 border-0 rounded-lg text-xs font-semibold text-white
+               bg-gradient-to-r from-[#2b6777] to-[#1f4e5c] shadow-sm
+               hover:brightness-110 hover:-translate-y-0.5 active:scale-95 transition-all cursor-pointer">
+        <i class="fas fa-save"></i> Guardar cambios
+      </button>
+    </div>
+
   </div>
 </div>

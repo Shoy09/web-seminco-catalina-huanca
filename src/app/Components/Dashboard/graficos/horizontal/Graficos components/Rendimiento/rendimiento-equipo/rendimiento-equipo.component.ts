@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 
@@ -52,9 +52,9 @@ export class RendimientoEquipoComponent implements OnChanges {
       return;
     }
 
-    const datosOrdenados = [...this.data].sort(
-      (a, b) => Number(b.rendimiento || 0) - Number(a.rendimiento || 0),
-    );
+    const datosOrdenados = [...this.data]
+      .filter(item => Number(item.rendimiento || 0) > 0)
+      .sort((a, b) => Number(b.rendimiento || 0) - Number(a.rendimiento || 0));
 
     const equipos = datosOrdenados.map((item) => item.n_equipo || 'SIN EQUIPO');
 
@@ -67,16 +67,6 @@ export class RendimientoEquipoComponent implements OnChanges {
       equipos.length > 8 ? (8 / equipos.length) * 100 : 100;
 
     this.chartOptions = {
-      title: {
-        text: 'RENDIMIENTO POR EQUIPO',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: CHART_COLORS.grey,
-        },
-      },
 
       tooltip: {
         trigger: 'axis',
@@ -138,9 +128,6 @@ export class RendimientoEquipoComponent implements OnChanges {
 
       yAxis: {
         type: 'value',
-        name: 'Rendimiento (m/h)',
-        nameLocation: 'middle',
-        nameGap: 55,
         min: 0,
         max: escalaMax,
         axisLabel: {
@@ -175,7 +162,6 @@ export class RendimientoEquipoComponent implements OnChanges {
 
       series: [
         {
-          name: 'Rendimiento',
           type: 'bar',
           barWidth: '45%',
 

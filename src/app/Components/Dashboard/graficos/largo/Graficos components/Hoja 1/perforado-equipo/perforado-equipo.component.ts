@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -29,28 +29,18 @@ export class PerforadoEquipoComponent implements OnChanges {
   }
 
   updateChart(): void {
-    if (!this.data || this.data.length === 0) {
-      return;
-    }
+    if (!this.data || this.data.length === 0) { return; }
 
-    // Preparar datos para el gráfico
-    const xAxisData = this.data.map(item => 
+    const datosFiltrados = this.data.filter(item => Number(item.metros_perforados || 0) > 0);
+    if (!datosFiltrados.length) { this.chartOptions = {}; return; }
+
+    const xAxisData = datosFiltrados.map(item =>
       `${item.modelo_equipo || 'N/A'}\n(${item.seccion || 'N/A'})`
     );
-    
-    const seriesData = this.data.map(item => item.metros_perforados || 0);
+
+    const seriesData = datosFiltrados.map(item => item.metros_perforados || 0);
 
     this.chartOptions = {
-      title: {
-        text: 'PERFORADO POR EQUIPO',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 14,
-          fontWeight: 'bold',
-          color: '#333'
-        }
-      },
       tooltip: {
         trigger: 'axis',
         axisPointer: {
@@ -98,9 +88,6 @@ export class PerforadoEquipoComponent implements OnChanges {
       },
       yAxis: {
         type: 'value',
-        name: 'Metros',
-        nameLocation: 'middle',
-        nameGap: 45,
         min: 0,
         axisLabel: {
   fontSize: 11,
@@ -117,7 +104,6 @@ export class PerforadoEquipoComponent implements OnChanges {
       },
       series: [
         {
-          name: 'Metros/Disparo',
           type: 'bar',
           data: seriesData,
           itemStyle: {

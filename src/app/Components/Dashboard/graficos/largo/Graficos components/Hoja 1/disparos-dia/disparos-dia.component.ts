@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -37,17 +37,16 @@ export class DisparosDiaComponent implements OnChanges {
     return;
   }
 
-  const xAxisData = this.data.map(item => this.formatearFecha(item.fecha));
-  const seriesData = this.data.map(item => item.n_frentes);
+  const datosFiltrados = this.data.filter(item => Number(item.n_frentes || 0) > 0);
+  if (!datosFiltrados.length) { this.chartOptions = {}; return; }
+
+  const xAxisData = datosFiltrados.map(item => this.formatearFecha(item.fecha));
+  const seriesData = datosFiltrados.map(item => item.n_frentes);
 
   const maxValor = Math.max(...seriesData);
   const yAxisMax = Math.ceil(maxValor * 1.2);
 
   this.chartOptions = {
-    title: {
-      text: 'DISPAROS POR DÍA',
-      left: 'center'
-    },
     tooltip: {
       trigger: 'axis'
     },
@@ -62,7 +61,6 @@ export class DisparosDiaComponent implements OnChanges {
     },
     series: [
       {
-        name: 'DISPAROS',
         type: 'bar',
         data: seriesData
       }

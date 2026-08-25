@@ -11,10 +11,24 @@ import { SeleccionProcesoEstatosDialogComponent } from '../seleccion-proceso-est
 import { Estado } from '../../../models/Estado';
 import { EstadoService } from '../../../services/estado.service';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-estados',
-  imports: [ReactiveFormsModule, MatTableModule, MatPaginatorModule],
+  imports: [
+    ReactiveFormsModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    MatButtonModule,
+    MatTooltipModule,
+  ],
   templateUrl: './estados.component.html',
   styleUrl: './estados.component.css'
 })

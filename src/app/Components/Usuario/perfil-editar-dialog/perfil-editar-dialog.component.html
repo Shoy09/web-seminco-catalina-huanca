@@ -1,0 +1,129 @@
+<div class="w-full">
+
+  <!-- Título -->
+  <div class="flex items-center justify-between border-b border-border px-6 py-4">
+    <div>
+      <p class="text-[10px] font-bold uppercase tracking-widest text-ink-50">Mi cuenta</p>
+      <h2 class="text-lg font-black text-ink">Editar Perfil</h2>
+    </div>
+    <button mat-icon-button (click)="cancelar()" class="!text-ink-50 hover:!text-danger">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Contenido -->
+  <mat-dialog-content class="!px-6 !py-2">
+    <form [formGroup]="form" class="flex flex-col gap-1">
+
+      <!-- Fila 1: Nombre + Apellidos -->
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div class="flex flex-col gap-0.5">
+          <label class="text-[10px] font-bold uppercase tracking-wide text-ink-50">Nombres</label>
+          <mat-form-field appearance="outline" class="w-full compact-field">
+            <mat-icon matPrefix class="text-ink-50 !text-base">person</mat-icon>
+            <input matInput formControlName="nombre" placeholder="Nombres" />
+            <mat-error>{{ obtenerError('nombre') }}</mat-error>
+          </mat-form-field>
+        </div>
+        <div class="flex flex-col gap-0.5">
+          <label class="text-[10px] font-bold uppercase tracking-wide text-ink-50">Apellidos</label>
+          <mat-form-field appearance="outline" class="w-full compact-field">
+            <mat-icon matPrefix class="text-ink-50 !text-base">person_outline</mat-icon>
+            <input matInput formControlName="apellidos" placeholder="Apellidos" />
+            <mat-error>{{ obtenerError('apellidos') }}</mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Fila 2: Cargo + Empresa -->
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div class="flex flex-col gap-0.5">
+          <label class="text-[10px] font-bold uppercase tracking-wide text-ink-50">Cargo</label>
+          <mat-form-field appearance="outline" class="w-full compact-field">
+            <mat-icon matPrefix class="text-ink-50 !text-base">work</mat-icon>
+            <input matInput formControlName="cargo" placeholder="Cargo" />
+            <mat-error>{{ obtenerError('cargo') }}</mat-error>
+          </mat-form-field>
+        </div>
+        <div class="flex flex-col gap-0.5">
+          <label class="text-[10px] font-bold uppercase tracking-wide text-ink-50">Empresa</label>
+          <mat-form-field appearance="outline" class="w-full compact-field">
+            <mat-icon matPrefix class="text-ink-50 !text-base">business</mat-icon>
+            <input matInput formControlName="empresa" placeholder="Empresa" />
+            <mat-error>{{ obtenerError('empresa') }}</mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Fila 3: Guardia + Equipo -->
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div class="flex flex-col gap-0.5">
+          <label class="text-[10px] font-bold uppercase tracking-wide text-ink-50">Guardia</label>
+          <mat-form-field appearance="outline" class="w-full compact-field">
+            <mat-icon matPrefix class="text-ink-50 !text-base">security</mat-icon>
+            <input matInput formControlName="guardia" placeholder="Guardia" />
+            <mat-error>{{ obtenerError('guardia') }}</mat-error>
+          </mat-form-field>
+        </div>
+        <div class="flex flex-col gap-0.5">
+          <label class="text-[10px] font-bold uppercase tracking-wide text-ink-50">Equipo Autorizado</label>
+          <mat-form-field appearance="outline" class="w-full compact-field">
+            <mat-icon matPrefix class="text-ink-50 !text-base">construction</mat-icon>
+            <input matInput formControlName="equipoAutorizado" placeholder="Equipo autorizado" />
+            <mat-error>{{ obtenerError('equipoAutorizado') }}</mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Fila 4: Correo -->
+      <div class="grid grid-cols-1 gap-3">
+        <div class="flex flex-col gap-0.5">
+          <label class="text-[10px] font-bold uppercase tracking-wide text-ink-50">Correo</label>
+          <mat-form-field appearance="outline" class="w-full compact-field">
+            <mat-icon matPrefix class="text-ink-50 !text-base">mail</mat-icon>
+            <input matInput formControlName="correo" type="email" placeholder="correo@empresa.com" />
+            <mat-error>{{ obtenerError('correo') }}</mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Fila 5: Contraseña -->
+      <div class="grid grid-cols-1 gap-3">
+        <div class="flex flex-col gap-0.5">
+          <label class="text-[10px] font-bold uppercase tracking-wide text-ink-50">Contraseña</label>
+          <mat-form-field appearance="outline" class="w-full compact-field">
+            <mat-icon matPrefix class="text-ink-50 !text-base">lock</mat-icon>
+            <input matInput formControlName="contraseña"
+              [type]="mostrarContrasena ? 'text' : 'password'"
+              placeholder="Nueva contraseña" />
+            <button mat-icon-button matSuffix type="button"
+              (click)="mostrarContrasena = !mostrarContrasena">
+              <mat-icon class="!text-base text-ink-50">
+                {{ mostrarContrasena ? 'visibility_off' : 'visibility' }}
+              </mat-icon>
+            </button>
+            <mat-error>{{ obtenerError('contraseña') }}</mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+    </form>
+  </mat-dialog-content>
+
+  <!-- Acciones -->
+  <mat-dialog-actions align="end" class="!px-6 !pb-5 !pt-2 gap-2">
+    <button mat-stroked-button (click)="cancelar()" class="!rounded-xl">
+      Cancelar
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="guardar()"
+      class="!rounded-xl"
+    >
+      <mat-icon class="!h-4 !w-4 !text-sm">save</mat-icon>
+      Guardar cambios
+    </button>
+  </mat-dialog-actions>
+
+</div>

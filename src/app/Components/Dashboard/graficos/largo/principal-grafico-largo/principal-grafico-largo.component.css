@@ -1,134 +1,191 @@
-.filtro-fechas {
-  display: flex;
-  align-items: end;
-  gap: 16px;
-  padding: 16px 24px;
-  background: white;
-  border-bottom: 1px solid #ddd;
+/* ── Iconos Material ─────────────────────────────────────────── */
+.ic-header {
+  font-family: 'Material Icons';
+  font-size: 20px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  font-style: normal;
+  font-weight: normal;
+  -webkit-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
+  opacity: 0.85;
 }
 
-.campo {
-  display: flex;
-  flex-direction: column;
+.ic-sm {
+  font-family: 'Material Icons';
   font-size: 14px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  font-style: normal;
+  font-weight: normal;
+  -webkit-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
+  flex-shrink: 0;
 }
 
-.campo input {
-  padding: 6px 8px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+.ic-seccion {
+  font-family: 'Material Icons';
+  font-size: 16px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  font-style: normal;
+  font-weight: normal;
+  -webkit-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
 }
 
-.btn-aplicar {
-  padding: 8px 16px;
-  background-color: #1677ff;
-  color: white;
-  border: none;
-  border-radius: 6px;
+/* ── Botones header ──────────────────────────────────────────── */
+.btn-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.9);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 0.5rem;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.7rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: background 0.15s;
+  line-height: 1;
+}
+.btn-header:hover { background: rgba(255,255,255,0.2); }
+
+/* ── Filtros ─────────────────────────────────────────────────── */
+.label-filtro {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #999999;
+  white-space: nowrap;
 }
 
-.btn-aplicar:hover {
-  background-color: #145bcc;
+.input-filtro {
+  height: 1.875rem;
+  border-radius: 0.5rem;
+  border: 1px solid #CCCCCC;
+  background-color: #F7F9F8;
+  font-size: 0.75rem;
+  color: #333333;
+  padding: 0 0.5rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
-/* //-------------------------------- */
-.graficos-container {
+.input-filtro:hover  { border-color: #999999; }
+.input-filtro:focus  {
+  border-color: #38BDF8;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(56,189,248,0.18);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  height: 1.875rem;
+  padding: 0 0.75rem;
+  background: #38BDF8;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  box-shadow: 0 1px 3px rgba(56,189,248,0.3);
+}
+.btn-primary:hover { opacity: 0.88; }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  height: 1.875rem;
+  padding: 0 0.75rem;
+  background: transparent;
+  color: #666666;
+  border: 1px solid #CCCCCC;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.btn-ghost:hover { border-color: #999999; color: #333333; }
+
+/* ── Encabezados de sección ──────────────────────────────────── */
+.seccion-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #344963;           /* secondary-75 */
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-left: 3px solid #38BDF8;
+  padding-left: 0.625rem;
+  margin-top: 0.25rem;
+}
+
+/* ── Grid de gráficos ────────────────────────────────────────── */
+.graficos-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
-  padding: 24px;
-  background-color: #f0f2f5;
+  gap: 16px;
 }
 
-.full-width {
-  grid-column: 1 / -1; /* ocupa toda la fila */
+.col-span-full-grid {
+  grid-column: 1 / -1;
 }
 
-/* Cada gráfico ocupa todo su espacio */
-.graficos-container > * {
-  width: 100%;
-  height: 100%;
+/* Gráficos respetan su contenedor */
+.graficos-grid > * {
+  min-height: 340px;
   display: block;
+  width: 100%;
 }
 
-/* Forzar misma altura visual */
-.graficos-container > * {
-  min-height: 350px;
+.graficos-grid > .col-span-full-grid {
+  min-height: 0;
 }
 
-/* Tablets */
-@media (max-width: 1024px) {
-  .graficos-container {
-    gap: 16px;
-    padding: 16px;
-  }
+@media (max-width: 1200px) {
+  .graficos-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-
-/* Móviles */
 @media (max-width: 768px) {
-  .graficos-container {
-    grid-template-columns: 1fr;
-  }
+  .graficos-grid { grid-template-columns: 1fr; }
 }
 
-/* 🔥 Select moderno */
-.campo select {
-  padding: 8px 36px 8px 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background-color: #fff;
-  font-size: 13px;
-  cursor: pointer;
-
-  /* quitar estilo nativo */
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-
-  /* flechita custom */
-  background-image: url("data:image/svg+xml;utf8,<svg fill='%23666' height='20' viewBox='0 0 20 20' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M5.5 7l4.5 5 4.5-5z'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 8px center;
-}
-
-.campo select:hover {
-  border-color: #1677ff;
-}
-
-.campo select:focus {
-  outline: none;
-  border-color: #1677ff;
-  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.2);
-}
-
+/* ── Overlay PDF ─────────────────────────────────────────────── */
 .overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
+  inset: 0;
+  background: rgba(11,31,58,0.7);
   z-index: 9999;
-
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-
-  color: white;
-  font-size: 18px;
+  color: #fff;
+  font-size: 15px;
+  gap: 12px;
+  backdrop-filter: blur(3px);
 }
 
 .spinner {
-  width: 50px;
-  height: 50px;
-  border: 5px solid #ccc;
-  border-top: 5px solid #fff;
+  width: 44px;
+  height: 44px;
+  border: 4px solid rgba(255,255,255,0.25);
+  border-top-color: #38BDF8;
   border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 10px;
+  animation: spin 0.8s linear infinite;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }

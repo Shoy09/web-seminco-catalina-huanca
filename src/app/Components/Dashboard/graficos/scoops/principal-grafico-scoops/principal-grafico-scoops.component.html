@@ -1,118 +1,173 @@
-<div class="filtro-fechas">
-  <div class="campo">
-    <label>Fecha inicio</label>
-    <input type="date" [(ngModel)]="fechaInicio">
-  </div>
+<div class="space-y-3">
 
-  <div class="campo">
-    <label>Fecha fin</label>
-    <input type="date" [(ngModel)]="fechaFin">
-  </div>
+  <!-- ══ BARRA DE CONTROL ════════════════════════════════════════ -->
+  <section class="overflow-hidden rounded-2xl border border-border bg-surface shadow-sm">
 
-  <div class="campo">
-  <label>Turno</label>
-  <select [(ngModel)]="turnoSeleccionado">
-    <option value="">Todos</option>
-    <option value="DÍA">Día</option>
-    <option value="NOCHE">Noche</option>
-  </select>
+    <div class="flex items-center justify-between bg-gradient-to-r from-secondary via-secondary-75 to-primary px-4 py-2.5 text-white">
+      <div class="flex items-center gap-2">
+        <span class="material-icons ic-header">local_shipping</span>
+        <span class="text-sm font-bold tracking-tight">Scooptram — Carguío</span>
+        <span class="hidden text-xs text-white/50 sm:inline">— Dashboard de Indicadores</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="btn-header" (click)="Presentacion()">
+          <span class="material-icons ic-sm">slideshow</span>
+          Presentación
+        </button>
+        <button class="btn-header" (click)="generarPDF()">
+          <span class="material-icons ic-sm">picture_as_pdf</span>
+          PDF
+        </button>
+        <button class="btn-header" (click)="ImportarExcel()">
+          <span class="material-icons ic-sm">upload_file</span>
+          Masivos
+        </button>
+        <button class="btn-header" (click)="toggleDataZoom()">
+          <span class="material-icons ic-sm">zoom_in</span>
+          {{ showZoom ? 'Ocultar zoom' : 'Zoom' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3 px-3 py-2">
+      <div class="flex items-center gap-1.5">
+        <label class="label-filtro">Desde</label>
+        <input type="date" [(ngModel)]="fechaInicio" class="input-filtro" />
+      </div>
+      <div class="flex items-center gap-1.5">
+        <label class="label-filtro">Hasta</label>
+        <input type="date" [(ngModel)]="fechaFin" class="input-filtro" />
+      </div>
+      <div class="flex items-center gap-1.5">
+        <label class="label-filtro">Turno</label>
+        <select [(ngModel)]="turnoSeleccionado" class="input-filtro cursor-pointer">
+          <option value="">Todos</option>
+          <option value="DÍA">Día</option>
+          <option value="NOCHE">Noche</option>
+        </select>
+      </div>
+      <button (click)="aplicarFiltro()" class="btn-primary">
+        <span class="material-icons ic-sm">filter_alt</span>
+        Aplicar
+      </button>
+      <button (click)="quitarFiltro()" class="btn-ghost">
+        <span class="material-icons ic-sm">close</span>
+        Limpiar
+      </button>
+    </div>
+  </section>
+
+  <ng-container *ngIf="vistaPrincipal">
+
+    <!-- ══ DISPONIBILIDAD ══════════════════════════════════════ -->
+    <div class="seccion-header">
+      <span class="material-icons ic-seccion">speed</span>
+      <span>Disponibilidad</span>
+    </div>
+    <div class="graficos-grid">
+      <app-disponibilidad-equipo  [data]="DataDisponibilidadPorEquipo"   />
+      <app-disponibilidad-dia     [data]="DataDisponibilidadPorDia"      [showZoom]="showZoom" />
+      <app-disponibilidad-semana  [data]="DataDisponibilidadPorSemana"   [showZoom]="showZoom" />
+      <app-disponibilidad-mes     [data]="DataDisponibilidadPorMes"      [showZoom]="showZoom" />
+      <app-disponibilidad-guardia [data]="DataDisponibilidadPorSeccion"  />
+      <app-pareto-disponibilidad  [data]="DataParetoDisponibilidad"      />
+    </div>
+
+    <!-- ══ UTILIZACIÓN ═════════════════════════════════════════ -->
+    <div class="seccion-header">
+      <span class="material-icons ic-seccion">bar_chart</span>
+      <span>Utilización</span>
+    </div>
+    <div class="graficos-grid">
+      <app-utilizacion-equipo  [data]="DataUtilizacionPorEquipo"          />
+      <app-utilizacion-dia-mes [data]="DataUtilizacionPorDia"             [showZoom]="showZoom" />
+      <app-utilizacion-semana  [data]="DataUtilizacionPorSemana"          [showZoom]="showZoom" />
+      <app-utilizacion-mes     [data]="DataUtilizacionPorMes"             [showZoom]="showZoom" />
+      <app-utilizacion-guardia [data]="DataUtilizacionPorSeccionDetallada" />
+      <app-pareto-utilizacion  [data]="DataParetoUtilizacion"             />
+    </div>
+
+    <!-- ══ RENDIMIENTO ═════════════════════════════════════════ -->
+    <div class="seccion-header">
+      <span class="material-icons ic-seccion">trending_up</span>
+      <span>Rendimiento</span>
+    </div>
+    <div class="graficos-grid">
+      <app-rendimiento-general      [data]="DataprocesarEquiposConCapacidad" class="col-span-full" />
+      <app-rendimiento-guardia      [data]="DataRendimientoPorSeccionDetallado" />
+      <app-rendimiento-seccion-labor [data]="DataprocesarEquiposConCapacidad" />
+      <app-rendimiento-mes-ano      [data]="DataRendimientoPorMes" />
+      <app-top-equipos              [data]="DataprocesarEquiposConCapacidad" />
+      <app-rendimiento-dia-mes      [data]="DataRendimientoPorDia" />
+    </div>
+
+    <!-- ══ RANKING OPERADORES ══════════════════════════════════ -->
+    <div class="seccion-header">
+      <span class="material-icons ic-seccion">people</span>
+      <span>Operadores</span>
+    </div>
+    <div class="graficos-grid">
+      <app-ranking-operador-utilizacion [data]="DataDisponibilidadPorOperador" />
+      <app-ranking-operador-rendimiento [data]="DataRendimientoPorOperador"    />
+    </div>
+
+    <!-- ══ RANKING GUARDIA ════════════════════════════════════ -->
+    <div class="seccion-header">
+      <span class="material-icons ic-seccion">groups</span>
+      <span>Ranking por Guardia</span>
+    </div>
+    <div class="graficos-grid">
+      <app-ranking-disponibilidad-guardia [data]="DataDisponiblidadPorGuardia" />
+      <app-mineral-guardia                [data]="DataMineralGuardia"          />
+      <app-ranking-rendimiento-guardia    [data]="DataRendimientoPorGuardia"   />
+      <app-ranking-utilizacion-guardia    [data]="DataUtilizacionGuardia"      />
+      <app-promedios-materiales-equipo                                         />
+      <app-promedio-material-guardia                                           />
+    </div>
+
+    <!-- ══ PARETO ══════════════════════════════════════════════ -->
+    <div class="seccion-header">
+      <span class="material-icons ic-seccion">analytics</span>
+      <span>Análisis Pareto</span>
+    </div>
+    <div class="graficos-grid">
+      <app-pareto-no-programadas [data]="DataHorasPorObservacion"          class="col-span-full" />
+      <app-diagrama-pareto       [data]="DataHorasDemoraPorCodigoCompleto" class="col-span-full" />
+    </div>
+
+    <!-- ══ MTBF / MTTR ════════════════════════════════════════ -->
+    <div class="seccion-header">
+      <span class="material-icons ic-seccion">build_circle</span>
+      <span>MTBF / MTTR</span>
+    </div>
+    <div class="graficos-grid">
+      <app-mtbf-equipo  [data]="DataMTBFPorEquipo"   />
+      <app-mtbf-ano     [data]="DataMTBFPorAnio"     />
+      <app-mtbf-semanas [data]="DataMTBFPorSemanas"  />
+      <app-mtbf-mes     [data]="DataMTBFPorMes"      />
+      <app-mttr-equipo  [data]="DataMTTRPorEquipo"   />
+      <app-mttr-ano     [data]="DataMTTRPorAnio"     />
+      <app-mttr-semanas [data]="DataMTTRPorSemanas"  />
+      <app-mttr-mes     [data]="DataMTTRPorMes"      />
+    </div>
+
+    <!-- ══ HORAS OPERATIVAS ═══════════════════════════════════ -->
+    <div class="seccion-header">
+      <span class="material-icons ic-seccion">schedule</span>
+      <span>Horas Operativas</span>
+    </div>
+    <div class="graficos-grid">
+      <app-horas-operativas-dia    [data]="dataHorasOperativasDia"     />
+      <app-horas-operativas-semana [data]="dataHorasOperativasSemana"  />
+      <app-horas-operativas-mes    [data]="dataHorasOperativasMes"     />
+    </div>
+
+  </ng-container>
+
 </div>
 
-
-  <button class="btn-aplicar" (click)="aplicarFiltro()">
-    Aplicar
-  </button>
-
-  <button class="btn-aplicar" (click)="quitarFiltro()">
-    Quitar filtro
-  </button>
-
-  <button class="btn-aplicar" (click)="generarPDF()">
-  Exportar PDF
-</button>
-
-<button class="btn-aplicar" (click)="ImportarExcel()">
-  Crear Masivos
-</button>
-
-<button class="btn-aplicar" (click)="Presentacion()">
-  presentación
-</button>
-  <button class="btn-aplicar" (click)="toggleDataZoom()">
-    {{ showZoom ? 'Ocultar zoom' : 'Mostrar zoom' }}
-  </button>
-
-<!-- <button class="btn-aplicar" (click)="toggleVista()">
-  {{ vistaPrincipal ? 'Ver gráfico de linea' : 'Gráficos principales' }}
-</button> -->
-
-
-</div> 
-
-<div class="graficos-container" *ngIf="vistaPrincipal">
-  <!-- <app-toneladas-rango-hora class="full-width" [data]="DataToneladasPorHora"></app-toneladas-rango-hora>
-  <app-tabla-toneladas-equipo class="full-width" [data]="DataToneladasPorEquipoYRangoHora" [turno]="turnoSeleccionado"></app-tabla-toneladas-equipo>
-   -->
-  <!-- Hoja 1 pdf -->
-<app-disponibilidad-equipo class="third-width" [data]="DataDisponibilidadPorEquipo" />
-<app-disponibilidad-semana class="third-width" [data]="DataDisponibilidadPorSemana" [showZoom]="showZoom"/>
-<app-disponibilidad-mes class="third-width" [data]="DataDisponibilidadPorMes" [showZoom]="showZoom" />
-<app-disponibilidad-guardia class="third-width" [data]="DataDisponibilidadPorSeccion" />
-<app-pareto-disponibilidad class="third-width" [data]="DataParetoDisponibilidad" />
-<app-disponibilidad-dia class="third-width"  [data]="DataDisponibilidadPorDia" [showZoom]="showZoom"/>
-
-
-<app-utilizacion-equipo class="third-width" [data]="DataUtilizacionPorEquipo" />
-<app-utilizacion-semana class="third-width" [data]="DataUtilizacionPorSemana" [showZoom]="showZoom" />
-<app-utilizacion-mes class="third-width" [data]="DataUtilizacionPorMes" [showZoom]="showZoom" />
- <app-utilizacion-guardia class="third-width" [data]="DataUtilizacionPorSeccionDetallada" />
-  <app-pareto-utilizacion class="third-width" [data]="DataParetoUtilizacion" />
-<app-utilizacion-dia-mes class="third-width" [data]="DataUtilizacionPorDia" [showZoom]="showZoom" />
-
-
-<app-rendimiento-general class="full-width-compact" [data]="DataprocesarEquiposConCapacidad" />
-<app-rendimiento-guardia class="third-width" [data]="DataRendimientoPorSeccionDetallado"></app-rendimiento-guardia>
-<app-rendimiento-seccion-labor class="third-width"  [data]="DataprocesarEquiposConCapacidad"></app-rendimiento-seccion-labor>
-<app-rendimiento-mes-ano class="third-width" [data]="DataRendimientoPorMes"></app-rendimiento-mes-ano>
-<app-top-equipos class="half-width" [data]="DataprocesarEquiposConCapacidad"></app-top-equipos>
-<app-rendimiento-dia-mes class="half-width" [data]="DataRendimientoPorDia" ></app-rendimiento-dia-mes>
-
-
-<app-ranking-operador-utilizacion class="half-width" [data]="DataDisponibilidadPorOperador" ></app-ranking-operador-utilizacion>
-<app-ranking-operador-rendimiento class="half-width" [data]="DataRendimientoPorOperador" ></app-ranking-operador-rendimiento>
-
-
-<app-ranking-disponibilidad-guardia class="quarter-width" [data]="DataDisponiblidadPorGuardia" />
-<app-mineral-guardia class="quarter-width" [data]="DataMineralGuardia" />
-<app-ranking-rendimiento-guardia class="quarter-width" [data]="DataRendimientoPorGuardia" />
-<app-ranking-utilizacion-guardia class="quarter-width" [data]="DataUtilizacionGuardia" />
-<app-promedios-materiales-equipo class="half-width"></app-promedios-materiales-equipo>
-<app-promedio-material-guardia class="half-width"></app-promedio-material-guardia>
-
-
-<app-pareto-no-programadas class="full-width" [data]="DataHorasPorObservacion"></app-pareto-no-programadas>
-
-
-<app-diagrama-pareto class="full-width" [data]="DataHorasDemoraPorCodigoCompleto"></app-diagrama-pareto>
-
-
-<app-mtbf-equipo class="half-width" [data]="DataMTBFPorEquipo"></app-mtbf-equipo>
-<app-mtbf-ano class="half-width" [data]="DataMTBFPorAnio"></app-mtbf-ano>
-<app-mtbf-semanas class="half-width" [data]="DataMTBFPorSemanas"></app-mtbf-semanas>
-<app-mtbf-mes class="half-width" [data]="DataMTBFPorMes"></app-mtbf-mes>
-
-
-<app-mttr-equipo class="half-width" [data]="DataMTTRPorEquipo"></app-mttr-equipo>
-<app-mttr-ano class="half-width" [data]="DataMTTRPorAnio"></app-mttr-ano>
-<app-mttr-semanas class="half-width" [data]="DataMTTRPorSemanas"></app-mttr-semanas>
-<app-mttr-mes class="half-width" [data]="DataMTTRPorMes"></app-mttr-mes>
-
-<app-horas-operativas-dia class="half-width" [data]="dataHorasOperativasDia" />
-<app-horas-operativas-semana class="half-width" [data]="dataHorasOperativasSemana" />
-<app-horas-operativas-mes class="half-width" [data]="dataHorasOperativasMes" />
-</div>
- 
+<!-- Overlay PDF -->
 <div class="overlay" *ngIf="cargandoPDF">
   <div class="spinner"></div>
   <p>Generando PDF...</p>
-</div> 
+</div>

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -73,17 +73,6 @@ export class RankingOperadorUtilizacionComponent implements OnInit, OnChanges {
 
   mostrarGraficoSinDatos(): void {
     this.chartOptions = {
-      title: {
-        text: this.title,
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: '#333',
-          fontFamily: 'Arial'
-        }
-      },
       graphic: {
         type: 'text',
         left: 'center',
@@ -119,17 +108,6 @@ export class RankingOperadorUtilizacionComponent implements OnInit, OnChanges {
     const escalaMin = 0;
 
     this.chartOptions = {
-      title: {
-        text: this.title,
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: '#333',
-          fontFamily: 'Arial'
-        }
-      },
 
       tooltip: {
         trigger: 'axis',
@@ -189,8 +167,6 @@ export class RankingOperadorUtilizacionComponent implements OnInit, OnChanges {
 
       xAxis: {
         type: 'value',
-        nameLocation: 'middle',
-        nameGap: 35,
         min: escalaMin,
         max: escalaMax,
         axisLabel: {
@@ -236,7 +212,6 @@ export class RankingOperadorUtilizacionComponent implements OnInit, OnChanges {
 
       series: [
         {
-          name: 'Disponibilidad',
           type: 'bar',
           barWidth: '50%',
           data: valores.map((valor, index) => ({

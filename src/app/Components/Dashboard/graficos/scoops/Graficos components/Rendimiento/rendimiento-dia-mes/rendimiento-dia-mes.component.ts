@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -155,17 +155,6 @@ export class RendimientoDiaMesComponent implements OnInit, OnChanges {
     });
 
     this.chartOptions = {
-      title: {
-        text: 'RENDIMIENTO (t/h) - DÍA',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: '#333',
-          fontFamily: 'Arial'
-        }
-      },
 
       tooltip: {
         trigger: 'axis',
@@ -233,9 +222,6 @@ export class RendimientoDiaMesComponent implements OnInit, OnChanges {
 
       yAxis: {
         type: 'value',
-        name: 'Rendimiento (t/h)',
-        nameLocation: 'middle',
-        nameGap: 45,
         min: 0,
         max: escalaMax,
         axisLabel: {
@@ -252,7 +238,6 @@ export class RendimientoDiaMesComponent implements OnInit, OnChanges {
 
       series: [
         {
-          name: 'Rendimiento',
           type: 'bar',
           barWidth: '60%',
           data: valores.map((valor, index) => ({

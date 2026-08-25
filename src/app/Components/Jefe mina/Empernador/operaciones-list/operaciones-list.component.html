@@ -1,139 +1,329 @@
+﻿<div class="px-6 py-6 max-w-[1440px] mx-auto">
 
-<div class="filtro-fechas">
-  <div class="campo">
-    <label>Fecha inicio</label>
-    <input type="date" [(ngModel)]="fechaInicio">
-  </div>
+  <!-- ══ HEADER ══ -->
+  <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
 
-  <div class="campo">
-    <label>Fecha fin</label>
-    <input type="date" [(ngModel)]="fechaFin">
-  </div>
-
-  <div class="campo">
-  <label>Turno</label>
-  <select [(ngModel)]="turnoSeleccionado">
-    <option value="">Todos</option>
-    <option value="DÍA">Día</option>
-    <option value="NOCHE">Noche</option>
-  </select>
-</div>
-
-
-  <button class="btn-aplicar" (click)="aplicarFiltro()">
-    Aplicar
-  </button>
-
-  <button class="btn-aplicar" (click)="quitarFiltro()">
-    Quitar filtro
-  </button>
-
-
-</div>
-<div class="container">
-  <div class="header-section">
-    <div class="title-section">
-      <h1>Gestión de Operaciones</h1>
-      <p class="subtitle">{{ tipo | uppercase }} · Panel de control</p>
+    <div class="flex items-center gap-3">
+      <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-secondary text-white shadow-sm shrink-0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="text-xl font-bold text-secondary m-0 leading-tight">Operaciones</h1>
+        <p class="text-xs text-ink-50 m-0 mt-0.5">
+          <span class="font-semibold text-primary">{{ tipo | uppercase }}</span>
+          &nbsp;·&nbsp;{{ operacionesFiltradas.length }} registro(s)
+        </p>
+      </div>
     </div>
-    <div class="badge-jefe">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M20 21V19C20 16.7909 18.2091 15 16 15H8C5.79086 15 4 16.7909 4 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" stroke-width="2"/>
-      </svg>
-      <span>JEFE DE GUARDIA: {{ jefe_guardia }}</span>
-    </div>
-  </div>
 
-  <!-- 🔄 loading -->
-  <div *ngIf="loading" class="loading-state">
-    <div class="spinner"></div>
-    <p>Cargando operaciones...</p>
-  </div>
+    <div class="flex items-center gap-2">
 
-  <!-- ❌ sin datos -->
-  <div *ngIf="!loading && operacionesFiltradas.length === 0" class="empty-state">
-    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M9 12H15M9 16H15M17 21H7C5.89543 21 5 20.1046 5 19V5C5 3.89543 5.89543 3 7 3H12.5858C12.851 3 13.1054 3.10536 13.2929 3.29289L18.7071 8.70711C18.8946 8.89464 19 9.149 19 9.41421V19C19 20.1046 18.1046 21 17 21Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-    </svg>
-    <p>No se encontraron registros</p>
-    <span class="empty-hint">No hay operaciones para mostrar</span>
-  </div>
-
-  <!-- ✅ cards -->
-  <div class="cards-grid" *ngIf="!loading && operacionesFiltradas.length > 0">
-    <div class="card" *ngFor="let op of operacionesFiltradas" (click)="irDetalle(op)">
-      
-      <!-- Header con ID y estado -->
-      <div class="card-header">
-        <div class="id-section">
-          <span class="id-prefix">OPER-</span>
-          <span class="id-number">{{ op.id }}</span>
+      <!-- Badge jefe -->
+      <div class="hidden sm:flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-border text-sm">
+        <div class="w-6 h-6 rounded-full bg-secondary/10 flex items-center justify-center shrink-0">
+          <svg class="text-secondary" width="12" height="12" viewBox="0 0 24 24" fill="none">
+            <path d="M20 21V19C20 16.7909 18.2091 15 16 15H8C5.79086 15 4 16.7909 4 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" stroke-width="2"/>
+          </svg>
         </div>
-        <div class="status-indicator" [class]="getStatusClass(op)">
-          <span class="status-dot"></span>
-          <span class="status-text">{{ getStatusText(op) }}</span>
-        </div>
+        <span class="font-medium text-ink-75">{{ jefe_guardia }}</span>
       </div>
 
-      <!-- Información principal -->
-      <div class="card-body">
-        <div class="info-grid">
-          <div class="info-item">
-            <div class="info-label">Fecha</div>
-            <div class="info-value">{{ op.fecha | date:'dd/MM/yyyy' }}</div>
-          </div>
-          <div class="info-item">
-            <div class="info-label">Turno</div>
-            <div class="info-value turno-value" [class]="getTurnoClass(op.turno)">
-              {{ op.turno }}
-            </div>
-          </div>
-        </div>
+      <!-- Botón filtros -->
+      <button
+        (click)="mostrarFiltros = !mostrarFiltros"
+        class="flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold transition-all duration-150 cursor-pointer"
+        [ngClass]="mostrarFiltros
+          ? 'bg-secondary text-white border-secondary'
+          : 'bg-white text-ink-75 border-border hover:border-primary hover:text-primary'"
+      >
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <path d="M3 4h18M7 8h10M11 12h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Filtrar
+        <!-- Indicador de filtro activo -->
+        <span
+          *ngIf="turnoAplicado || fechaInicio || fechaFin"
+          class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-primary text-white text-[9px] font-bold"
+        >!</span>
+      </button>
 
-        <div class="divider"></div>
+    </div>
+  </div>
 
-        <div class="info-item full-width">
-          <div class="info-label">Operador</div>
-          <div class="info-value">{{ op.operador }}</div>
-        </div>
 
-        <div class="info-item full-width">
-          <div class="info-label">Jefe de Guardia</div>
-          <div class="info-value">{{ op.jefe_guardia }}</div>
-        </div>
+  <!-- ══ PANEL FILTROS (colapsable) ══ -->
+  <div
+    *ngIf="mostrarFiltros"
+    class="mb-4 p-4 bg-white rounded-2xl border border-border shadow-sm
+           animate-[fadeInUp_0.2s_ease-out_forwards]"
+  >
+    <div class="flex flex-wrap items-end gap-3">
 
-        <div class="divider"></div>
-
-        <div class="equipment-section">
-          <div class="equipment-field">
-            <div class="info-label">Equipo</div>
-            <div class="info-value">{{ op.equipo }}</div>
-          </div>
-          <div class="equipment-number">
-            <span class="number-prefix">N°</span>
-            <span class="number-value">{{ op.n_equipo }}</span>
-          </div>
-        </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-bold text-ink-50 uppercase tracking-widest">Fecha inicio</label>
+        <input type="date" [(ngModel)]="fechaInicio"
+          class="px-3 py-1.5 text-sm border border-border rounded-lg bg-white text-ink
+                 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
+        />
       </div>
 
-      <!-- Footer con métricas -->
-      <div class="card-footer">
-        <div class="metric">
-          <div class="metric-label">Revisiones</div>
-          <div class="metric-value" [class]="getRevisionClass(op)">
-            {{ getRevisionText(op) }}
-          </div>
-        </div>
-        <div class="metric-divider"></div>
-        <div class="metric">
-          <div class="metric-label">Estado final</div>
-          <div class="metric-value" [class]="getReviewClass(op)">
-            {{ getStatusText(op) }}
-          </div>
-        </div>
+      <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-bold text-ink-50 uppercase tracking-widest">Fecha fin</label>
+        <input type="date" [(ngModel)]="fechaFin"
+          class="px-3 py-1.5 text-sm border border-border rounded-lg bg-white text-ink
+                 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
+        />
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-bold text-ink-50 uppercase tracking-widest">Turno</label>
+        <select [(ngModel)]="turnoSeleccionado"
+          class="px-3 py-1.5 text-sm border border-border rounded-lg bg-white text-ink cursor-pointer
+                 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20
+                 hover:border-primary transition-colors"
+        >
+          <option value="">Todos</option>
+          <option value="DÍA">Día</option>
+          <option value="NOCHE">Noche</option>
+        </select>
+      </div>
+
+      <div class="flex gap-2 pb-0">
+        <button (click)="aplicarFiltro()"
+          class="px-4 py-1.5 text-sm font-semibold text-white bg-secondary rounded-lg
+                 hover:bg-secondary-75 active:scale-95 transition-all cursor-pointer shadow-sm"
+        >Aplicar</button>
+        <button (click)="quitarFiltro()"
+          class="px-4 py-1.5 text-sm font-semibold text-ink-75 bg-surface-soft border border-border rounded-lg
+                 hover:border-primary hover:text-primary active:scale-95 transition-all cursor-pointer"
+        >Limpiar</button>
       </div>
 
     </div>
   </div>
+
+
+  <!-- ══ TABLA ══ -->
+  <div class="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="flex flex-col items-center justify-center py-20 text-ink-50">
+      <div class="w-10 h-10 rounded-full border-[3px] border-border border-t-primary animate-spin mb-4"></div>
+      <p class="text-sm m-0">Cargando operaciones...</p>
+    </div>
+
+    <!-- Sin datos -->
+    <div *ngIf="!loading && operacionesFiltradas.length === 0"
+         class="flex flex-col items-center justify-center py-20">
+      <div class="w-14 h-14 rounded-2xl bg-surface-soft flex items-center justify-center mb-4">
+        <svg class="text-ink-25" width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <path d="M9 12H15M9 16H15M17 21H7C5.89543 21 5 20.1046 5 19V5C5 3.89543 5.89543 3 7 3H12.5858C12.851 3 13.1054 3.10536 13.2929 3.29289L18.7071 8.70711C18.8946 8.89464 19 9.149 19 9.41421V19C19 20.1046 18.1046 21 17 21Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <p class="text-sm font-semibold text-ink-75 m-0">Sin registros</p>
+      <span class="text-xs text-ink-25 mt-1">Prueba cambiando el filtro</span>
+    </div>
+
+    <!-- Tabla real -->
+    <div *ngIf="!loading && operacionesFiltradas.length > 0" class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+
+        <!-- Cabecera -->
+        <thead>
+          <tr class="bg-secondary text-white text-left">
+            <th class="px-4 py-3 font-semibold text-xs tracking-widest uppercase rounded-tl-2xl whitespace-nowrap">#</th>
+            <th class="px-4 py-3 font-semibold text-xs tracking-widest uppercase whitespace-nowrap">Fecha</th>
+            <th class="px-4 py-3 font-semibold text-xs tracking-widest uppercase whitespace-nowrap">Turno</th>
+            <th class="px-4 py-3 font-semibold text-xs tracking-widest uppercase whitespace-nowrap">Operador</th>
+            <th class="px-4 py-3 font-semibold text-xs tracking-widest uppercase whitespace-nowrap">Equipo</th>
+            <th class="px-4 py-3 font-semibold text-xs tracking-widest uppercase whitespace-nowrap">N° Equipo</th>
+            <th class="px-4 py-3 font-semibold text-xs tracking-widest uppercase whitespace-nowrap">Revisiones</th>
+            <th class="px-4 py-3 font-semibold text-xs tracking-widest uppercase whitespace-nowrap">Estado</th>
+            <th class="px-4 py-3 font-semibold text-xs tracking-widest uppercase text-center rounded-tr-2xl whitespace-nowrap">Acción</th>
+          </tr>
+        </thead>
+
+        <!-- Filas -->
+        <tbody>
+          <tr
+            *ngFor="let op of operacionesPaginadas; let i = index"
+            class="border-b border-border/60 transition-colors duration-100 hover:bg-primary/5"
+          >
+
+            <!-- ID -->
+            <td class="px-4 py-3 font-mono font-bold text-secondary whitespace-nowrap">
+              {{ op.id }}
+            </td>
+
+            <!-- Fecha -->
+            <td class="px-4 py-3 text-ink-75 whitespace-nowrap">
+              {{ op.fecha | date:'dd/MM/yyyy' }}
+            </td>
+
+            <!-- Turno -->
+            <td class="px-4 py-3 whitespace-nowrap">
+              <span
+                class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold"
+                [ngClass]="{
+                  'bg-blue-50 text-blue-700':     getTurnoClass(op.turno) === 'morning',
+                  'bg-orange-50 text-orange-600': getTurnoClass(op.turno) === 'afternoon',
+                  'bg-indigo-50 text-indigo-600': getTurnoClass(op.turno) === 'night',
+                  'bg-surface-soft text-ink-75':  !getTurnoClass(op.turno)
+                }"
+              >{{ op.turno }}</span>
+            </td>
+
+            <!-- Operador -->
+            <td class="px-4 py-3 text-ink-75 max-w-[180px] truncate">
+              {{ op.operador }}
+            </td>
+
+            <!-- Equipo -->
+            <td class="px-4 py-3 text-ink-75 whitespace-nowrap">
+              {{ op.equipo }}
+            </td>
+
+            <!-- N° Equipo -->
+            <td class="px-4 py-3 font-mono font-bold text-secondary whitespace-nowrap">
+              {{ op.n_equipo }}
+            </td>
+
+            <!-- Revisiones -->
+            <td class="px-4 py-3 whitespace-nowrap">
+              <span
+                class="text-xs font-semibold"
+                [ngClass]="{
+                  'text-warning': ['revision-pending','revision-one','revision-two'].includes(getRevisionClass(op)),
+                  'text-success':  getRevisionClass(op) === 'revision-completed'
+                }"
+              >{{ getRevisionText(op) }}</span>
+            </td>
+
+            <!-- Estado -->
+            <td class="px-4 py-3 whitespace-nowrap">
+              <span
+                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold"
+                [ngClass]="{
+                  'bg-success/10 text-success': getStatusClass(op) === 'approved',
+                  'bg-danger/10  text-danger':  getStatusClass(op) === 'rejected',
+                  'bg-warning/10 text-warning': getStatusClass(op) === 'pending'
+                }"
+              >
+                <span
+                  class="w-1.5 h-1.5 rounded-full inline-block"
+                  [ngClass]="{
+                    'bg-success':               getStatusClass(op) === 'approved',
+                    'bg-danger':                getStatusClass(op) === 'rejected',
+                    'bg-warning animate-pulse': getStatusClass(op) === 'pending'
+                  }"
+                ></span>
+                {{ getStatusText(op) }}
+              </span>
+            </td>
+
+            <!-- Acción -->
+            <td class="px-4 py-3 text-center whitespace-nowrap">
+              <button
+                (click)="irDetalle(op)"
+                class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-bold
+                       bg-secondary text-white shadow-sm
+                       hover:bg-primary hover:shadow-md
+                       active:scale-95 transition-all duration-150 cursor-pointer"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                  <path d="M9 12l2 2 4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Validar
+              </button>
+            </td>
+
+          </tr>
+        </tbody>
+
+      </table>
+    </div>
+
+    <!-- ══ PIE DE TABLA: paginación ══ -->
+    <div *ngIf="!loading && operacionesFiltradas.length > 0"
+         class="flex flex-wrap items-center justify-between gap-3 px-5 py-3 border-t border-border bg-surface-soft">
+
+      <!-- Info + selector de registros -->
+      <div class="flex items-center gap-3 text-xs text-ink-50">
+        <span>
+          Mostrando
+          <span class="font-semibold text-ink-75">
+            {{ (paginaActual - 1) * registrosPorPagina + 1 }}–{{ paginaActual * registrosPorPagina > operacionesFiltradas.length ? operacionesFiltradas.length : paginaActual * registrosPorPagina }}
+          </span>
+          de <span class="font-semibold text-ink-75">{{ operacionesFiltradas.length }}</span> registros
+        </span>
+
+        <div class="flex items-center gap-1.5">
+          <span class="text-ink-25">|</span>
+          <span>Ver</span>
+          <select
+            [(ngModel)]="registrosPorPagina"
+            (ngModelChange)="cambiarRegistrosPorPagina($event)"
+            class="px-2 py-0.5 text-xs font-semibold border border-border rounded-md bg-white text-ink
+                   focus:outline-none focus:border-primary cursor-pointer"
+          >
+            <option *ngFor="let n of opcionesPagina" [value]="n">{{ n }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Navegación de páginas -->
+      <div class="flex items-center gap-1">
+
+        <!-- Anterior -->
+        <button
+          (click)="cambiarPagina(paginaActual - 1)"
+          [disabled]="paginaActual === 1"
+          class="flex items-center justify-center w-8 h-8 rounded-lg border border-border text-ink-50
+                 hover:border-primary hover:text-primary transition-all cursor-pointer
+                 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-border disabled:hover:text-ink-50"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+        <!-- Números de página -->
+        <ng-container *ngFor="let p of paginas">
+          <button
+            *ngIf="p === 1 || p === totalPaginas || (p >= paginaActual - 1 && p <= paginaActual + 1)"
+            (click)="cambiarPagina(p)"
+            class="flex items-center justify-center w-8 h-8 rounded-lg border text-xs font-semibold
+                   transition-all duration-100 cursor-pointer"
+            [ngClass]="paginaActual === p
+              ? 'bg-secondary text-white border-secondary'
+              : 'border-border text-ink-50 hover:border-primary hover:text-primary'"
+          >{{ p }}</button>
+          <!-- Separador ... -->
+          <span
+            *ngIf="(p === paginaActual - 2 && p > 1) || (p === paginaActual + 2 && p < totalPaginas)"
+            class="flex items-end justify-center w-8 h-8 text-ink-25 text-xs pb-1"
+          >...</span>
+        </ng-container>
+
+        <!-- Siguiente -->
+        <button
+          (click)="cambiarPagina(paginaActual + 1)"
+          [disabled]="paginaActual === totalPaginas"
+          class="flex items-center justify-center w-8 h-8 rounded-lg border border-border text-ink-50
+                 hover:border-primary hover:text-primary transition-all cursor-pointer
+                 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-border disabled:hover:text-ink-50"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+      </div>
+    </div>
+
+  </div>
+
 </div>

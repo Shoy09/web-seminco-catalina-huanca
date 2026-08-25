@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   Input,
   OnInit,
@@ -70,7 +70,10 @@ export class DisponibilidadRankingGuardiaComponent
   actualizarGrafico(): void {
 
   const datosOrdenados = [...this.data]
-    .sort((a, b) => b.disponibilidad - a.disponibilidad);
+      .filter(item => Number(item.disponibilidad || 0) > 0)
+      .sort((a, b) => b.disponibilidad - a.disponibilidad);
+
+    if (!datosOrdenados.length) { this.chartOptions = {}; return; }
 
   const guardias = datosOrdenados.map((item) => `Guardia ${item.guardia}`);
 
@@ -81,17 +84,6 @@ export class DisponibilidadRankingGuardiaComponent
   );
 
   this.chartOptions = {
-    title: {
-      text: 'DISPONIBILIDAD POR GUARDIA',
-      left: 'center',
-      top: 10,
-      textStyle: {
-        fontSize: 12,
-        fontWeight: 'bold',
-        color: '#333',
-        fontFamily: 'Arial',
-      },
-    },
 
     tooltip: {
       trigger: 'axis',
@@ -154,7 +146,6 @@ export class DisponibilidadRankingGuardiaComponent
 
     series: [
       {
-        name: 'Disponibilidad',
         type: 'bar',
         barWidth: '45%',
 

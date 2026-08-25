@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -51,6 +51,7 @@ export class UtilizacionGuardiaComponent implements OnInit, OnChanges {
     // Mapear los datos: seccion = guardia, utilizacion = valor
     // Ordenar por utilización de mayor a menor
     this.datosPorGuardia = this.data
+      .filter(item => Number(item.utilizacion || 0) > 0)
       .map(item => ({
         guardia: item.seccion || item.guardia || 'Sin datos',
         valor: item.utilizacion || 0,
@@ -81,16 +82,6 @@ export class UtilizacionGuardiaComponent implements OnInit, OnChanges {
     const escalaMax = Math.ceil(maxValor / 20) * 20;
 
     this.chartOptions = {
-      title: {
-        text: 'UTILIZACIÓN POR SECCIÓN',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: CHART_COLORS.grey,
-        }
-      },
 
       tooltip: {
         trigger: 'axis',
@@ -131,8 +122,6 @@ export class UtilizacionGuardiaComponent implements OnInit, OnChanges {
 
       xAxis: {
         type: 'value',
-        nameLocation: 'middle',
-        nameGap: 35,
         min: 0,
         max: escalaMax,
         axisLabel: {
@@ -167,7 +156,6 @@ export class UtilizacionGuardiaComponent implements OnInit, OnChanges {
 
       series: [
         {
-          name: 'Utilización',
           type: 'bar',
           barWidth: '45%',
 

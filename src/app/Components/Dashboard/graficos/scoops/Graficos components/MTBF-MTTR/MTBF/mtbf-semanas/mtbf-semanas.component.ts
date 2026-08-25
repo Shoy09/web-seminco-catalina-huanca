@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -78,7 +78,7 @@ export class MtbfSemanasComponent implements OnInit, OnChanges {
     return;
   }
 
-  const datosOrdenados = [...this.data].sort((a, b) =>
+  const datosOrdenados = [...this.data].filter(item => Number(item.mtbf || 0) > 0).sort((a, b) =>
     String(a.key).localeCompare(String(b.key))
   );
 
@@ -95,17 +95,6 @@ export class MtbfSemanasComponent implements OnInit, OnChanges {
     semanas.length > 8 ? (8 / semanas.length) * 100 : 100;
 
   this.chartOptions = {
-    title: {
-      text: 'MTBF POR SEMANA',
-      left: 'center',
-      top: 10,
-      textStyle: {
-        fontSize: 14,
-        fontWeight: 'bold',
-        color: CHART_COLORS.grey,
-        fontFamily: 'Arial',
-      },
-    },
 
     tooltip: {
       trigger: 'axis',
@@ -168,9 +157,6 @@ export class MtbfSemanasComponent implements OnInit, OnChanges {
 
     yAxis: {
       type: 'value',
-      name: 'MTBF (horas)',
-      nameLocation: 'middle',
-      nameGap: 45,
       min: 0,
       max: escalaMax,
       axisLabel: {
@@ -201,7 +187,6 @@ export class MtbfSemanasComponent implements OnInit, OnChanges {
 
     series: [
       {
-        name: 'MTBF',
         type: 'bar',
         barWidth: '55%',
 

@@ -1,85 +1,81 @@
-<div class="modal-overlay" *ngIf="visible">
-  <div class="modal-card op-card">
-    <h2 class="title">REGISTRAR OPERACIÓN</h2>
-    <p class="subtitle">Última hora: 07:00</p>
+﻿<div *ngIf="visible"
+     class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 overflow-hidden">
+  <div class="bg-[#f0eff5] w-[90%] max-w-[480px] rounded-xl shadow-2xl text-center px-8 py-7
+              animate-[modalIn_0.3s_ease-out]">
 
-    <div class="status-info">
+    <h2 class="text-xl font-extrabold uppercase text-ink m-0 mb-1 tracking-tight">
+      Registrar Operación
+    </h2>
+    <p class="text-xs text-ink-50 mb-5">Última hora: 07:00</p>
+
+    <!-- Estado info -->
+    <div class="flex items-center justify-center gap-2 bg-blue-50 border border-blue-200
+                text-blue-700 font-semibold text-sm px-4 py-2.5 rounded-lg mb-5">
       <i class="fas fa-info-circle"></i>
       <span>Estado: {{ formData.estado }}</span>
     </div>
 
-    <form class="form-container">
-      <!-- 🔥 CÓDIGO -->
-      <div class="input-group">
-        <select
-          class="custom-select"
-          name="codigo"
-          [(ngModel)]="formData.codigo"
-          required
-        >
+    <form class="flex flex-col gap-4">
+
+      <!-- Código -->
+      <div class="relative">
+        <select name="codigo" [(ngModel)]="formData.codigo" required
+          class="w-full px-3 py-3 border-[1.5px] border-slate-400 rounded-lg bg-transparent
+                 text-[15px] text-slate-600 appearance-none cursor-pointer
+                 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
           <option value="" disabled>Código (*)</option>
-
-          <option *ngFor="let c of codigos" [value]="c">
-            {{ c }}
-          </option>
+          <option *ngFor="let c of codigos" [value]="c">{{ c }}</option>
         </select>
-        <i class="fas fa-caret-down select-arrow"></i>
+        <i class="fas fa-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
       </div>
 
-      <!-- 🔥 HORA INICIO -->
-      <div class="input-group has-label">
-        <label class="floating-label">Hora Inicio (*)</label>
-        <select
-          class="custom-select"
-          name="horaInicio"
-          [(ngModel)]="formData.horaInicio"
-        >
-          <option value="">Seleccione > 07:00</option>
-
-          <option *ngFor="let h of horas" [value]="h">
-  {{ h }}
-</option>
+      <!-- Hora Inicio -->
+      <div class="relative">
+        <label class="absolute -top-2.5 left-3.5 bg-[#f0eff5] px-1.5 text-xs font-semibold text-slate-500">
+          Hora Inicio (*)
+        </label>
+        <select name="horaInicio" [(ngModel)]="formData.horaInicio"
+          class="w-full px-3 py-3 border-[1.5px] border-slate-400 rounded-lg bg-transparent
+                 text-[15px] text-slate-600 appearance-none cursor-pointer
+                 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
+          <option value="">Seleccione &gt; 07:00</option>
+          <option *ngFor="let h of horas" [value]="h">{{ h }}</option>
         </select>
-        <i class="fas fa-caret-down select-arrow"></i>
+        <i class="fas fa-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
       </div>
 
-      <div class="input-group has-label">
-        <label class="floating-label">Hora Fin</label>
-        <select
-          class="custom-select"
-          name="horaFin"
-          [(ngModel)]="formData.horaFin"
-        >
+      <!-- Hora Fin -->
+      <div class="relative">
+        <label class="absolute -top-2.5 left-3.5 bg-[#f0eff5] px-1.5 text-xs font-semibold text-slate-500">
+          Hora Fin
+        </label>
+        <select name="horaFin" [(ngModel)]="formData.horaFin"
+          class="w-full px-3 py-3 border-[1.5px] border-slate-400 rounded-lg bg-transparent
+                 text-[15px] text-slate-600 appearance-none cursor-pointer
+                 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
           <option value="">Seleccione</option>
-
-          <option *ngFor="let h of getHorasFin()" [value]="h">
-  {{ h }}
-</option>
+          <option *ngFor="let h of getHorasFin()" [value]="h">{{ h }}</option>
         </select>
-        <i class="fas fa-caret-down select-arrow"></i>
+        <i class="fas fa-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
       </div>
 
-      <!-- 🔥 BOTONES -->
-      <div class="button-group">
-        <button
-          type="button"
-          class="btn-outline"
-          (click)="cerrarFormOperacion()"
-        >
+      <!-- Botones -->
+      <div class="flex gap-4 mt-1">
+        <button type="button" (click)="cerrarFormOperacion()"
+          class="flex-1 py-3 border-2 border-primary text-primary bg-transparent rounded-full
+                 font-bold cursor-pointer hover:bg-primary/10 active:scale-95 transition-all">
           Cancelar
         </button>
-
-        <button
-          type="button"
-          class="btn-fill"
-          [disabled]="!formData.codigo"
-          (click)="confirmarOperacion()"
-        >
+        <button type="button" [disabled]="!formData.codigo" (click)="confirmarOperacion()"
+          class="flex-1 py-3 border-0 bg-success text-white rounded-full font-bold cursor-pointer
+                 hover:brightness-110 active:scale-95 transition-all
+                 disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed">
           Guardar
         </button>
       </div>
+
     </form>
 
-    <p class="footer-note">(*) Los campos con asterisco son obligatorios.</p>
+    <p class="text-[11px] text-slate-400 mt-5">(*) Los campos con asterisco son obligatorios.</p>
   </div>
 </div>

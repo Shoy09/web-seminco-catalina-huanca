@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   Input,
   OnInit,
@@ -430,7 +430,6 @@ export class MetrosPerforadosRangoHoraComponent implements OnInit, OnChanges {
 
     // Agregar línea acumulativa
     series.push({
-      name: 'ACUMULADO',
       type: 'line',
       yAxisIndex: 0,
       data: acumulativo,
@@ -514,17 +513,7 @@ export class MetrosPerforadosRangoHoraComponent implements OnInit, OnChanges {
     }
 
     this.chartOptions = {
-      title: {
-        text: `${this.tituloGrafico} ${this.turno ? `- TURNO ${this.turno}` : '- TODOS LOS TURNOS'}`,
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: '#333',
-          fontFamily: 'Arial',
-        },
-      },
+
 
       tooltip: {
         trigger: 'axis',
@@ -613,8 +602,6 @@ export class MetrosPerforadosRangoHoraComponent implements OnInit, OnChanges {
         {
           type: 'value',
           name: this.unidad,
-          nameLocation: 'middle',
-          nameGap: 45,
           min: 0,
           max: escalaMaxProduccion,
           axisLabel: {
@@ -630,9 +617,6 @@ export class MetrosPerforadosRangoHoraComponent implements OnInit, OnChanges {
         },
         {
           type: 'value',
-          name: 'Viajes',
-          nameLocation: 'middle',
-          nameGap: 45,
           min: 0,
           max: escalaMaxViajes,
           show: mostrarViajes,

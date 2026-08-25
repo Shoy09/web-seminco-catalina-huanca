@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart, LineChart } from 'echarts/charts';
@@ -57,16 +57,6 @@ export class HorasNoOperativasComponent implements OnChanges {
     const porcentajesEscalados = porcentajes.map(p => (p / 100) * maxHoras);
 
     this.chartOptions = {
-      title: {
-        text: 'Horas no operativas',
-        left: 'center',
-        top: 5,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: '#2c3e50'
-        }
-      },
       tooltip: {
         trigger: 'axis',
         axisPointer: { type: 'shadow' },
@@ -119,9 +109,6 @@ export class HorasNoOperativasComponent implements OnChanges {
       },
       yAxis: {
         type: 'value',
-        name: 'Duración (horas)',
-        nameLocation: 'middle',
-        nameGap: 45,
         min: 0,
         max: maxHoras,
         axisLabel: {
@@ -138,7 +125,6 @@ export class HorasNoOperativasComponent implements OnChanges {
       },
       series: [
         {
-          name: 'Duración promedio',
           type: 'bar',
           data: horas,
           itemStyle: {
@@ -155,7 +141,6 @@ export class HorasNoOperativasComponent implements OnChanges {
           barGap: '30%',
         },
         {
-          name: 'Porcentaje acumulado',
           type: 'line',
           data: porcentajesEscalados,
           symbol: 'circle',

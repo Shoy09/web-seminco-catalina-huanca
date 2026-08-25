@@ -1,184 +1,119 @@
-<div class="modal-overlay perf-overlay" *ngIf="visible">
-  <div class="modal-card perf-card">
-    <div class="perf-header">
-      <div class="header-left">
-        <i class="far fa-file-alt header-icon"></i>
-        <h1 class="header-title">Formulario de Perforación</h1>
+<!-- formulario-perforacion — scissor: origen (siempre), destino (OPERATIVO), observaciones -->
+<div *ngIf="visible"
+     class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 p-2.5 overflow-hidden">
+  <div class="bg-white w-[95%] max-w-[1000px] max-h-[90vh] flex flex-col rounded-2xl shadow-2xl
+              animate-[modalIn_0.3s_ease-out] overflow-hidden">
+
+    <!-- Header -->
+    <div class="flex justify-between items-center px-6 py-3 shrink-0
+                bg-gradient-to-r from-[#2b6777] to-[#1a4b58] text-white border-b border-white/10">
+      <div class="flex items-center gap-2.5">
+        <i class="far fa-file-alt text-xl opacity-90"></i>
+        <h1 class="text-lg font-semibold m-0 tracking-tight">Formulario de Perforación</h1>
       </div>
-      <div class="header-right">
-        <span class="editable-badge">• EDITABLE</span>
-        <span class="estado-badge" [class]="estado.toLowerCase()">
-          {{ estado }}
-        </span>
+      <div class="flex items-center gap-2">
+        <span class="bg-gradient-to-r from-[#8bc34a] to-[#6f9e37] text-white text-[10px] font-bold uppercase tracking-wide px-3 py-1 rounded-full shadow">✎ EDITABLE</span>
+        <span class="text-xs font-bold uppercase px-3 py-1 rounded-full"
+              [ngClass]="{
+                'bg-success/20 text-green-200':  estado === 'OPERATIVO',
+                'bg-warning/20 text-yellow-200': estado === 'DEMORA',
+                'bg-danger/20 text-red-200':     estado === 'MANTENIMIENTO',
+                'bg-slate-400/30 text-slate-200': !['OPERATIVO','DEMORA','MANTENIMIENTO'].includes(estado)
+              }">{{ estado }}</span>
       </div>
     </div>
 
-    <form class="perf-form">
-      <!-- SECCIÓN ORIGEN (siempre visible) -->
-      <fieldset class="form-section">
-        <legend class="section-legend">
-          <i class="fas fa-arrow-right-from-bracket icon"></i> Origen
+    <!-- Formulario con scroll -->
+    <form class="flex-1 overflow-y-auto px-6 py-4 space-y-3
+                 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-slate-100
+                 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-300
+                 [&::-webkit-scrollbar-thumb]:rounded-full">
+
+      <!-- Origen (siempre) -->
+      <fieldset class="border border-slate-200 rounded-xl px-4 py-3 bg-white">
+        <legend class="inline-flex items-center gap-1.5 px-2 text-[13px] font-bold text-[#1f3b43] bg-white">
+          <i class="fas fa-arrow-right-from-bracket text-[#2b6777] text-sm"></i> Origen
         </legend>
-        <div class="row-inputs">
-          <div class="input-field">
-            <label class="field-label">
-              <i class="fas fa-layer-group label-icon"></i>
-              Nivel <span class="required-star">*</span>
-            </label>
-            <input
-              type="text"
-              class="perf-input"
-              placeholder="Ej: 450"
-              [(ngModel)]="datosPerforacion.origen.nivel"
-              name="origen_nivel"
-            />
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold text-slate-700">Nivel <span class="text-red-500">*</span></label>
+            <input type="text" placeholder="Ej: 450" [(ngModel)]="datosPerforacion.origen.nivel" name="origen_nivel"
+              class="w-full px-3 py-2 border-[1.5px] border-slate-200 rounded-lg bg-white text-xs text-slate-800 focus:outline-none focus:border-[#2b6777] transition-all"/>
           </div>
-          
-          <div class="input-field">
-            <label class="field-label">
-              <i class="fas fa-screwdriver-wrench label-icon"></i>
-              Tipo Labor <span class="required-star">*</span>
-            </label>
-            <input
-              type="text"
-              class="perf-input"
-              placeholder="Ej: RAMPA, GALERIA, etc."
-              [(ngModel)]="datosPerforacion.origen.tipoLabor"
-              name="origen_tipoLabor"
-            />
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold text-slate-700">Tipo Labor <span class="text-red-500">*</span></label>
+            <input type="text" placeholder="Ej: RAMPA, GALERIA" [(ngModel)]="datosPerforacion.origen.tipoLabor" name="origen_tipoLabor"
+              class="w-full px-3 py-2 border-[1.5px] border-slate-200 rounded-lg bg-white text-xs text-slate-800 focus:outline-none focus:border-[#2b6777] transition-all"/>
           </div>
-          
-          <div class="input-field">
-            <label class="field-label">
-              <i class="fas fa-warehouse label-icon"></i>
-              Labor <span class="required-star">*</span>
-            </label>
-            <input
-              type="text"
-              class="perf-input"
-              placeholder="Nombre de la labor"
-              [(ngModel)]="datosPerforacion.origen.labor"
-              name="origen_labor"
-            />
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold text-slate-700">Labor <span class="text-red-500">*</span></label>
+            <input type="text" placeholder="Nombre de la labor" [(ngModel)]="datosPerforacion.origen.labor" name="origen_labor"
+              class="w-full px-3 py-2 border-[1.5px] border-slate-200 rounded-lg bg-white text-xs text-slate-800 focus:outline-none focus:border-[#2b6777] transition-all"/>
           </div>
-          
-          <div class="input-field">
-            <label class="field-label">
-              <i class="fas fa-code-branch label-icon"></i>
-              Ala
-            </label>
-            <input
-              type="text"
-              class="perf-input"
-              placeholder="Ej: NORTE, SUR, etc. (opcional)"
-              [(ngModel)]="datosPerforacion.origen.ala"
-              name="origen_ala"
-            />
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold text-slate-700">Ala</label>
+            <input type="text" placeholder="NORTE, SUR (opcional)" [(ngModel)]="datosPerforacion.origen.ala" name="origen_ala"
+              class="w-full px-3 py-2 border-[1.5px] border-slate-200 rounded-lg bg-white text-xs text-slate-800 focus:outline-none focus:border-[#2b6777] transition-all"/>
           </div>
         </div>
       </fieldset>
 
-      <!-- SECCIÓN DESTINO (solo OPERATIVO) -->
-      <fieldset class="form-section" *ngIf="mostrarCamposCompletos">
-        <legend class="section-legend">
-          <i class="fas fa-arrow-right-to-bracket icon"></i> Destino
+      <!-- Destino (solo OPERATIVO) -->
+      <fieldset *ngIf="mostrarCamposCompletos" class="border border-slate-200 rounded-xl px-4 py-3 bg-white">
+        <legend class="inline-flex items-center gap-1.5 px-2 text-[13px] font-bold text-[#1f3b43] bg-white">
+          <i class="fas fa-arrow-right-to-bracket text-[#2b6777] text-sm"></i> Destino
         </legend>
-        <div class="row-inputs">
-          <div class="input-field">
-            <label class="field-label">
-              <i class="fas fa-layer-group label-icon"></i>
-              Nivel
-            </label>
-            <input
-              type="text"
-              class="perf-input"
-              placeholder="Ej: 450"
-              [(ngModel)]="datosPerforacion.destino.nivel"
-              name="destino_nivel"
-            />
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold text-slate-700">Nivel</label>
+            <input type="text" placeholder="Ej: 450" [(ngModel)]="datosPerforacion.destino.nivel" name="destino_nivel"
+              class="w-full px-3 py-2 border-[1.5px] border-slate-200 rounded-lg bg-white text-xs text-slate-800 focus:outline-none focus:border-[#2b6777] transition-all"/>
           </div>
-          
-          <div class="input-field">
-            <label class="field-label">
-              <i class="fas fa-screwdriver-wrench label-icon"></i>
-              Tipo Labor
-            </label>
-            <input
-              type="text"
-              class="perf-input"
-              placeholder="Ej: RAMPA, GALERIA, etc."
-              [(ngModel)]="datosPerforacion.destino.tipoLabor"
-              name="destino_tipoLabor"
-            />
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold text-slate-700">Tipo Labor</label>
+            <input type="text" placeholder="Ej: RAMPA, GALERIA" [(ngModel)]="datosPerforacion.destino.tipoLabor" name="destino_tipoLabor"
+              class="w-full px-3 py-2 border-[1.5px] border-slate-200 rounded-lg bg-white text-xs text-slate-800 focus:outline-none focus:border-[#2b6777] transition-all"/>
           </div>
-          
-          <div class="input-field">
-            <label class="field-label">
-              <i class="fas fa-warehouse label-icon"></i>
-              Labor
-            </label>
-            <input
-              type="text"
-              class="perf-input"
-              placeholder="Nombre de la labor"
-              [(ngModel)]="datosPerforacion.destino.labor"
-              name="destino_labor"
-            />
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold text-slate-700">Labor</label>
+            <input type="text" placeholder="Nombre de la labor" [(ngModel)]="datosPerforacion.destino.labor" name="destino_labor"
+              class="w-full px-3 py-2 border-[1.5px] border-slate-200 rounded-lg bg-white text-xs text-slate-800 focus:outline-none focus:border-[#2b6777] transition-all"/>
           </div>
-          
-          <div class="input-field">
-            <label class="field-label">
-              <i class="fas fa-code-branch label-icon"></i>
-              Ala
-            </label>
-            <input
-              type="text"
-              class="perf-input"
-              placeholder="Ej: NORTE, SUR, etc. (opcional)"
-              [(ngModel)]="datosPerforacion.destino.ala"
-              name="destino_ala"
-            />
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold text-slate-700">Ala</label>
+            <input type="text" placeholder="NORTE, SUR (opcional)" [(ngModel)]="datosPerforacion.destino.ala" name="destino_ala"
+              class="w-full px-3 py-2 border-[1.5px] border-slate-200 rounded-lg bg-white text-xs text-slate-800 focus:outline-none focus:border-[#2b6777] transition-all"/>
           </div>
         </div>
       </fieldset>
 
-      <!-- SECCIÓN OBSERVACIONES (siempre visible) -->
-      <fieldset class="form-section">
-        <legend class="section-legend">
-          <i class="fas fa-comment icon"></i> Observaciones
+      <!-- Observaciones (siempre) -->
+      <fieldset class="border border-slate-200 rounded-xl px-4 py-3 bg-white">
+        <legend class="inline-flex items-center gap-1.5 px-2 text-[13px] font-bold text-[#1f3b43] bg-white">
+          <i class="fas fa-comment text-[#2b6777] text-sm"></i> Observaciones
         </legend>
-        <div class="input-field textarea-field">
-          <label class="field-label">
-            <i class="fas fa-pen label-icon"></i>
-            Observaciones adicionales
-          </label>
-          <textarea
-            class="perf-input perf-textarea"
-            rows="3"
-            placeholder="Ingrese observaciones importantes sobre la perforación..."
-            [(ngModel)]="datosPerforacion.observaciones"
-            name="observaciones"
-          ></textarea>
-        </div>
+        <textarea rows="3" placeholder="Observaciones adicionales..."
+          [(ngModel)]="datosPerforacion.observaciones" name="observaciones"
+          class="w-full px-3 py-2 border-[1.5px] border-slate-200 rounded-lg text-xs text-slate-800 bg-white
+                 resize-y min-h-[60px] focus:outline-none focus:border-[#2b6777] transition-all font-[inherit]"></textarea>
       </fieldset>
 
-      <!-- BOTONES -->
-      <div class="perf-footer-actions">
-        <button
-          type="button"
-          class="btn-cancelar"
-          (click)="cerrarFormPerforacion()"
-        >
-          <i class="fas fa-times"></i> Cancelar
-        </button>
-        <button
-          type="button"
-          class="btn-guardar"
-          (click)="guardarPerforacion()"
-        >
-          <i class="fas fa-save"></i> Guardar cambios
-        </button>
-      </div>
     </form>
+
+    <!-- Footer -->
+    <div class="flex justify-end gap-3 px-6 py-3 border-t border-slate-100 bg-white shrink-0">
+      <button type="button" (click)="cerrarFormPerforacion()"
+        class="flex items-center gap-1.5 px-5 py-2 border-[1.5px] border-slate-200 rounded-lg text-xs font-semibold
+               text-slate-600 bg-white hover:bg-slate-50 active:scale-95 transition-all cursor-pointer">
+        <i class="fas fa-times"></i> Cancelar
+      </button>
+      <button type="button" (click)="guardarPerforacion()"
+        class="flex items-center gap-1.5 px-6 py-2 border-0 rounded-lg text-xs font-semibold text-white
+               bg-gradient-to-r from-[#2b6777] to-[#1f4e5c] shadow-sm
+               hover:brightness-110 hover:-translate-y-0.5 active:scale-95 transition-all cursor-pointer">
+        <i class="fas fa-save"></i> Guardar cambios
+      </button>
+    </div>
+
   </div>
 </div>

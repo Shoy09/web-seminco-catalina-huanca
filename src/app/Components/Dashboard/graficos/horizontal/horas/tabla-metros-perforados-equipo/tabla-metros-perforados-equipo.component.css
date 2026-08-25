@@ -1,113 +1,124 @@
-.tabla-container {
-  width: 100%;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 15px;
-  overflow-x: auto;
-}
-
-.tabla-header {
-  margin-bottom: 15px;
+.card-wrapper {
+  background: #fff;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  overflow: hidden;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
+  flex-direction: column;
+  height: 100%;
+  transition: box-shadow 0.2s;
+}
+.card-wrapper:hover { box-shadow: 0 4px 20px rgba(11,31,58,0.08); }
+
+.card-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 16px;
+  border-bottom: 1px solid #F1F5F9;
+  background: #FAFBFC;
+  flex-shrink: 0;
+}
+.card-accent { width: 3px; height: 14px; background: #38BDF8; border-radius: 2px; flex-shrink: 0; }
+.card-title  { font-size: 11px; font-weight: 700; color: #344963; text-transform: uppercase; letter-spacing: 0.07em; }
+
+.turno-badge {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #EFF6FF;
+  color: #1D4ED8;
 }
 
-.tabla-header h3 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: bold;
-  color: #333;
+/* Empty */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 8px; padding: 32px 16px;
 }
+.empty-icon { font-size: 36px; line-height: 1; color: #CBD5E1; display: block; }
+.empty-text { font-size: 12px; font-weight: 500; color: #94A3B8; text-align: center; }
 
-.turno-info {
-  margin: 0;
-  font-size: 14px;
-  color: #666;
-}
-
-.turno-info strong {
-  color: #3498db;
-}
-
-.tabla-responsive {
+/* Tabla */
+.table-responsive {
   overflow-x: auto;
-  max-width: 100%;
+  flex: 1;
 }
 
-.tabla-metros {
+.data-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 12px;
-  min-width: 600px;
+  font-family: 'Inter', 'Roboto', sans-serif;
 }
 
-.tabla-metros th,
-.tabla-metros td {
-  border: 1px solid #ddd;
-  padding: 8px 10px;
+.data-table thead tr {
+  background: #0B1F3A;
+  color: #fff;
+}
+
+.data-table th {
+  padding: 9px 12px;
   text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   white-space: nowrap;
 }
 
-.tabla-metros th {
-  background: #f5f5f5;
-  font-weight: bold;
-  color: #333;
-  position: sticky;
-  top: 0;
-}
-
-.tabla-metros .fijo {
+.th-sticky {
   position: sticky;
   left: 0;
-  background: #f5f5f5;
-  font-weight: bold;
+  background: #0B1F3A;
   text-align: left;
+  z-index: 2;
 }
 
-.tabla-metros tbody tr:hover {
-  background: #f9f9f9;
+.th-total {
+  background: #1A3A5C;
 }
 
-.tabla-metros .total-col,
-.tabla-metros .total-cell {
-  background: #f0f7ff;
-  font-weight: bold;
-}
-
-.tabla-metros .gran-total {
-  background: #e8f4f8;
-  font-weight: bold;
-}
-
-/* 🔥 Colores de fondo según valor para metros */
-.bg-red-100 {
-  background-color: #fee2e2 !important;
-}
-
-.bg-orange-100 {
-  background-color: #ffedd5 !important;
-}
-
-.bg-yellow-50 {
-  background-color: #fefce8 !important;
-}
-
-.bg-green-50 {
-  background-color: #f0fdf4 !important;
-}
-
-.bg-blue-50 {
-  background-color: #eff6ff !important;
-}
-
-.sin-datos {
+.data-table td {
+  padding: 7px 12px;
   text-align: center;
-  padding: 40px;
-  color: #999;
-  font-size: 14px;
+  color: #334155;
+  border-bottom: 1px solid #F1F5F9;
+  white-space: nowrap;
 }
+
+.data-table tbody tr:hover td { background: #F0F9FF !important; }
+
+.td-sticky {
+  position: sticky;
+  left: 0;
+  background: #FAFBFC;
+  font-weight: 600;
+  text-align: left;
+  border-right: 1px solid #E2E8F0;
+  z-index: 1;
+}
+
+.td-total {
+  background: #F0F9FF;
+  font-weight: 700;
+  color: #0369A1;
+}
+
+.total-row td {
+  background: #F8FAFC;
+  border-top: 2px solid #38BDF8;
+  font-weight: 700;
+  color: #0B1F3A;
+}
+
+.gran-total {
+  background: #EFF6FF !important;
+  color: #1D4ED8 !important;
+}
+
+/* Colores semánticos de celdas */
+.bg-red-100    { background-color: #fee2e2 !important; }
+.bg-orange-100 { background-color: #ffedd5 !important; }
+.bg-yellow-50  { background-color: #fefce8 !important; }
+.bg-green-50   { background-color: #f0fdf4 !important; }
+.bg-blue-50    { background-color: #eff6ff !important; }

@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 
@@ -87,25 +87,17 @@ export class ParetoUtilizacionComponent implements OnChanges {
       actividades.length > 8 ? (8 / actividades.length) * 100 : 100;
 
     this.chartOptions = {
-      title: {
-        text: 'PARETO DE UTILIZACIÓN',
-        left: 'center',
-        top: 10,
-        textStyle: CHART_TITLE_STYLE,
-      },
 
       legend: {
         top: 40,
         left: 'center',
         data: [
           {
-            name: 'Horas demora',
             itemStyle: {
               color: CHART_PARETO.bar, 
             }
           },
           {
-            name: 'Pareto acumulado'
           }
         ],
         textStyle: {
@@ -173,9 +165,6 @@ export class ParetoUtilizacionComponent implements OnChanges {
       yAxis: [
         {
           type: 'value',
-          name: 'Horas demora',
-          nameLocation: 'middle',
-          nameGap: 45,
           min: 0,
           max: escalaMaxHoras,
           axisLabel: {
@@ -186,9 +175,6 @@ export class ParetoUtilizacionComponent implements OnChanges {
         },
         {
           type: 'value',
-          name: 'Pareto (%)',
-          nameLocation: 'middle',
-          nameGap: 45,
           min: 0,
           max: 100,
           interval: 20,
@@ -227,7 +213,6 @@ export class ParetoUtilizacionComponent implements OnChanges {
 
       series: [
         {
-          name: 'Horas demora',
           type: 'bar',
           yAxisIndex: 0,
           barWidth: '55%',
@@ -256,7 +241,6 @@ export class ParetoUtilizacionComponent implements OnChanges {
           },
         },
         {
-          name: 'Pareto acumulado',
           type: 'line',
           yAxisIndex: 1,
           data: paretoAct,

@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 
@@ -84,25 +84,17 @@ export class ParetoDisponibilidadComponent implements OnChanges {
       : 100;
 
     this.chartOptions = {
-      title: {
-        text: 'PARETO DE DISPONIBILIDAD',
-        left: 'center',
-        top: 10,
-        textStyle: CHART_TITLE_STYLE,
-      },
 
       legend: {
         top: 40,
         left: 'center',
         data: [
           {
-            name: 'Horas general',
             itemStyle: {
               color: CHART_PARETO.bar,
             }
           },
           {
-            name: 'Pareto disponibilidad'
           }
         ],
         textStyle: {
@@ -170,9 +162,6 @@ export class ParetoDisponibilidadComponent implements OnChanges {
       yAxis: [
         {
           type: 'value',
-          name: 'Horas general',
-          nameLocation: 'middle',
-          nameGap: 45,
           min: 0,
           max: escalaMaxHoras,
           axisLabel: {
@@ -183,9 +172,6 @@ export class ParetoDisponibilidadComponent implements OnChanges {
         },
         {
           type: 'value',
-          name: 'Pareto (%)',
-          nameLocation: 'middle',
-          nameGap: 45,
           min: 0,
           max: 100,
           interval: 20,
@@ -224,7 +210,6 @@ export class ParetoDisponibilidadComponent implements OnChanges {
 
       series: [
         {
-          name: 'Horas general',
           type: 'bar',
           yAxisIndex: 0,
           barWidth: '55%',
@@ -253,7 +238,6 @@ export class ParetoDisponibilidadComponent implements OnChanges {
           },
         },
         {
-          name: 'Pareto disponibilidad',
           type: 'line',
           yAxisIndex: 1,
           data: paretoDispObs,

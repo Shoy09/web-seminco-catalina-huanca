@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart, LineChart } from 'echarts/charts';
@@ -40,10 +40,12 @@ export class RankingOperadorComponent implements OnChanges {
   actualizarGrafico(): void {
     if (!this.data || !this.data.length) return;
 
-    // 🔥 Ordenar
-    const sortedData = [...this.data].sort(
-      (a, b) => (b.metros_perforados || 0) - (a.metros_perforados || 0)
-    );
+    // Filtrar operadores sin actividad y ordenar por metros perforados
+    const sortedData = [...this.data]
+      .filter(item => Number(item.metros_perforados || 0) > 0 || Number(item.fr_mhr_hp || 0) > 0)
+      .sort((a, b) => (b.metros_perforados || 0) - (a.metros_perforados || 0));
+
+    if (!sortedData.length) { this.chartOptions = {}; return; }
 
     // 🔥 Datos
     const operadores = sortedData.map(item => item.operador || 'N/A');
@@ -61,16 +63,6 @@ export class RankingOperadorComponent implements OnChanges {
     });
 
     this.chartOptions = {
-      title: {
-        text: 'RANKING OPERADOR',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: '#2c3e50'
-        }
-      },
 
       tooltip: {
         trigger: 'axis',
@@ -113,7 +105,6 @@ export class RankingOperadorComponent implements OnChanges {
 
       yAxis: {
         type: 'value',
-        name: 'Metros',
         axisLabel: {
           formatter: '{value} m'
         },
@@ -124,7 +115,6 @@ export class RankingOperadorComponent implements OnChanges {
 
       series: [
         {
-          name: 'Metros',
           type: 'bar',
           data: metrosPerforados,
           barWidth: '45%',
@@ -142,7 +132,6 @@ export class RankingOperadorComponent implements OnChanges {
         },
 
         {
-          name: 'M/HR',
           type: 'line',
           data: mhrValues, // ✅ SIN ESCALAR
           smooth: true,

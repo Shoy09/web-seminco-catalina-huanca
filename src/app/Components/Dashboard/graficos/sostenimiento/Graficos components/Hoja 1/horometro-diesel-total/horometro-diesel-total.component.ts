@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -62,7 +62,6 @@ export class HorometroDieselTotalComponent implements OnChanges {
     const xAxisData = ['Diesel'];
 
     const series = [{
-      name: 'Diferencia Diesel',
       type: 'bar',
       barWidth: '50%',
       data: [valorRedondeado],
@@ -90,16 +89,6 @@ export class HorometroDieselTotalComponent implements OnChanges {
     const maxHoras = Math.ceil(maxValor * 1.2);
 
     this.chartOptions = {
-      title: {
-        text: 'HORÓMETRO DIESEL TOTAL',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: '#333'
-        }
-      },
       tooltip: {
         trigger: 'axis',
         axisPointer: { type: 'shadow' },
@@ -137,9 +126,6 @@ export class HorometroDieselTotalComponent implements OnChanges {
       },
       yAxis: {
         type: 'value',
-        name: 'Diferencia Diesel (hrs)',
-        nameLocation: 'middle',
-        nameGap: 60,
         nameTextStyle: {
           fontSize: 12,
           fontWeight: 'normal'

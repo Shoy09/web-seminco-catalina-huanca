@@ -1,162 +1,335 @@
-/* 1. EL CONTENEDOR RAIZ */
-.scheduler-wrapper {
+/* ═══════════════════════════════════════════════════════════════
+   SCHEDULER — Layout de tabla con columnas sticky reales
+   ═══════════════════════════════════════════════════════════════ */
+
+:host {
+  --col-fecha:     150px;
+  --col-equipo:    190px;
+  --row-height:    44px;
+  --header-height: 38px;
+  --bg-header:     #F7F9F8;
+  --bg-fecha:      #FEFCE8;
+  --bg-equipo:     #FAFAFA;
+  --border:        #E2E8F0;
+  --border-strong: #CBD5E1;
+}
+
+/* ── Tooltip flotante global (position: fixed) ───────────────── */
+.tooltip-fixed {
+  position: fixed;
+  z-index: 99999;
+  pointer-events: none;
+  background: #1E293B;
+  color: #F1F5F9;
+  border-radius: 10px;
+  font-size: 11px;
+  min-width: 180px;
+  max-width: 240px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  overflow: hidden;
+  font-family: 'Inter', 'Roboto', sans-serif;
+}
+
+/* ── Contenedor con scroll horizontal ────────────────────────── */
+.scheduler-outer {
+  width: 100%;
   overflow-x: auto;
-  overflow-y: auto; /* ← Cambiar de 'visible' a 'auto' */
-  /* overflow-y: visible; */  /* Eliminar esta línea */
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: #ffffff;
-  padding-bottom: 143px; /* Ahora sí generará scroll extra */
+  overflow-y: visible;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.75rem;
+  background: #fff;
+  box-sizing: border-box;
+  /* sin padding-bottom — el tooltip ya no lo necesita */
 }
 
-.scheduler {
-  font-family: 'Inter', sans-serif;
+/* ── Tabla principal ──────────────────────────────────────────── */
+.scheduler-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  min-width: 1400px;
+  width: 100%;
+  font-family: 'Inter', 'Roboto', sans-serif;
   font-size: 12px;
-  min-width: 1500px; /* Aumentamos para que las horas tengan aire */
-  overflow: visible; 
 }
 
-/* 2. HEADER (Alineación exacta con el body) */
-.timeline-header {
-  display: flex;
-  border-bottom: 1px solid #e2e8f0;
-  background: #f8fafc;
+/* ── Columnas (anchos) ────────────────────────────────────────── */
+.col-fecha    { width: var(--col-fecha); }
+.col-equipo   { width: var(--col-equipo); }
+.col-timeline { width: auto; }
+
+/* ══════════════════════════════════════════════════════════════
+   HEADER
+══════════════════════════════════════════════════════════════ */
+.header-row th {
   position: sticky;
   top: 0;
-  z-index: 10; /* Suficiente para estar sobre el body pero bajo el tooltip activo */
+  z-index: 30;
+  background: var(--bg-header);
+  border-bottom: 2px solid var(--border-strong);
+  height: var(--header-height);
+  white-space: nowrap;
 }
 
-.header-left {
-  display: flex;
-  flex-shrink: 0;
-}
-
-/* Ancho fijo idéntico al de las celdas del body */
-.fecha-col, .equipo-col {
-  width: 140px;
-  padding: 10px 12px;
-  font-weight: 600;
-  border-right: 1px solid #e2e8f0;
-  box-sizing: border-box;
-}
-
-.header-timeline {
-  flex: 1; /* Ocupa todo el espacio restante */
-  display: flex;
-}
-
-.hour {
-  flex: 1; /* Se distribuyen equitativamente */
-  text-align: center;
-  padding: 10px 0;
+/* Celda Fecha header */
+.th-fecha {
+  left: 0;
+  z-index: 32 !important;   /* encima del equipo sticky */
+  padding: 0 14px;
   font-size: 11px;
-  color: #64748b;
-  border-left: 1px solid #e2e8f0;
+  font-weight: 700;
+  color: #344963;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-right: 1px solid var(--border-strong);
+  text-align: left;
 }
 
-/* 3. BODY */
-.timeline-body {
-  overflow: visible;
+/* Celda Equipo header */
+.th-equipo {
+  left: var(--col-fecha);
+  z-index: 31 !important;
+  padding: 0 14px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #344963;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-right: 2px solid var(--border-strong);
+  text-align: left;
 }
 
-.fecha-row {
+/* Celda Timeline header */
+.th-timeline {
+  padding: 0;
+  vertical-align: middle;
+}
+
+/* Barra de horas */
+.hours-bar {
   display: flex;
+  height: var(--header-height);
+  align-items: center;
 }
 
-.fecha-cell {
-  width: 140px;
-  flex-shrink: 0;
-  padding: 12px;
-  background: #fefce8;
-  font-weight: 600;
-  border-right: 1px solid #e2e8f0;
-  box-sizing: border-box;
-}
-
-.fecha-tasks {
-  flex: 1; /* ESTO alinea las tareas con el header-timeline del mismo flex:1 */
-  overflow: visible;
-}
-
-.equipo-row {
-  display: flex;
-  border-bottom: 1px solid #f1f5f9;
-  min-height: 48px;
-  overflow: visible;
-}
-
-.equipo-cell {
-  width: 140px;
-  flex-shrink: 0;
-  padding: 12px;
-  font-weight: 500;
-  border-right: 1px solid #e2e8f0;
-  box-sizing: border-box;
-}
-
-/* 4. ÁREA DE TAREAS */
-.timeline-row {
+.hour-cell {
   flex: 1;
-  position: relative;
-  height: 48px;
-  overflow: visible;
-  /* Rejilla visual opcional para verificar alineación */
-  background-image: linear-gradient(to right, #f1f5f9 1px, transparent 1px);
-  background-size: calc(100% / 24) 100%; 
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: #94A3B8;
+  border-left: 1px solid var(--border);
+  white-space: nowrap;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* 5. TASK Y TOOLTIP (Corregido para que no se corte arriba) */
+/* ══════════════════════════════════════════════════════════════
+   BODY — Celdas de fecha
+══════════════════════════════════════════════════════════════ */
+.divider-row td {
+  padding: 0;
+}
+.fecha-divider {
+  height: 2px;
+  background: linear-gradient(to right, rgba(11,31,58,0.1), rgba(56,189,248,0.15));
+}
+
+/* Fila de equipo */
+.equipo-row {
+  transition: background 0.1s;
+}
+.equipo-row:hover td {
+  background-color: #F0F9FF !important;
+}
+
+/* Celda Fecha (body) — sticky horizontal */
+.td-fecha {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  background: var(--bg-fecha);
+  border-right: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 14px;
+  vertical-align: middle;
+  min-width: var(--col-fecha);
+  width: var(--col-fecha);
+  /* sombra derecha para indicar que está fija */
+  box-shadow: 2px 0 4px rgba(0,0,0,0.04);
+}
+
+.fecha-label {
+  display: block;
+  font-weight: 700;
+  font-size: 12px;
+  color: #0B1F3A;
+  margin-bottom: 4px;
+}
+
+.turno-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  line-height: 1.5;
+}
+.turno-dia {
+  background: #FEF9C3;
+  color: #A16207;
+}
+.turno-noche {
+  background: #EDE9FE;
+  color: #4C1D95;
+}
+
+/* Celda Equipo (body) — sticky horizontal */
+.td-equipo {
+  position: sticky;
+  left: var(--col-fecha);
+  z-index: 9;
+  background: var(--bg-equipo);
+  border-right: 2px solid var(--border-strong);
+  border-bottom: 1px solid var(--border);
+  padding: 0 14px;
+  vertical-align: middle;
+  width: var(--col-equipo);
+  min-width: var(--col-equipo);
+  box-shadow: 2px 0 6px rgba(0,0,0,0.06);
+}
+
+.equipo-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #333333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  max-width: 100%;
+}
+
+/* Celda Timeline (body) */
+.td-timeline {
+  border-bottom: 1px solid var(--border);
+  padding: 0;
+  vertical-align: middle;
+  /* overflow visible para que los tooltips salgan del td */
+  overflow: visible;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TIMELINE ROW — contenedor relativo para tareas absolutas
+══════════════════════════════════════════════════════════════ */
+.timeline-row {
+  position: relative;
+  height: var(--row-height);
+  overflow: visible;
+}
+
+/* Grid visual de horas */
+.timeline-grid {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.grid-line {
+  flex: 1;
+  border-left: 1px solid #F1F5F9;
+}
+.grid-line:first-child {
+  border-left: none;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   BLOQUES DE TAREA
+══════════════════════════════════════════════════════════════ */
 .task {
   position: absolute;
-  top: 8px;
+  top: 6px;
   height: 32px;
-  border-radius: 4px;
+  border-radius: 6px;
   color: #fff;
-  font-size: 11px;
-  padding: 0 10px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 0 8px;
   line-height: 32px;
   white-space: nowrap;
   cursor: pointer;
   z-index: 5;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+  transition: filter 0.15s, transform 0.15s;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .task:hover {
-  z-index: 9999; /* Al hacer hover, sube por encima del header sticky */
+  filter: brightness(1.1);
+  transform: scaleY(1.08);
+  z-index: 9999;
 }
 
-.task-tooltip {
-  position: absolute;
-  top: 120%; /* HACIA ABAJO para que no choque con el header sticky */
-  left: 50%;
-  transform: translateX(-50%);
-  background: #1e293b;
-  color: #f1f5f9;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 11px;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.2s ease;
-  z-index: 10000;
-  white-space: normal;
-  min-width: 160px;
-  max-width: 220px;
+.task-label {
+  letter-spacing: 0.03em;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
   pointer-events: none;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
-/* Flecha hacia arriba */
-.task-tooltip::after {
-  content: "";
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 6px solid transparent;
-  border-bottom-color: #1e293b;
+/* ══════════════════════════════════════════════════════════════
+   TOOLTIP CONTENIDO (usado por .tooltip-fixed)
+══════════════════════════════════════════════════════════════ */
+.tooltip-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
 }
 
-.task:hover .task-tooltip {
-  opacity: 1;
-  visibility: visible;
+.tooltip-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tooltip-title {
+  font-weight: 700;
+  font-size: 12px;
+  color: #fff;
+  line-height: 1.3;
+}
+
+.tooltip-body {
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tooltip-key {
+  font-size: 10px;
+  color: #94A3B8;
+  white-space: nowrap;
+}
+
+.tooltip-val {
+  font-size: 10px;
+  font-weight: 600;
+  color: #E2E8F0;
+  text-align: right;
 }

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FechasPlanMensualService } from '../../../services/fechas-plan-mensual.service';
 import * as XLSX from 'xlsx';
@@ -17,25 +17,54 @@ import { GuardiaService } from '../../../services/guardia.service';
 import { MaterialService } from '../../../services/material.service';
 import { EmpresaService } from '../../../services/empresa.service';
 import { ToneladasScoopService } from '../../../services/toneladas-scoop.service';
-
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { CrearDataDialogComponent } from '../crear-data-dialog/crear-data-dialog.component';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-crear-data',
-  imports: [FormsModule, CommonModule],
+  imports: [
+    FormsModule,
+    CommonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatIconModule,
+    MatButtonModule,
+    MatTooltipModule,
+    MatPaginatorModule,
+  ],
   templateUrl: './crear-data.component.html',
   styleUrl: './crear-data.component.css'
 })
-export class CrearDataComponent implements OnInit {
+export class CrearDataComponent implements OnInit, AfterViewInit {
+  // --- estado nuevo (vista inline) ---
+  categoriaSeleccionada: string = '';
+  categoriaActiva: any = null;
+  formularioAbierto: boolean = false;
+  filtroBusqueda: string = '';
+  dataSource = new MatTableDataSource<any>([]);
+  datosPagina: any[] = [];
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+
+  // --- estado legacy (modal) – se mantiene por compatibilidad con los métodos existentes ---
   modalAbierto = false;
   modalContenido: any = null;
   nuevoDato: any = {}
-  formularioActivo: string = 'botones';  
-  years: number[] = []; 
+  formularioActivo: string = 'botones';
+  years: number[] = [];
   tiposAceroData: any[] = [];
 
   editando: boolean = false;
-indiceEditando: number = -1;
-datoOriginal: any = null;
+  indiceEditando: number = -1;
+  datoOriginal: any = null;
   meses: string[] = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
   datos = [
     { nombre: 'Reporte A', year: '2024', mes: 'Enero' },
@@ -59,10 +88,27 @@ datoOriginal: any = null;
     private materialService: MaterialService,
   private empresaService: EmpresaService,
   private toneladasScoopService: ToneladasScoopService,
-  ) {} // Inyecta los servicios
+  ) {}
 
   ngOnInit() {
     this.generarAños();
+    // Iniciar con la primera categoría seleccionada
+    if (this.buttonc.length > 0) {
+      this.categoriaSeleccionada = this.buttonc[0].tipo;
+      this.cargarCategoria(this.buttonc[0]);
+    }
+  }
+
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
+    this.paginator.page.subscribe(() => this.actualizarPagina());
+  }
+
+  /** Actualiza el slice visible de la tabla según la página actual */
+  private actualizarPagina() {
+    const filtered = this.dataSource.filteredData;
+    const start = this.paginator.pageIndex * this.paginator.pageSize;
+    this.datosPagina = filtered.slice(start, start + this.paginator.pageSize);
   }
 
   generarAños() {
@@ -70,6 +116,165 @@ datoOriginal: any = null;
     for (let i = 2020; i <= yearActual; i++) {
       this.years.push(i);
     }
+  }
+
+  // ──────────────────────────────────────────────
+  // Métodos nuevos para vista inline
+  // ──────────────────────────────────────────────
+
+  /** Cambia la categoría activa desde el select */
+  onCategoriaChange(tipo: string) {
+    const btn = this.buttonc.find(b => b.tipo === tipo);
+    if (btn) {
+      this.cerrarFormulario();
+      this.filtroBusqueda = '';
+      this.cargarCategoria(btn);
+    }
+  }
+
+  /** Carga los datos de la categoría usando la lógica existente de abrirModal */
+  cargarCategoria(button: any) {
+    this.categoriaActiva = button;
+    this.modalContenido = button;
+    this.abrirModal(button);
+    // abrirModal carga los datos en button.datos (async),
+    // sincronizamos el dataSource cuando lleguen via un proxy
+    // Para eso usamos un Proxy en el array de datos
+    const self = this;
+    // Resetear el dataSource mientras cargan
+    this.dataSource.data = [];
+    if (this.paginator) this.paginator.firstPage();
+
+    // Observamos el array con un setter proxy para sincronizar automáticamente
+    // cuando abrirModal asigna modalContenido.datos = data
+    const originalSetter = Object.getOwnPropertyDescriptor(button, 'datos');
+    let _datos: any[] = button.datos ?? [];
+    Object.defineProperty(button, 'datos', {
+      get: () => _datos,
+      set: (val: any[]) => {
+        _datos = val;
+        if (self.categoriaActiva === button) {
+          self.dataSource.data = val ?? [];
+          if (self.paginator) {
+            self.paginator.firstPage();
+          }
+          self.actualizarPagina();
+        }
+      },
+      configurable: true,
+    });
+  }
+
+  /** Sincroniza el dataSource con el array interno y refresca la paginación */
+  private refrescarTabla() {
+    this.dataSource.data = [...(this.categoriaActiva?.datos ?? [])];
+    this.actualizarPagina();
+  }
+
+  /** Recarga los datos desde el servidor y refresca la tabla */
+  private recargarDatosCategoria() {
+    const tipo = this.modalContenido?.tipo;
+    if (!tipo) return;
+
+    const asignar = (data: any[]) => {
+      this.categoriaActiva.datos = data;
+      this.dataSource.data = [...data];
+      if (this.paginator) this.paginator.firstPage();
+      this.actualizarPagina();
+    };
+
+    if (tipo === 'Tipo de Perforación') {
+      this.tipoPerforacionService.getTiposPerforacion().subscribe({
+        next: (data) => asignar(data.map((item: any) => ({ ...item, permitido_medicion: item.permitido_medicion === 1 ? 'SI' : 'NO' }))),
+        error: (err) => console.error(err)
+      });
+    } else if (tipo === 'Equipo') {
+      this.equipoService.getEquipos().subscribe({ next: asignar, error: (err) => console.error(err) });
+    } else if (tipo === 'Fechas Plan Mensual') {
+      this.FechasPlanMensualService.getFechas().subscribe({ next: asignar, error: (err) => console.error(err) });
+    } else if (tipo === 'Tipo de Equipo') {
+      this.tipoEquipoService.getTipos().subscribe({ next: asignar, error: (err) => console.error(err) });
+    } else if (tipo === 'Seccion') {
+      this.seccionService.getSecciones().subscribe({ next: asignar, error: (err) => console.error(err) });
+    } else if (tipo === 'Longitud Barras') {
+      this.longitudBarrasService.getAll().subscribe({ next: asignar, error: (err) => console.error(err) });
+    } else if (tipo === 'Pernos') {
+      this.pernosService.getAll().subscribe({ next: asignar, error: (err) => console.error(err) });
+    } else if (tipo === 'Mallas') {
+      this.mallasService.getAll().subscribe({ next: asignar, error: (err) => console.error(err) });
+    } else if (tipo === 'OrigenDestino') {
+      this.origenDestinoService.getAll().subscribe({ next: asignar, error: (err) => console.error(err) });
+    } else if (tipo === 'Guardias') {
+      this.guardiaService.getGuardias().subscribe({ next: asignar, error: (err) => console.error(err) });
+    } else if (tipo === 'Material') {
+      this.materialService.getMateriales().subscribe({ next: asignar, error: (err) => console.error(err) });
+    } else if (tipo === 'Empresa') {
+      this.empresaService.getEmpresas().subscribe({ next: asignar, error: (err) => console.error(err) });
+    } else if (tipo === 'ToneladasScoop') {
+      this.toneladasScoopService.getToneladasScoops().subscribe({ next: asignar, error: (err) => console.error(err) });
+    }
+  }
+
+  /** Abre el dialog para crear un nuevo registro */
+  abrirFormulario() {
+    const ref = this.dialog.open(CrearDataDialogComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      autoFocus: false,
+      data: { categoria: this.categoriaActiva, editando: false },
+    });
+    ref.afterClosed().subscribe(result => {
+      if (result?.accion === 'crear') {
+        this.nuevoDato = result.valores;
+        this.guardarDatos();
+      }
+    });
+  }
+
+  /** Abre el dialog para editar un registro existente */
+  editarDatoInline(dato: any, index: number) {
+    // Guardamos el dato real (tiene el id), no el índice de página
+    this.datoOriginal = { ...dato };
+    const ref = this.dialog.open(CrearDataDialogComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      autoFocus: false,
+      data: { categoria: this.categoriaActiva, editando: true, dato },
+    });
+    ref.afterClosed().subscribe(result => {
+      if (result?.accion === 'editar') {
+        this.nuevoDato = result.valores;
+        this.editando = true;
+        // indiceEditando = posición real en el array completo, buscado por id
+        this.indiceEditando = this.categoriaActiva.datos.findIndex(
+          (d: any) => d.id === dato.id
+        );
+        this.actualizarDatos();
+      }
+    });
+  }
+
+  /** Cierra el panel de formulario (ya no se usa, se mantiene por compatibilidad) */
+  cerrarFormulario() {
+    this.formularioAbierto = false;
+    this.editando = false;
+    this.indiceEditando = -1;
+    this.nuevoDato = {};
+    this.datoOriginal = null;
+  }
+
+  /** Aplica el filtro de búsqueda al dataSource */
+  aplicarFiltro() {
+    this.dataSource.filter = this.filtroBusqueda.trim().toLowerCase();
+    if (this.paginator) {
+      this.paginator.firstPage();
+      this.actualizarPagina();
+    }
+  }
+
+  /** Devuelve los datos de la página actual (ya filtrados y paginados) */
+  datosFiltrados(): any[] {
+    return this.datosPagina;
   }
 
   mostrarFormulario(formulario: string): void {
@@ -304,6 +509,7 @@ datoOriginal: any = null;
   cerrarModal() {
     this.modalAbierto = false;
     this.modalContenido = null;
+    this.cerrarFormulario();
   }
 
   triggerFileInput() {
@@ -332,133 +538,48 @@ datoOriginal: any = null;
 // Función para actualizar un registro
 actualizarDatos() {
   if (Object.values(this.nuevoDato).some(val => val !== '')) {
-    const datosActualizados = {...this.nuevoDato};
-    const id = this.modalContenido.datos[this.indiceEditando].id;
+    const datosActualizados = { ...this.nuevoDato };
+    const id = this.categoriaActiva.datos[this.indiceEditando].id;
+
+    const onSuccess = (data: any) => {
+      this.categoriaActiva.datos[this.indiceEditando] = data;
+      this.refrescarTabla();
+      this.cancelarEdicion();
+    };
 
     if (this.modalContenido.tipo === 'Tipo de Perforación') {
-      // Convertir SI/NO a 1/0 para la actualización
-      if (datosActualizados.permitido_medicion === 'SI') {
-        datosActualizados.permitido_medicion = 1;
-      } else if (datosActualizados.permitido_medicion === 'NO') {
-        datosActualizados.permitido_medicion = 0;
-      }
-
+      if (datosActualizados.permitido_medicion === 'SI') datosActualizados.permitido_medicion = 1;
+      else if (datosActualizados.permitido_medicion === 'NO') datosActualizados.permitido_medicion = 0;
       this.tipoPerforacionService.updateTipoPerforacion(id, datosActualizados).subscribe({
-        next: (data) => {
-          // Convertir de vuelta para mostrar en la tabla
-          data.permitido_medicion = data.permitido_medicion === 1 ? 'SI' : 'NO';
-          this.modalContenido.datos[this.indiceEditando] = data;
-          this.cancelarEdicion();
-        },
+        next: (data) => { data.permitido_medicion = data.permitido_medicion === 1 ? 'SI' : 'NO'; onSuccess(data); },
         error: (err) => console.error('Error al actualizar:', err)
       });
+    } else if (this.modalContenido.tipo === 'Equipo') {
+      this.equipoService.updateEquipo(id, datosActualizados).subscribe({ next: onSuccess, error: (err) => console.error('Error al actualizar:', err) });
+    } else if (this.modalContenido.tipo === 'Fechas Plan Mensual') {
+      this.FechasPlanMensualService.updateFecha(id, datosActualizados).subscribe({ next: onSuccess, error: (err) => console.error('Error al actualizar Fecha Plan Mensual:', err) });
+    } else if (this.modalContenido.tipo === 'Tipo de Equipo') {
+      this.tipoEquipoService.updateTipo(id, datosActualizados).subscribe({ next: onSuccess, error: (err) => console.error('Error al actualizar Tipo de Equipo:', err) });
+    } else if (this.modalContenido.tipo === 'Seccion') {
+      this.seccionService.updateSeccion(id, datosActualizados).subscribe({ next: onSuccess, error: (err) => console.error('Error al actualizar Sección:', err) });
+    } else if (this.modalContenido.tipo === 'Longitud Barras') {
+      this.longitudBarrasService.update(id, datosActualizados).subscribe({ next: onSuccess, error: (err) => console.error('Error al actualizar Longitud Barras:', err) });
+    } else if (this.modalContenido.tipo === 'Pernos') {
+      this.pernosService.update(id, datosActualizados).subscribe({ next: onSuccess, error: (err) => console.error('Error al actualizar Perno:', err) });
+    } else if (this.modalContenido.tipo === 'Mallas') {
+      this.mallasService.update(id, datosActualizados).subscribe({ next: onSuccess, error: (err) => console.error('Error al actualizar Malla:', err) });
+    } else if (this.modalContenido.tipo === 'OrigenDestino') {
+      this.origenDestinoService.update(id, datosActualizados).subscribe({ next: onSuccess, error: (err) => console.error('Error al actualizar OrigenDestino:', err) });
+    } else if (this.modalContenido.tipo === 'Guardias') {
+      this.guardiaService.updateGuardia(id, datosActualizados).subscribe({ next: onSuccess, error: (err) => console.error('Error al actualizar Guardia:', err) });
+    } else if (this.modalContenido.tipo === 'Material') {
+      this.materialService.updateMaterial(id, datosActualizados).subscribe({ next: onSuccess, error: (err) => console.error('Error al actualizar Material:', err) });
+    } else if (this.modalContenido.tipo === 'Empresa') {
+      this.empresaService.updateEmpresa(id, datosActualizados).subscribe({ next: onSuccess, error: (err) => console.error('Error al actualizar Empresa:', err) });
+    } else if (this.modalContenido.tipo === 'ToneladasScoop') {
+      if (datosActualizados.fecha) datosActualizados.fecha = this.formatearFecha(datosActualizados.fecha);
+      this.toneladasScoopService.updateToneladasScoop(id, datosActualizados).subscribe({ next: onSuccess, error: (err) => console.error('Error al actualizar Toneladas Scoop:', err) });
     }
-    else if (this.modalContenido.tipo === 'Equipo') {
-      this.equipoService.updateEquipo(id, datosActualizados).subscribe({
-        next: (data) => {
-          this.modalContenido.datos[this.indiceEditando] = data;
-          this.cancelarEdicion();
-        },
-        error: (err) => console.error('Error al actualizar:', err)
-      });
-    }else if (this.modalContenido.tipo === 'Fechas Plan Mensual') {
-      this.FechasPlanMensualService.updateFecha(id, datosActualizados).subscribe({
-        next: (data) => {
-          this.modalContenido.datos[this.indiceEditando] = data;
-          this.cancelarEdicion();
-        },
-        error: (err) => console.error('Error al actualizar Fecha Plan Mensual:', err)
-      });
-    }else if (this.modalContenido.tipo === 'Tipo de Equipo') {
-  this.tipoEquipoService.updateTipo(id, datosActualizados).subscribe({
-    next: (data) => {
-      this.modalContenido.datos[this.indiceEditando] = data;
-      this.cancelarEdicion();
-    },
-    error: (err) => console.error('Error al actualizar Tipo de Equipo:', err)
-  });
-}else if (this.modalContenido.tipo === 'Seccion') {
-  this.seccionService.updateSeccion(id, datosActualizados).subscribe({
-    next: (data) => {
-      this.modalContenido.datos[this.indiceEditando] = data;
-      this.cancelarEdicion();
-    },
-    error: (err) => console.error('Error al actualizar Sección:', err)
-  });
-}else if (this.modalContenido.tipo === 'Longitud Barras') {
-  this.longitudBarrasService.update(id, datosActualizados).subscribe({
-    next: (data) => {
-      this.modalContenido.datos[this.indiceEditando] = data;
-      this.cancelarEdicion();
-    },
-    error: (err) => console.error('Error al actualizar Longitud Barras:', err)
-  });
-}
-else if (this.modalContenido.tipo === 'Pernos') {
-  this.pernosService.update(id, datosActualizados).subscribe({
-    next: (data) => {
-      this.modalContenido.datos[this.indiceEditando] = data;
-      this.cancelarEdicion();
-    },
-    error: (err) => console.error('Error al actualizar Perno:', err)
-  });
-}
-else if (this.modalContenido.tipo === 'Mallas') {
-  this.mallasService.update(id, datosActualizados).subscribe({
-    next: (data) => {
-      this.modalContenido.datos[this.indiceEditando] = data;
-      this.cancelarEdicion();
-    },
-    error: (err) => console.error('Error al actualizar Malla:', err)
-  });
-}else if (this.modalContenido.tipo === 'OrigenDestino') {
-  this.origenDestinoService.update(id, datosActualizados).subscribe({
-    next: (data) => {
-      this.modalContenido.datos[this.indiceEditando] = data;
-      this.cancelarEdicion();
-    },
-    error: (err) => console.error('Error al actualizar OrigenDestino:', err)
-  });
-}else if (this.modalContenido.tipo === 'Guardias') {
-  this.guardiaService.updateGuardia(id, datosActualizados).subscribe({
-    next: (data) => {
-      this.modalContenido.datos[this.indiceEditando] = data;
-      this.cancelarEdicion();
-    },
-    error: (err) => console.error('Error al actualizar Guardia:', err)
-  });
-}else if (this.modalContenido.tipo === 'Material') {
-    this.materialService.updateMaterial(id, datosActualizados).subscribe({
-        next: (data) => {
-            this.modalContenido.datos[this.indiceEditando] = data;
-            this.cancelarEdicion();
-        },
-        error: (err) => console.error('Error al actualizar Material:', err)
-    });
-}else if (this.modalContenido.tipo === 'Empresa') {
-  this.empresaService.updateEmpresa(id, datosActualizados).subscribe({
-    next: (data) => {
-      this.modalContenido.datos[this.indiceEditando] = data;
-      this.cancelarEdicion();
-    },
-    error: (err) => console.error('Error al actualizar Empresa:', err)
-  });
-}else if (this.modalContenido.tipo === 'ToneladasScoop') {
-
-  if (datosActualizados.fecha) {
-    datosActualizados.fecha = this.formatearFecha(datosActualizados.fecha);
-  }
-
-  this.toneladasScoopService.updateToneladasScoop(id, datosActualizados).subscribe({
-    next: (data) => {
-      this.modalContenido.datos[this.indiceEditando] = data;
-      this.cancelarEdicion();
-    },
-    error: (err) => console.error('Error al actualizar Toneladas Scoop:', err)
-  });
-}
-
-    // Agregar más casos según necesites, como 'Fechas Plan Mensual', 'Toneladas', etc.
   }
 }
 
@@ -770,241 +891,80 @@ else if (button.tipo === 'Mallas') {
     if (Object.values(this.nuevoDato).some(val => val !== '')) {
       const nuevoRegistro = { ...this.nuevoDato };
 
+      // Después de crear, recargamos desde el servidor para garantizar datos correctos
+      const onSuccess = () => {
+        this.nuevoDato = {};
+        this.recargarDatosCategoria();
+      };
 
       if (this.modalContenido.tipo === 'Tipo de Perforación') {
-  if (nuevoRegistro.permitido_medicion === 'SI') {
-    nuevoRegistro.permitido_medicion = 1;
-  } else if (nuevoRegistro.permitido_medicion === 'NO') {
-    nuevoRegistro.permitido_medicion = 0;
-  }
-
-  this.tipoPerforacionService.createTipoPerforacion(nuevoRegistro).subscribe({
-    next: (data) => {
-      // Mapear el campo antes de insertar en la tabla
-      data.permitido_medicion = data.permitido_medicion === 1 ? 'SI' : 'NO';
-      this.modalContenido.datos.push(data);
-    },
-    error: (err) => console.error('Error al guardar Tipo de Perforación:', err)
-  });
-}
- else if (this.modalContenido.tipo === 'Equipo') {
-        this.equipoService.createEquipo(nuevoRegistro).subscribe({
-          next: (data) => {
-            this.modalContenido.datos.push(data);
-            
-          },
-          error: (err) => console.error('Error al guardar Equipo:', err)
-        });
-      }else if (this.modalContenido.tipo === 'Fechas Plan Mensual') {
-        this.FechasPlanMensualService.createFecha(nuevoRegistro).subscribe({
-          next: (data) => {
-            this.modalContenido.datos.push(data);
-            
-          },
-          error: (err) => console.error('Error al guardar Fecha:', err)
-        });
-      }else if (this.modalContenido.tipo === 'Tipo de Equipo') {
-  this.tipoEquipoService.createTipo(nuevoRegistro).subscribe({
-    next: (data) => {
-      this.modalContenido.datos.push(data);
-    },
-    error: (err) => console.error('Error al guardar Tipo de Equipo:', err)
-  });
-}else if (this.modalContenido.tipo === 'Seccion') {
-  this.seccionService.createSeccion(nuevoRegistro).subscribe({
-    next: (data) => {
-      this.modalContenido.datos.push(data);
-    },
-    error: (err) => console.error('Error al guardar Sección:', err)
-  });
-}else if (this.modalContenido.tipo === 'Longitud Barras') {
-  this.longitudBarrasService.create(nuevoRegistro).subscribe({
-    next: (data) => {
-      this.modalContenido.datos.push(data);
-    },
-    error: (err) => console.error('Error al guardar Longitud Barras:', err)
-  });
-}
-else if (this.modalContenido.tipo === 'Pernos') {
-  this.pernosService.create(nuevoRegistro).subscribe({
-    next: (data) => {
-      this.modalContenido.datos.push(data);
-    },
-    error: (err) => console.error('Error al guardar Perno:', err)
-  });
-}
-else if (this.modalContenido.tipo === 'Mallas') {
-  this.mallasService.create(nuevoRegistro).subscribe({
-    next: (data) => {
-      this.modalContenido.datos.push(data);
-    },
-    error: (err) => console.error('Error al guardar Malla:', err)
-  });
-}else if (this.modalContenido.tipo === 'OrigenDestino') {
-  this.origenDestinoService.create(nuevoRegistro).subscribe({
-    next: (data) => {
-      this.modalContenido.datos.push(data);
-    },
-    error: (err) => console.error('Error al guardar OrigenDestino:', err)
-  });
-}else if (this.modalContenido.tipo === 'Guardias') {
-  this.guardiaService.createGuardia(nuevoRegistro).subscribe({
-    next: (data) => {
-      this.modalContenido.datos.push(data);
-    },
-    error: (err) => console.error('Error al guardar Guardia:', err)
-  });
-}else if (this.modalContenido.tipo === 'Material') {
-    this.materialService.createMaterial(nuevoRegistro).subscribe({
-        next: (data) => {
-            this.modalContenido.datos.push(data);
-        },
-        error: (err) => console.error('Error al guardar Material:', err)
-    });
-}else if (this.modalContenido.tipo === 'Empresa') {
-  this.empresaService.createEmpresa(nuevoRegistro).subscribe({
-    next: (data) => {
-      this.modalContenido.datos.push(data);
-    },
-    error: (err) => console.error('Error al guardar Empresa:', err)
-  });
-}else if (this.modalContenido.tipo === 'ToneladasScoop') {
-
-  if (nuevoRegistro.fecha) {
-    nuevoRegistro.fecha = this.formatearFecha(nuevoRegistro.fecha);
-  }
-
-  this.toneladasScoopService.createToneladasScoop(nuevoRegistro).subscribe({
-    next: (data) => {
-      this.modalContenido.datos.push(data);
-    },
-    error: (err) => console.error('Error al guardar Toneladas Scoop:', err)
-  });
-}
-
-      this.nuevoDato = {};
+        if (nuevoRegistro.permitido_medicion === 'SI') nuevoRegistro.permitido_medicion = 1;
+        else if (nuevoRegistro.permitido_medicion === 'NO') nuevoRegistro.permitido_medicion = 0;
+        this.tipoPerforacionService.createTipoPerforacion(nuevoRegistro).subscribe({ next: onSuccess, error: (err) => console.error('Error al guardar Tipo de Perforación:', err) });
+      } else if (this.modalContenido.tipo === 'Equipo') {
+        this.equipoService.createEquipo(nuevoRegistro).subscribe({ next: onSuccess, error: (err) => console.error('Error al guardar Equipo:', err) });
+      } else if (this.modalContenido.tipo === 'Fechas Plan Mensual') {
+        this.FechasPlanMensualService.createFecha(nuevoRegistro).subscribe({ next: onSuccess, error: (err) => console.error('Error al guardar Fecha:', err) });
+      } else if (this.modalContenido.tipo === 'Tipo de Equipo') {
+        this.tipoEquipoService.createTipo(nuevoRegistro).subscribe({ next: onSuccess, error: (err) => console.error('Error al guardar Tipo de Equipo:', err) });
+      } else if (this.modalContenido.tipo === 'Seccion') {
+        this.seccionService.createSeccion(nuevoRegistro).subscribe({ next: onSuccess, error: (err) => console.error('Error al guardar Sección:', err) });
+      } else if (this.modalContenido.tipo === 'Longitud Barras') {
+        this.longitudBarrasService.create(nuevoRegistro).subscribe({ next: onSuccess, error: (err) => console.error('Error al guardar Longitud Barras:', err) });
+      } else if (this.modalContenido.tipo === 'Pernos') {
+        this.pernosService.create(nuevoRegistro).subscribe({ next: onSuccess, error: (err) => console.error('Error al guardar Perno:', err) });
+      } else if (this.modalContenido.tipo === 'Mallas') {
+        this.mallasService.create(nuevoRegistro).subscribe({ next: onSuccess, error: (err) => console.error('Error al guardar Malla:', err) });
+      } else if (this.modalContenido.tipo === 'OrigenDestino') {
+        this.origenDestinoService.create(nuevoRegistro).subscribe({ next: onSuccess, error: (err) => console.error('Error al guardar OrigenDestino:', err) });
+      } else if (this.modalContenido.tipo === 'Guardias') {
+        this.guardiaService.createGuardia(nuevoRegistro).subscribe({ next: onSuccess, error: (err) => console.error('Error al guardar Guardia:', err) });
+      } else if (this.modalContenido.tipo === 'Material') {
+        this.materialService.createMaterial(nuevoRegistro).subscribe({ next: onSuccess, error: (err) => console.error('Error al guardar Material:', err) });
+      } else if (this.modalContenido.tipo === 'Empresa') {
+        this.empresaService.createEmpresa(nuevoRegistro).subscribe({ next: onSuccess, error: (err) => console.error('Error al guardar Empresa:', err) });
+      } else if (this.modalContenido.tipo === 'ToneladasScoop') {
+        if (nuevoRegistro.fecha) nuevoRegistro.fecha = this.formatearFecha(nuevoRegistro.fecha);
+        this.toneladasScoopService.createToneladasScoop(nuevoRegistro).subscribe({ next: onSuccess, error: (err) => console.error('Error al guardar Toneladas Scoop:', err) });
+      }
     }
   }
 
   eliminar(item: any): void {
     if (!item || !this.modalContenido) return;
-  
-    if (this.modalContenido.tipo === 'Tipo de Perforación') {
-      this.tipoPerforacionService.deleteTipoPerforacion(item.id).subscribe({
-        next: () => {
-          this.modalContenido.datos = this.modalContenido.datos.filter((dato: any) => dato.id !== item.id);
-          
-        },
-        error: (err) => console.error('Error al eliminar Tipo de Perforación:', err)
-      });
-    } else if (this.modalContenido.tipo === 'Equipo') {
-      this.equipoService.deleteEquipo(item.id).subscribe({
-        next: () => {
-          this.modalContenido.datos = this.modalContenido.datos.filter((dato: any) => dato.id !== item.id);
-          
-        },
-        error: (err) => console.error('Error al eliminar Equipo:', err)
-      });
-    }else if (this.modalContenido.tipo === 'Fechas Plan Mensual') {
-      this.FechasPlanMensualService.deleteFecha(item.id).subscribe({
-        next: () => {
-          this.modalContenido.datos = this.modalContenido.datos.filter((dato: any) => dato.id !== item.id);
-          
-        },
-        error: (err) => console.error('Error al eliminar accesorio:', err)
-      });
-    }else if (this.modalContenido.tipo === 'Tipo de Equipo') {
-  this.tipoEquipoService.deleteTipo(item.id).subscribe({
-    next: () => {
-      this.modalContenido.datos = this.modalContenido.datos.filter((dato: any) => dato.id !== item.id);
-    },
-    error: (err) => console.error('Error al eliminar Tipo de Equipo:', err)
-  });
-}else if (this.modalContenido.tipo === 'Seccion') {
-  this.seccionService.deleteSeccion(item.id).subscribe({
-    next: () => {
-      this.modalContenido.datos = this.modalContenido.datos.filter(
-        (dato: any) => dato.id !== item.id
-      );
-    },
-    error: (err) => console.error('Error al eliminar Sección:', err)
-  });
-}else if (this.modalContenido.tipo === 'Longitud Barras') {
-  this.longitudBarrasService.delete(item.id).subscribe({
-    next: () => {
-      this.modalContenido.datos = this.modalContenido.datos.filter(
-        (dato: any) => dato.id !== item.id
-      );
-    },
-    error: (err) => console.error('Error al eliminar Longitud Barras:', err)
-  });
-}
-else if (this.modalContenido.tipo === 'Pernos') {
-  this.pernosService.delete(item.id).subscribe({
-    next: () => {
-      this.modalContenido.datos = this.modalContenido.datos.filter(
-        (dato: any) => dato.id !== item.id
-      );
-    },
-    error: (err) => console.error('Error al eliminar Perno:', err)
-  });
-}
-else if (this.modalContenido.tipo === 'Mallas') {
-  this.mallasService.delete(item.id).subscribe({
-    next: () => {
-      this.modalContenido.datos = this.modalContenido.datos.filter(
-        (dato: any) => dato.id !== item.id
-      );
-    },
-    error: (err) => console.error('Error al eliminar Malla:', err)
-  });
-}else if (this.modalContenido.tipo === 'OrigenDestino') {
-  this.origenDestinoService.delete(item.id).subscribe({
-    next: () => {
-      this.modalContenido.datos = this.modalContenido.datos.filter(
-        (dato: any) => dato.id !== item.id
-      );
-    },
-    error: (err) => console.error('Error al eliminar OrigenDestino:', err)
-  });
-}else if (this.modalContenido.tipo === 'Guardias') {
-  this.guardiaService.deleteGuardia(item.id).subscribe({
-    next: () => {
-      this.modalContenido.datos = this.modalContenido.datos.filter(
-        (dato: any) => dato.id !== item.id
-      );
-    },
-    error: (err) => console.error('Error al eliminar Guardia:', err)
-  });
-}else if (this.modalContenido.tipo === 'Material') {
-    this.materialService.deleteMaterial(item.id).subscribe({
-        next: () => {
-            this.modalContenido.datos = this.modalContenido.datos.filter(
-                (dato: any) => dato.id !== item.id
-            );
-        },
-        error: (err) => console.error('Error al eliminar Material:', err)
-    });
-}else if (this.modalContenido.tipo === 'Empresa') {
-  this.empresaService.deleteEmpresa(item.id).subscribe({
-    next: () => {
-      this.modalContenido.datos = this.modalContenido.datos.filter(
-        (dato: any) => dato.id !== item.id
-      );
-    },
-    error: (err) => console.error('Error al eliminar Empresa:', err)
-  });
-}else if (this.modalContenido.tipo === 'ToneladasScoop') {
-  this.toneladasScoopService.deleteToneladasScoop(item.id).subscribe({
-    next: () => {
-      this.modalContenido.datos = this.modalContenido.datos.filter(
-        (dato: any) => dato.id !== item.id
-      );
-    },
-    error: (err) => console.error('Error al eliminar Toneladas Scoop:', err)
-  });
-}
 
+    const quitarDeTabla = () => {
+      this.categoriaActiva.datos = this.categoriaActiva.datos.filter((d: any) => d.id !== item.id);
+      this.refrescarTabla();
+    };
+
+    if (this.modalContenido.tipo === 'Tipo de Perforación') {
+      this.tipoPerforacionService.deleteTipoPerforacion(item.id).subscribe({ next: quitarDeTabla, error: (err) => console.error('Error al eliminar Tipo de Perforación:', err) });
+    } else if (this.modalContenido.tipo === 'Equipo') {
+      this.equipoService.deleteEquipo(item.id).subscribe({ next: quitarDeTabla, error: (err) => console.error('Error al eliminar Equipo:', err) });
+    } else if (this.modalContenido.tipo === 'Fechas Plan Mensual') {
+      this.FechasPlanMensualService.deleteFecha(item.id).subscribe({ next: quitarDeTabla, error: (err) => console.error('Error al eliminar Fecha:', err) });
+    } else if (this.modalContenido.tipo === 'Tipo de Equipo') {
+      this.tipoEquipoService.deleteTipo(item.id).subscribe({ next: quitarDeTabla, error: (err) => console.error('Error al eliminar Tipo de Equipo:', err) });
+    } else if (this.modalContenido.tipo === 'Seccion') {
+      this.seccionService.deleteSeccion(item.id).subscribe({ next: quitarDeTabla, error: (err) => console.error('Error al eliminar Sección:', err) });
+    } else if (this.modalContenido.tipo === 'Longitud Barras') {
+      this.longitudBarrasService.delete(item.id).subscribe({ next: quitarDeTabla, error: (err) => console.error('Error al eliminar Longitud Barras:', err) });
+    } else if (this.modalContenido.tipo === 'Pernos') {
+      this.pernosService.delete(item.id).subscribe({ next: quitarDeTabla, error: (err) => console.error('Error al eliminar Perno:', err) });
+    } else if (this.modalContenido.tipo === 'Mallas') {
+      this.mallasService.delete(item.id).subscribe({ next: quitarDeTabla, error: (err) => console.error('Error al eliminar Malla:', err) });
+    } else if (this.modalContenido.tipo === 'OrigenDestino') {
+      this.origenDestinoService.delete(item.id).subscribe({ next: quitarDeTabla, error: (err) => console.error('Error al eliminar OrigenDestino:', err) });
+    } else if (this.modalContenido.tipo === 'Guardias') {
+      this.guardiaService.deleteGuardia(item.id).subscribe({ next: quitarDeTabla, error: (err) => console.error('Error al eliminar Guardia:', err) });
+    } else if (this.modalContenido.tipo === 'Material') {
+      this.materialService.deleteMaterial(item.id).subscribe({ next: quitarDeTabla, error: (err) => console.error('Error al eliminar Material:', err) });
+    } else if (this.modalContenido.tipo === 'Empresa') {
+      this.empresaService.deleteEmpresa(item.id).subscribe({ next: quitarDeTabla, error: (err) => console.error('Error al eliminar Empresa:', err) });
+    } else if (this.modalContenido.tipo === 'ToneladasScoop') {
+      this.toneladasScoopService.deleteToneladasScoop(item.id).subscribe({ next: quitarDeTabla, error: (err) => console.error('Error al eliminar Toneladas Scoop:', err) });
+    }
   }
 
   formatearFecha(fecha: string | Date): string {

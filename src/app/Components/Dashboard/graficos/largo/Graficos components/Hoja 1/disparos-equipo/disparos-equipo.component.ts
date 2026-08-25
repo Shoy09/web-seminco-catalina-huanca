@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -34,16 +34,18 @@ export class DisparosEquipoComponent implements OnChanges {
     return;
   }
 
-  // Agrupar los datos por seccion_labor
+  // Agrupar los datos por seccion_labor (solo registros con disparos > 0)
   const gruposPorSeccionLabor = new Map<string, any[]>();
   
-  this.data.forEach(item => {
+  this.data.filter(item => Number(item.n_frentes || 0) > 0).forEach(item => {
     const seccionLabor = item.seccion_labor || 'SIN_SECCION';
     if (!gruposPorSeccionLabor.has(seccionLabor)) {
       gruposPorSeccionLabor.set(seccionLabor, []);
     }
     gruposPorSeccionLabor.get(seccionLabor)!.push(item);
   });
+
+  if (gruposPorSeccionLabor.size === 0) { this.chartOptions = {}; return; }
 
   // Preparar datos para el gráfico con estructura jerárquica
   const xAxisData: string[] = [];
@@ -66,16 +68,6 @@ export class DisparosEquipoComponent implements OnChanges {
   const yAxisMax = Math.ceil(maxValor * 1.2);
 
   this.chartOptions = {
-    title: {
-      text: 'DISPAROS POR EQUIPO',
-      left: 'center',
-      top: 10,
-      textStyle: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#333'
-      }
-    },
     tooltip: {
       trigger: 'axis',
       axisPointer: {
@@ -131,9 +123,6 @@ export class DisparosEquipoComponent implements OnChanges {
     },
     yAxis: {
       type: 'value',
-      name: 'Cantidad de Disparos',
-      nameLocation: 'middle',
-      nameGap: 45,
       min: 0,
       max: yAxisMax,
       interval: this.calcularIntervalo(yAxisMax),
@@ -148,7 +137,6 @@ export class DisparosEquipoComponent implements OnChanges {
     },
     series: [
       {
-        name: 'DISPAROS',
         type: 'bar',
         data: seriesData,
         itemStyle: {

@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -64,16 +64,6 @@ export class MetrosEquipoComponent implements OnChanges {
     );
 
     this.chartOptions = {
-      title: {
-        text: 'METROS PERFORADOS POR EQUIPO',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 14,
-          fontWeight: 'bold',
-          color: '#333'
-        }
-      },
       tooltip: {
         trigger: 'axis',
         axisPointer: {
@@ -112,9 +102,6 @@ export class MetrosEquipoComponent implements OnChanges {
       },
       yAxis: {
         type: 'value',
-        name: 'Metros',
-        nameLocation: 'middle',
-        nameGap: 50,
         min: 0,
         max: maxY,
         interval: maxY / 4,
@@ -139,7 +126,6 @@ export class MetrosEquipoComponent implements OnChanges {
       },
       series: [
         {
-          name: 'Metros',
           type: 'bar',
           data: seriesData.map((value, index) => ({
             value: value,

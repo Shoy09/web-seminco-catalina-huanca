@@ -17,16 +17,33 @@ export class OperacionesListHorizontalComponent implements OnInit {
   tipo: string = 'tal_horizontal';
   jefe_guardia: string = '';
 
-    operacionesOriginal: OperacionBase[] = [];
+  operacionesOriginal: OperacionBase[] = [];
   operacionesFiltradas: OperacionBase[] = [];
   loading = false;
 
-  // Variables para el filtro de fechas
   fechaInicio: string = '';
   fechaFin: string = '';
   turnoSeleccionado: string = '';
   turnoAplicado: string = '';
 
+  mostrarFiltros: boolean = false;
+
+  paginaActual: number = 1;
+  registrosPorPagina: number = 10;
+  opcionesPagina: number[] = [10, 15, 20];
+
+  get totalPaginas(): number {
+    return Math.ceil(this.operacionesFiltradas.length / this.registrosPorPagina);
+  }
+
+  get operacionesPaginadas(): OperacionBase[] {
+    const inicio = (this.paginaActual - 1) * this.registrosPorPagina;
+    return this.operacionesFiltradas.slice(inicio, inicio + this.registrosPorPagina);
+  }
+
+  get paginas(): number[] {
+    return Array.from({ length: this.totalPaginas }, (_, i) => i + 1);
+  }
 
   constructor(
     private operacionesService: OperacionesService,
@@ -36,129 +53,63 @@ export class OperacionesListHorizontalComponent implements OnInit {
 
   ngOnInit(): void {
     const nombre = this.authService.getNombreCompleto();
-
-    if (!nombre) {
-      console.error('No se encontró el jefe de guardia');
-      return;
-    }
-
+    if (!nombre) { console.error('No se encontró el jefe de guardia'); return; }
     this.jefe_guardia = nombre;
-    
-     // 🔥 SETEO AUTOMÁTICO
-    const hoy = this.getFechaHoy();
-    this.fechaInicio = hoy;
-    this.fechaFin = hoy;
-    this.turnoSeleccionado = this.getTurnoActual();
-
     this.cargarDatos();
   }
 
-   // 🔥 OBTENER TURNO ACTUAL BASADO EN LA HORA
-  private getTurnoActual(): string {
-    const hora = new Date().getHours();
-
-    // Día: 07:00 - 18:59
-    if (hora >= 7 && hora < 19) {
-      return 'DÍA';
-    }
-
-    // Noche: 19:00 - 06:59
-    return 'NOCHE';
-  }
-
-  // 🔥 OBTENER FECHA ACTUAL EN FORMATO YYYY-MM-DD
-  private getFechaHoy(): string {
-    const hoy = new Date();
-    const year = hoy.getFullYear();
-    const month = String(hoy.getMonth() + 1).padStart(2, '0');
-    const day = String(hoy.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
-
-
-  //por tipo
   cargarDatos() {
-  this.loading = true;
-
-  this.operacionesService
-    .getAll(this.tipo) // 🔥 cambio aquí
-    .subscribe({
+    this.loading = true;
+    this.operacionesService.getAll(this.tipo).subscribe({
       next: (resp: any) => {
         this.operacionesOriginal = resp.data;
+        this.operacionesFiltradas = [...this.operacionesOriginal]
+          .sort((a, b) => (a.fecha < b.fecha ? 1 : a.fecha > b.fecha ? -1 : (b.id ?? 0) - (a.id ?? 0)));
         this.loading = false;
-
-        this.aplicarFiltro();
       },
-      error: (err) => {
-        console.error(err);
-        this.loading = false;
-      }
+      error: (err) => { console.error(err); this.loading = false; }
     });
-}
-
-// =========================================
-  // 🔥 FILTRO POR FECHA Y TURNO
-  // =========================================
-  aplicarFiltro() {
-    this.turnoAplicado = this.turnoSeleccionado;
-
-    this.operacionesFiltradas = this.operacionesOriginal.filter((op) => {
-      // Filtro por fecha inicio
-      if (this.fechaInicio && op.fecha < this.fechaInicio) return false;
-      
-      // Filtro por fecha fin
-      if (this.fechaFin && op.fecha > this.fechaFin) return false;
-
-      // Filtro por turno
-      if (this.turnoAplicado && op.turno !== this.turnoAplicado) return false;
-
-      return true;
-    });
-    
-    console.log('🔥 OPERACIONES FILTRADAS:', this.operacionesFiltradas);
   }
 
-  // 🔥 QUITAR TODOS LOS FILTROS
+  aplicarFiltro() {
+    this.turnoAplicado = this.turnoSeleccionado;
+    this.operacionesFiltradas = this.operacionesOriginal
+      .filter((op) => {
+        if (this.fechaInicio && op.fecha < this.fechaInicio) return false;
+        if (this.fechaFin && op.fecha > this.fechaFin) return false;
+        if (this.turnoAplicado && op.turno !== this.turnoAplicado) return false;
+        return true;
+      })
+      .sort((a, b) => (a.fecha < b.fecha ? 1 : a.fecha > b.fecha ? -1 : (b.id ?? 0) - (a.id ?? 0)));
+    this.mostrarFiltros = false;
+    this.paginaActual = 1;
+  }
+
   quitarFiltro() {
-    this.operacionesFiltradas = [...this.operacionesOriginal];
     this.fechaInicio = '';
     this.fechaFin = '';
     this.turnoAplicado = '';
     this.turnoSeleccionado = '';
-
-    console.log('🔥 FILTROS ELIMINADOS, mostrando todas las operaciones');
+    this.mostrarFiltros = false;
+    this.paginaActual = 1;
+    this.operacionesFiltradas = [...this.operacionesOriginal]
+      .sort((a, b) => (a.fecha < b.fecha ? 1 : a.fecha > b.fecha ? -1 : (b.id ?? 0) - (a.id ?? 0)));
   }
 
+  cambiarPagina(pagina: number): void {
+    if (pagina < 1 || pagina > this.totalPaginas) return;
+    this.paginaActual = pagina;
+  }
 
-//Jefe guardia y tipo
-  // cargarDatos() {
-  //   this.loading = true;
+  cambiarRegistrosPorPagina(cantidad: number | string): void {
+    this.registrosPorPagina = +cantidad;
+    this.paginaActual = 1;
+  }
 
-  //   this.operacionesService
-  //     .getPorJefe(this.tipo, this.jefe_guardia)
-  //     .subscribe({
-  //       next: (resp: any) => {
-  //         this.operaciones = resp.data;
-  //         this.loading = false;
-  //       },
-  //       error: (err) => {
-  //         console.error(err);
-  //         this.loading = false;
-  //       }
-  //     });
-  // }
-
-  // Métodos para el estado de aprobación
   getStatusClass(op: OperacionBase): string {
     if (op.aprobacion === 1) return 'approved';
     if (op.aprobacion === 2) return 'rejected';
-    return 'pending'; // aprobacion === 0 o undefined
-  }
-
-  getStatusIcon(op: OperacionBase): string {
-    if (op.aprobacion === 1) return '✓';
-    if (op.aprobacion === 2) return '✗';
-    return '⏳';
+    return 'pending';
   }
 
   getStatusText(op: OperacionBase): string {
@@ -167,35 +118,20 @@ export class OperacionesListHorizontalComponent implements OnInit {
     return 'Pendiente';
   }
 
-  // Métodos para el estado de revisión
   getRevisionClass(op: OperacionBase): string {
     if (!op.revisado || op.revisado === 0) return 'revision-pending';
     if (op.revisado === 1) return 'revision-one';
     if (op.revisado === 2) return 'revision-two';
-    if (op.revisado && op.revisado >= 3) return 'revision-completed';
+    if (op.revisado >= 3) return 'revision-completed';
     return 'revision-pending';
-  }
-
-  getRevisionIcon(op: OperacionBase): string {
-    if (!op.revisado || op.revisado === 0) return '📝';
-    if (op.revisado === 1) return '🔄';
-    if (op.revisado === 2) return '🔄';
-    if (op.revisado && op.revisado >= 3) return '✅';
-    return '📝';
   }
 
   getRevisionText(op: OperacionBase): string {
     if (!op.revisado || op.revisado === 0) return 'Sin revisión';
     if (op.revisado === 1) return '1ra revisión';
     if (op.revisado === 2) return '2da revisión';
-    if (op.revisado && op.revisado >= 3) return `${op.revisado} revisiones`;
+    if (op.revisado >= 3) return `${op.revisado} revisiones`;
     return 'Sin revisión';
-  }
-
-  getReviewIcon(op: OperacionBase): string {
-    if (op.aprobacion === 1) return '✓';
-    if (op.aprobacion === 2) return '✗';
-    return '⏳';
   }
 
   getReviewClass(op: OperacionBase): string {
@@ -204,19 +140,15 @@ export class OperacionesListHorizontalComponent implements OnInit {
     return 'pending';
   }
 
-  // Método auxiliar para el turno
   getTurnoClass(turno: string): string {
-    const turnoLower = turno?.toLowerCase() || '';
-    if (turnoLower.includes('mañana') || turnoLower.includes('morning')) return 'morning';
-    if (turnoLower.includes('tarde') || turnoLower.includes('afternoon')) return 'afternoon';
-    if (turnoLower.includes('noche') || turnoLower.includes('night')) return 'night';
+    const t = turno?.toLowerCase() || '';
+    if (t.includes('mañana') || t.includes('morning')) return 'morning';
+    if (t.includes('tarde') || t.includes('afternoon')) return 'afternoon';
+    if (t.includes('noche') || t.includes('night')) return 'night';
     return '';
   }
 
   irDetalle(op: OperacionBase) {
-  this.router.navigate([
-    '/Dashboard/jefe-mina/tal-horizontal/operacion',
-    op.id
-  ]);
-}
+    this.router.navigate(['/Dashboard/jefe-mina/tal-horizontal/operacion', op.id]);
+  }
 }

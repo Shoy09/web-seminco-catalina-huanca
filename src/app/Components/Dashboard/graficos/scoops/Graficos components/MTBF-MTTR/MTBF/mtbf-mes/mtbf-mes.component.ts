@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -92,17 +92,6 @@ export class MtbfMesComponent implements OnInit, OnChanges {
     meses.length > 8 ? (8 / meses.length) * 100 : 100;
 
   this.chartOptions = {
-    title: {
-      text: 'MTBF POR MES',
-      left: 'center',
-      top: 10,
-      textStyle: {
-        fontSize: 14,
-        fontWeight: 'bold',
-        color: CHART_COLORS.grey,
-        fontFamily: 'Arial',
-      },
-    },
 
     tooltip: {
       trigger: 'axis',
@@ -165,9 +154,6 @@ export class MtbfMesComponent implements OnInit, OnChanges {
 
     yAxis: {
       type: 'value',
-      name: 'MTBF (horas)',
-      nameLocation: 'middle',
-      nameGap: 45,
       min: 0,
       max: escalaMax,
       axisLabel: {
@@ -198,7 +184,6 @@ export class MtbfMesComponent implements OnInit, OnChanges {
 
     series: [
       {
-        name: 'MTBF',
         type: 'bar',
         barWidth: '55%',
 

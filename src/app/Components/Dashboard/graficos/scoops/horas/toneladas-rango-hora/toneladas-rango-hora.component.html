@@ -1,117 +1,56 @@
-<div class="dashboard-container">
-
-  <!-- Columna izquierda: Gráfico -->
-  <div class="grafico-columna">
-    <div
-      echarts
-      [options]="chartOptions"
-      [autoResize]="true"
-      class="grafico-echarts">
-    </div>
+﻿<div class="card-wrapper">
+  <div class="card-header">
+    <span class="card-accent"></span>
+    <span class="card-title">{{ titulo || 'Toneladas por Rango de Hora' }}</span>
   </div>
 
-  <!-- Columna derecha: Totales -->
-  <div class="sidebar-columna">
+  @if (!chartOptions || !chartOptions['series']) {
+    <div class="empty-state">
+      <span class="material-icons empty-icon">bar_chart</span>
+      <span class="empty-text">Sin datos para el período seleccionado</span>
+    </div>
+  } @else {
+    <div class="inner-layout">
 
-    <div class="contenedor-inferior">
-
-      <!-- TOTAL POR MATERIAL -->
-      <div class="totales-columna">
-
-        <div class="totales-header">
-          <h4>📊 TOTAL POR MATERIAL</h4>
-        </div>
-
-        <div class="totales-lista">
-
-          <div
-            *ngFor="let material of materialesFiltrados"
-            class="total-item"
-          >
-            <div class="total-item-info">
-
-              <span class="total-item-nombre">
-                {{ material }}
-              </span>
-
-              <span class="total-item-valor">
-                {{ totalesMateriales[material] | number:'1.2-2' }} t
-              </span>
-
-            </div>
-          </div>
-
-        </div>
-
-        <div class="total-general">
-          <span class="total-general-label">
-            TOTAL GENERAL
-          </span>
-
-          <strong class="total-general-value">
-            {{ totalGeneral | number:'1.2-2' }} t
-          </strong>
-        </div>
-
-        <!-- <div class="total-general" *ngIf="totalCucharas > 0">
-          <span class="total-general-label">
-            TOTAL CUCHARAS
-          </span>
-
-          <strong class="total-general-value">
-            {{ totalCucharas | number:'1.2-2' }}
-          </strong>
-        </div> -->
-
+      <!-- Gráfico -->
+      <div class="chart-col">
+        <div echarts [options]="chartOptions" [autoResize]="true" class="chart"></div>
       </div>
 
-      <!-- TOTAL POR EQUIPO -->
-      <div class="equipos-columna">
+      <!-- Sidebar -->
+      <div class="sidebar-col">
 
-        <div class="totales-header">
-          <h4>🚜 TOTAL POR EQUIPO</h4>
-        </div>
-
-        <div class="totales-lista">
-
-          <div
-            *ngFor="let equipo of equiposFiltrados"
-            class="total-item"
-            [title]="obtenerTooltipEquipo(equipo)"
-          >
-            <div class="total-item-info">
-
-              <span class="total-item-nombre">
-                {{ equipo }}
-              </span>
-
-              <span class="total-item-valor">
-                {{ totalesPorEquipo[equipo] | number:'1.2-2' }} t
-              </span>
-
+        <!-- Total por material -->
+        <div class="totales-card">
+          <div class="totales-title">Total por Material</div>
+          <div class="totales-list">
+            <div *ngFor="let material of materialesFiltrados" class="total-item">
+              <span class="total-name">{{ material }}</span>
+              <span class="total-val">{{ totalesMateriales[material] | number:'1.2-2' }} t</span>
             </div>
           </div>
-
+          <div class="total-footer">
+            <span>Total General</span>
+            <strong>{{ totalGeneral | number:'1.2-2' }} t</strong>
+          </div>
         </div>
 
-        <div class="total-general">
-          <span class="total-general-label">
-            TOTAL EQUIPOS
-          </span>
-
-          <strong class="total-general-value">
-            {{ totalGeneral | number:'1.2-2' }} t
-          </strong>
+        <!-- Total por equipo -->
+        <div class="totales-card">
+          <div class="totales-title">Total por Equipo</div>
+          <div class="totales-list">
+            <div *ngFor="let equipo of equiposFiltrados" class="total-item" [title]="obtenerTooltipEquipo(equipo)">
+              <span class="total-name">{{ equipo }}</span>
+              <span class="total-val">{{ totalesPorEquipo[equipo] | number:'1.2-2' }} t</span>
+            </div>
+          </div>
+          <div class="total-footer">
+            <span>Total Equipos</span>
+            <strong>{{ totalGeneral | number:'1.2-2' }} t</strong>
+          </div>
         </div>
 
       </div>
-
     </div>
-
-  </div>
-
-</div>
-
-<div *ngIf="!data?.length" class="sin-datos">
-  <p>No hay datos de toneladas por rango de hora disponibles</p>
+  }
 </div>

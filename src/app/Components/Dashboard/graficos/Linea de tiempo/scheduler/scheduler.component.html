@@ -1,50 +1,110 @@
-<div class="scheduler-wrapper">
-  <div class="scheduler">
-    <div class="timeline-header">
-      <div class="header-left">
-        <div class="fecha-col">Fecha / Turno</div>
-        <div class="equipo-col">Equipo</div>
-      </div>
-      <div class="header-timeline">
-        <div class="hour" *ngFor="let h of hours">{{ h }}</div>
-      </div>
+<!-- Tooltip flotante global (position: fixed, fuera de la tabla) -->
+<div
+  class="tooltip-fixed"
+  *ngIf="tooltip.visible && tooltip.task"
+  [style.left.px]="tooltip.x"
+  [style.top.px]="tooltip.y"
+>
+  <div class="tooltip-header">
+    <span class="tooltip-dot" [style.background]="getColor(tooltip.task.estado)"></span>
+    <span class="tooltip-title">{{ tooltip.task.labor }}</span>
+  </div>
+  <div class="tooltip-body">
+    <div class="tooltip-row">
+      <span class="tooltip-key">Inicio</span>
+      <span class="tooltip-val">{{ minutesToTime(tooltip.task.startMin) }}</span>
     </div>
-
-    <div class="timeline-body">
-      <ng-container *ngFor="let fecha of groups; let i = index">
-        <div class="fecha-group">
-          <div class="fecha-row">
-            <div class="fecha-cell">{{ fecha.fechaTurno }}</div>
-            <div class="fecha-tasks">
-              <div class="equipo-row" *ngFor="let equipo of fecha.equipos">
-                <div class="equipo-cell">{{ equipo.equipoCodigo }}</div>
-                <div class="timeline-row">
-                  <div
-                    class="task"
-                    *ngFor="let task of equipo.tasks"
-                    [ngStyle]="getTaskStyle(task)"
-                    [attr.data-tooltip]="getTaskTooltip(task)"
-                  >
-                    <span class="task-label">
-  {{ task.labor?.slice(0, 3) }}
-</span>
-                    <div class="task-tooltip">
-                      <div class="tooltip-title">{{ task.labor }}</div>
-                      <div *ngIf="task.description && task.description !== ''" class="tooltip-description">
-                        📝 {{ task.description }} | ⏱️ {{ minutesToTime(task.startMin) }} - {{ minutesToTime(task.endMin) }}
-                      </div>
-                      <div *ngIf="task.tipo_estado && task.tipo_estado !== ''" class="tooltip-tipo-estado">
-                        🏷️ {{ task.tipo_estado }}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="fecha-divider" *ngIf="i < groups.length - 1"></div>
-        </div>
-      </ng-container>
+    <div class="tooltip-row">
+      <span class="tooltip-key">Fin</span>
+      <span class="tooltip-val">{{ minutesToTime(tooltip.task.endMin) }}</span>
+    </div>
+    <div class="tooltip-row">
+      <span class="tooltip-key">Duración</span>
+      <span class="tooltip-val">{{ getDuration(tooltip.task) }}</span>
+    </div>
+    <div class="tooltip-row" *ngIf="tooltip.task.description">
+      <span class="tooltip-key">Código</span>
+      <span class="tooltip-val">{{ tooltip.task.description }}</span>
+    </div>
+    <div class="tooltip-row" *ngIf="tooltip.task.tipo_estado">
+      <span class="tooltip-key">Tipo</span>
+      <span class="tooltip-val">{{ tooltip.task.tipo_estado }}</span>
     </div>
   </div>
+</div>
+
+<!-- Tabla Gantt -->
+<div class="scheduler-outer">
+  <table class="scheduler-table">
+
+    <colgroup>
+      <col class="col-fecha" />
+      <col class="col-equipo" />
+      <col class="col-timeline" />
+    </colgroup>
+
+    <!-- Header -->
+    <thead>
+      <tr class="header-row">
+        <th class="th-fecha">Fecha / Turno</th>
+        <th class="th-equipo">Equipo</th>
+        <th class="th-timeline">
+          <div class="hours-bar">
+            <span class="hour-cell" *ngFor="let h of hours">{{ h }}</span>
+          </div>
+        </th>
+      </tr>
+    </thead>
+
+    <!-- Body -->
+    <tbody>
+      <ng-container *ngFor="let fechaItem of groups; let fi = index">
+
+        <tr *ngIf="fi > 0" class="divider-row">
+          <td colspan="3"><div class="fecha-divider"></div></td>
+        </tr>
+
+        <tr
+          class="equipo-row"
+          *ngFor="let equipo of fechaItem.equipos; trackBy: trackByEquipo; let ei = index"
+        >
+          <!-- Fecha/Turno con rowspan -->
+          <td class="td-fecha" [attr.rowspan]="fechaItem.equipos.length" *ngIf="ei === 0">
+            <span class="fecha-label">{{ fechaItem.fecha }}</span>
+            <span
+              class="turno-badge"
+              [class.turno-dia]="fechaItem.turno === 'DÍA'"
+              [class.turno-noche]="fechaItem.turno === 'NOCHE'"
+            >{{ fechaItem.turno }}</span>
+          </td>
+
+          <!-- Equipo -->
+          <td class="td-equipo">
+            <span class="equipo-label">{{ equipo.equipoCodigo }}</span>
+          </td>
+
+          <!-- Timeline -->
+          <td class="td-timeline">
+            <div class="timeline-row">
+              <div class="timeline-grid">
+                <div class="grid-line" *ngFor="let h of hours"></div>
+              </div>
+              <div
+                class="task"
+                *ngFor="let task of equipo.tasks; trackBy: trackByTask"
+                [ngStyle]="getTaskStyle(task)"
+                (mouseenter)="showTooltip($event, task)"
+                (mousemove)="moveTooltip($event)"
+                (mouseleave)="hideTooltip()"
+              >
+                <span class="task-label">{{ task.labor?.slice(0, 4) }}</span>
+              </div>
+            </div>
+          </td>
+
+        </tr>
+      </ng-container>
+    </tbody>
+
+  </table>
 </div>

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -65,7 +65,10 @@ export class MineralRankingGuardiaComponent implements OnInit, OnChanges {
   actualizarGrafico(): void {
 
     const datosOrdenados = [...this.data]
+      .filter(item => Number(item.tnMineralAjustado || 0) > 0)
       .sort((a, b) => b.tnMineralAjustado - a.tnMineralAjustado);
+
+    if (!datosOrdenados.length) { this.chartOptions = {}; return; }
 
     const guardias = datosOrdenados.map((item) => `Guardia ${item.guardia}`);
 
@@ -81,17 +84,6 @@ export class MineralRankingGuardiaComponent implements OnInit, OnChanges {
     const escalaMax = Math.ceil(maxValor / 500) * 500;
 
     this.chartOptions = {
-      title: {
-        text: 'MINERAL POR GUARDIA',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 12,
-          fontWeight: 'bold',
-          color: '#333',
-          fontFamily: 'Arial'
-        }
-      },
 
       tooltip: {
         trigger: 'axis',
@@ -167,7 +159,6 @@ export class MineralRankingGuardiaComponent implements OnInit, OnChanges {
 
       series: [
         {
-          name: 'Mineral',
           type: 'bar',
           barWidth: '45%',
 

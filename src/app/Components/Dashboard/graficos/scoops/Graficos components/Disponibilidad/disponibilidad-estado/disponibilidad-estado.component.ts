@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   Input,
   OnChanges,
@@ -72,7 +72,7 @@ implements OnChanges {
 
   actualizarGrafico(): void {
 
-    if (!this.data?.length) return;
+    if (!this.data?.length) { this.chartOptions = {}; return; }
 
     // 🔥 códigos
     const codigosOriginales =
@@ -88,18 +88,6 @@ implements OnChanges {
       this.data.map(item => item.horas);
 
     this.chartOptions = {
-
-      title: {
-        text: 'DIAGRAMA DE PARETO',
-        left: 'center',
-        top: 10,
-
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: '#333'
-        }
-      },
 
       tooltip: {
 
@@ -167,13 +155,6 @@ implements OnChanges {
       yAxis: {
 
         type: 'value',
-
-        name: 'Horas',
-
-        nameLocation: 'middle',
-
-        nameGap: 40,
-
         axisLabel: {
           formatter: '{value}h'
         },
@@ -188,9 +169,6 @@ implements OnChanges {
 
       series: [
         {
-
-          name: 'Horas MTTO',
-
           type: 'bar',
 
           barWidth: '60%',

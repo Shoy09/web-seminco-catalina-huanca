@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -29,9 +29,7 @@ export class HorometrosJumbosComponent implements OnChanges {
   }
 
   updateChart(): void {
-    if (!this.data || this.data.length === 0) {
-      return;
-    }
+    if (!this.data || this.data.length === 0) { this.chartOptions = {}; return; }
 
     // Preparar datos para el gráfico
     const xAxisData = this.data.map(item => item.modelo_equipo || 'N/A');
@@ -46,16 +44,6 @@ export class HorometrosJumbosComponent implements OnChanges {
     const yAxisMax = Math.ceil(maxValor * 1.2);
 
     this.chartOptions = {
-      title: {
-        text: 'HORÓMETROS DE JUMBOS FRONTONEROS',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: '#2c3e50'
-        }
-      },
       tooltip: {
         trigger: 'axis',
         axisPointer: {
@@ -110,9 +98,6 @@ export class HorometrosJumbosComponent implements OnChanges {
       },
       yAxis: {
         type: 'value',
-        name: 'Horas',
-        nameLocation: 'middle',
-        nameGap: 45,
         min: 0,
         max: yAxisMax,
         axisLabel: {
@@ -128,7 +113,6 @@ export class HorometrosJumbosComponent implements OnChanges {
       },
       series: [
         {
-          name: 'H. Diesel',
           type: 'bar',
           data: dieselData,
           itemStyle: {
@@ -150,7 +134,6 @@ export class HorometrosJumbosComponent implements OnChanges {
           barCategoryGap: '0.3'
         },
         {
-          name: 'H. Eléctrico',
           type: 'bar',
           data: electricoData,
           itemStyle: {
@@ -172,7 +155,6 @@ export class HorometrosJumbosComponent implements OnChanges {
           barCategoryGap: '0.3'
         },
         {
-          name: 'H. Percusión',
           type: 'bar',
           data: percusionData,
           itemStyle: {

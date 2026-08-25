@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { EChartsOption, ScatterSeriesOption } from 'echarts';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 
@@ -117,18 +117,7 @@ export class ScatterTurnosComponent implements OnInit, OnChanges {
   // 🔥 OPCIONES PARA GRÁFICO VACÍO
   // =========================================
   private getEmptyChartOptions(): EChartsOption {
-    return {
-      title: {
-        text: 'Mapa de Calor de Inicios de Perforación Turno Dia',
-        subtext: 'No hay datos disponibles',
-        left: 'center',
-        top: 'middle',
-        textStyle: {
-          fontSize: 14,
-          fontWeight: 'bold'
-        }
-      }
-    };
+    return {};
   }
 
   // =========================================
@@ -164,15 +153,6 @@ export class ScatterTurnosComponent implements OnInit, OnChanges {
     }));
 
     return {
-      title: {
-        text: 'Mapa de Calor de Inicios de Perforación Turno Dia',
-        left: 'center',
-        top: 5,
-        textStyle: {
-          fontSize: 14,
-          fontWeight: 'bold'
-        }
-      },
 
       tooltip: {
         trigger: 'item',
@@ -202,7 +182,6 @@ export class ScatterTurnosComponent implements OnInit, OnChanges {
 
       xAxis: {
         type: 'value',
-        name: 'Horas',
         min: 7,
         max: 19,
         interval: 1,
@@ -221,7 +200,6 @@ export class ScatterTurnosComponent implements OnInit, OnChanges {
       yAxis: {
         type: 'category',
         data: equipos,
-        name: 'Inicio de Perforación',
         axisLabel: {
           fontSize: 12,
           fontWeight: 'bold'

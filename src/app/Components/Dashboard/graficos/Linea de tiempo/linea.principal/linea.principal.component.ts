@@ -6,6 +6,16 @@ import { EstadoService } from '../../../../../services/estado.service';
 import { OperacionBase } from '../../../../../models/OperacionBase.models';
 import { OperacionesService } from '../../../../../services/operaciones.service';
 
+// Configuración de cada proceso disponible
+export interface ProcesoConfig {
+  id: string;
+  label: string;
+  tipo: string;        // tipo para la API
+  proceso: string;     // nombre del proceso en los estados
+  icon: string;        // icono de Material Icons
+  color: string;       // color del badge/acento
+}
+
 @Component({
   selector: 'app-linea.principal',
   imports: [CommonModule, FormsModule, SchedulerComponent],
@@ -14,38 +24,62 @@ import { OperacionesService } from '../../../../../services/operaciones.service'
 })
 export class LineaPrincipalComponent {
 
-  // Variables para el filtro de fechas
+  // ── Filtros ──────────────────────────────────────────────────
   fechaInicio: string = '';
   fechaFin: string = '';
   turnoSeleccionado: string = '';
   turnoAplicado: string = '';
 
+  // ── Estado de carga ───────────────────────────────────────────
+  cargando: boolean = false;
+
+  // ── Catálogo de procesos ──────────────────────────────────────
+  procesos: ProcesoConfig[] = [
+    {
+      id: 'horizontal',
+      label: 'Perforación Horizontal',
+      tipo: 'tal_horizontal',
+      proceso: 'PERFORACIÓN HORIZONTAL',
+      icon: 'horizontal_rule',
+      color: 'bg-emerald-500'
+    },
+    {
+      id: 'largo',
+      label: 'Taladro Largo',
+      tipo: 'tal_largo',
+      proceso: 'PERFORACIÓN TALADROS LARGOS',
+      icon: 'commit',
+      color: 'bg-orange-500'
+    },
+    {
+      id: 'empernador',
+      label: 'Empernador',
+      tipo: 'empernador',
+      proceso: 'EMPERNADOR',
+      icon: 'construction',
+      color: 'bg-purple-500'
+    },
+    {
+      id: 'scooptram',
+      label: 'Scooptram',
+      tipo: 'carguio',
+      proceso: 'SCOOPTRAM',
+      icon: 'local_shipping',
+      color: 'bg-sky-500'
+    }
+  ];
+
+  // Proceso activo seleccionado
+  procesoActivo: ProcesoConfig = this.procesos[0];
+
+  // ── Datos internos ────────────────────────────────────────────
   estadosProceso: any[] = [];
 
-  //DATASSSSSSS
-  operacionesOriginalHorizontal: OperacionBase[] = [];
-  operacionesFiltradasHorizontal: OperacionBase[] = [];
+  // Almacén unificado: id del proceso → datos originales / filtrados / gantt / mapa
+  private datosOriginales: Record<string, OperacionBase[]> = {};
+  private mapaEstados: Record<string, Map<string, any>> = {};
 
-  operacionesOriginalLargo: OperacionBase[] = [];
-  operacionesFiltradasLargo: OperacionBase[] = [];
-
-  operacionesFiltradasEmpernador: OperacionBase[] = [];
-  operacionesOriginalEmpernador: OperacionBase[] = [];
-
-  operacionesOriginalScoops: OperacionBase[] = [];
-  operacionesFiltradasScoops: OperacionBase[] = [];
-
-  ganttHorizontal: any[] = [];
-  ganttLargo: any[] = [];
-  ganttEmpernador: any[] = [];
-  ganttScoops: any[] = [];
-
-  // Mapas separados para cada proceso
-  mapaEstadosHorizontal: Map<string, any> = new Map();
-  mapaEstadosLargo: Map<string, any> = new Map();
-  mapaEstadosEmpernador: Map<string, any> = new Map();
-  mapaEstadosScoop: Map<string, any> = new Map();
-
+  ganttActivo: any[] = [];
 
   constructor(
     private estadoService: EstadoService,
@@ -57,204 +91,118 @@ export class LineaPrincipalComponent {
     this.fechaInicio = hoy;
     this.fechaFin = hoy;
     this.turnoSeleccionado = this.getTurnoActual();
-    
-    // Cargar estados para ambos procesos
+
+    // Inicializar almacenes vacíos
+    this.procesos.forEach(p => {
+      this.datosOriginales[p.id] = [];
+      this.mapaEstados[p.id] = new Map();
+    });
+
     this.obtenerTodosLosEstados();
   }
 
-  //OPERACIONES--------------------
-  cargarOperacionesHorizontal() { 
-    const tipo = 'tal_horizontal';
-    this.operacionesService.getAllAprobados(tipo).subscribe({
-      next: (resp) => {
-        this.operacionesOriginalHorizontal = resp.data;
-        this.aplicarFiltro();
+  // ── Cambio de proceso activo ──────────────────────────────────
+  seleccionarProceso(proceso: ProcesoConfig): void {
+    this.procesoActivo = proceso;
+    this.recalcularGanttActivo();
+  }
+
+  // ── Carga de estados ──────────────────────────────────────────
+  obtenerTodosLosEstados(): void {
+    this.cargando = true;
+    this.estadoService.getEstados().subscribe({
+      next: (data) => {
+        this.estadosProceso = data;
+        this.separarEstadosPorProceso();
+        this.cargarTodasLasOperaciones();
+      },
+      error: (err) => {
+        console.error('Error al traer estados', err);
+        this.cargando = false;
       }
     });
   }
 
-  cargarOperacionesLargo() { 
-    const tipo = 'tal_largo';
-    this.operacionesService.getAllAprobados(tipo).subscribe({
-      next: (resp) => {
-        this.operacionesOriginalLargo = resp.data;
-        this.aplicarFiltro();
-      }
-    });
-  }
-
-  cargarOperacionesEmpernador() { 
-    const tipo = 'empernador';
-    this.operacionesService.getAllAprobados(tipo).subscribe({
-      next: (resp) => {
-        this.operacionesOriginalEmpernador = resp.data;
-        this.aplicarFiltro();
-      }
-    });
-  }
-
-  cargarOperacionesScoop() { 
-    const tipo = 'carguio';
-    this.operacionesService.getAllAprobados(tipo).subscribe({
-      next: (resp) => {
-        this.operacionesOriginalScoops = resp.data;
-        this.aplicarFiltro();
-      }
-    });
-  }
-
-
-  //----------------------------------
-  obtenerTodosLosEstados() {
-    this.estadoService.getEstados()
-      .subscribe({
-        next: (data) => {
-          this.estadosProceso = data;
-          console.log('Todos los estados:', data);
-          
-          // Separar los estados por proceso
-          this.separarEstadosPorProceso();
-          
-          // Cargar las operaciones después de tener los estados
-          this.cargarOperacionesHorizontal();
-          this.cargarOperacionesLargo();
-          this.cargarOperacionesEmpernador();
-          this.cargarOperacionesScoop();
-        },
-        error: (err) => {
-          console.error('Error al traer estados', err);
-        }
-      });
-  }
-
-  /**
-   * Separa los estados según el proceso al que pertenecen
-   */
-  separarEstadosPorProceso() {
-    this.mapaEstadosHorizontal.clear();
-    this.mapaEstadosLargo.clear();
-    this.mapaEstadosEmpernador.clear();
+  separarEstadosPorProceso(): void {
+    // Limpiar mapas
+    this.procesos.forEach(p => this.mapaEstados[p.id].clear());
 
     this.estadosProceso.forEach(estado => {
-      const codigo = String(estado.codigo || '').trim();
+      const codigo  = String(estado.codigo || '').trim();
       const proceso = estado.proceso || '';
-      
-      // Clasificar según el proceso
-      if (proceso === 'PERFORACIÓN HORIZONTAL') {
-        this.mapaEstadosHorizontal.set(codigo, estado);
-      } else if (proceso === 'PERFORACIÓN TALADROS LARGOS') {
-        this.mapaEstadosLargo.set(codigo, estado);
-      }else if (proceso === 'EMPERNADOR') {
-        this.mapaEstadosEmpernador.set(codigo, estado);
-      }else if (proceso === 'SCOOPTRAM') {
-        this.mapaEstadosScoop.set(codigo, estado);
+
+      const proc = this.procesos.find(p => p.proceso === proceso);
+      if (proc) {
+        this.mapaEstados[proc.id].set(codigo, estado);
       }
     });
-
-  //   console.log('📊 Estados HORIZONTAL:', this.mapaEstadosHorizontal.size);
-  //   console.log('📊 Estados LARGO:', this.mapaEstadosLargo.size);
-  //   console.log('Estados Horizontal:', Array.from(this.mapaEstadosHorizontal.values()));
-  //   console.log('Estados Largo:', Array.from(this.mapaEstadosLargo.values()));
-   }
-
-  private getTurnoActual(): string {
-    const hora = new Date().getHours();
-    if (hora >= 7 && hora < 19) {
-      return 'DÍA';
-    }
-    return 'NOCHE';
   }
 
-  private getFechaHoy(): string {
-    const hoy = new Date();
-    const year = hoy.getFullYear();
-    const month = String(hoy.getMonth() + 1).padStart(2, '0');
-    const day = String(hoy.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+  cargarTodasLasOperaciones(): void {
+    let pendientes = this.procesos.length;
+
+    this.procesos.forEach(proc => {
+      this.operacionesService.getAllAprobados(proc.tipo).subscribe({
+        next: (resp) => {
+          this.datosOriginales[proc.id] = resp.data ?? [];
+          pendientes--;
+          if (pendientes === 0) {
+            this.cargando = false;
+            this.aplicarFiltro();
+          }
+        },
+        error: () => {
+          pendientes--;
+          if (pendientes === 0) {
+            this.cargando = false;
+            this.aplicarFiltro();
+          }
+        }
+      });
+    });
   }
 
-  // =========================================
-  // 🔥 FILTRO POR FECHA
-  // =========================================
-  aplicarFiltro() {
+  // ── Filtros ───────────────────────────────────────────────────
+  aplicarFiltro(): void {
     this.turnoAplicado = this.turnoSeleccionado;
-
-    // 🔹 HORIZONTAL
-    this.operacionesFiltradasHorizontal = this.operacionesOriginalHorizontal.filter(op => {
-      if (this.fechaInicio && op.fecha < this.fechaInicio) return false;
-      if (this.fechaFin && op.fecha > this.fechaFin) return false;
-      if (this.turnoAplicado && op.turno !== this.turnoAplicado) return false;
-      return true;
-    });
-
-    // 🔹 LARGO
-    this.operacionesFiltradasLargo = this.operacionesOriginalLargo.filter(op => {
-      if (this.fechaInicio && op.fecha < this.fechaInicio) return false;
-      if (this.fechaFin && op.fecha > this.fechaFin) return false;
-      if (this.turnoAplicado && op.turno !== this.turnoAplicado) return false;
-      return true;
-    });
-
-    // 🔹 EMPERNADOR
-    this.operacionesFiltradasEmpernador = this.operacionesOriginalEmpernador.filter(op => {
-      if (this.fechaInicio && op.fecha < this.fechaInicio) return false;
-      if (this.fechaFin && op.fecha > this.fechaFin) return false;
-      if (this.turnoAplicado && op.turno !== this.turnoAplicado) return false;
-      return true;
-    });
-
-    // 🔹 SCOOPS
-    this.operacionesFiltradasScoops = this.operacionesOriginalScoops.filter(op => {
-      if (this.fechaInicio && op.fecha < this.fechaInicio) return false;
-      if (this.fechaFin && op.fecha > this.fechaFin) return false;
-      if (this.turnoAplicado && op.turno !== this.turnoAplicado) return false;
-      return true;
-    });
-
-    this.procesarTodo();
+    this.recalcularGanttActivo();
   }
 
-  quitarFiltro() {
-    // 🔹 Restaurar datos originales
-    this.operacionesFiltradasHorizontal = [...this.operacionesOriginalHorizontal];
-    this.operacionesFiltradasLargo = [...this.operacionesOriginalLargo];
-    this.operacionesFiltradasEmpernador = [...this.operacionesOriginalEmpernador];
-    this.operacionesFiltradasScoops = [...this.operacionesOriginalScoops];
-
-    // 🔹 Limpiar filtros
+  quitarFiltro(): void {
     this.fechaInicio = '';
     this.fechaFin = '';
     this.turnoAplicado = '';
     this.turnoSeleccionado = '';
-
-    this.procesarTodo();
+    this.recalcularGanttActivo();
   }
 
-  procesarTodo() {
-    // Pasar el mapa correspondiente a cada construcción
-    this.ganttHorizontal = this.construirGanttData(
-      this.operacionesFiltradasHorizontal, 
-      this.mapaEstadosHorizontal  // Solo estados de horizontal
-    );
-    
-    this.ganttLargo = this.construirGanttData(
-      this.operacionesFiltradasLargo, 
-      this.mapaEstadosLargo  // Solo estados de largo
-    );
+  private recalcularGanttActivo(): void {
+    const id = this.procesoActivo.id;
+    const originales = this.datosOriginales[id] ?? [];
 
-    this.ganttEmpernador = this.construirGanttData(
-      this.operacionesFiltradasEmpernador, 
-      this.mapaEstadosEmpernador  // Solo estados de largo
-    );
+    const filtradas = originales.filter(op => {
+      if (this.fechaInicio && op.fecha < this.fechaInicio) return false;
+      if (this.fechaFin   && op.fecha > this.fechaFin)    return false;
+      if (this.turnoAplicado && op.turno !== this.turnoAplicado) return false;
+      return true;
+    });
 
-    this.ganttScoops = this.construirGanttData(
-      this.operacionesFiltradasScoops, 
-      this.mapaEstadosScoop  // Solo estados de largo
-    );
+    this.ganttActivo = this.construirGanttData(filtradas, this.mapaEstados[id]);
   }
 
-  //GANTT - Ahora recibe el mapa de estados específico
-  private construirGanttData(data: OperacionBase[], mapaEstados: Map<string, any>): any[] {
+  // ── Helpers de fecha/turno ────────────────────────────────────
+  private getTurnoActual(): string {
+    const hora = new Date().getHours();
+    return (hora >= 7 && hora < 19) ? 'DÍA' : 'NOCHE';
+  }
+
+  private getFechaHoy(): string {
+    const hoy = new Date();
+    return `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}-${String(hoy.getDate()).padStart(2,'0')}`;
+  }
+
+  // ── Construcción de datos Gantt ───────────────────────────────
+  private construirGanttData(data: OperacionBase[], mapaEst: Map<string, any>): any[] {
     const fechaMap: Record<string, any> = {};
 
     data.forEach(op => {
@@ -263,28 +211,17 @@ export class LineaPrincipalComponent {
       const equipoCodigo = `${op.equipo} - ${op.n_equipo}`;
       const key = `${fecha}|${turno}`;
 
-      if (!fechaMap[key]) {
-        fechaMap[key] = {
-          fecha,
-          turno,
-          equipos: {}
-        };
-      }
-
-      if (!fechaMap[key].equipos[equipoCodigo]) {
-        fechaMap[key].equipos[equipoCodigo] = {};
-      }
+      if (!fechaMap[key]) fechaMap[key] = { fecha, turno, equipos: {} };
+      if (!fechaMap[key].equipos[equipoCodigo]) fechaMap[key].equipos[equipoCodigo] = {};
 
       const registros = Array.isArray(op.registros) ? op.registros : [];
 
       registros.forEach((reg: any) => {
         const estado = (reg.estado || 'SIN ESTADO').toUpperCase().trim();
         const codigo = String(reg.codigo || '').trim();
-
         if (!reg.hora_inicio || !reg.hora_final) return;
 
-        // Usar el mapa de estados específico del proceso
-        const estadoMatch = mapaEstados.get(codigo);
+        const estadoMatch = mapaEst.get(codigo);
         const labor = estadoMatch?.estado_principal || estado;
 
         if (!fechaMap[key].equipos[equipoCodigo][labor]) {
@@ -296,10 +233,10 @@ export class LineaPrincipalComponent {
           end: reg.hora_final,
           estado,
           description: codigo,
-          tipo_estado: estadoMatch?.tipo_estado || null,
-          categoria: estadoMatch?.categoria || null,
-          estado_principal: estadoMatch?.estado_principal || null,
-          proceso: estadoMatch?.proceso || null  // Agregado para debug
+          tipo_estado:     estadoMatch?.tipo_estado     || null,
+          categoria:       estadoMatch?.categoria       || null,
+          estado_principal:estadoMatch?.estado_principal|| null,
+          proceso:         estadoMatch?.proceso         || null
         });
       });
     });
@@ -307,19 +244,26 @@ export class LineaPrincipalComponent {
     return Object.values(fechaMap).map((item: any) => ({
       fecha: item.fecha,
       turno: item.turno,
-      groups: Object.entries(item.equipos).map(
-        ([equipoCodigo, labores]: any) => ({
-          equipoCodigo,
-          rows: Object.entries(labores).map(
-            ([labor, tasks]: any) => ({
-              labor,
-              tasks: tasks.sort((a: any, b: any) =>
-                a.start.localeCompare(b.start)
-              )
-            })
-          )
-        })
-      )
+      groups: Object.entries(item.equipos).map(([equipoCodigo, labores]: any) => ({
+        equipoCodigo,
+        rows: Object.entries(labores).map(([labor, tasks]: any) => ({
+          labor,
+          tasks: (tasks as any[]).sort((a, b) => a.start.localeCompare(b.start))
+        }))
+      }))
     }));
+  }
+
+  // ── Utilidades para el template ───────────────────────────────
+  get totalRegistros(): number {
+    return (this.datosOriginales[this.procesoActivo.id] ?? []).length;
+  }
+
+  get totalEquipos(): number {
+    const equipos = new Set<string>();
+    (this.datosOriginales[this.procesoActivo.id] ?? []).forEach(op =>
+      equipos.add(`${op.equipo}-${op.n_equipo}`)
+    );
+    return equipos.size;
   }
 }

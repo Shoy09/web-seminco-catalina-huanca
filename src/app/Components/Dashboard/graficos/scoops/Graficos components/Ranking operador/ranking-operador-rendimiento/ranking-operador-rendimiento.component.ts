@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -91,17 +91,6 @@ export class RankingOperadorRendimientoComponent implements OnInit, OnChanges {
     const promedio = valores.reduce((a, b) => a + b, 0) / valores.length;
 
     this.chartOptions = {
-      title: {
-        text: 'RANKING OPERADORES - RENDIMIENTO (t/h)',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: '#333',
-          fontFamily: 'Arial'
-        }
-      },
 
       tooltip: {
         trigger: 'axis',
@@ -178,8 +167,6 @@ export class RankingOperadorRendimientoComponent implements OnInit, OnChanges {
 
       xAxis: {
         type: 'value',
-        nameLocation: 'middle',
-        nameGap: 35,
         min: 0,
         max: escalaMax,
         axisLabel: {
@@ -229,7 +216,6 @@ export class RankingOperadorRendimientoComponent implements OnInit, OnChanges {
 
       series: [
         {
-          name: 'Rendimiento',
           type: 'bar',
           barWidth: '50%',
           data: valores.map((valor, index) => ({

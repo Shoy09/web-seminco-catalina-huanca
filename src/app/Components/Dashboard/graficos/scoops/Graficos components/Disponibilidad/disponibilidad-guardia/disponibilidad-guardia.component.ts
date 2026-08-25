@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -51,6 +51,7 @@ export class DisponibilidadGuardiaComponent implements OnInit, OnChanges {
     // Mapear los datos: seccion = guardia, disponibilidad = valor
     // Ordenar por disponibilidad de mayor a menor
     this.datosPorGuardia = this.data
+      .filter(item => Number(item.disponibilidad || 0) > 0)
       .map(item => ({
         guardia: item.seccion || item.guardia || 'Sin datos',
         valor: item.disponibilidad || 0,
@@ -78,16 +79,6 @@ export class DisponibilidadGuardiaComponent implements OnInit, OnChanges {
     const escalaMax = Math.ceil(maxValor / 20) * 20;
 
     this.chartOptions = {
-      title: {
-        text: 'DISPONIBILIDAD POR GUARDIA',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: CHART_COLORS.grey,
-        }
-      },
 
       tooltip: {
         trigger: 'axis',
@@ -122,8 +113,6 @@ export class DisponibilidadGuardiaComponent implements OnInit, OnChanges {
 
       xAxis: {
         type: 'value',
-        nameLocation: 'middle',
-        nameGap: 35,
         min: 0,
         max: escalaMax,
         axisLabel: {
@@ -158,7 +147,6 @@ export class DisponibilidadGuardiaComponent implements OnInit, OnChanges {
 
       series: [
         {
-          name: 'Disponibilidad',
           type: 'bar',
           barWidth: '45%',
 

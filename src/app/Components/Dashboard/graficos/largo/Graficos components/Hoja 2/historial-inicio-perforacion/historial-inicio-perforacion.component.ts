@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { LineChart } from 'echarts/charts';
@@ -64,9 +64,7 @@ export class HistorialInicioPerforacionComponent implements OnChanges {
   }
 
   updateChart(): void {
-    if (!this.data || this.data.length === 0) {
-      return;
-    }
+    if (!this.data || this.data.length === 0) { this.chartOptions = {}; return; }
 
     // Agrupar datos por modelo_equipo
     const equiposMap = new Map<string, Map<string, number>>();
@@ -145,7 +143,6 @@ export class HistorialInicioPerforacionComponent implements OnChanges {
           data: [
             { 
               type: 'average', 
-              name: 'Promedio',
               lineStyle: {
                 color: colores[colorIndex % colores.length],
                 width: 1,
@@ -178,16 +175,6 @@ export class HistorialInicioPerforacionComponent implements OnChanges {
     const yAxisMax = Math.ceil(globalMax + margin);
 
     this.chartOptions = {
-      title: {
-        text: 'Historial Horas de Inicio de Perforación Turno DIA',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: '#2c3e50'
-        }
-      },
       tooltip: {
         trigger: 'axis',
         axisPointer: {
@@ -248,9 +235,6 @@ export class HistorialInicioPerforacionComponent implements OnChanges {
       },
       yAxis: {
         type: 'value',
-        name: 'Hora del Día',
-        nameLocation: 'middle',
-        nameGap: 45,
         min: yAxisMin,
         max: yAxisMax,
         axisLabel: {

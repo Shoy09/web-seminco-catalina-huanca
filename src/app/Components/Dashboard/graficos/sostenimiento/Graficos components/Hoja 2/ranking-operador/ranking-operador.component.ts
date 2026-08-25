@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart, LineChart } from 'echarts/charts';
@@ -61,16 +61,6 @@ export class RankingOperadorComponent implements OnChanges {
     });
 
     this.chartOptions = {
-      title: {
-        text: 'RANKING OPERADOR',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: '#2c3e50'
-        }
-      },
 
       tooltip: {
         trigger: 'axis',
@@ -113,7 +103,6 @@ export class RankingOperadorComponent implements OnChanges {
 
       yAxis: {
         type: 'value',
-        name: 'Metros',
         axisLabel: {
           formatter: '{value} m'
         },
@@ -124,7 +113,6 @@ export class RankingOperadorComponent implements OnChanges {
 
       series: [
         {
-          name: 'Metros',
           type: 'bar',
           data: metrosPerforados,
           barWidth: '45%',
@@ -142,7 +130,6 @@ export class RankingOperadorComponent implements OnChanges {
         },
 
         {
-          name: 'M/HR',
           type: 'line',
           data: mhrValues, // ✅ SIN ESCALAR
           smooth: true,

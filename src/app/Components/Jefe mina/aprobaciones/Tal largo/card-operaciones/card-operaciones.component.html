@@ -1,94 +1,91 @@
 <!-- card-operaciones.component.html -->
-<div class="form-container">
-  <div class="form-row">
+<div class="mx-4 mt-2 mb-1 rounded-xl bg-black/5 px-4 py-3">
+  <div class="flex flex-wrap gap-2 items-start">
 
-    <!-- Fecha — fijo -->
-    <fieldset class="field">
-      <legend>Fecha</legend>
-      <div class="input-inner">
-        <input type="date" [(ngModel)]="formValues['fecha']" (ngModelChange)="onChange()">
-        <span class="icon-gray"></span>
-      </div> 
+    <!-- Fecha -->
+    <fieldset class="flex-1 min-w-[110px] bg-white border border-slate-200 rounded-xl px-2.5 pb-1.5 pt-0 m-0 h-[46px] flex flex-col">
+      <legend class="text-[10px] text-slate-400 font-medium px-1 -translate-y-0.5">Fecha</legend>
+      <div class="flex items-center mt-auto">
+        <input type="date" [(ngModel)]="formValues['fecha']" (ngModelChange)="onChange()"
+          class="border-0 outline-none bg-transparent w-full text-[13px] font-semibold text-slate-600"/>
+      </div>
     </fieldset>
 
     <!-- Turno -->
-    <fieldset class="field">
-      <legend>Turno</legend>
-      <div class="input-inner">
-        <span class="icon-color">🕒</span>
-        <select [(ngModel)]="formValues['turno']" (ngModelChange)="onChange()">
+    <fieldset class="flex-1 min-w-[90px] bg-white border border-slate-200 rounded-xl px-2.5 pb-1.5 pt-0 m-0 h-[46px] flex flex-col">
+      <legend class="text-[10px] text-slate-400 font-medium px-1 -translate-y-0.5">Turno</legend>
+      <div class="flex items-center mt-auto">
+        <select [(ngModel)]="formValues['turno']" (ngModelChange)="onChange()"
+          class="border-0 outline-none bg-transparent w-full text-[13px] font-semibold text-slate-600 cursor-pointer appearance-none">
           <option *ngFor="let opt of getCampo('turno').options" [value]="opt">{{ opt }}</option>
         </select>
       </div>
     </fieldset>
 
     <!-- Equipo -->
-    <fieldset class="field">
-      <legend>Equipo</legend>
-      <div class="input-inner">
-        <span class="icon-color">🚜</span>
-        <select [(ngModel)]="formValues['equipo']" (ngModelChange)="onChange()">
+    <fieldset class="flex-1 min-w-[110px] bg-white border border-slate-200 rounded-xl px-2.5 pb-1.5 pt-0 m-0 h-[46px] flex flex-col">
+      <legend class="text-[10px] text-slate-400 font-medium px-1 -translate-y-0.5">Equipo</legend>
+      <div class="flex items-center mt-auto">
+        <select [(ngModel)]="formValues['equipo']" (ngModelChange)="onChange()"
+          class="border-0 outline-none bg-transparent w-full text-[13px] font-semibold text-slate-600 cursor-pointer appearance-none">
           <option *ngFor="let opt of getCampo('equipo').options" [value]="opt">{{ opt }}</option>
         </select>
       </div>
     </fieldset>
 
     <!-- Código -->
-    <fieldset class="field">
-      <legend>Código</legend>
-      <div class="input-inner">
-        <span class="icon-color">🔢</span>
-        <select [(ngModel)]="formValues['codigo']" (ngModelChange)="onChange()">
+    <fieldset class="flex-1 min-w-[90px] bg-white border border-slate-200 rounded-xl px-2.5 pb-1.5 pt-0 m-0 h-[46px] flex flex-col">
+      <legend class="text-[10px] text-slate-400 font-medium px-1 -translate-y-0.5">Código</legend>
+      <div class="flex items-center mt-auto">
+        <select [(ngModel)]="formValues['codigo']" (ngModelChange)="onChange()"
+          class="border-0 outline-none bg-transparent w-full text-[13px] font-semibold text-slate-600 cursor-pointer appearance-none">
           <option *ngFor="let opt of getCampo('codigo').options" [value]="opt">{{ opt }}</option>
         </select>
       </div>
     </fieldset>
 
-    <!-- Modelo Equipo -->
-<fieldset class="field">
-  <legend>Modelo</legend>
-  <div class="input-inner">
-    <span class="icon-color">⚙️</span>
-    <select [(ngModel)]="formValues['modelo_equipo']" (ngModelChange)="onChange()">
-      <option *ngFor="let opt of getCampo('modelo_equipo').options" [value]="opt">
-        {{ opt }}
-      </option>
-    </select>
-  </div>
-</fieldset>
+    <!-- Modelo -->
+    <fieldset class="flex-1 min-w-[90px] bg-white border border-slate-200 rounded-xl px-2.5 pb-1.5 pt-0 m-0 h-[46px] flex flex-col">
+      <legend class="text-[10px] text-slate-400 font-medium px-1 -translate-y-0.5">Modelo</legend>
+      <div class="flex items-center mt-auto">
+        <select [(ngModel)]="formValues['modelo_equipo']" (ngModelChange)="onChange()"
+          class="border-0 outline-none bg-transparent w-full text-[13px] font-semibold text-slate-600 cursor-pointer appearance-none">
+          <option *ngFor="let opt of getCampo('modelo_equipo').options" [value]="opt">{{ opt }}</option>
+        </select>
+      </div>
+    </fieldset>
 
-
-<!-- Operador -->
-<fieldset class="field">
-  <legend>Operador</legend>
-  <div class="input-inner">
-    <input type="text" placeholder="6666 6666" [(ngModel)]="formValues['operador']" (ngModelChange)="onChange()">
-    <span class="icon-gray">👤</span>
-  </div>
-</fieldset>
+    <!-- Operador -->
+    <fieldset class="flex-1 min-w-[110px] bg-white border border-slate-200 rounded-xl px-2.5 pb-1.5 pt-0 m-0 h-[46px] flex flex-col">
+      <legend class="text-[10px] text-slate-400 font-medium px-1 -translate-y-0.5">Operador</legend>
+      <div class="flex items-center mt-auto">
+        <input type="text" placeholder="Nombre operador"
+          [(ngModel)]="formValues['operador']" (ngModelChange)="onChange()"
+          class="border-0 outline-none bg-transparent w-full text-[13px] font-semibold text-slate-600"/>
+      </div>
+    </fieldset>
 
     <!-- Jefe Guardia -->
-    <fieldset class="field">
-      <legend>Jefe Guardia</legend>
-      <div class="input-inner">
-        <span class="icon-color">👤</span>
-        <select [(ngModel)]="formValues['jefeGuardia']" (ngModelChange)="onChange()">
+    <fieldset class="flex-1 min-w-[110px] bg-white border border-slate-200 rounded-xl px-2.5 pb-1.5 pt-0 m-0 h-[46px] flex flex-col">
+      <legend class="text-[10px] text-slate-400 font-medium px-1 -translate-y-0.5">Jefe Guardia</legend>
+      <div class="flex items-center mt-auto">
+        <select [(ngModel)]="formValues['jefeGuardia']" (ngModelChange)="onChange()"
+          class="border-0 outline-none bg-transparent w-full text-[13px] font-semibold text-slate-600 cursor-pointer appearance-none">
           <option *ngFor="let opt of getCampo('jefeGuardia').options" [value]="opt">{{ opt }}</option>
         </select>
       </div>
     </fieldset>
 
-    <!-- Sección -->
-    <fieldset class="field">
-      <legend>Sección</legend>
-      <div class="input-inner">
-        <span class="icon-color">🗺️</span>
-        <select [(ngModel)]="formValues['seccion']" (ngModelChange)="onChange()">
+    <!-- Sección — mismo tamaño que los demás, no ocupa fila completa -->
+    <fieldset class="flex-1 min-w-[110px] bg-white border border-slate-200 rounded-xl px-2.5 pb-1.5 pt-0 m-0 h-[46px] flex flex-col">
+      <legend class="text-[10px] text-slate-400 font-medium px-1 -translate-y-0.5">Sección</legend>
+      <div class="flex items-center mt-auto">
+        <select [(ngModel)]="formValues['seccion']" (ngModelChange)="onChange()"
+          class="border-0 outline-none bg-transparent w-full text-[13px] font-semibold text-slate-600 cursor-pointer appearance-none">
           <option *ngFor="let opt of getCampo('seccion').options" [value]="opt">{{ opt }}</option>
         </select>
       </div>
     </fieldset>
 
   </div>
-
 </div>

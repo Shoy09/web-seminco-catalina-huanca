@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
@@ -57,16 +57,6 @@ export class TotalHorometrosComponent implements OnChanges {
     const yAxisMax = Math.ceil(maxValor * 1.2);
 
     this.chartOptions = {
-      title: {
-        text: 'TOTAL HORÓMETROS',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: '#2c3e50'
-        }
-      },
       tooltip: {
         trigger: 'axis',
         axisPointer: {
@@ -120,9 +110,6 @@ export class TotalHorometrosComponent implements OnChanges {
       },
       yAxis: {
         type: 'value',
-        name: 'Horas Totales',
-        nameLocation: 'middle',
-        nameGap: 45,
         min: 0,
         max: yAxisMax,
         axisLabel: {
@@ -138,7 +125,6 @@ export class TotalHorometrosComponent implements OnChanges {
       },
       series: [
         {
-          name: 'H. Diesel',
           type: 'bar',
           data: dieselData,
           itemStyle: {
@@ -160,7 +146,6 @@ export class TotalHorometrosComponent implements OnChanges {
           barCategoryGap: '0.3'
         },
         {
-          name: 'H. Eléctrico',
           type: 'bar',
           data: electricoData,
           itemStyle: {
@@ -182,7 +167,6 @@ export class TotalHorometrosComponent implements OnChanges {
           barCategoryGap: '0.3'
         },
         {
-          name: 'H. Percusión',
           type: 'bar',
           data: percusionData,
           itemStyle: {

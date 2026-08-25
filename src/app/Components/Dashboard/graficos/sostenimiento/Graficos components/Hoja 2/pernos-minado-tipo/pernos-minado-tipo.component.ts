@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
 import { TitleComponent, TooltipComponent, LegendComponent } from 'echarts/components';
@@ -85,16 +85,6 @@ export class PernosMinadoTipoComponent implements OnChanges {
     }));
 
     return {
-      title: {
-        text: 'PERNOS POR TIPO DE MINADO',
-        left: 'center',
-        top: 20,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: '#333'
-        }
-      },
       tooltip: {
         trigger: 'item',
         formatter: '{b}: {c} pernos ({d}%)'
@@ -114,7 +104,6 @@ export class PernosMinadoTipoComponent implements OnChanges {
       },
       series: [
         {
-          name: 'Pernos',
           type: 'pie',
           radius: '55%',
           center: ['50%', '55%'],

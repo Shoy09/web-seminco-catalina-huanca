@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+﻿import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 
@@ -54,9 +54,9 @@ export class DisponibilidadMesComponent implements OnChanges {
       return;
     }
 
-    const datosOrdenados = [...this.data].sort((a, b) =>
-      String(a.key).localeCompare(String(b.key)),
-    );
+    const datosOrdenados = [...this.data]
+      .filter(item => Number(item.disponibilidad || 0) > 0)
+      .sort((a, b) => String(a.key).localeCompare(String(b.key)));
 
     const meses = datosOrdenados.map((item) => item.periodo);
 
@@ -67,16 +67,6 @@ export class DisponibilidadMesComponent implements OnChanges {
     const porcentajeVisible = meses.length > 6 ? (6 / meses.length) * 100 : 100;
 
     this.chartOptions = {
-      title: {
-        text: 'DISPONIBILIDAD POR MES',
-        left: 'center',
-        top: 10,
-        textStyle: {
-          fontSize: 16,
-          fontWeight: 'bold',
-          color: CHART_COLORS.grey,
-        },
-      },
 
       tooltip: {
         trigger: 'axis',
@@ -135,9 +125,6 @@ export class DisponibilidadMesComponent implements OnChanges {
 
       yAxis: {
         type: 'value',
-        name: 'Porcentaje (%)',
-        nameLocation: 'middle',
-        nameGap: 45,
         min: 0,
         max: 100,
         interval: 20,
@@ -173,7 +160,6 @@ export class DisponibilidadMesComponent implements OnChanges {
 
       series: [
         {
-          name: 'Disponibilidad',
           type: 'bar',
           barWidth: '55%',
 

@@ -1,69 +1,46 @@
-<div class="tabla-container">
-
-  <div class="tabla-header">
-    <h3>{{ titulo }}</h3>
-    <p class="turno-info">
-      Turno: <strong>{{ turno || 'TODOS' }}</strong>
-    </p>
+<div class="card-wrapper">
+  <div class="card-header">
+    <span class="card-accent"></span>
+    <span class="card-title">{{ titulo || 'Metros Perforados por Equipo' }}</span>
+    <span class="turno-badge" *ngIf="turno">{{ turno }}</span>
   </div>
 
-  <div class="tabla-responsive" *ngIf="rangosHora.length > 0 && labores.length > 0">
-    <table class="tabla-metros">
-      <thead>
-        <tr>
-          <th class="fijo">Rango de Hora</th>
-          <th *ngFor="let labor of labores">
-            {{ labor }}
-          </th>
-          <th class="total-col">
-            {{ labelTotalRango }}
-          </th>
-        </tr>
-      </thead>
-
-      <tbody>
-        <tr *ngFor="let rango of rangosHora">
-          <td class="fijo">
-            {{ rango }}
-          </td>
-
-          <td
-            *ngFor="let labor of labores"
-            [class]="getColorPorValor(matrizValores[rango][labor])"
-          >
-            {{ formatNumber(matrizValores[rango][labor]) }}
-          </td>
-
-          <td class="total-cell">
-            {{ formatNumber(totalesPorRango[rango]) }}
-          </td>
-        </tr>
-      </tbody>
-
-      <tfoot>
-        <tr>
-          <td class="fijo">
-            <strong>{{ labelTotalLabor }}</strong>
-          </td>
-
-          <td *ngFor="let labor of labores">
-            <strong>
-              {{ formatNumber(totalesPorLabor[labor]) }}
-            </strong>
-          </td>
-
-          <td class="total-cell gran-total">
-            <strong>
-              {{ formatNumber(granTotal) }}
-            </strong>
-          </td>
-        </tr>
-      </tfoot>
-    </table>
-  </div>
-
-  <div *ngIf="rangosHora.length === 0 || labores.length === 0" class="sin-datos">
-    <p>{{ mensajeSinDatos }}</p>
-  </div>
-
+  @if (rangosHora.length === 0 || labores.length === 0) {
+    <div class="empty-state">
+      <span class="material-icons empty-icon">table_chart</span>
+      <span class="empty-text">Sin datos para el período seleccionado</span>
+    </div>
+  } @else {
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th class="th-sticky">Rango de Hora</th>
+            <th *ngFor="let labor of labores">{{ labor }}</th>
+            <th class="th-total">{{ labelTotalRango }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let rango of rangosHora">
+            <td class="td-sticky">{{ rango }}</td>
+            <td *ngFor="let labor of labores" [class]="getColorPorValor(matrizValores[rango][labor])">
+              {{ formatNumber(matrizValores[rango][labor]) }}
+            </td>
+            <td class="td-total">{{ formatNumber(totalesPorRango[rango]) }}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr class="total-row">
+            <td class="td-sticky"><strong>{{ labelTotalLabor }}</strong></td>
+            <td *ngFor="let labor of labores">
+              <strong>{{ formatNumber(totalesPorLabor[labor]) }}</strong>
+            </td>
+            <td class="td-total gran-total">
+              <strong>{{ formatNumber(granTotal) }}</strong>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  }
 </div>
