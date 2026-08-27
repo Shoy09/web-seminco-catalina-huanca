@@ -1,75 +1,109 @@
-<h2 mat-dialog-title class="dialog-title">
-  <i class="bi {{ modoEdicion ? 'bi-pencil-square' : 'bi-file-earmark-plus' }}"></i>
-  {{ modoEdicion ? 'Editar PDF' : 'Nuevo PDF' }}
-  <span class="carpeta-label"> — {{ data.carpetaNombre }}</span>
-</h2>
+<div class="w-full">
 
-<mat-dialog-content>
-  <form [formGroup]="form" class="form-body">
-
-    <!-- NOMBRE -->
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Nombre</mat-label>
-      <input
-        matInput
-        formControlName="nombre"
-        placeholder="Ej: Informe Enero 2026"
-      />
-      <mat-icon matSuffix>label</mat-icon>
-      <mat-error *ngIf="form.get('nombre')?.hasError('required')">
-        El nombre es requerido
-      </mat-error>
-      <mat-error *ngIf="form.get('nombre')?.hasError('minlength')">
-        Mínimo 3 caracteres
-      </mat-error>
-    </mat-form-field>
-
-    <!-- ARCHIVO PDF -->
-    <div class="file-upload-group">
-      <label class="file-label">
-        {{ modoEdicion ? 'Reemplazar PDF' : 'Archivo PDF' }}
-        <span *ngIf="!modoEdicion" class="required-mark">*</span>
-      </label>
-
-      <label class="file-drop-zone" [class.has-file]="pdfFile" for="archivo">
-        <i class="bi {{ pdfFile ? 'bi-file-earmark-check-fill' : 'bi-cloud-arrow-up' }}"></i>
-        <span class="file-drop-text">
-          {{ pdfFile ? pdfFile.name : 'Haz clic o arrastra un PDF aquí' }}
-        </span>
-        <span *ngIf="!pdfFile && modoEdicion" class="file-optional-hint">
-          Opcional: deja vacío para conservar el archivo actual
-        </span>
-        <input
-          id="archivo"
-          type="file"
-          (change)="onFileSelected($event)"
-          accept="application/pdf"
-          class="file-input-hidden"
-        />
-      </label>
-
-      <small *ngIf="form.get('archivo')?.touched && form.get('archivo')?.hasError('required')" class="error-text">
-        Debes seleccionar un archivo PDF
-      </small>
-      <small *ngIf="form.get('archivo')?.hasError('invalidType')" class="error-text">
-        El archivo debe ser un PDF válido
-      </small>
+  <!-- Título -->
+  <div class="flex items-center justify-between border-b border-border px-6 py-4">
+    <div>
+      <p class="text-[10px] font-bold uppercase tracking-widest text-ink-50">
+        {{ modoEdicion ? 'Editando documento' : 'Nuevo documento' }} — {{ data.carpetaNombre }}
+      </p>
+      <h2 class="text-lg font-black text-ink">{{ modoEdicion ? 'Editar PDF' : 'Nuevo PDF' }}</h2>
     </div>
+    <button mat-icon-button (click)="cancelar()" class="!text-ink-50 hover:!text-danger">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
 
-  </form>
-</mat-dialog-content>
+  <!-- Contenido -->
+  <mat-dialog-content class="!p-6">
+    <form [formGroup]="form" class="flex flex-col gap-4">
 
-<mat-dialog-actions align="end">
-  <button mat-stroked-button (click)="cancelar()" [disabled]="loading">
-    Cancelar
-  </button>
-  <button
-    mat-flat-button
-    color="primary"
-    (click)="onSubmit()"
-    [disabled]="form.invalid || loading"
-    class="btn-guardar">
-    <mat-icon>{{ loading ? 'hourglass_empty' : (modoEdicion ? 'save' : 'cloud_upload') }}</mat-icon>
-    {{ loading ? 'Guardando...' : (modoEdicion ? 'Actualizar' : 'Guardar') }}
-  </button>
-</mat-dialog-actions>
+      <!-- NOMBRE -->
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-bold uppercase tracking-wide text-ink-50">Nombre</label>
+        <mat-form-field appearance="outline" class="w-full">
+          <input
+            matInput
+            formControlName="nombre"
+            placeholder="Ej: Informe Enero 2026"
+          />
+          <mat-error *ngIf="form.get('nombre')?.hasError('required')">
+            El nombre es requerido
+          </mat-error>
+          <mat-error *ngIf="form.get('nombre')?.hasError('minlength')">
+            Mínimo 3 caracteres
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- ARCHIVO PDF -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs font-bold uppercase tracking-wide text-ink-50">
+          {{ modoEdicion ? 'Reemplazar PDF' : 'Archivo PDF' }}
+          <span *ngIf="!modoEdicion" class="text-danger ml-0.5">*</span>
+        </label>
+
+        <label
+          class="flex flex-col items-center justify-center gap-2 px-4 py-6 rounded-xl border-2 border-dashed cursor-pointer text-center transition"
+          [class.border-primary]="pdfFile"
+          [class.bg-primary-25]="pdfFile"
+          [class.border-border]="!pdfFile"
+          [class.bg-surface-soft]="!pdfFile"
+          for="archivo"
+        >
+          <mat-icon
+            class="!h-8 !w-8 !text-3xl !leading-none transition"
+            [class.text-secondary]="pdfFile"
+            [class.text-ink-25]="!pdfFile"
+          >
+            {{ pdfFile ? 'task' : 'cloud_upload' }}
+          </mat-icon>
+
+          <span class="text-sm break-all max-w-xs"
+            [class.text-secondary]="pdfFile"
+            [class.font-semibold]="pdfFile"
+            [class.text-ink-50]="!pdfFile"
+          >
+            {{ pdfFile ? pdfFile.name : 'Haz clic o arrastra un PDF aquí' }}
+          </span>
+
+          <span *ngIf="!pdfFile && modoEdicion" class="text-xs text-ink-25 italic">
+            Opcional: deja vacío para conservar el archivo actual
+          </span>
+
+          <input
+            id="archivo"
+            type="file"
+            (change)="onFileSelected($event)"
+            accept="application/pdf"
+            class="hidden"
+          />
+        </label>
+
+        <small *ngIf="form.get('archivo')?.touched && form.get('archivo')?.hasError('required')" class="text-xs text-danger">
+          Debes seleccionar un archivo PDF
+        </small>
+        <small *ngIf="form.get('archivo')?.hasError('invalidType')" class="text-xs text-danger">
+          El archivo debe ser un PDF válido
+        </small>
+      </div>
+
+    </form>
+  </mat-dialog-content>
+
+  <!-- Acciones -->
+  <mat-dialog-actions align="end" class="!px-6 !pb-5 !pt-2 gap-2">
+    <button mat-stroked-button (click)="cancelar()" [disabled]="loading" class="!rounded-xl">
+      Cancelar
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="onSubmit()"
+      [disabled]="form.invalid || loading"
+      class="!rounded-xl">
+      <mat-icon class="!h-4 !w-4 !text-sm">{{ loading ? 'hourglass_empty' : (modoEdicion ? 'save' : 'cloud_upload') }}</mat-icon>
+      {{ loading ? 'Guardando...' : (modoEdicion ? 'Actualizar' : 'Guardar') }}
+    </button>
+  </mat-dialog-actions>
+
+</div>

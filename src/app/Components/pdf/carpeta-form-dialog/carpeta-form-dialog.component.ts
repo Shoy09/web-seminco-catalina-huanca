@@ -5,6 +5,7 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/materia
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { CarpetaService } from '../../../services/carpeta-pdf.service';
 
@@ -17,7 +18,8 @@ import { CarpetaService } from '../../../services/carpeta-pdf.service';
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
-    MatButtonModule
+    MatButtonModule,
+    MatIconModule
   ],
   templateUrl: './carpeta-form-dialog.component.html',
   styleUrls: ['./carpeta-form-dialog.component.css']

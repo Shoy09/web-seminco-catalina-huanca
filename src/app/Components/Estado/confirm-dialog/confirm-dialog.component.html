@@ -1,14 +1,30 @@
-<h2 mat-dialog-title class="dialog-title">
-    <mat-icon color="warn">warning</mat-icon>
-    Confirmar Eliminación
-  </h2>
-  
-  <mat-dialog-content class="dialog-content">
-    <p>{{ data.mensaje }}</p>
+<div class="w-full">
+
+  <!-- Título -->
+  <div class="flex items-center gap-3 border-b border-border px-6 py-4">
+    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-50">
+      <mat-icon class="!text-danger">warning</mat-icon>
+    </div>
+    <h2 class="text-lg font-black text-ink">Confirmar Eliminación</h2>
+  </div>
+
+  <!-- Contenido -->
+  <mat-dialog-content class="!px-6 !py-5">
+    <p class="text-sm text-ink-75 leading-relaxed">{{ data.mensaje }}</p>
   </mat-dialog-content>
-  
-  <mat-dialog-actions align="end" class="dialog-actions">
-    <button mat-button (click)="cancelar()" class="cancel-button">Cancelar</button>
-    <button mat-button color="warn" (click)="confirmar()" class="delete-button">Eliminar</button>
+
+  <!-- Acciones -->
+  <mat-dialog-actions align="end" class="!px-6 !pb-5 !pt-2 gap-2">
+    <button mat-stroked-button (click)="cancelar()" class="!rounded-xl">
+      Cancelar
+    </button>
+    <button
+      mat-raised-button
+      (click)="confirmar()"
+      class="!rounded-xl !bg-danger !text-white">
+      <mat-icon class="!h-4 !w-4 !text-sm">delete</mat-icon>
+      Eliminar
+    </button>
   </mat-dialog-actions>
-  
+
+</div>

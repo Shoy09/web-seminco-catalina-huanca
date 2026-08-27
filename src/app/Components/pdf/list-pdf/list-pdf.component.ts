@@ -3,6 +3,9 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
 import { ConfirmDialogComponent } from '../../Estado/confirm-dialog/confirm-dialog.component';
 import { FormCreateComponent } from '../form-create/form-create.component';
@@ -15,7 +18,7 @@ import { CarpetaService } from '../../../services/carpeta-pdf.service';
 @Component({
   selector: 'app-list-pdf',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatTableModule, MatPaginatorModule],
+  imports: [CommonModule, ReactiveFormsModule, MatTableModule, MatPaginatorModule, MatIconModule, MatButtonModule, MatTooltipModule],
   templateUrl: './list-pdf.component.html',
   styleUrl: './list-pdf.component.css'
 })

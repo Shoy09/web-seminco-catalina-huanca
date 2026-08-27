@@ -1,10 +1,11 @@
 import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogContent } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { SafeUrlPipe } from "../safe-url.pipe";
 
 @Component({
   selector: 'app-pdf-viewer-dialog',
-  imports: [MatDialogContent, SafeUrlPipe],
+  imports: [MatDialogModule, MatIconModule, SafeUrlPipe],
   templateUrl: './pdf-viewer-dialog.component.html',
   styleUrl: './pdf-viewer-dialog.component.css'
 })
