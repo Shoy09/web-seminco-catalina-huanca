@@ -147,6 +147,12 @@ export class UsuarioDialogComponent {
     'admin':      'Admin',
     'user':       'Trabajador',
     'supervisor': 'Master',
+    'operador':   'OPERADOR',
+    // Valores ya en formato frontend (para tolerancia)
+    'Admin':      'Admin',
+    'Trabajador': 'Trabajador',
+    'Master':     'Master',
+    'OPERADOR':   'OPERADOR',
   };
 
 guardar() {
