@@ -38,6 +38,7 @@ import { LineaPrincipalComponent } from './Components/Dashboard/graficos/Linea d
 import { PrincipalScissorComponent } from './Components/Jefe mina/aprobaciones/scissor/principal/principal.component';
 import { PrincipalGraficoAcarreoComponent } from './Components/Dashboard/graficos/acarreo/principal-grafico-acarreo/principal-grafico-acarreo.component';
 import { NotificacionesEmailComponent } from './Components/Notificaciones/notificaciones-email/notificaciones-email.component';
+import { ListPdfComponent } from './Components/pdf/list-pdf/list-pdf.component';
 
 
 
@@ -98,7 +99,8 @@ export const routes: Routes = [
 { path: 'explosivos-graficos', component: ExplosivosGraficosComponent },
 { path: 'linea-de-tiempo', component: LineaPrincipalComponent },
 { path: 'notificaciones-email', component: NotificacionesEmailComponent },
-    ]
+{ path: 'documentos', component: ListPdfComponent },    
+]
   },
 
   { path: '**', redirectTo: '/login' },

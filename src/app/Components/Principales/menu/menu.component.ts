@@ -64,6 +64,7 @@ export class MenuComponent implements OnInit {
         { label: 'Checklist',         routerLink: ['/Dashboard/checklist'] },
         { label: 'Checklist Carguío', routerLink: ['/Dashboard/checklist-telemando'] },
         { label: 'Explosivos',        routerLink: ['/Dashboard/explosivos'] },
+        { title: 'Documentos', routerLink: ['/Dashboard/documentos']},
       ],
     },
     {
