@@ -1,11 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { OperacionBaseSostenimiento } from '../../../../../models/OperacionBase.models';
 import { PlanProduccion } from '../../../../../models/plan_produccion.model';
 import { PlanProduccionService } from '../../../../../services/plan-produccion.service';
 import { FechasPlanMensualService } from '../../../../../services/fechas-plan-mensual.service';
 import { OperacionesService } from '../../../../../services/operaciones.service';
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import {
+  configurarCabeceraPDF,
+  agregarCabeceraPDF,
+  agregarPaginaGraficos2x3,
+  agregarPaginaGraficos2x2,
+  agregarPaginaGraficoCompleto,
+  agregarPaginaGraficos1x2,
+  agregarPaginaTablaPDF,
+  PdfExportOptions,
+} from 'src/app/config/config-pdf';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ResumenComponent } from '../Graficos components/Hoja 1/resumen/resumen.component';
@@ -81,6 +90,24 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
   turnoSeleccionado: string = '';
   turnoAplicado: string = '';
   cargandoPDF = false;
+
+  // ViewChild para exportación PDF
+  @ViewChild(PernosEquipoComponent)          chartPernosEquipo!: PernosEquipoComponent;
+  @ViewChild(PernosDiaComponent)             chartPernosDia!: PernosDiaComponent;
+  @ViewChild(PernosLaborComponent)           chartPernosLabor!: PernosLaborComponent;
+  @ViewChild(PernosInstaladosTipoComponent)  chartPernosInstalados!: PernosInstaladosTipoComponent;
+  @ViewChild(MhrEquipoComponent)             chartMhrEquipo!: MhrEquipoComponent;
+  @ViewChild(MetrosEquipoComponent)          chartMetrosEquipo!: MetrosEquipoComponent;
+  @ViewChild(RendimientoEquipoComponent)     chartRendimiento!: RendimientoEquipoComponent;
+  @ViewChild(DemorasOperativasComponent)     chartDemorasOp!: DemorasOperativasComponent;
+  @ViewChild(DemorasInoperativasComponent)   chartDemorasInop!: DemorasInoperativasComponent;
+  @ViewChild(HorasMantenimientoComponent)    chartHorasMant!: HorasMantenimientoComponent;
+  @ViewChild(HorometroEmpernadorComponent)   chartHorometro!: HorometroEmpernadorComponent;
+  @ViewChild(TotalHorometrosComponent)       chartTotalHorometros!: TotalHorometrosComponent;
+  @ViewChild(PernosMinadoTipoComponent)      chartPernosMinado!: PernosMinadoTipoComponent;
+  @ViewChild(RankingOperadorComponent)       chartRanking!: RankingOperadorComponent;
+  @ViewChild(ScatterTurnosComponent)         chartScatterDia!: ScatterTurnosComponent;
+  @ViewChild(ScatterTurnosNocheComponent)    chartScatterNoche!: ScatterTurnosNocheComponent;
   DataPernosPorEquipo: any[] = [];
   dataPernoDia: any[] = [];
   DataPernosPorLabor: any[] = [];
@@ -299,66 +326,108 @@ mapaEstados: Map<string, any> = new Map();
     return `${year}-${month}-${day}`;
   }
 
-  async generarPDF() {
+  async generarPDF(): Promise<void> {
     this.cargandoPDF = true;
+    await this.delay(400);
 
     try {
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-
-      const todasLasPaginas = document.querySelectorAll('[data-page]');
-      const elementosPorPagina = new Map<number, Element[]>();
-
-      todasLasPaginas.forEach((el) => {
-        const page = parseInt(el.getAttribute('data-page') || '1');
-        if (!elementosPorPagina.has(page)) {
-          elementosPorPagina.set(page, []);
-        }
-        elementosPorPagina.get(page)!.push(el);
+      configurarCabeceraPDF({
+        fechaInicio: this.fechaInicio,
+        fechaFin: this.fechaFin,
+        turno: this.turnoSeleccionado || null,
+        tipoOperacion: 'Sostenimiento — Empernador',
       });
 
-      for (const [pageNum, elementos] of Array.from(
-        elementosPorPagina.entries(),
-      )) {
-        if (pageNum > 1) pdf.addPage();
+      const opts: PdfExportOptions = {
+        pixelRatio: 2,
+        exportWidth: 900,
+        exportHeight: 480,
+        gridLeft: '6%', gridRight: '6%',
+        gridTop: '14%', gridBottom: '8%',
+      };
 
-        todasLasPaginas.forEach((el) => {
-          (el as HTMLElement).style.display = 'none';
-        });
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4',
+        compress: true,
+      });
 
-        elementos.forEach((el) => {
-          (el as HTMLElement).style.display = 'block';
-        });
+      // ── PÁGINA 1: Producción (6 gráficos 2×3) ──────────────────────────
+      agregarCabeceraPDF(pdf, 'SOSTENIMIENTO — PRODUCCIÓN');
+      const W = pdf.internal.pageSize.getWidth();
+      const H = pdf.internal.pageSize.getHeight();
+      const startY1 = 28;
+      const margin = 6; const gap = 4;
+      const cw3 = (W - margin * 2 - gap * 2) / 3;
+      const rh2 = (H - startY1 - margin - gap) / 2;
 
-        await this.delay(300);
+      const grafProd = [
+        { img: this.chartPernosEquipo?.getChartImage(opts),       titulo: 'Pernos por Equipo' },
+        { img: this.chartPernosDia?.getChartImage(opts),          titulo: 'Pernos por Día' },
+        { img: this.chartPernosLabor?.getChartImage(opts),        titulo: 'Pernos por Labor' },
+        { img: this.chartPernosInstalados?.getChartImage(opts),   titulo: 'Pernos por Tipo' },
+        { img: this.chartMhrEquipo?.getChartImage(opts),          titulo: 'M/Hr Equipo' },
+        { img: this.chartMetrosEquipo?.getChartImage(opts),       titulo: 'Metros Equipo' },
+      ];
 
-        const container = document.querySelector(
-          '.graficos-container',
-        ) as HTMLElement;
-
-        if (container) {
-          const canvas = await html2canvas(container, {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: '#ffffff',
-          });
-
-          const imgData = canvas.toDataURL('image/png');
-          const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-          pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
+      grafProd.forEach((g, i) => {
+        const col = i % 3;
+        const row = Math.floor(i / 3);
+        const x = margin + col * (cw3 + gap);
+        const y = startY1 + row * (rh2 + gap);
+        if (g.img) {
+          pdf.setFontSize(7); pdf.setFont('helvetica','bold'); pdf.setTextColor(40,60,90);
+          pdf.text(g.titulo, x + cw3/2, y + 3.5, { align: 'center' });
+          pdf.addImage(g.img, 'JPEG', x, y + 5, cw3, rh2 - 5, undefined, 'MEDIUM');
         }
+      });
+
+      // ── PÁGINA 2: Rendimiento + Mantenimiento (4 gráficos 2×2) ─────────
+      agregarPaginaGraficos2x2(pdf, 'SOSTENIMIENTO — RENDIMIENTO Y MANTENIMIENTO', [
+        { img: this.chartRendimiento?.getChartImage(opts),   titulo: 'DM% y UTI%' },
+        { img: this.chartDemorasOp?.getChartImage(opts),     titulo: 'Demoras Operativas' },
+        { img: this.chartDemorasInop?.getChartImage(opts),   titulo: 'Demoras Inoperativas' },
+        { img: this.chartHorasMant?.getChartImage(opts),     titulo: 'Horas Mantenimiento' },
+      ]);
+
+      // ── PÁGINA 3: Horómetros (2 gráficos 1×2) ──────────────────────────
+      agregarPaginaGraficos1x2(pdf, 'SOSTENIMIENTO — HORÓMETROS', [
+        { img: this.chartHorometro?.getChartImage(opts),         titulo: 'Horómetro Empernador' },
+        { img: this.chartTotalHorometros?.getChartImage(opts),   titulo: 'Total Horómetros' },
+      ]);
+
+      // ── PÁGINA 4: Detalle (pernos minado tipo + ranking) ────────────────
+      agregarPaginaGraficos1x2(pdf, 'SOSTENIMIENTO — DETALLE', [
+        { img: this.chartPernosMinado?.getChartImage(opts),   titulo: 'Pernos por Minado/Tipo' },
+        { img: this.chartRanking?.getChartImage(opts),        titulo: 'Ranking Operador' },
+      ]);
+
+      // ── PÁGINA 5: Scatter turnos ─────────────────────────────────────────
+      const scatterOpts: PdfExportOptions = { ...opts, exportHeight: 600 };
+      if (this.turnoAplicado === '' || this.turnoAplicado === 'DÍA') {
+        agregarPaginaGraficoCompleto(
+          pdf, 'SOSTENIMIENTO — ANÁLISIS TURNO DÍA',
+          this.chartScatterDia?.getChartImage(scatterOpts),
+          'Scatter Turnos — Día'
+        );
+      }
+      if (this.turnoAplicado === '' || this.turnoAplicado === 'NOCHE') {
+        agregarPaginaGraficoCompleto(
+          pdf, 'SOSTENIMIENTO — ANÁLISIS TURNO NOCHE',
+          this.chartScatterNoche?.getChartImage(scatterOpts),
+          'Scatter Turnos — Noche'
+        );
       }
 
-      todasLasPaginas.forEach((el) => {
-        (el as HTMLElement).style.display = '';
-      });
+      const fecha = new Date().toISOString().slice(0, 10);
+      pdf.save(`sostenimiento-empernador-${fecha}.pdf`);
 
-      pdf.save('grafico_completo_tal_largo.pdf');
     } finally {
       this.cargandoPDF = false;
     }
   }
+
   private delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }

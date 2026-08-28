@@ -19,6 +19,8 @@ echarts.use([
   CanvasRenderer
 ]);
 
+import { exportarImagenChart, PdfExportOptions } from 'src/app/config/config-pdf';
+
 @Component({
   selector: 'app-top-equipos',
   standalone: true,
@@ -238,5 +240,11 @@ export class TopEquiposComponent implements OnInit, OnChanges {
     if (porcentaje >= 70) return '#2ecc71';  // Verde
     if (porcentaje >= 40) return '#3498db';  // Azul
     return '#e74c3c';  // Rojo
+  }
+
+  private chartInstance: any;
+  onChartInit(ec: any): void { this.chartInstance = ec; }
+  getChartImage(options?: PdfExportOptions): string | null {
+    return exportarImagenChart(this.chartInstance, options);
   }
 }

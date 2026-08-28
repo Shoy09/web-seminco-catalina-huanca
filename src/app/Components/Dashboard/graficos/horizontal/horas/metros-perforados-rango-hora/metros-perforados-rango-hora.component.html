@@ -18,7 +18,8 @@
           echarts
           [options]="chartOptions"
           [autoResize]="true"
-          class="chart">
+          class="chart"
+          (chartInit)="onChartInit($event)">
         </div>
       </div>
 

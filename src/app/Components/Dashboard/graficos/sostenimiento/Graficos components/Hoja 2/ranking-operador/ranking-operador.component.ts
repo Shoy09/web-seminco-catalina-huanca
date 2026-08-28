@@ -4,6 +4,7 @@ import * as echarts from 'echarts/core';
 import { BarChart, LineChart } from 'echarts/charts';
 import { TitleComponent, TooltipComponent, GridComponent, LegendComponent, ToolboxComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
+import { exportarImagenChart, PdfExportOptions } from 'src/app/config/config-pdf';
 
 echarts.use([
   BarChart,
@@ -152,5 +153,11 @@ export class RankingOperadorComponent implements OnChanges {
         }
       ]
     };
+  }
+
+  private chartInstance: any;
+  onChartInit(ec: any): void { this.chartInstance = ec; }
+  getChartImage(options?: PdfExportOptions): string | null {
+    return exportarImagenChart(this.chartInstance, options);
   }
 }

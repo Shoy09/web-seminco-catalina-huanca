@@ -30,6 +30,8 @@ echarts.use([
   CanvasRenderer,
 ]);
 
+import { exportarImagenChart, PdfExportOptions } from 'src/app/config/config-pdf';
+
 @Component({
   selector: 'app-metros-perforados-rango-hora',
   standalone: true,
@@ -637,5 +639,11 @@ export class MetrosPerforadosRangoHoraComponent implements OnInit, OnChanges {
         z: 100,
       },
     };
+  }
+
+  private chartInstance: any;
+  onChartInit(ec: any): void { this.chartInstance = ec; }
+  getChartImage(options?: PdfExportOptions): string | null {
+    return exportarImagenChart(this.chartInstance, options);
   }
 }

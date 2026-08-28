@@ -4,6 +4,7 @@ import * as echarts from 'echarts/core';
 import { TitleComponent, TooltipComponent, LegendComponent } from 'echarts/components';
 import { PieChart } from 'echarts/charts';
 import { CanvasRenderer } from 'echarts/renderers';
+import { exportarImagenChart, PdfExportOptions } from 'src/app/config/config-pdf';
 
 echarts.use([TitleComponent, TooltipComponent, LegendComponent, PieChart, CanvasRenderer]);
 
@@ -131,5 +132,11 @@ export class PernosMinadoTipoComponent implements OnChanges {
         }
       ]
     };
+  }
+
+  private chartInstance: any;
+  onChartInit(ec: any): void { this.chartInstance = ec; }
+  getChartImage(options?: PdfExportOptions): string | null {
+    return exportarImagenChart(this.chartInstance, options);
   }
 }

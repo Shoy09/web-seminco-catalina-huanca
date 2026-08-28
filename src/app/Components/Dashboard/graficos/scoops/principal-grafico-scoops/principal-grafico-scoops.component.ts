@@ -1,11 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { OperacionBaseScoop } from '../../../../../models/OperacionBase.models';
 import { PlanProduccion } from '../../../../../models/plan_produccion.model';
 import { PlanMensualService } from '../../../../../services/plan-mensual.service';
 import { FechasPlanMensualService } from '../../../../../services/fechas-plan-mensual.service';
 import { OperacionesService } from '../../../../../services/operaciones.service';
-import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import {
+  configurarCabeceraPDF,
+  agregarCabeceraPDF,
+  agregarPaginaGraficos2x3,
+  agregarPaginaGraficos2x2,
+  agregarPaginaGraficoCompleto,
+  agregarPaginaGraficos1x2,
+  PdfExportOptions,
+} from 'src/app/config/config-pdf';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EstadoService } from '../../../../../services/estado.service';
@@ -126,6 +134,36 @@ export class PrincipalGraficoScoopsComponent implements OnInit {
   turnoSeleccionado: string = '';
   turnoAplicado: string = '';
   cargandoPDF = false;
+
+  // ViewChild para exportación PDF
+  @ViewChild(DisponibilidadEquipoComponent)         chartDispEquipo!: DisponibilidadEquipoComponent;
+  @ViewChild(DisponibilidadDiaComponent)            chartDispDia!: DisponibilidadDiaComponent;
+  @ViewChild(DisponibilidadSemanaComponent)         chartDispSemana!: DisponibilidadSemanaComponent;
+  @ViewChild(DisponibilidadMesComponent)            chartDispMes!: DisponibilidadMesComponent;
+  @ViewChild(DisponibilidadGuardiaComponent)        chartDispGuardia!: DisponibilidadGuardiaComponent;
+  @ViewChild(ParetoDisponibilidadComponent)         chartParetoDisp!: ParetoDisponibilidadComponent;
+  @ViewChild(UtilizacionEquipoComponent)            chartUtilEquipo!: UtilizacionEquipoComponent;
+  @ViewChild(UtilizacionDiaMesComponent)            chartUtilDia!: UtilizacionDiaMesComponent;
+  @ViewChild(UtilizacionSemanaComponent)            chartUtilSemana!: UtilizacionSemanaComponent;
+  @ViewChild(UtilizacionMesComponent)               chartUtilMes!: UtilizacionMesComponent;
+  @ViewChild(UtilizacionGuardiaComponent)           chartUtilGuardia!: UtilizacionGuardiaComponent;
+  @ViewChild(ParetoUtilizacionComponent)            chartParetoUtil!: ParetoUtilizacionComponent;
+  @ViewChild(RendimientoSeccionLaborComponent)      chartRendSeccion!: RendimientoSeccionLaborComponent;
+  @ViewChild(RendimientoMesAnoComponent)            chartRendMes!: RendimientoMesAnoComponent;
+  @ViewChild(TopEquiposComponent)                   chartTopEquipos!: TopEquiposComponent;
+  @ViewChild(RendimientoDiaMesComponent)            chartRendDia!: RendimientoDiaMesComponent;
+  @ViewChild(RendimientoGuardiaComponent)           chartRendGuardia!: RendimientoGuardiaComponent;
+  @ViewChild(RankingOperadorUtilizacionComponent)   chartRankingUtil!: RankingOperadorUtilizacionComponent;
+  @ViewChild(RankingOperadorRendimientoComponent)   chartRankingRend!: RankingOperadorRendimientoComponent;
+  @ViewChild(MtbfSemanasComponent)                  chartMtbfSemanas!: MtbfSemanasComponent;
+  @ViewChild(MtbfMesComponent)                      chartMtbfMes!: MtbfMesComponent;
+  @ViewChild(MttrSemanasComponent)                  chartMttrSemanas!: MttrSemanasComponent;
+  @ViewChild(MttrMesComponent)                      chartMttrMes!: MttrMesComponent;
+  @ViewChild(ParetoNoProgramadasComponent)          chartParetoNoProg!: ParetoNoProgramadasComponent;
+  @ViewChild(DiagramaParetoComponent)               chartDiagPareto!: DiagramaParetoComponent;
+  @ViewChild(HorasOperativasDiaComponent)           chartHorasOpDia!: HorasOperativasDiaComponent;
+  @ViewChild(HorasOperativasSemanaComponent)        chartHorasOpSemana!: HorasOperativasSemanaComponent;
+  @ViewChild(HorasOperativasMesComponent)           chartHorasOpMes!: HorasOperativasMesComponent;
 
   //DATA
 DataDisponibilidadPorEquipo: any[] = [];
@@ -454,66 +492,109 @@ mapaEstados: Map<string, any> = new Map();
     return `${year}-${month}-${day}`;
   }
 
-  async generarPDF() {
+  async generarPDF(): Promise<void> {
     this.cargandoPDF = true;
+    await this.delay(400);
 
     try {
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-
-      const todasLasPaginas = document.querySelectorAll('[data-page]');
-      const elementosPorPagina = new Map<number, Element[]>();
-
-      todasLasPaginas.forEach((el) => {
-        const page = parseInt(el.getAttribute('data-page') || '1');
-        if (!elementosPorPagina.has(page)) {
-          elementosPorPagina.set(page, []);
-        }
-        elementosPorPagina.get(page)!.push(el);
+      configurarCabeceraPDF({
+        fechaInicio: this.fechaInicio,
+        fechaFin: this.fechaFin,
+        turno: this.turnoSeleccionado || null,
+        tipoOperacion: 'Scooptram',
       });
 
-      for (const [pageNum, elementos] of Array.from(
-        elementosPorPagina.entries(),
-      )) {
-        if (pageNum > 1) pdf.addPage();
+      const opts: PdfExportOptions = {
+        pixelRatio: 2,
+        exportWidth: 900,
+        exportHeight: 480,
+        gridLeft: '6%', gridRight: '6%',
+        gridTop: '14%', gridBottom: '8%',
+      };
 
-        todasLasPaginas.forEach((el) => {
-          (el as HTMLElement).style.display = 'none';
-        });
-
-        elementos.forEach((el) => {
-          (el as HTMLElement).style.display = 'block';
-        });
-
-        await this.delay(300);
-
-        const container = document.querySelector(
-          '.graficos-container',
-        ) as HTMLElement;
-
-        if (container) {
-          const canvas = await html2canvas(container, {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: '#ffffff',
-          });
-
-          const imgData = canvas.toDataURL('image/png');
-          const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-          pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
-        }
-      }
-
-      todasLasPaginas.forEach((el) => {
-        (el as HTMLElement).style.display = '';
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4',
+        compress: true,
       });
 
-      pdf.save('grafico_completo_tal_largo.pdf');
+      // ── PÁGINA 1: Disponibilidad ────────────────────────────────────────
+      agregarCabeceraPDF(pdf, 'SCOOPTRAM — DISPONIBILIDAD');
+      const W = pdf.internal.pageSize.getWidth();
+      const H = pdf.internal.pageSize.getHeight();
+      const startY = 28; const margin = 6; const gap = 4;
+      const cw3 = (W - margin * 2 - gap * 2) / 3;
+      const rh2 = (H - startY - margin - gap) / 2;
+
+      [
+        { img: this.chartDispEquipo?.getChartImage(opts),   titulo: 'Disponibilidad Equipo' },
+        { img: this.chartDispDia?.getChartImage(opts),      titulo: 'Disponibilidad Día' },
+        { img: this.chartDispSemana?.getChartImage(opts),   titulo: 'Disponibilidad Semana' },
+        { img: this.chartDispMes?.getChartImage(opts),      titulo: 'Disponibilidad Mes' },
+        { img: this.chartDispGuardia?.getChartImage(opts),  titulo: 'Disponibilidad Guardia' },
+        { img: this.chartParetoDisp?.getChartImage(opts),   titulo: 'Pareto Disponibilidad' },
+      ].forEach((g, i) => {
+        const col = i % 3;
+        const row = Math.floor(i / 3);
+        const x = margin + col * (cw3 + gap);
+        const y = startY + row * (rh2 + gap);
+        if (g.img) {
+          pdf.setFontSize(7); pdf.setFont('helvetica','bold'); pdf.setTextColor(40,60,90);
+          pdf.text(g.titulo, x + cw3/2, y + 3.5, { align: 'center' });
+          pdf.addImage(g.img, 'JPEG', x, y + 5, cw3, rh2 - 5, undefined, 'MEDIUM');
+        }
+      });
+
+      // ── PÁGINA 2: Utilización ───────────────────────────────────────────
+      agregarPaginaGraficos2x3(pdf, 'SCOOPTRAM — UTILIZACIÓN', [
+        { img: this.chartUtilEquipo?.getChartImage(opts),   titulo: 'Utilización Equipo' },
+        { img: this.chartUtilDia?.getChartImage(opts),      titulo: 'Utilización Día' },
+        { img: this.chartUtilSemana?.getChartImage(opts),   titulo: 'Utilización Semana' },
+        { img: this.chartUtilMes?.getChartImage(opts),      titulo: 'Utilización Mes' },
+        { img: this.chartUtilGuardia?.getChartImage(opts),  titulo: 'Utilización Guardia' },
+        { img: this.chartParetoUtil?.getChartImage(opts),   titulo: 'Pareto Utilización' },
+      ]);
+
+      // ── PÁGINA 3: Rendimiento ───────────────────────────────────────────
+      agregarPaginaGraficos2x3(pdf, 'SCOOPTRAM — RENDIMIENTO', [
+        { img: this.chartRendSeccion?.getChartImage(opts),  titulo: 'Rendimiento Sección/Labor' },
+        { img: this.chartRendMes?.getChartImage(opts),      titulo: 'Rendimiento Mes/Año' },
+        { img: this.chartTopEquipos?.getChartImage(opts),   titulo: 'Top Equipos' },
+        { img: this.chartRendDia?.getChartImage(opts),      titulo: 'Rendimiento Día/Mes' },
+        { img: this.chartRendGuardia?.getChartImage(opts),  titulo: 'Rendimiento Guardia' },
+      ]);
+
+      // ── PÁGINA 4: Rankings ──────────────────────────────────────────────
+      agregarPaginaGraficos1x2(pdf, 'SCOOPTRAM — RANKING OPERADORES', [
+        { img: this.chartRankingUtil?.getChartImage(opts),  titulo: 'Ranking Utilización' },
+        { img: this.chartRankingRend?.getChartImage(opts),  titulo: 'Ranking Rendimiento' },
+      ]);
+
+      // ── PÁGINA 5: MTBF/MTTR ─────────────────────────────────────────────
+      agregarPaginaGraficos2x2(pdf, 'SCOOPTRAM — MTBF / MTTR', [
+        { img: this.chartMtbfSemanas?.getChartImage(opts),  titulo: 'MTBF Semanas' },
+        { img: this.chartMtbfMes?.getChartImage(opts),      titulo: 'MTBF Mes' },
+        { img: this.chartMttrSemanas?.getChartImage(opts),  titulo: 'MTTR Semanas' },
+        { img: this.chartMttrMes?.getChartImage(opts),      titulo: 'MTTR Mes' },
+      ]);
+
+      // ── PÁGINA 6: Pareto + Horas Operativas ─────────────────────────────
+      agregarPaginaGraficos2x2(pdf, 'SCOOPTRAM — PARETO Y HORAS OPERATIVAS', [
+        { img: this.chartParetoNoProg?.getChartImage(opts), titulo: 'Pareto No Programadas' },
+        { img: this.chartDiagPareto?.getChartImage(opts),   titulo: 'Diagrama Pareto' },
+        { img: this.chartHorasOpDia?.getChartImage(opts),   titulo: 'Horas Operativas Día' },
+        { img: this.chartHorasOpSemana?.getChartImage(opts),titulo: 'Horas Operativas Semana' },
+      ]);
+
+      const fecha = new Date().toISOString().slice(0, 10);
+      pdf.save(`scooptram-${fecha}.pdf`);
+
     } finally {
       this.cargandoPDF = false;
     }
   }
+
   private delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }

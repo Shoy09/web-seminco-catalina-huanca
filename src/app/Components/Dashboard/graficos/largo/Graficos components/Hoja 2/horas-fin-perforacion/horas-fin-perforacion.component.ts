@@ -1,6 +1,7 @@
 ﻿import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { NgxEchartsDirective, provideEchartsCore } from 'ngx-echarts';
 import * as echarts from 'echarts/core';
+import { exportarImagenChart, PdfExportOptions } from 'src/app/config/config-pdf';
 
 @Component({
   selector: 'app-horas-fin-perforacion',
@@ -199,5 +200,11 @@ export class HorasFinPerforacionComponent  implements OnChanges {
         }
       ]
     };
+  }
+
+  private chartInstance: any;
+  onChartInit(ec: any): void { this.chartInstance = ec; }
+  getChartImage(options?: PdfExportOptions): string | null {
+    return exportarImagenChart(this.chartInstance, options);
   }
 }

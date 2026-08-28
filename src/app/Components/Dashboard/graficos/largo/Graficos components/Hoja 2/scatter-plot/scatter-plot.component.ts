@@ -4,6 +4,7 @@ import * as echarts from 'echarts/core';
 import { ScatterChart } from 'echarts/charts';
 import { TitleComponent, TooltipComponent, GridComponent, VisualMapComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
+import { exportarImagenChart, PdfExportOptions } from 'src/app/config/config-pdf';
 
 echarts.use([ScatterChart, TitleComponent, TooltipComponent, GridComponent, VisualMapComponent, CanvasRenderer]);
 
@@ -115,5 +116,11 @@ export class ScatterPlotComponent implements OnInit {
         }
       }]
     };
+  }
+
+  private chartInstance: any;
+  onChartInit(ec: any): void { this.chartInstance = ec; }
+  getChartImage(options?: PdfExportOptions): string | null {
+    return exportarImagenChart(this.chartInstance, options);
   }
 }

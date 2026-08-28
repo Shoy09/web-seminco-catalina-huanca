@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FechasPlanMensualService } from '../../../../../services/fechas-plan-mensual.service';
 import { OperacionesService } from '../../../../../services/operaciones.service';
 import { OperacionBaseTLargos } from '../../../../../models/OperacionBase.models';
@@ -29,7 +29,16 @@ import { ScatterTurnosNocheComponent } from '../Graficos components/Hoja 2/scatt
 import { PlanProduccionService } from '../../../../../services/plan-produccion.service';
 import { PlanProduccion } from '../../../../../models/plan_produccion.model';
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import {
+  configurarCabeceraPDF,
+  agregarCabeceraPDF,
+  agregarPaginaGraficos2x3,
+  agregarPaginaGraficos2x2,
+  agregarPaginaGraficoCompleto,
+  agregarPaginaGraficos1x2,
+  agregarPaginaTablaPDF,
+  PdfExportOptions,
+} from 'src/app/config/config-pdf';
 import { SchedulerComponent } from '../../Linea de tiempo/scheduler/scheduler.component';
 import { EstadoService } from '../../../../../services/estado.service';
 import { OperacionTLargos } from '../../../../../models/OperacionTLargos';
@@ -152,6 +161,36 @@ export class PrincipalGraficoLargoComponent implements OnInit {
 
   estadosProceso: any[] = [];
   cargandoPDF = false;
+
+  // ViewChild para exportación PDF
+  @ViewChild(DisparosEquipoComponent)            chartDisparosEquipo!: DisparosEquipoComponent;
+  @ViewChild(PerforadoEquipoComponent)           chartPerforadoEquipo!: PerforadoEquipoComponent;
+  @ViewChild(DemorasOperativasComponent)         chartDemorasOp!: DemorasOperativasComponent;
+  @ViewChild(HorasNoOperativasComponent)         chartHorasNoOp!: HorasNoOperativasComponent;
+  @ViewChild(HorasDeMantenimientoComponent)      chartHorasMant!: HorasDeMantenimientoComponent;
+  @ViewChild(MetrosPerforadosDisparoComponent)   chartMetrosDisparo!: MetrosPerforadosDisparoComponent;
+  @ViewChild(MhrEquipoComponent)                 chartMhrEquipo!: MhrEquipoComponent;
+  @ViewChild(HorometrosJumbosComponent)          chartHorometros!: HorometrosJumbosComponent;
+  @ViewChild(TotalHorometrosComponent)           chartTotalHorometros!: TotalHorometrosComponent;
+  @ViewChild(AvanceFaseComponent)                chartAvanceFase!: AvanceFaseComponent;
+  @ViewChild(DisparosTipoPerforacionComponent)   chartDisparosTipo!: DisparosTipoPerforacionComponent;
+  @ViewChild(RankingOperadorComponent)           chartRanking!: RankingOperadorComponent;
+  @ViewChild(ScatterTurnosComponent)             chartScatterDia!: ScatterTurnosComponent;
+  @ViewChild(ScatterTurnosNocheComponent)        chartScatterNoche!: ScatterTurnosNocheComponent;
+  @ViewChild(DisponibilidadEquipoComponent)      chartDispEquipo!: DisponibilidadEquipoComponent;
+  @ViewChild(DisponibilidadDiaComponent)         chartDispDia!: DisponibilidadDiaComponent;
+  @ViewChild(DisponibilidadSemanaComponent)      chartDispSemana!: DisponibilidadSemanaComponent;
+  @ViewChild(DisponibilidadMesComponent)         chartDispMes!: DisponibilidadMesComponent;
+  @ViewChild(ParetoDisponibilidadComponent)      chartParetoDisp!: ParetoDisponibilidadComponent;
+  @ViewChild(UtilizacionEquipoComponent)         chartUtilEquipo!: UtilizacionEquipoComponent;
+  @ViewChild(UtilizacionDiaMesComponent)         chartUtilDia!: UtilizacionDiaMesComponent;
+  @ViewChild(UtilizacionSemanaComponent)         chartUtilSemana!: UtilizacionSemanaComponent;
+  @ViewChild(UtilizacionMesComponent)            chartUtilMes!: UtilizacionMesComponent;
+  @ViewChild(ParetoUtilizacionComponent)         chartParetoUtil!: ParetoUtilizacionComponent;
+  @ViewChild(RendimientoEquipoComponent)         chartRendEquipo!: RendimientoEquipoComponent;
+  @ViewChild(RendimientoDiaComponent)            chartRendDia!: RendimientoDiaComponent;
+  @ViewChild(RendimientoSemanaComponent)         chartRendSemana!: RendimientoSemanaComponent;
+  @ViewChild(RendimientoMesComponent)            chartRendMes!: RendimientoMesComponent;
   ganttData: any[] = [];
   vistaPrincipal: boolean = true;
 
@@ -328,66 +367,126 @@ export class PrincipalGraficoLargoComponent implements OnInit {
     this.procesarTodo();
   }
 
-  async generarPDF() {
+  async generarPDF(): Promise<void> {
     this.cargandoPDF = true;
+    await this.delay(400);
 
     try {
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-
-      const todasLasPaginas = document.querySelectorAll('[data-page]');
-      const elementosPorPagina = new Map<number, Element[]>();
-
-      todasLasPaginas.forEach((el) => {
-        const page = parseInt(el.getAttribute('data-page') || '1');
-        if (!elementosPorPagina.has(page)) {
-          elementosPorPagina.set(page, []);
-        }
-        elementosPorPagina.get(page)!.push(el);
+      configurarCabeceraPDF({
+        fechaInicio: this.fechaInicio,
+        fechaFin: this.fechaFin,
+        turno: this.turnoSeleccionado || null,
+        tipoOperacion: 'Taladro Largo',
       });
 
-      for (const [pageNum, elementos] of Array.from(
-        elementosPorPagina.entries(),
-      )) {
-        if (pageNum > 1) pdf.addPage();
+      const opts: PdfExportOptions = {
+        pixelRatio: 2,
+        exportWidth: 900,
+        exportHeight: 480,
+        gridLeft: '6%', gridRight: '6%',
+        gridTop: '14%', gridBottom: '8%',
+      };
 
-        todasLasPaginas.forEach((el) => {
-          (el as HTMLElement).style.display = 'none';
-        });
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4',
+        compress: true,
+      });
 
-        elementos.forEach((el) => {
-          (el as HTMLElement).style.display = 'block';
-        });
+      // ── PÁGINA 1: Disponibilidad (6 gráficos 2×3) ──────────────────────
+      agregarCabeceraPDF(pdf, 'TALADRO LARGO — DISPONIBILIDAD');
+      const W = pdf.internal.pageSize.getWidth();
+      const H = pdf.internal.pageSize.getHeight();
+      const startY = 28; const margin = 6; const gap = 4;
+      const cw3 = (W - margin * 2 - gap * 2) / 3;
+      const rh2 = (H - startY - margin - gap) / 2;
 
-        await this.delay(300);
-
-        const container = document.querySelector(
-          '.graficos-container',
-        ) as HTMLElement;
-
-        if (container) {
-          const canvas = await html2canvas(container, {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: '#ffffff',
-          });
-
-          const imgData = canvas.toDataURL('image/png');
-          const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-          pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
+      [
+        { img: this.chartDispEquipo?.getChartImage(opts),   titulo: 'Disponibilidad Equipo' },
+        { img: this.chartDispDia?.getChartImage(opts),      titulo: 'Disponibilidad Día' },
+        { img: this.chartDispSemana?.getChartImage(opts),   titulo: 'Disponibilidad Semana' },
+        { img: this.chartDispMes?.getChartImage(opts),      titulo: 'Disponibilidad Mes' },
+        { img: this.chartParetoDisp?.getChartImage(opts),   titulo: 'Pareto Disponibilidad' },
+      ].forEach((g, i) => {
+        const col = i % 3;
+        const row = Math.floor(i / 3);
+        const x = margin + col * (cw3 + gap);
+        const y = startY + row * (rh2 + gap);
+        if (g.img) {
+          pdf.setFontSize(7); pdf.setFont('helvetica','bold'); pdf.setTextColor(40,60,90);
+          pdf.text(g.titulo, x + cw3/2, y + 3.5, { align: 'center' });
+          pdf.addImage(g.img, 'JPEG', x, y + 5, cw3, rh2 - 5, undefined, 'MEDIUM');
         }
+      });
+
+      // ── PÁGINA 2: Utilización (6 gráficos 2×3) ─────────────────────────
+      agregarPaginaGraficos2x3(pdf, 'TALADRO LARGO — UTILIZACIÓN', [
+        { img: this.chartUtilEquipo?.getChartImage(opts),   titulo: 'Utilización Equipo' },
+        { img: this.chartUtilDia?.getChartImage(opts),      titulo: 'Utilización Día' },
+        { img: this.chartUtilSemana?.getChartImage(opts),   titulo: 'Utilización Semana' },
+        { img: this.chartUtilMes?.getChartImage(opts),      titulo: 'Utilización Mes' },
+        { img: this.chartParetoUtil?.getChartImage(opts),   titulo: 'Pareto Utilización' },
+      ]);
+
+      // ── PÁGINA 3: Rendimiento (5 gráficos 2x3) ─────────────────────────
+      agregarPaginaGraficos2x3(pdf, 'TALADRO LARGO — RENDIMIENTO', [
+        { img: this.chartRendEquipo?.getChartImage(opts),   titulo: 'Rendimiento Equipo' },
+        { img: this.chartRendDia?.getChartImage(opts),      titulo: 'Rendimiento Día' },
+        { img: this.chartRendSemana?.getChartImage(opts),   titulo: 'Rendimiento Semana' },
+        { img: this.chartRendMes?.getChartImage(opts),      titulo: 'Rendimiento Mes' },
+      ]);
+
+      // ── PÁGINA 4: Producción (6 gráficos 2×3) ──────────────────────────
+      agregarPaginaGraficos2x3(pdf, 'TALADRO LARGO — PRODUCCIÓN', [
+        { img: this.chartDisparosEquipo?.getChartImage(opts),   titulo: 'Disparos por Equipo' },
+        { img: this.chartPerforadoEquipo?.getChartImage(opts),  titulo: 'Metros Perforados' },
+        { img: this.chartDemorasOp?.getChartImage(opts),        titulo: 'Demoras Operativas' },
+        { img: this.chartHorasNoOp?.getChartImage(opts),        titulo: 'Horas No Operativas' },
+        { img: this.chartHorasMant?.getChartImage(opts),        titulo: 'Horas Mantenimiento' },
+        { img: this.chartMetrosDisparo?.getChartImage(opts),    titulo: 'M/Disparo FR' },
+      ]);
+
+      // ── PÁGINA 5: Horómetros + Avance ──────────────────────────────────
+      agregarPaginaGraficos2x2(pdf, 'TALADRO LARGO — HORÓMETROS Y AVANCE', [
+        { img: this.chartMhrEquipo?.getChartImage(opts),         titulo: 'M/Hr Equipo' },
+        { img: this.chartHorometros?.getChartImage(opts),        titulo: 'Horómetros Jumbos' },
+        { img: this.chartAvanceFase?.getChartImage(opts),        titulo: 'Avance por Fase' },
+        { img: this.chartDisparosTipo?.getChartImage(opts),      titulo: 'Disparos por Tipo' },
+      ]);
+
+      // ── PÁGINA 6: Operadores / Ranking ──────────────────────────────────
+      agregarPaginaGraficoCompleto(
+        pdf, 'TALADRO LARGO — RANKING OPERADORES',
+        this.chartRanking?.getChartImage({ ...opts, exportHeight: 600 }),
+        'Ranking Operador'
+      );
+
+      // ── PÁGINA 7 y 8: Scatter turnos ────────────────────────────────────
+      const scatterOpts: PdfExportOptions = { ...opts, exportHeight: 600 };
+      if (this.turnoAplicado === '' || this.turnoAplicado === 'DÍA') {
+        agregarPaginaGraficoCompleto(
+          pdf, 'TALADRO LARGO — ANÁLISIS TURNO DÍA',
+          this.chartScatterDia?.getChartImage(scatterOpts),
+          'Scatter Turnos — Día'
+        );
+      }
+      if (this.turnoAplicado === '' || this.turnoAplicado === 'NOCHE') {
+        agregarPaginaGraficoCompleto(
+          pdf, 'TALADRO LARGO — ANÁLISIS TURNO NOCHE',
+          this.chartScatterNoche?.getChartImage(scatterOpts),
+          'Scatter Turnos — Noche'
+        );
       }
 
-      todasLasPaginas.forEach((el) => {
-        (el as HTMLElement).style.display = '';
-      });
+      const fecha = new Date().toISOString().slice(0, 10);
+      pdf.save(`taladro-largo-${fecha}.pdf`);
 
-      pdf.save('grafico_completo_tal_largo.pdf');
     } finally {
       this.cargandoPDF = false;
     }
   }
+
   private delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }

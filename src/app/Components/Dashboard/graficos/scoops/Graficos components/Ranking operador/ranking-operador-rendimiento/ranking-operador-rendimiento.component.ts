@@ -19,6 +19,8 @@ echarts.use([
   CanvasRenderer
 ]);
 
+import { exportarImagenChart, PdfExportOptions } from 'src/app/config/config-pdf';
+
 @Component({
   selector: 'app-ranking-operador-rendimiento',
   standalone: true,
@@ -270,5 +272,11 @@ export class RankingOperadorRendimientoComponent implements OnInit, OnChanges {
     if (porcentaje >= 75) return '#3498db';   // Azul muy bueno
     if (porcentaje >= 60) return '#f39c12';   // Naranja bueno
     return '#e74c3c';                         // Rojo necesita mejora
+  }
+
+  private chartInstance: any;
+  onChartInit(ec: any): void { this.chartInstance = ec; }
+  getChartImage(options?: PdfExportOptions): string | null {
+    return exportarImagenChart(this.chartInstance, options);
   }
 }

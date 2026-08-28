@@ -4,6 +4,7 @@ import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
 import { TitleComponent, TooltipComponent, GridComponent, LegendComponent, ToolboxComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
+import { exportarImagenChart, PdfExportOptions } from 'src/app/config/config-pdf';
 
 echarts.use([
   BarChart,
@@ -162,9 +163,15 @@ export class RendimientoEquipoComponent implements OnChanges {
             formatter: '{c}%',
             fontWeight: 'bold'
           },
-          barWidth: '35%'
+           barWidth: '35%'
         }
       ]
     };
+  }
+
+  private chartInstance: any;
+  onChartInit(ec: any): void { this.chartInstance = ec; }
+  getChartImage(options?: PdfExportOptions): string | null {
+    return exportarImagenChart(this.chartInstance, options);
   }
 }

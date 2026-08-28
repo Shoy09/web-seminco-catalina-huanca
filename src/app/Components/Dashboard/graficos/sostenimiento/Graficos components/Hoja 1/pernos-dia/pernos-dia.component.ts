@@ -4,6 +4,7 @@ import * as echarts from 'echarts/core';
 import { BarChart } from 'echarts/charts';
 import { TitleComponent, TooltipComponent, GridComponent, LegendComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
+import { exportarImagenChart, PdfExportOptions } from 'src/app/config/config-pdf';
 
 echarts.use([BarChart, TitleComponent, TooltipComponent, GridComponent, LegendComponent, CanvasRenderer]);
 
@@ -233,5 +234,11 @@ export class PernosDiaComponent implements OnChanges {
     if (valor >= 1000000) return (valor / 1000000).toFixed(1) + 'M';
     if (valor >= 1000) return (valor / 1000).toFixed(0) + 'K';
     return valor.toString();
+  }
+
+  private chartInstance: any;
+  onChartInit(ec: any): void { this.chartInstance = ec; }
+  getChartImage(options?: PdfExportOptions): string | null {
+    return exportarImagenChart(this.chartInstance, options);
   }
 }

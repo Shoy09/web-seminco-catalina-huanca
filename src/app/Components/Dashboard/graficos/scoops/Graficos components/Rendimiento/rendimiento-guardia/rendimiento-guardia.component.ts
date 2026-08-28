@@ -6,6 +6,8 @@ import { TitleComponent, TooltipComponent, GridComponent, ToolboxComponent } fro
 import { CanvasRenderer } from 'echarts/renderers';
 import { colorPorRendimiento } from '../../../../../../../shared/chart-theme';
 
+import { exportarImagenChart, PdfExportOptions } from 'src/app/config/config-pdf';
+
 @Component({
   selector: 'app-rendimiento-guardia',
   standalone: true,
@@ -198,4 +200,9 @@ export class RendimientoGuardiaComponent implements OnInit, OnChanges {
     };
   }
  
+  private chartInstance: any;
+  onChartInit(ec: any): void { this.chartInstance = ec; }
+  getChartImage(options?: PdfExportOptions): string | null {
+    return exportarImagenChart(this.chartInstance, options);
+  }
 }

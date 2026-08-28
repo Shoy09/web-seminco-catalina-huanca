@@ -19,6 +19,8 @@ echarts.use([
   CanvasRenderer
 ]);
 
+import { exportarImagenChart, PdfExportOptions } from 'src/app/config/config-pdf';
+
 @Component({
   selector: 'app-ranking-operador-utilizacion',
   standalone: true,
@@ -264,5 +266,11 @@ export class RankingOperadorUtilizacionComponent implements OnInit, OnChanges {
     if (valor >= 75) return '#3498db';   // Azul bueno
     if (valor >= 60) return '#f39c12';   // Naranja regular
     return '#e74c3c';                    // Rojo necesita mejora
+  }
+
+  private chartInstance: any;
+  onChartInit(ec: any): void { this.chartInstance = ec; }
+  getChartImage(options?: PdfExportOptions): string | null {
+    return exportarImagenChart(this.chartInstance, options);
   }
 }

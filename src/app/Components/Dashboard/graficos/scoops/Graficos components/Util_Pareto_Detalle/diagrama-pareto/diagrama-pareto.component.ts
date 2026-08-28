@@ -20,6 +20,8 @@ echarts.use([
   CanvasRenderer
 ]);
 
+import { exportarImagenChart, PdfExportOptions } from 'src/app/config/config-pdf';
+
 @Component({
   selector: 'app-diagrama-pareto',
   standalone: true,
@@ -307,5 +309,11 @@ export class DiagramaParetoComponent implements OnInit, OnChanges {
       // Color neutro para otros casos
       return '#95a5a6';
     }
+  }
+
+  private chartInstance: any;
+  onChartInit(ec: any): void { this.chartInstance = ec; }
+  getChartImage(options?: PdfExportOptions): string | null {
+    return exportarImagenChart(this.chartInstance, options);
   }
 }

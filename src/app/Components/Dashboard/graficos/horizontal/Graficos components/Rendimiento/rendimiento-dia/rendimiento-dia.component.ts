@@ -22,6 +22,8 @@ echarts.use([
   CanvasRenderer,
 ]);
 
+import { exportarImagenChart, PdfExportOptions } from 'src/app/config/config-pdf';
+
 @Component({
   selector: 'app-rendimiento-dia',
   standalone: true,
@@ -272,5 +274,11 @@ export class RendimientoDiaComponent implements OnChanges {
     ];
 
     return meses[mes - 1] || '';
+  }
+
+  private chartInstance: any;
+  onChartInit(ec: any): void { this.chartInstance = ec; }
+  getChartImage(options?: PdfExportOptions): string | null {
+    return exportarImagenChart(this.chartInstance, options);
   }
 }

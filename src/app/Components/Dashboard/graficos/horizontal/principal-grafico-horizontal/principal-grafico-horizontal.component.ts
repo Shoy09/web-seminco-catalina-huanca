@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 
 import { PlanMensualService } from '../../../../../services/plan-mensual.service';
 import { FechasPlanMensualService } from '../../../../../services/fechas-plan-mensual.service';
@@ -8,7 +8,15 @@ import { OperacionBaseJumbo } from '../../../../../models/OperacionBase.models';
 import { PlanMensual } from '../../../../../models/plan-mensual.model';
 import { FormsModule } from '@angular/forms';
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import {
+  configurarCabeceraPDF,
+  agregarCabeceraPDF,
+  agregarPaginaGraficos2x3,
+  agregarPaginaGraficos2x2,
+  agregarPaginaGraficos1x2,
+  agregarPaginaGraficoCompleto,
+  PdfExportOptions,
+} from 'src/app/config/config-pdf';
 import { EstadoService } from '../../../../../services/estado.service';
 import { SchedulerComponent } from '../../Linea de tiempo/scheduler/scheduler.component';
 import { CommonModule } from '@angular/common';
@@ -137,6 +145,32 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
 
   dataPromedioEstados: any;
   cargandoPDF = false;
+
+  // ViewChild para exportación PDF
+  @ViewChild(DisponibilidadEquipoComponent)         chartDispEquipo!: DisponibilidadEquipoComponent;
+  @ViewChild(DisponibilidadDiaComponent)            chartDispDia!: DisponibilidadDiaComponent;
+  @ViewChild(DisponibilidadSemanaComponent)         chartDispSemana!: DisponibilidadSemanaComponent;
+  @ViewChild(DisponibilidadMesComponent)            chartDispMes!: DisponibilidadMesComponent;
+  @ViewChild(DisponibilidadGuardiaComponent)        chartDispGuardia!: DisponibilidadGuardiaComponent;
+  @ViewChild(ParetoDisponibilidadComponent)         chartParetoDisp!: ParetoDisponibilidadComponent;
+  @ViewChild(UtilizacionEquipoComponent)            chartUtilEquipo!: UtilizacionEquipoComponent;
+  @ViewChild(UtilizacionDiaMesComponent)            chartUtilDia!: UtilizacionDiaMesComponent;
+  @ViewChild(UtilizacionSemanaComponent)            chartUtilSemana!: UtilizacionSemanaComponent;
+  @ViewChild(UtilizacionMesComponent)               chartUtilMes!: UtilizacionMesComponent;
+  @ViewChild(UtilizacionGuardiaComponent)           chartUtilGuardia!: UtilizacionGuardiaComponent;
+  @ViewChild(ParetoUtilizacionComponent)            chartParetoUtil!: ParetoUtilizacionComponent;
+  @ViewChild(RendimientoEquipoComponent)            chartRendEquipo!: RendimientoEquipoComponent;
+  @ViewChild(RendimientoDiaComponent)               chartRendDia!: RendimientoDiaComponent;
+  @ViewChild(RendimientoSemanaComponent)            chartRendSemana!: RendimientoSemanaComponent;
+  @ViewChild(RendimientoMesComponent)               chartRendMes!: RendimientoMesComponent;
+  @ViewChild(RendimientoGuardiaComponent)           chartRendGuardia!: RendimientoGuardiaComponent;
+  @ViewChild(RankingOperadorRendimientoComponent)   chartRankingRend!: RankingOperadorRendimientoComponent;
+  @ViewChild(RankingOperadorUtilizacionComponent)   chartRankingUtil!: RankingOperadorUtilizacionComponent;
+  @ViewChild(MtbfSemanasComponent)                  chartMtbfSemanas!: MtbfSemanasComponent;
+  @ViewChild(MtbfMesComponent)                      chartMtbfMes!: MtbfMesComponent;
+  @ViewChild(MttrSemanasComponent)                  chartMttrSemanas!: MttrSemanasComponent;
+  @ViewChild(MttrMesComponent)                      chartMttrMes!: MttrMesComponent;
+
   vistaPrincipal: boolean = true;
   estadosProceso: any[] = [];
 
@@ -2531,5 +2565,104 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
 
   private esMantenimientoCorrectivo(codigo: string): boolean {
     return String(codigo || '').trim() === '202';
+  }
+
+  async generarPDF(): Promise<void> {
+    this.cargandoPDF = true;
+    await this.delay(400);
+
+    try {
+      configurarCabeceraPDF({
+        fechaInicio: this.fechaInicio,
+        fechaFin: this.fechaFin,
+        turno: this.turnoSeleccionado || null,
+        tipoOperacion: 'Jumbo Horizontal',
+      });
+
+      const opts: PdfExportOptions = {
+        pixelRatio: 2,
+        exportWidth: 900,
+        exportHeight: 480,
+        gridLeft: '6%', gridRight: '6%',
+        gridTop: '14%', gridBottom: '8%',
+      };
+
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4',
+        compress: true,
+      });
+
+      // ── PÁGINA 1: Disponibilidad ────────────────────────────────────────
+      agregarCabeceraPDF(pdf, 'JUMBO HORIZONTAL — DISPONIBILIDAD');
+      const W = pdf.internal.pageSize.getWidth();
+      const H = pdf.internal.pageSize.getHeight();
+      const startY = 28; const margin = 6; const gap = 4;
+      const cw3 = (W - margin * 2 - gap * 2) / 3;
+      const rh2 = (H - startY - margin - gap) / 2;
+
+      [
+        { img: this.chartDispEquipo?.getChartImage(opts),   titulo: 'Disponibilidad Equipo' },
+        { img: this.chartDispDia?.getChartImage(opts),      titulo: 'Disponibilidad Día' },
+        { img: this.chartDispSemana?.getChartImage(opts),   titulo: 'Disponibilidad Semana' },
+        { img: this.chartDispMes?.getChartImage(opts),      titulo: 'Disponibilidad Mes' },
+        { img: this.chartDispGuardia?.getChartImage(opts),  titulo: 'Disponibilidad Guardia' },
+        { img: this.chartParetoDisp?.getChartImage(opts),   titulo: 'Pareto Disponibilidad' },
+      ].forEach((g, i) => {
+        const col = i % 3;
+        const row = Math.floor(i / 3);
+        const x = margin + col * (cw3 + gap);
+        const y = startY + row * (rh2 + gap);
+        if (g.img) {
+          pdf.setFontSize(7); pdf.setFont('helvetica','bold'); pdf.setTextColor(40,60,90);
+          pdf.text(g.titulo, x + cw3/2, y + 3.5, { align: 'center' });
+          pdf.addImage(g.img, 'JPEG', x, y + 5, cw3, rh2 - 5, undefined, 'MEDIUM');
+        }
+      });
+
+      // ── PÁGINA 2: Utilización ───────────────────────────────────────────
+      agregarPaginaGraficos2x3(pdf, 'JUMBO HORIZONTAL — UTILIZACIÓN', [
+        { img: this.chartUtilEquipo?.getChartImage(opts),   titulo: 'Utilización Equipo' },
+        { img: this.chartUtilDia?.getChartImage(opts),      titulo: 'Utilización Día' },
+        { img: this.chartUtilSemana?.getChartImage(opts),   titulo: 'Utilización Semana' },
+        { img: this.chartUtilMes?.getChartImage(opts),      titulo: 'Utilización Mes' },
+        { img: this.chartUtilGuardia?.getChartImage(opts),  titulo: 'Utilización Guardia' },
+        { img: this.chartParetoUtil?.getChartImage(opts),   titulo: 'Pareto Utilización' },
+      ]);
+
+      // ── PÁGINA 3: Rendimiento ───────────────────────────────────────────
+      agregarPaginaGraficos2x3(pdf, 'JUMBO HORIZONTAL — RENDIMIENTO', [
+        { img: this.chartRendEquipo?.getChartImage(opts),   titulo: 'Rendimiento Equipo' },
+        { img: this.chartRendDia?.getChartImage(opts),      titulo: 'Rendimiento Día' },
+        { img: this.chartRendSemana?.getChartImage(opts),   titulo: 'Rendimiento Semana' },
+        { img: this.chartRendMes?.getChartImage(opts),      titulo: 'Rendimiento Mes' },
+        { img: this.chartRendGuardia?.getChartImage(opts),  titulo: 'Rendimiento Guardia' },
+      ]);
+
+      // ── PÁGINA 4: Rankings ──────────────────────────────────────────────
+      agregarPaginaGraficos1x2(pdf, 'JUMBO HORIZONTAL — RANKING OPERADORES', [
+        { img: this.chartRankingRend?.getChartImage(opts),  titulo: 'Ranking Rendimiento' },
+        { img: this.chartRankingUtil?.getChartImage(opts),  titulo: 'Ranking Utilización' },
+      ]);
+
+      // ── PÁGINA 5: MTBF/MTTR ─────────────────────────────────────────────
+      agregarPaginaGraficos2x2(pdf, 'JUMBO HORIZONTAL — MTBF / MTTR', [
+        { img: this.chartMtbfSemanas?.getChartImage(opts),  titulo: 'MTBF Semanas' },
+        { img: this.chartMtbfMes?.getChartImage(opts),      titulo: 'MTBF Mes' },
+        { img: this.chartMttrSemanas?.getChartImage(opts),  titulo: 'MTTR Semanas' },
+        { img: this.chartMttrMes?.getChartImage(opts),      titulo: 'MTTR Mes' },
+      ]);
+
+      const fecha = new Date().toISOString().slice(0, 10);
+      pdf.save(`jumbo-horizontal-${fecha}.pdf`);
+
+    } finally {
+      this.cargandoPDF = false;
+    }
+  }
+
+  private delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }

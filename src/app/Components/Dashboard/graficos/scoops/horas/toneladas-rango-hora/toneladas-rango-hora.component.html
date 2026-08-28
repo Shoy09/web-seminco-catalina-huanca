@@ -14,7 +14,7 @@
 
       <!-- Gráfico -->
       <div class="chart-col">
-        <div echarts [options]="chartOptions" [autoResize]="true" class="chart"></div>
+        <div echarts [options]="chartOptions" [autoResize]="true" class="chart" (chartInit)="onChartInit($event)"></div>
       </div>
 
       <!-- Sidebar -->

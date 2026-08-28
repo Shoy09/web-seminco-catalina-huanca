@@ -27,6 +27,8 @@ echarts.use([
   CanvasRenderer,
 ]);
 
+import { exportarImagenChart, PdfExportOptions } from 'src/app/config/config-pdf';
+
 @Component({
   selector: 'app-rendimiento-equipo',
   standalone: true,
@@ -207,5 +209,11 @@ export class RendimientoEquipoComponent implements OnChanges {
         },
       ],
     };
+  }
+
+  private chartInstance: any;
+  onChartInit(ec: any): void { this.chartInstance = ec; }
+  getChartImage(options?: PdfExportOptions): string | null {
+    return exportarImagenChart(this.chartInstance, options);
   }
 }

@@ -15,6 +15,8 @@ echarts.use([
   CanvasRenderer
 ]);
 
+import { exportarImagenChart, PdfExportOptions } from 'src/app/config/config-pdf';
+
 @Component({
   selector: 'app-utilizacion-guardia',
   standalone: true,
@@ -208,5 +210,11 @@ export class UtilizacionGuardiaComponent implements OnInit, OnChanges {
     if (valor >= 40) return '#f39c12';   // Naranja - Regular
     if (valor >= 20) return '#e67e22';   // Naranja oscuro - Baja
     return '#e74c3c';                     // Rojo - Crítica
+  }
+
+  private chartInstance: any;
+  onChartInit(ec: any): void { this.chartInstance = ec; }
+  getChartImage(options?: PdfExportOptions): string | null {
+    return exportarImagenChart(this.chartInstance, options);
   }
 }

@@ -19,6 +19,8 @@ echarts.use([
   CanvasRenderer
 ]);
 
+import { exportarImagenChart, PdfExportOptions } from 'src/app/config/config-pdf';
+
 @Component({
   selector: 'app-rendimiento-seccion-labor',
   standalone: true,
@@ -272,5 +274,11 @@ export class RendimientoSeccionLaborComponent implements OnInit, OnChanges {
     if (porcentaje >= 60) return '#3498db';  // Azul bueno
     if (porcentaje >= 40) return '#f39c12';  // Naranja regular
     return '#e74c3c';  // Rojo bajo
+  }
+
+  private chartInstance: any;
+  onChartInit(ec: any): void { this.chartInstance = ec; }
+  getChartImage(options?: PdfExportOptions): string | null {
+    return exportarImagenChart(this.chartInstance, options);
   }
 }

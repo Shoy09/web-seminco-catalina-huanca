@@ -15,6 +15,7 @@
       [options]="chartOptions"
       class="chart"
       [autoResize]="true"
+      (chartInit)="onChartInit($event)"
     ></div>
   }
 </div>

@@ -9,6 +9,6 @@
       <span class="empty-text">Sin datos para el período seleccionado</span>
     </div>
   } @else {
-    <div echarts [options]="chartOption" class="chart" [autoResize]="true"></div>
+    <div echarts [options]="chartOption" (chartInit)="onChartInit($event)" class="chart" [autoResize]="true"></div>
   }
 </div>

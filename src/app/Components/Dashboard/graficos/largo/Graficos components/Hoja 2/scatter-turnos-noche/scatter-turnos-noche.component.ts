@@ -14,6 +14,7 @@ import {
   TitleComponent
 } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
+import { exportarImagenChart, PdfExportOptions } from 'src/app/config/config-pdf';
 
 // 👇 REGISTRAR
 echarts.use([
@@ -235,4 +236,10 @@ export class ScatterTurnosNocheComponent implements OnInit, OnChanges {
 
   return `${hora}:${minutos.toString().padStart(2, '0')}`;
 }
+
+  private chartInstance: any;
+  onChartInit(ec: any): void { this.chartInstance = ec; }
+  getChartImage(options?: PdfExportOptions): string | null {
+    return exportarImagenChart(this.chartInstance, options);
+  }
 }
