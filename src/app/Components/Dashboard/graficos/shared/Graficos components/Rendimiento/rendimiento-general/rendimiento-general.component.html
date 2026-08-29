@@ -1,0 +1,39 @@
+<div class="card-wrapper">
+  <div class="card-header">
+    <span class="card-accent"></span>
+    <span class="card-title">Rendimiento General</span>
+  </div>
+
+  @if (!tarjetas || tarjetas.length === 0) {
+    <div class="empty-state">
+      <span class="material-icons empty-icon">bar_chart</span>
+      <span class="empty-text">Sin datos para el período seleccionado</span>
+    </div>
+  } @else {
+    <div class="contenedor-rendimiento">
+
+      <!-- TARJETA PRINCIPAL -->
+      <div class="card-principal" [attr.data-tooltip]="getTooltipText(tarjetas[0])">
+        <div class="valor-principal">{{ tarjetas[0]?.valor }}</div>
+        <div class="titulo-principal">{{ tarjetas[0]?.titulo }}</div>
+        <div class="decoracion-barra"></div>
+      </div>
+
+      <!-- INDICADORES POR EQUIPO -->
+      <div
+        class="gauge-card"
+        *ngFor="let item of tarjetas.slice(1)"
+        [attr.data-tooltip]="getTooltipText(item)"
+      >
+        <div class="gauge-title">{{ item.titulo }}</div>
+        <div class="gauge-container">
+          <div class="gauge" [style.--value]="item.porcentaje" [style.--color]="item.color">
+            <div class="gauge-center">{{ item.valor | number:'1.0-0' }}</div>
+          </div>
+        </div>
+        <div class="gauge-subinfo">{{ item.valor | number:'1.0-0' }}</div>
+      </div>
+
+    </div>
+  }
+</div>

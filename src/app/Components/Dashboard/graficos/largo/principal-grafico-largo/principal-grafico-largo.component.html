@@ -62,10 +62,18 @@
     </div>
   </section>
 
-  <!-- ══════════════════════════════════════════════════════════
-       RESUMEN KPI — full width
-  ══════════════════════════════════════════════════════════════ -->
+  <!-- OCULTO: resumen propio del sistema (no está en PBI)
   <app-resumen [data]="resumen" data-page="1"></app-resumen>
+  -->
+
+  <!-- KPI Cards del PBI -->
+  <app-kpi-largo
+    [rendimientoAll]="KpiLargo.rendimientoAll"
+    [totalMetros]="KpiLargo.totalMetros"
+    [promedioMetrosDia]="KpiLargo.promedioMetrosDia"
+    [promedioHrsOperativas]="KpiLargo.promedioHrsOperativas"
+    data-page="1">
+  </app-kpi-largo>
 
   <!-- ══════════════════════════════════════════════════════════
        SECCIÓN: DISPONIBILIDAD
@@ -81,7 +89,17 @@
     <app-disponibilidad-mes       [data]="DataDisponibilidadMes"       data-page="1" [showZoom]="showZoom"/>
     <app-disponibilidad-guardia   [data]="DataDisponibilidadPorGuardia" data-page="1" />
     <app-pareto-disponibilidad    [data]="DataParetoDisponibilidad"    data-page="1" class="col-span-full-grid"/>
-    
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SECCIÓN: PARETO DETALLE — DISPONIBILIDAD
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="seccion-header">
+    <span class="material-icons ic-seccion">bar_chart</span>
+    <span>Pareto Detalle — Disponibilidad</span>
+  </div>
+  <div class="graficos-grid" *ngIf="vistaPrincipal">
+    <app-pareto-no-programadas [data]="DataParetoDisponibilidadDetalle" data-page="1" class="col-span-full-grid" />
   </div>
 
   <!-- ══════════════════════════════════════════════════════════
@@ -101,6 +119,17 @@
   </div>
 
   <!-- ══════════════════════════════════════════════════════════
+       SECCIÓN: PARETO DETALLE — UTILIZACIÓN
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="seccion-header">
+    <span class="material-icons ic-seccion">bar_chart</span>
+    <span>Pareto Detalle — Utilización</span>
+  </div>
+  <div class="graficos-grid" *ngIf="vistaPrincipal">
+    <app-diagrama-pareto [data]="DataParetoUtilizacionDetalle" data-page="1" class="col-span-full-grid" />
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
        SECCIÓN: RENDIMIENTO
   ══════════════════════════════════════════════════════════════ -->
   <div class="seccion-header">
@@ -108,11 +137,12 @@
     <span>Rendimiento</span>
   </div>
   <div class="graficos-grid" *ngIf="vistaPrincipal">
-    <app-rendimiento-equipo       [data]="DataRendimientoPorEquipo"   data-page="1" />
-    <app-rendimiento-dia          [data]="DataRendimientoPorDia"      data-page="1" />
-    <app-rendimiento-semana       [data]="DataRendimientoPorSemana"   data-page="1" />
-    <app-rendimiento-mes          [data]="DataRendimientoPorMes"      data-page="1" />
-    <app-rendimiento-guardia      [data]="DataRendimientoPorGuardia"  data-page="1" />
+    <app-rendimiento-equipo              [data]="DataRendimientoPorEquipo"             data-page="1" />
+    <app-rendimiento-dia                 [data]="DataRendimientoPorDia"                data-page="1" />
+    <app-rendimiento-semana              [data]="DataRendimientoPorSemana"             data-page="1" />
+    <app-rendimiento-mes                 [data]="DataRendimientoPorMes"                data-page="1" />
+    <app-rendimiento-guardia             [data]="DataRendimientoPorGuardia"            data-page="1" />
+    <app-rendimiento-tipo-perforacion    [data]="DataRendimientoPorTipoPerforacion"    data-page="1" />
   </div>
 
   <!-- ══════════════════════════════════════════════════════════
@@ -123,52 +153,142 @@
     <span>Producción</span>
   </div>
   <div class="graficos-grid" *ngIf="vistaPrincipal">
-    <app-disparos-equipo          [data]="dataDisparosEquipo"         data-page="1" />
-    <app-perforado-equipo         [data]="dataMetrosDisparoFR"        data-page="1" />
-    <app-demoras-operativas       [data]="dataDemorasOperativas"      data-page="1" />
-    <app-horas-no-operativas      [data]="dataHorasNoOperativas"      data-page="2" class="col-span-full-grid" />
-    <app-horas-de-mantenimiento   [data]="dataHorasMantenimiento"     data-page="2" />
-    <app-metros-perforados-disparo [data]="dataMetrosDisparoFR"       data-page="2" />
-    <app-mhr-equipo               [data]="dataMhrEquipo"              data-page="2" />
-    <app-horometros-jumbos        [data]="dataHorometrosJumbos"       data-page="2" />
-    <app-total-horometros         [data]="dataHorometrosJumbos"       data-page="2" />
+    <app-produccion-equipo            [data]="DataProduccionEquipo"          data-page="1" />
+    <app-produccion-dia               [data]="DataProduccionDia"             data-page="1" />
+    <app-produccion-semana            [data]="DataProduccionSemana"          data-page="1" />
+    <app-produccion-mes               [data]="DataProduccionMes"             data-page="1" />
+    <app-produccion-guardia           [data]="DataProduccionGuardia"         data-page="1" />
+    <app-produccion-tipo-perforacion  [data]="DataProduccionTipoPerforacion" data-page="1" />
+    <app-produccion-promedio-dia      [data]="DataProduccionPromedioDia"     data-page="1" />
   </div>
 
   <!-- ══════════════════════════════════════════════════════════
-       SECCIÓN: AVANCE Y PROCESO
+       SECCIÓN: RANKING
   ══════════════════════════════════════════════════════════════ -->
+  <div class="seccion-header">
+    <span class="material-icons ic-seccion">leaderboard</span>
+    <span>Ranking</span>
+  </div>
+  <div class="graficos-grid" *ngIf="vistaPrincipal">
+    <app-ranking-disponibilidad-guardia  [data]="DataRankingDisponibilidadGuardia"  data-page="1" />
+    <app-ranking-utilizacion-guardia     [data]="DataRankingUtilizacionGuardia"     data-page="1" />
+    <app-ranking-rendimiento-guardia     [data]="DataRankingRendimientoGuardia"     data-page="1" />
+    <app-ranking-operador-utilizacion    [data]="DataRankingOperadorUtilizacion"    data-page="1" />
+    <app-ranking-operador-rendimiento    [data]="DataRankingOperadorRendimiento"    data-page="1" />
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SECCIÓN: MTBF / MTTR
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="seccion-header">
+    <span class="material-icons ic-seccion">build</span>
+    <span>MTBF / MTTR</span>
+  </div>
+  <div class="graficos-grid" *ngIf="vistaPrincipal">
+    <app-mtbf-equipo  [data]="DataMtbfMttrEquipo"  data-page="1" />
+    <app-mtbf-semana  [data]="DataMtbfMttrSemana"  data-page="1" />
+    <app-mtbf-mes     [data]="DataMtbfMttrMes"     data-page="1" />
+    <app-mtbf-ano     [data]="DataMtbfMttrAno"     data-page="1" />
+    <app-mttr-equipo  [data]="DataMtbfMttrEquipo"  data-page="1" />
+    <app-mttr-semana  [data]="DataMtbfMttrSemana"  data-page="1" />
+    <app-mttr-mes     [data]="DataMtbfMttrMes"     data-page="1" />
+    <app-mttr-ano     [data]="DataMtbfMttrAno"     data-page="1" />
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SECCIÓN: RANKING - METRAJE
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="seccion-header">
+    <span class="material-icons ic-seccion">straighten</span>
+    <span>Ranking - Metraje</span>
+  </div>
+  <div class="graficos-grid" *ngIf="vistaPrincipal">
+    <app-ranking-rendimiento-guardia  [data]="DataRankingRendimientoGuardia"  data-page="1" />
+    <app-produccion-guardia           [data]="DataRankingMetrosGuardia"       data-page="1" />
+    <app-ranking-operador-metros      [data]="DataRankingMetrosOperador"      data-page="1" />
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SECCIÓN: YTD — ACUMULADO ANUAL
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="seccion-header">
+    <span class="material-icons ic-seccion">calendar_today</span>
+    <span>YTD — Acumulado Anual</span>
+  </div>
+  <div class="graficos-grid" *ngIf="vistaPrincipal">
+    <app-ytd-disponibilidad      [data]="DataDisponibilidadMes"        data-page="1" />
+    <app-ytd-utilizacion         [data]="DataUtilizacionPorMes"        data-page="1" />
+    <app-ytd-rendimiento         [data]="DataRendimientoPorMes"        data-page="1" />
+    <app-ytd-equipos-utilizados  [data]="DataYtdEquiposUtilizados"     data-page="1" />
+    <app-ytd-metros-produccion   [data]="DataProduccionMes"            data-page="1" />
+    <app-ytd-horas-operativas    [data]="DataHorasOperativasMes"       data-page="1" />
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SECCIÓN: HORAS OPERATIVAS
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="seccion-header">
+    <span class="material-icons ic-seccion">schedule</span>
+    <span>Horas Operativas</span>
+  </div>
+  <div class="graficos-grid" *ngIf="vistaPrincipal">
+    <app-horas-operativas-mes    [data]="DataHorasOperativasMes"       data-page="1" />
+    <app-horas-operativas-semana [data]="DataHorasOperativasSemana"    data-page="1" />
+    <app-horas-operativas-dia    [data]="DataHorasOperativasDia"       data-page="1" />
+  </div>
+
+  <!-- Vista Gantt -->
+  <div class="graficos-grid" *ngIf="!vistaPrincipal">
+    <app-scheduler [data]="ganttData" data-page="6" class="col-span-full-grid"></app-scheduler>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       OCULTO: Secciones no presentes en el PBI
+       Descomenta para restaurar
+  ══════════════════════════════════════════════════════════════ -->
+  <!--
+  <div class="seccion-header">
+    <span class="material-icons ic-seccion">manage_search</span>
+    <span>Detalle Operativo</span>
+  </div>
+  <div class="graficos-grid">
+    <app-disparos-equipo           [data]="dataDisparosEquipo"         data-page="2" />
+    <app-perforado-equipo          [data]="dataMetrosDisparoFR"        data-page="2" />
+    <app-demoras-operativas        [data]="dataDemorasOperativas"      data-page="2" />
+    <app-horas-no-operativas       [data]="dataHorasNoOperativas"      data-page="2" class="col-span-full-grid" />
+    <app-horas-de-mantenimiento    [data]="dataHorasMantenimiento"     data-page="2" />
+    <app-metros-perforados-disparo [data]="dataMetrosDisparoFR"        data-page="2" />
+    <app-mhr-equipo                [data]="dataMhrEquipo"              data-page="2" />
+    <app-horometros-jumbos         [data]="dataHorometrosJumbos"       data-page="2" />
+    <app-total-horometros          [data]="dataHorometrosJumbos"       data-page="2" />
+  </div>
+
   <div class="seccion-header">
     <span class="material-icons ic-seccion">architecture</span>
     <span>Avance y Proceso</span>
   </div>
-  <div class="graficos-grid" *ngIf="vistaPrincipal">
-    <app-avance-fase              [data]="dataAvanceFase"             data-page="3" />
-    <app-horas-primera-perforacion [data]="dataProcesoLaborFR"        data-page="3" />
-    <app-detalle-perforacion      [data]="dataPercusionConMetrosJumbos" data-page="4" class="col-span-full-grid" />
-    <app-detalle-disparos         [data]="datadetalleDisparos"        data-page="4" class="col-span-full-grid" />
+  <div class="graficos-grid">
+    <app-avance-fase               [data]="dataAvanceFase"               data-page="3" />
+    <app-horas-primera-perforacion [data]="dataProcesoLaborFR"           data-page="3" />
+    <app-detalle-perforacion       [data]="dataPercusionConMetrosJumbos" data-page="4" class="col-span-full-grid" />
+    <app-detalle-disparos          [data]="datadetalleDisparos"          data-page="4" class="col-span-full-grid" />
   </div>
 
-  <!-- ══════════════════════════════════════════════════════════
-       SECCIÓN: OPERADORES
-  ══════════════════════════════════════════════════════════════ -->
   <div class="seccion-header">
     <span class="material-icons ic-seccion">people</span>
     <span>Operadores</span>
   </div>
-  <div class="graficos-grid" *ngIf="vistaPrincipal">
-    <app-mejores-operadores       [data]="dataFrPorOperadorTurno"     data-page="5" />
-    <app-ranking-operador         [data]="dataFrPorOperadorTurno"     data-page="5" />
-    <app-observaciones            [data]="dataLaborFRDetallado"       data-page="5" class="col-span-full-grid" />
+  <div class="graficos-grid">
+    <app-mejores-operadores [data]="dataFrPorOperadorTurno"  data-page="5" />
+    <app-ranking-operador   [data]="dataFrPorOperadorTurno"  data-page="5" />
+    <app-observaciones      [data]="dataLaborFRDetallado"    data-page="5" class="col-span-full-grid" />
   </div>
 
-  <!-- ══════════════════════════════════════════════════════════
-       SECCIÓN: ANÁLISIS DE TURNOS (scatter)
-  ══════════════════════════════════════════════════════════════ -->
   <div class="seccion-header">
     <span class="material-icons ic-seccion">scatter_plot</span>
     <span>Análisis de Turnos</span>
   </div>
-  <div class="graficos-grid" *ngIf="vistaPrincipal">
+  <div class="graficos-grid">
     <app-scatter-turnos
       *ngIf="turnoAplicado === '' || turnoAplicado === 'DÍA'"
       [data]="dataHorasNumericas" data-page="6"
@@ -180,11 +300,7 @@
       class="col-span-full-grid">
     </app-scatter-turnos-noche>
   </div>
-
-  <!-- Vista Gantt alternativa -->
-  <div class="graficos-grid" *ngIf="!vistaPrincipal">
-    <app-scheduler [data]="ganttData" data-page="6" class="col-span-full-grid"></app-scheduler>
-  </div>
+  -->
 
 </div>
 

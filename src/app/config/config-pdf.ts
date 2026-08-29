@@ -480,3 +480,53 @@ export function agregarPaginaTablaPDF(
   const startY = agregarCabeceraPDF(pdf, tituloCabecera);
   agregarTablaContinuaPDF(pdf, { ...config, startY }, tituloCabecera);
 }
+
+/**
+ * Dibuja una tabla pequeña dentro de un espacio (x, y, w, h) en la página actual.
+ * No agrega página nueva — se usa dentro de layouts landscape.
+ */
+export function agregarTablaEnCeldaPDF(
+  pdf: jsPDF,
+  config: { columnas: { header: string; dataKey: string }[]; filas: Record<string, any>[]; titulo?: string },
+  x: number,
+  y: number,
+  w: number,
+  h: number
+): void {
+  const { columnas, filas, titulo } = config;
+
+  if (titulo) {
+    pdf.setFontSize(7);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(40, 60, 90);
+    pdf.text(titulo, x + w / 2, y + 3.5, { align: 'center' });
+  }
+
+  const tableY = titulo ? y + 6 : y + 1;
+
+  autoTable(pdf, {
+    columns: columnas,
+    body: filas,
+    startY: tableY,
+    margin: { left: x, right: pdf.internal.pageSize.getWidth() - x - w },
+    tableWidth: w,
+    styles: {
+      fontSize: 6.5,
+      cellPadding: 1.5,
+      overflow: 'ellipsize',
+      lineColor: [220, 227, 235],
+      lineWidth: 0.2,
+    },
+    headStyles: {
+      fillColor: [11, 31, 58],
+      textColor: [255, 255, 255],
+      fontStyle: 'bold',
+      fontSize: 7,
+    },
+    alternateRowStyles: {
+      fillColor: [245, 248, 252],
+    },
+    // Evitar que la tabla salte a nueva página
+    pageBreak: 'avoid',
+  });
+}

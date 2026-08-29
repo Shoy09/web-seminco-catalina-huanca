@@ -1,0 +1,51 @@
+<div class="kpi-grid">
+
+  <!-- Rendimiento General -->
+  <div class="kpi-card">
+    <div class="kpi-icon" style="background:#F0FDF4; color:#15803D">
+      <span class="material-icons" style="font-size:22px">trending_up</span>
+    </div>
+    <div class="kpi-body">
+      <span class="kpi-label">Rendimiento General</span>
+      <span class="kpi-value">{{ rendimientoFmt }} <span class="kpi-unit">m/h</span></span>
+    </div>
+    <div class="kpi-stripe" style="background:#15803D"></div>
+  </div>
+
+  <!-- Total Metros Perforados -->
+  <div class="kpi-card">
+    <div class="kpi-icon" style="background:#EFF6FF; color:#1D4ED8">
+      <span class="material-icons" style="font-size:22px">straighten</span>
+    </div>
+    <div class="kpi-body">
+      <span class="kpi-label">Total Metros Perforados</span>
+      <span class="kpi-value">{{ totalMetrosFmt }} <span class="kpi-unit">m</span></span>
+    </div>
+    <div class="kpi-stripe" style="background:#1D4ED8"></div>
+  </div>
+
+  <!-- Promedio Metros x Día -->
+  <div class="kpi-card">
+    <div class="kpi-icon" style="background:#FFF7ED; color:#C2410C">
+      <span class="material-icons" style="font-size:22px">today</span>
+    </div>
+    <div class="kpi-body">
+      <span class="kpi-label">Promedio Metros / Día</span>
+      <span class="kpi-value">{{ promedioMetrosFmt }} <span class="kpi-unit">m</span></span>
+    </div>
+    <div class="kpi-stripe" style="background:#C2410C"></div>
+  </div>
+
+  <!-- Promedio Horas Operativas x Día -->
+  <div class="kpi-card">
+    <div class="kpi-icon" style="background:#FAF5FF; color:#7C3AED">
+      <span class="material-icons" style="font-size:22px">schedule</span>
+    </div>
+    <div class="kpi-body">
+      <span class="kpi-label">Promedio Hrs Operativas / Día</span>
+      <span class="kpi-value">{{ promedioHrsFmt }} <span class="kpi-unit">h</span></span>
+    </div>
+    <div class="kpi-stripe" style="background:#7C3AED"></div>
+  </div>
+
+</div>

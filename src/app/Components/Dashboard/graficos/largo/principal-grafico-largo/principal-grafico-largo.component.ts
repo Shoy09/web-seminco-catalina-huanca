@@ -5,26 +5,6 @@ import { OperacionBaseTLargos } from '../../../../../models/OperacionBase.models
 import { PlanMensual } from '../../../../../models/plan-mensual.model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ResumenComponent } from '../Graficos components/Hoja 1/resumen/resumen.component';
-import { DisparosEquipoComponent } from '../Graficos components/Hoja 1/disparos-equipo/disparos-equipo.component';
-import { DemorasOperativasComponent } from '../Graficos components/Hoja 1/demoras-operativas/demoras-operativas.component';
-import { HorasNoOperativasComponent } from '../Graficos components/Hoja 1/horas-no-operativas/horas-no-operativas.component';
-import { HorasDeMantenimientoComponent } from '../Graficos components/Hoja 1/horas-de-mantenimiento/horas-de-mantenimiento.component';
-import { MetrosPerforadosDisparoComponent } from '../Graficos components/Hoja 1/metros-perforados-disparo/metros-perforados-disparo.component';
-import { PerforadoEquipoComponent } from '../Graficos components/Hoja 1/perforado-equipo/perforado-equipo.component';
-import { MhrEquipoComponent } from '../Graficos components/Hoja 1/mhr-equipo/mhr-equipo.component';
-import { HorometrosJumbosComponent } from '../Graficos components/Hoja 1/horometros-jumbos/horometros-jumbos.component';
-import { TotalHorometrosComponent } from '../Graficos components/Hoja 1/total-horometros/total-horometros.component';
-import { HorasPrimeraPerforacionComponent } from '../Graficos components/Hoja 2/horas-primera-perforacion/horas-primera-perforacion.component';
-import { AvanceFaseComponent } from '../Graficos components/Hoja 1/avance-fase/avance-fase.component';
-import { DetallePerforacionComponent } from '../Graficos components/Hoja 2/detalle-perforacion/detalle-perforacion.component';
-import { DisparosTipoPerforacionComponent } from '../Graficos components/Hoja 2/disparos-tipo-perforacion/disparos-tipo-perforacion.component';
-import { DetalleDisparosComponent } from '../Graficos components/Hoja 2/detalle-disparos/detalle-disparos.component';
-import { MejoresOperadoresComponent } from '../Graficos components/Hoja 2/mejores-operadores/mejores-operadores.component';
-import { RankingOperadorComponent } from '../Graficos components/Hoja 2/ranking-operador/ranking-operador.component';
-import { ObservacionesComponent } from '../Graficos components/Hoja 2/observaciones/observaciones.component';
-import { ScatterTurnosComponent } from '../Graficos components/Hoja 2/scatter-turnos/scatter-turnos.component';
-import { ScatterTurnosNocheComponent } from '../Graficos components/Hoja 2/scatter-turnos-noche/scatter-turnos-noche.component';
 
 import { PlanProduccionService } from '../../../../../services/plan-produccion.service';
 import { PlanProduccion } from '../../../../../models/plan_produccion.model';
@@ -37,33 +17,68 @@ import {
   agregarPaginaGraficoCompleto,
   agregarPaginaGraficos1x2,
   agregarPaginaTablaPDF,
+  agregarTablaEnCeldaPDF,
   PdfExportOptions,
 } from 'src/app/config/config-pdf';
 import { SchedulerComponent } from '../../Linea de tiempo/scheduler/scheduler.component';
 import { EstadoService } from '../../../../../services/estado.service';
 import { OperacionTLargos } from '../../../../../models/OperacionTLargos';
-import { RendimientoEquipoComponent } from '../../horizontal/Graficos components/Rendimiento/rendimiento-equipo/rendimiento-equipo.component';
+import { RendimientoEquipoComponent } from '../../shared/Graficos components/Rendimiento/rendimiento-equipo/rendimiento-equipo.component';
 import {
   generarDiasEntreFechas,
   obtenerPeriodo,
   obtenerPeriodoDesdeKey,
 } from '../../../../../utils/fecha-utils';
-import { RendimientoDiaComponent } from '../../horizontal/Graficos components/Rendimiento/rendimiento-dia/rendimiento-dia.component';
-import { RendimientoSemanaComponent } from '../../horizontal/Graficos components/Rendimiento/rendimiento-semana/rendimiento-semana.component';
-import { RendimientoMesComponent } from '../../horizontal/Graficos components/Rendimiento/rendimiento-mes/rendimiento-mes.component';
-import { DisponibilidadEquipoComponent } from '../../scoops/Graficos components/Disponibilidad/disponibilidad-equipo/disponibilidad-equipo.component';
-import { DisponibilidadDiaComponent } from '../../scoops/Graficos components/Disponibilidad/disponibilidad-dia/disponibilidad-dia.component';
-import { DisponibilidadSemanaComponent } from '../../scoops/Graficos components/Disponibilidad/disponibilidad-semana/disponibilidad-semana.component';
-import { DisponibilidadMesComponent } from '../../scoops/Graficos components/Disponibilidad/disponibilidad-mes/disponibilidad-mes.component';
-import { ParetoDisponibilidadComponent } from '../../horizontal/Graficos components/Pareto/pareto-disponibilidad/pareto-disponibilidad.component';
-import { DisponibilidadGuardiaComponent } from '../../scoops/Graficos components/Disponibilidad/disponibilidad-guardia/disponibilidad-guardia.component';
-import { UtilizacionEquipoComponent } from '../../scoops/Graficos components/Utilizacion/utilizacion-equipo/utilizacion-equipo.component';
-import { UtilizacionDiaMesComponent } from '../../scoops/Graficos components/Utilizacion/app-utilizacion-dia-mes/app-utilizacion-dia-mes.component';
-import { UtilizacionSemanaComponent } from '../../scoops/Graficos components/Utilizacion/utilizacion-semana/utilizacion-semana.component';
-import { UtilizacionMesComponent } from '../../scoops/Graficos components/Utilizacion/utilizacion-mes/utilizacion-mes.component';
-import { UtilizacionGuardiaComponent } from '../../scoops/Graficos components/Utilizacion/utilizacion-guardia/utilizacion-guardia.component';
-import { ParetoUtilizacionComponent } from '../../horizontal/Graficos components/Pareto/pareto-utilizacion/pareto-utilizacion.component';
-import { RendimientoGuardiaComponent } from "../../scoops/Graficos components/Rendimiento/rendimiento-guardia/rendimiento-guardia.component";
+import { RendimientoDiaComponent } from '../../shared/Graficos components/Rendimiento/rendimiento-dia/rendimiento-dia.component';
+import { RendimientoSemanaComponent } from '../../shared/Graficos components/Rendimiento/rendimiento-semana/rendimiento-semana.component';
+import { RendimientoMesComponent } from '../../shared/Graficos components/Rendimiento/rendimiento-mes/rendimiento-mes.component';
+import { DisponibilidadEquipoComponent } from '../../shared/Graficos components/Disponibilidad/disponibilidad-equipo/disponibilidad-equipo.component';
+import { DisponibilidadDiaComponent } from '../../shared/Graficos components/Disponibilidad/disponibilidad-dia/disponibilidad-dia.component';
+import { DisponibilidadSemanaComponent } from '../../shared/Graficos components/Disponibilidad/disponibilidad-semana/disponibilidad-semana.component';
+import { DisponibilidadMesComponent } from '../../shared/Graficos components/Disponibilidad/disponibilidad-mes/disponibilidad-mes.component';
+import { ParetoDisponibilidadComponent } from '../../shared/Graficos components/Pareto/pareto-disponibilidad/pareto-disponibilidad.component';
+import { DisponibilidadGuardiaComponent } from '../../shared/Graficos components/Disponibilidad/disponibilidad-guardia/disponibilidad-guardia.component';
+import { UtilizacionEquipoComponent } from '../../shared/Graficos components/Utilizacion/utilizacion-equipo/utilizacion-equipo.component';
+import { UtilizacionDiaMesComponent } from '../../shared/Graficos components/Utilizacion/app-utilizacion-dia-mes/app-utilizacion-dia-mes.component';
+import { UtilizacionSemanaComponent } from '../../shared/Graficos components/Utilizacion/utilizacion-semana/utilizacion-semana.component';
+import { UtilizacionMesComponent } from '../../shared/Graficos components/Utilizacion/utilizacion-mes/utilizacion-mes.component';
+import { UtilizacionGuardiaComponent } from '../../shared/Graficos components/Utilizacion/utilizacion-guardia/utilizacion-guardia.component';
+import { ParetoUtilizacionComponent } from '../../shared/Graficos components/Pareto/pareto-utilizacion/pareto-utilizacion.component';
+import { RendimientoGuardiaComponent } from '../../shared/Graficos components/Rendimiento/rendimiento-guardia/rendimiento-guardia.component';
+import { RendimientoTipoPerforacionComponent } from '../../shared/Graficos components/Rendimiento/rendimiento-tipo-perforacion/rendimiento-tipo-perforacion.component';
+import { ProduccionEquipoComponent } from '../../shared/Graficos components/Produccion/produccion-equipo/produccion-equipo.component';
+import { ProduccionDiaComponent } from '../../shared/Graficos components/Produccion/produccion-dia/produccion-dia.component';
+import { ProduccionSemanaComponent } from '../../shared/Graficos components/Produccion/produccion-semana/produccion-semana.component';
+import { ProduccionMesComponent } from '../../shared/Graficos components/Produccion/produccion-mes/produccion-mes.component';
+import { ProduccionGuardiaComponent } from '../../shared/Graficos components/Produccion/produccion-guardia/produccion-guardia.component';
+import { ProduccionTipoPerforacionComponent } from '../../shared/Graficos components/Produccion/produccion-tipo-perforacion/produccion-tipo-perforacion.component';
+import { ProduccionPromedioDiaComponent } from '../../shared/Graficos components/Produccion/produccion-promedio-dia/produccion-promedio-dia.component';
+import { DisponibilidadRankingGuardiaComponent } from '../../shared/Graficos components/Ranking Guardia/disponibilidad-guardia/disponibilidad-guardia.component';
+import { UtilizacionRankingGuardiaComponent } from '../../shared/Graficos components/Ranking Guardia/utilizacion-guardia/utilizacion-guardia.component';
+import { RendimientoRankingGuardiaComponent } from '../../shared/Graficos components/Ranking Guardia/rendimiento-guardia/rendimiento-guardia.component';
+import { RankingOperadorUtilizacionComponent } from '../../shared/Graficos components/Ranking operador/ranking-operador-utilizacion/ranking-operador-utilizacion.component';
+import { RankingOperadorRendimientoComponent } from '../../shared/Graficos components/Ranking operador/ranking-operador-rendimiento/ranking-operador-rendimiento.component';
+import { RankingOperadorMetrosComponent } from '../../shared/Graficos components/Ranking operador/ranking-operador-metros/ranking-operador-metros.component';
+import { MtbfEquipoComponent } from '../../shared/Graficos components/MTBF-MTTR/MTBF/mtbf-equipo/mtbf-equipo.component';
+import { MtbfMesComponent } from '../../shared/Graficos components/MTBF-MTTR/MTBF/mtbf-mes/mtbf-mes.component';
+import { MtbfSemanaComponent } from '../../shared/Graficos components/MTBF-MTTR/MTBF/mtbf-semana/mtbf-semana.component';
+import { MtbfAnoComponent } from '../../shared/Graficos components/MTBF-MTTR/MTBF/mtbf-ano/mtbf-ano.component';
+import { MttrEquipoComponent } from '../../shared/Graficos components/MTBF-MTTR/MTTR/mttr-equipo/mttr-equipo.component';
+import { MttrMesComponent } from '../../shared/Graficos components/MTBF-MTTR/MTTR/mttr-mes/mttr-mes.component';
+import { MttrSemanaComponent } from '../../shared/Graficos components/MTBF-MTTR/MTTR/mttr-semana/mttr-semana.component';
+import { MttrAnoComponent } from '../../shared/Graficos components/MTBF-MTTR/MTTR/mttr-ano/mttr-ano.component';
+import { HorasOperativasDiaComponent } from '../../shared/Graficos components/HorasOperativas/horas-operativas-dia/horas-operativas-dia.component';
+import { HorasOperativasSemanaComponent } from '../../shared/Graficos components/HorasOperativas/horas-operativas-semana/horas-operativas-semana.component';
+import { HorasOperativasMesComponent } from '../../shared/Graficos components/HorasOperativas/horas-operativas-mes/horas-operativas-mes.component';
+import { YtdDisponibilidadComponent } from '../../shared/Graficos components/YTD/ytd-disponibilidad/ytd-disponibilidad.component';
+import { YtdUtilizacionComponent } from '../../shared/Graficos components/YTD/ytd-utilizacion/ytd-utilizacion.component';
+import { YtdRendimientoComponent } from '../../shared/Graficos components/YTD/ytd-rendimiento/ytd-rendimiento.component';
+import { YtdEquiposUtilizadosComponent } from '../../shared/Graficos components/YTD/ytd-equipos-utilizados/ytd-equipos-utilizados.component';
+import { YtdMetrosProduccionComponent } from '../../shared/Graficos components/YTD/ytd-metros-produccion/ytd-metros-produccion.component';
+import { YtdHorasOperativasComponent } from '../../shared/Graficos components/YTD/ytd-horas-operativas/ytd-horas-operativas.component';
+import { ParetoNoProgramadasComponent } from '../../shared/Graficos components/Dis_Pareto_Detalle/pareto-no-programada/pareto-no-programada.component';
+import { DiagramaParetoComponent } from '../../shared/Graficos components/Util_Pareto_Detalle/diagrama-pareto/diagrama-pareto.component';
+import { KpiLargoComponent } from '../Graficos components/Hoja 1/kpi-largo/kpi-largo.component';
 import { MatDialog } from '@angular/material/dialog';
 import { Equipo } from '../../../../../models/equipo.model';
 import { PresentacionTlargosDialogComponent } from '../presentacion-tlargos-dialog/presentacion-tlargos-dialog.component';
@@ -73,27 +88,8 @@ import { PresentacionTlargosDialogComponent } from '../presentacion-tlargos-dial
   imports: [
     CommonModule,
     FormsModule,
-    ResumenComponent,
-    DisparosEquipoComponent,
-    DemorasOperativasComponent,
-    HorasNoOperativasComponent,
-    HorasDeMantenimientoComponent,
-    MetrosPerforadosDisparoComponent,
-    PerforadoEquipoComponent,
-    MhrEquipoComponent,
-    HorometrosJumbosComponent,
-    TotalHorometrosComponent,
-    HorasPrimeraPerforacionComponent,
-    AvanceFaseComponent,
-    DetallePerforacionComponent,
-    DetalleDisparosComponent,
-    MejoresOperadoresComponent,
-    RankingOperadorComponent,
-    ObservacionesComponent,
-    ScatterTurnosComponent,
-    ScatterTurnosNocheComponent,
-    RendimientoEquipoComponent,
     SchedulerComponent,
+    RendimientoEquipoComponent,
     RendimientoDiaComponent,
     RendimientoSemanaComponent,
     RendimientoMesComponent,
@@ -109,8 +105,42 @@ import { PresentacionTlargosDialogComponent } from '../presentacion-tlargos-dial
     UtilizacionMesComponent,
     UtilizacionGuardiaComponent,
     ParetoUtilizacionComponent,
-    RendimientoGuardiaComponent
-],
+    RendimientoGuardiaComponent,
+    RendimientoTipoPerforacionComponent,
+    ProduccionEquipoComponent,
+    ProduccionDiaComponent,
+    ProduccionSemanaComponent,
+    ProduccionMesComponent,
+    ProduccionGuardiaComponent,
+    ProduccionTipoPerforacionComponent,
+    ProduccionPromedioDiaComponent,
+    DisponibilidadRankingGuardiaComponent,
+    UtilizacionRankingGuardiaComponent,
+    RendimientoRankingGuardiaComponent,
+    RankingOperadorUtilizacionComponent,
+    RankingOperadorRendimientoComponent,
+    RankingOperadorMetrosComponent,
+    MtbfEquipoComponent,
+    MtbfMesComponent,
+    MtbfSemanaComponent,
+    MtbfAnoComponent,
+    MttrEquipoComponent,
+    MttrMesComponent,
+    MttrSemanaComponent,
+    MttrAnoComponent,
+    HorasOperativasDiaComponent,
+    HorasOperativasSemanaComponent,
+    HorasOperativasMesComponent,
+    YtdDisponibilidadComponent,
+    YtdUtilizacionComponent,
+    YtdRendimientoComponent,
+    YtdEquiposUtilizadosComponent,
+    YtdMetrosProduccionComponent,
+    YtdHorasOperativasComponent,
+    ParetoNoProgramadasComponent,
+    DiagramaParetoComponent,
+    KpiLargoComponent,
+  ],
   templateUrl: './principal-grafico-largo.component.html',
   styleUrl: './principal-grafico-largo.component.css',
 })
@@ -163,34 +193,63 @@ export class PrincipalGraficoLargoComponent implements OnInit {
   cargandoPDF = false;
 
   // ViewChild para exportación PDF
-  @ViewChild(DisparosEquipoComponent)            chartDisparosEquipo!: DisparosEquipoComponent;
-  @ViewChild(PerforadoEquipoComponent)           chartPerforadoEquipo!: PerforadoEquipoComponent;
-  @ViewChild(DemorasOperativasComponent)         chartDemorasOp!: DemorasOperativasComponent;
-  @ViewChild(HorasNoOperativasComponent)         chartHorasNoOp!: HorasNoOperativasComponent;
-  @ViewChild(HorasDeMantenimientoComponent)      chartHorasMant!: HorasDeMantenimientoComponent;
-  @ViewChild(MetrosPerforadosDisparoComponent)   chartMetrosDisparo!: MetrosPerforadosDisparoComponent;
-  @ViewChild(MhrEquipoComponent)                 chartMhrEquipo!: MhrEquipoComponent;
-  @ViewChild(HorometrosJumbosComponent)          chartHorometros!: HorometrosJumbosComponent;
-  @ViewChild(TotalHorometrosComponent)           chartTotalHorometros!: TotalHorometrosComponent;
-  @ViewChild(AvanceFaseComponent)                chartAvanceFase!: AvanceFaseComponent;
-  @ViewChild(DisparosTipoPerforacionComponent)   chartDisparosTipo!: DisparosTipoPerforacionComponent;
-  @ViewChild(RankingOperadorComponent)           chartRanking!: RankingOperadorComponent;
-  @ViewChild(ScatterTurnosComponent)             chartScatterDia!: ScatterTurnosComponent;
-  @ViewChild(ScatterTurnosNocheComponent)        chartScatterNoche!: ScatterTurnosNocheComponent;
   @ViewChild(DisponibilidadEquipoComponent)      chartDispEquipo!: DisponibilidadEquipoComponent;
   @ViewChild(DisponibilidadDiaComponent)         chartDispDia!: DisponibilidadDiaComponent;
   @ViewChild(DisponibilidadSemanaComponent)      chartDispSemana!: DisponibilidadSemanaComponent;
   @ViewChild(DisponibilidadMesComponent)         chartDispMes!: DisponibilidadMesComponent;
   @ViewChild(ParetoDisponibilidadComponent)      chartParetoDisp!: ParetoDisponibilidadComponent;
+  @ViewChild(DisponibilidadGuardiaComponent)     chartDispGuardia!: DisponibilidadGuardiaComponent;
+  @ViewChild(ParetoNoProgramadasComponent)       chartParetoDispDetalle!: ParetoNoProgramadasComponent;
+
   @ViewChild(UtilizacionEquipoComponent)         chartUtilEquipo!: UtilizacionEquipoComponent;
   @ViewChild(UtilizacionDiaMesComponent)         chartUtilDia!: UtilizacionDiaMesComponent;
   @ViewChild(UtilizacionSemanaComponent)         chartUtilSemana!: UtilizacionSemanaComponent;
   @ViewChild(UtilizacionMesComponent)            chartUtilMes!: UtilizacionMesComponent;
   @ViewChild(ParetoUtilizacionComponent)         chartParetoUtil!: ParetoUtilizacionComponent;
+  @ViewChild(UtilizacionGuardiaComponent)        chartUtilGuardia!: UtilizacionGuardiaComponent;
+  @ViewChild(DiagramaParetoComponent)            chartParetoUtilDetalle!: DiagramaParetoComponent;
+
   @ViewChild(RendimientoEquipoComponent)         chartRendEquipo!: RendimientoEquipoComponent;
   @ViewChild(RendimientoDiaComponent)            chartRendDia!: RendimientoDiaComponent;
   @ViewChild(RendimientoSemanaComponent)         chartRendSemana!: RendimientoSemanaComponent;
   @ViewChild(RendimientoMesComponent)            chartRendMes!: RendimientoMesComponent;
+  @ViewChild(RendimientoGuardiaComponent)        chartRendGuardia!: RendimientoGuardiaComponent;
+  @ViewChild(RendimientoTipoPerforacionComponent) chartRendTipo!: RendimientoTipoPerforacionComponent;
+
+  @ViewChild(ProduccionEquipoComponent)          chartProdEquipo!: ProduccionEquipoComponent;
+  @ViewChild(ProduccionDiaComponent)             chartProdDia!: ProduccionDiaComponent;
+  @ViewChild(ProduccionSemanaComponent)          chartProdSemana!: ProduccionSemanaComponent;
+  @ViewChild(ProduccionMesComponent)             chartProdMes!: ProduccionMesComponent;
+  @ViewChild(ProduccionGuardiaComponent)         chartProdGuardia!: ProduccionGuardiaComponent;
+  @ViewChild(ProduccionTipoPerforacionComponent) chartProdTipo!: ProduccionTipoPerforacionComponent;
+  @ViewChild(ProduccionPromedioDiaComponent)     chartProdPromedio!: ProduccionPromedioDiaComponent;
+
+  @ViewChild(DisponibilidadRankingGuardiaComponent)  chartRankDispGuardia!: DisponibilidadRankingGuardiaComponent;
+  @ViewChild(UtilizacionRankingGuardiaComponent)     chartRankUtilGuardia!: UtilizacionRankingGuardiaComponent;
+  @ViewChild(RendimientoRankingGuardiaComponent)     chartRankRendGuardia!: RendimientoRankingGuardiaComponent;
+  @ViewChild(RankingOperadorUtilizacionComponent)    chartRankOpUtil!: RankingOperadorUtilizacionComponent;
+  @ViewChild(RankingOperadorRendimientoComponent)    chartRankOpRend!: RankingOperadorRendimientoComponent;
+  @ViewChild(RankingOperadorMetrosComponent)         chartRankOpMetros!: RankingOperadorMetrosComponent;
+
+  @ViewChild(MtbfEquipoComponent)               chartMtbfEquipo!: MtbfEquipoComponent;
+  @ViewChild(MtbfSemanaComponent)               chartMtbfSemana!: MtbfSemanaComponent;
+  @ViewChild(MtbfMesComponent)                  chartMtbfMes!: MtbfMesComponent;
+  @ViewChild(MtbfAnoComponent)                  chartMtbfAno!: MtbfAnoComponent;
+  @ViewChild(MttrEquipoComponent)               chartMttrEquipo!: MttrEquipoComponent;
+  @ViewChild(MttrSemanaComponent)               chartMttrSemana!: MttrSemanaComponent;
+  @ViewChild(MttrMesComponent)                  chartMttrMes!: MttrMesComponent;
+  @ViewChild(MttrAnoComponent)                  chartMttrAno!: MttrAnoComponent;
+
+  @ViewChild(YtdDisponibilidadComponent)         chartYtdDisp!: YtdDisponibilidadComponent;
+  @ViewChild(YtdUtilizacionComponent)            chartYtdUtil!: YtdUtilizacionComponent;
+  @ViewChild(YtdRendimientoComponent)            chartYtdRend!: YtdRendimientoComponent;
+  @ViewChild(YtdEquiposUtilizadosComponent)      chartYtdEquipos!: YtdEquiposUtilizadosComponent;
+  @ViewChild(YtdMetrosProduccionComponent)       chartYtdMetros!: YtdMetrosProduccionComponent;
+  @ViewChild(YtdHorasOperativasComponent)        chartYtdHrsOp!: YtdHorasOperativasComponent;
+
+  @ViewChild(HorasOperativasMesComponent)        chartHrsOpMes!: HorasOperativasMesComponent;
+  @ViewChild(HorasOperativasSemanaComponent)     chartHrsOpSemana!: HorasOperativasSemanaComponent;
+  @ViewChild(HorasOperativasDiaComponent)        chartHrsOpDia!: HorasOperativasDiaComponent;
   ganttData: any[] = [];
   vistaPrincipal: boolean = true;
 
@@ -201,6 +260,39 @@ export class PrincipalGraficoLargoComponent implements OnInit {
   DataRendimientoPorDia: any[] = [];
   DataRendimientoPorSemana: any[] = [];
   DataRendimientoPorMes: any[] = [];
+  DataRendimientoPorTipoPerforacion: any[] = [];
+
+  DataProduccionEquipo: any[] = [];
+  DataProduccionDia: any[] = [];
+  DataProduccionSemana: any[] = [];
+  DataProduccionMes: any[] = [];
+  DataProduccionGuardia: any[] = [];
+  DataProduccionTipoPerforacion: any[] = [];
+  DataProduccionPromedioDia: any[] = [];
+
+  DataRankingUtilizacionGuardia: any[] = [];
+  DataRankingRendimientoGuardia: any[] = [];
+  DataRankingDisponibilidadGuardia: any[] = [];
+  DataRankingOperadorUtilizacion: any[] = [];
+  DataRankingOperadorRendimiento: any[] = [];
+  DataRankingMetrosGuardia: any[] = [];
+  DataRankingMetrosOperador: any[] = [];
+
+  DataMtbfMttrEquipo: any[] = [];
+  DataMtbfMttrSemana: any[] = [];
+  DataMtbfMttrMes: any[] = [];
+  DataMtbfMttrAno: any[] = [];
+
+  DataHorasOperativasDia: any[] = [];
+  DataHorasOperativasSemana: any[] = [];
+  DataHorasOperativasMes: any[] = [];
+
+  DataYtdEquiposUtilizados: any[] = [];
+
+  DataParetoDisponibilidadDetalle: any[] = [];
+  DataParetoUtilizacionDetalle: any[] = [];
+
+  KpiLargo = { rendimientoAll: 0, totalMetros: 0, promedioMetrosDia: 0, promedioHrsOperativas: 0 };
 
   DataDisponibilidadEquipo: any[] = [];
   DataDisponibilidadDia: any[] = [];
@@ -394,90 +486,174 @@ export class PrincipalGraficoLargoComponent implements OnInit {
         compress: true,
       });
 
-      // ── PÁGINA 1: Disponibilidad (6 gráficos 2×3) ──────────────────────
-      agregarCabeceraPDF(pdf, 'TALADRO LARGO — DISPONIBILIDAD');
-      const W = pdf.internal.pageSize.getWidth();
-      const H = pdf.internal.pageSize.getHeight();
-      const startY = 28; const margin = 6; const gap = 4;
-      const cw3 = (W - margin * 2 - gap * 2) / 3;
-      const rh2 = (H - startY - margin - gap) / 2;
+      // Eliminar la página vacía inicial que crea jsPDF por defecto
+      pdf.deletePage(1);
 
-      [
-        { img: this.chartDispEquipo?.getChartImage(opts),   titulo: 'Disponibilidad Equipo' },
-        { img: this.chartDispDia?.getChartImage(opts),      titulo: 'Disponibilidad Día' },
-        { img: this.chartDispSemana?.getChartImage(opts),   titulo: 'Disponibilidad Semana' },
-        { img: this.chartDispMes?.getChartImage(opts),      titulo: 'Disponibilidad Mes' },
-        { img: this.chartParetoDisp?.getChartImage(opts),   titulo: 'Pareto Disponibilidad' },
-      ].forEach((g, i) => {
-        const col = i % 3;
-        const row = Math.floor(i / 3);
-        const x = margin + col * (cw3 + gap);
-        const y = startY + row * (rh2 + gap);
-        if (g.img) {
-          pdf.setFontSize(7); pdf.setFont('helvetica','bold'); pdf.setTextColor(40,60,90);
-          pdf.text(g.titulo, x + cw3/2, y + 3.5, { align: 'center' });
-          pdf.addImage(g.img, 'JPEG', x, y + 5, cw3, rh2 - 5, undefined, 'MEDIUM');
-        }
-      });
-
-      // ── PÁGINA 2: Utilización (6 gráficos 2×3) ─────────────────────────
-      agregarPaginaGraficos2x3(pdf, 'TALADRO LARGO — UTILIZACIÓN', [
-        { img: this.chartUtilEquipo?.getChartImage(opts),   titulo: 'Utilización Equipo' },
-        { img: this.chartUtilDia?.getChartImage(opts),      titulo: 'Utilización Día' },
-        { img: this.chartUtilSemana?.getChartImage(opts),   titulo: 'Utilización Semana' },
-        { img: this.chartUtilMes?.getChartImage(opts),      titulo: 'Utilización Mes' },
-        { img: this.chartParetoUtil?.getChartImage(opts),   titulo: 'Pareto Utilización' },
+      // ── PÁGINA 1: Disponibilidad ────────────────────────────────────────
+      agregarPaginaGraficos2x3(pdf, 'TALADRO LARGO — DISPONIBILIDAD', [
+        { img: this.chartDispEquipo?.getChartImage(opts),      titulo: 'Disponibilidad Equipo' },
+        { img: this.chartDispDia?.getChartImage(opts),         titulo: 'Disponibilidad Día' },
+        { img: this.chartDispSemana?.getChartImage(opts),      titulo: 'Disponibilidad Semana' },
+        { img: this.chartDispMes?.getChartImage(opts),         titulo: 'Disponibilidad Mes' },
+        { img: this.chartDispGuardia?.getChartImage(opts),     titulo: 'Disponibilidad Guardia' },
+        { img: this.chartParetoDisp?.getChartImage(opts),      titulo: 'Pareto Disponibilidad' },
       ]);
 
-      // ── PÁGINA 3: Rendimiento (5 gráficos 2x3) ─────────────────────────
-      agregarPaginaGraficos2x3(pdf, 'TALADRO LARGO — RENDIMIENTO', [
-        { img: this.chartRendEquipo?.getChartImage(opts),   titulo: 'Rendimiento Equipo' },
-        { img: this.chartRendDia?.getChartImage(opts),      titulo: 'Rendimiento Día' },
-        { img: this.chartRendSemana?.getChartImage(opts),   titulo: 'Rendimiento Semana' },
-        { img: this.chartRendMes?.getChartImage(opts),      titulo: 'Rendimiento Mes' },
-      ]);
-
-      // ── PÁGINA 4: Producción (6 gráficos 2×3) ──────────────────────────
-      agregarPaginaGraficos2x3(pdf, 'TALADRO LARGO — PRODUCCIÓN', [
-        { img: this.chartDisparosEquipo?.getChartImage(opts),   titulo: 'Disparos por Equipo' },
-        { img: this.chartPerforadoEquipo?.getChartImage(opts),  titulo: 'Metros Perforados' },
-        { img: this.chartDemorasOp?.getChartImage(opts),        titulo: 'Demoras Operativas' },
-        { img: this.chartHorasNoOp?.getChartImage(opts),        titulo: 'Horas No Operativas' },
-        { img: this.chartHorasMant?.getChartImage(opts),        titulo: 'Horas Mantenimiento' },
-        { img: this.chartMetrosDisparo?.getChartImage(opts),    titulo: 'M/Disparo FR' },
-      ]);
-
-      // ── PÁGINA 5: Horómetros + Avance ──────────────────────────────────
-      agregarPaginaGraficos2x2(pdf, 'TALADRO LARGO — HORÓMETROS Y AVANCE', [
-        { img: this.chartMhrEquipo?.getChartImage(opts),         titulo: 'M/Hr Equipo' },
-        { img: this.chartHorometros?.getChartImage(opts),        titulo: 'Horómetros Jumbos' },
-        { img: this.chartAvanceFase?.getChartImage(opts),        titulo: 'Avance por Fase' },
-        { img: this.chartDisparosTipo?.getChartImage(opts),      titulo: 'Disparos por Tipo' },
-      ]);
-
-      // ── PÁGINA 6: Operadores / Ranking ──────────────────────────────────
-      agregarPaginaGraficoCompleto(
-        pdf, 'TALADRO LARGO — RANKING OPERADORES',
-        this.chartRanking?.getChartImage({ ...opts, exportHeight: 600 }),
-        'Ranking Operador'
+      // ── PÁGINA 2: Pareto Detalle Disponibilidad ──────────────────────────
+      agregarPaginaGraficoCompleto(pdf, 'TALADRO LARGO — PARETO DETALLE DISPONIBILIDAD',
+        this.chartParetoDispDetalle?.getChartImage({ ...opts, exportHeight: 520 }),
+        'Pareto Detalle — Disponibilidad'
       );
 
-      // ── PÁGINA 7 y 8: Scatter turnos ────────────────────────────────────
-      const scatterOpts: PdfExportOptions = { ...opts, exportHeight: 600 };
-      if (this.turnoAplicado === '' || this.turnoAplicado === 'DÍA') {
-        agregarPaginaGraficoCompleto(
-          pdf, 'TALADRO LARGO — ANÁLISIS TURNO DÍA',
-          this.chartScatterDia?.getChartImage(scatterOpts),
-          'Scatter Turnos — Día'
-        );
+      // ── PÁGINA 3: Utilización ────────────────────────────────────────────
+      agregarPaginaGraficos2x3(pdf, 'TALADRO LARGO — UTILIZACIÓN', [
+        { img: this.chartUtilEquipo?.getChartImage(opts),      titulo: 'Utilización Equipo' },
+        { img: this.chartUtilDia?.getChartImage(opts),         titulo: 'Utilización Día' },
+        { img: this.chartUtilSemana?.getChartImage(opts),      titulo: 'Utilización Semana' },
+        { img: this.chartUtilMes?.getChartImage(opts),         titulo: 'Utilización Mes' },
+        { img: this.chartUtilGuardia?.getChartImage(opts),     titulo: 'Utilización Guardia' },
+        { img: this.chartParetoUtil?.getChartImage(opts),      titulo: 'Pareto Utilización' },
+      ]);
+
+      // ── PÁGINA 4: Pareto Detalle Utilización ────────────────────────────
+      agregarPaginaGraficoCompleto(pdf, 'TALADRO LARGO — PARETO DETALLE UTILIZACIÓN',
+        this.chartParetoUtilDetalle?.getChartImage({ ...opts, exportHeight: 520 }),
+        'Pareto Detalle — Utilización'
+      );
+
+      // ── PÁGINA 5: Rendimiento ────────────────────────────────────────────
+      agregarPaginaGraficos2x3(pdf, 'TALADRO LARGO — RENDIMIENTO', [
+        { img: this.chartRendEquipo?.getChartImage(opts),      titulo: 'Rendimiento Equipo' },
+        { img: this.chartRendDia?.getChartImage(opts),         titulo: 'Rendimiento Día' },
+        { img: this.chartRendSemana?.getChartImage(opts),      titulo: 'Rendimiento Semana' },
+        { img: this.chartRendMes?.getChartImage(opts),         titulo: 'Rendimiento Mes' },
+        { img: this.chartRendGuardia?.getChartImage(opts),     titulo: 'Rendimiento Guardia' },
+        { img: this.chartRendTipo?.getChartImage(opts),        titulo: 'Rendimiento Tipo Perforación' },
+      ]);
+
+      // ── PÁGINA 6: Producción ─────────────────────────────────────────────
+      agregarPaginaGraficos2x3(pdf, 'TALADRO LARGO — PRODUCCIÓN', [
+        { img: this.chartProdEquipo?.getChartImage(opts),      titulo: 'Producción Equipo' },
+        { img: this.chartProdDia?.getChartImage(opts),         titulo: 'Producción Día' },
+        { img: this.chartProdSemana?.getChartImage(opts),      titulo: 'Producción Semana' },
+        { img: this.chartProdMes?.getChartImage(opts),         titulo: 'Producción Mes' },
+        { img: this.chartProdGuardia?.getChartImage(opts),     titulo: 'Producción Guardia' },
+        { img: this.chartProdTipo?.getChartImage(opts),        titulo: 'Tipo de Perforación (m)' },
+      ]);
+
+      // ── PÁGINA 7: Producción — Promedio ─────────────────────────────────
+      agregarPaginaGraficos2x3(pdf, 'TALADRO LARGO — PRODUCCIÓN (cont.)', [
+        { img: this.chartProdPromedio?.getChartImage(opts),    titulo: 'Promedio Metros / Día' },
+      ]);
+
+      // ── PÁGINA 8: Ranking ────────────────────────────────────────────────
+      agregarPaginaGraficos2x3(pdf, 'TALADRO LARGO — RANKING', [
+        { img: this.chartRankDispGuardia?.getChartImage(opts), titulo: 'Disponibilidad Guardia' },
+        { img: this.chartRankUtilGuardia?.getChartImage(opts), titulo: 'Utilización Guardia' },
+        { img: this.chartRankRendGuardia?.getChartImage(opts), titulo: 'Rendimiento Guardia' },
+        { img: this.chartRankOpUtil?.getChartImage(opts),      titulo: 'Ranking Operador — Utilización' },
+        { img: this.chartRankOpRend?.getChartImage(opts),      titulo: 'Ranking Operador — Rendimiento' },
+      ]);
+
+      // ── PÁGINA 9: Ranking Metraje ────────────────────────────────────────
+      agregarPaginaGraficos2x3(pdf, 'TALADRO LARGO — RANKING METRAJE', [
+        { img: this.chartRankRendGuardia?.getChartImage(opts), titulo: 'Rendimiento Guardia' },
+        { img: this.chartProdGuardia?.getChartImage(opts),     titulo: 'Metros Perforados Guardia' },
+        { img: this.chartRankOpMetros?.getChartImage(opts),    titulo: 'Operador — Metros Perforados' },
+      ]);
+
+      // ── PÁGINA 10: MTBF / MTTR — todo en una página landscape ───────────
+      {
+        pdf.addPage([297, 210], 'landscape');
+        const startY = agregarCabeceraPDF(pdf, 'TALADRO LARGO — MTBF / MTTR');
+        const margin = 6; const gap = 3;
+        const W = 297 - margin * 2;
+        const H = 210 - startY - margin;
+        // 3 columnas × 2 filas
+        const cw = (W - gap * 2) / 3;
+        const rh = (H - gap) / 2;
+
+        // ── Fila 1: Tabla MTBF equipo | MTBF Semana | MTBF Mes
+        agregarTablaEnCeldaPDF(pdf, {
+          titulo: 'MTBF por Equipo',
+          columnas: [
+            { header: 'Equipo',   dataKey: 'equipo' },
+            { header: 'MTBF (h)', dataKey: 'mtbf' },
+            { header: 'Fallas',   dataKey: 'fallas' },
+            { header: 'Hrs Mtto', dataKey: 'horasMttoCorrectivo' },
+          ],
+          filas: this.DataMtbfMttrEquipo.map(d => ({
+            equipo: d.equipo,
+            mtbf:   Number(d.mtbf || 0).toFixed(2),
+            fallas: d.fallas || 0,
+            horasMttoCorrectivo: Number(d.horasMttoCorrectivo || 0).toFixed(2),
+          })),
+        }, margin, startY, cw, rh);
+
+        const imgMtbfSem = this.chartMtbfSemana?.getChartImage(opts);
+        if (imgMtbfSem) {
+          pdf.setFontSize(7); pdf.setFont('helvetica','bold'); pdf.setTextColor(40,60,90);
+          pdf.text('MTBF - Semana', margin + cw + gap + cw/2, startY + 3.5, { align: 'center' });
+          pdf.addImage(imgMtbfSem, 'JPEG', margin + cw + gap, startY + 5, cw, rh - 5, undefined, 'MEDIUM');
+        }
+
+        const imgMtbfMes = this.chartMtbfMes?.getChartImage(opts);
+        if (imgMtbfMes) {
+          pdf.setFontSize(7); pdf.setFont('helvetica','bold'); pdf.setTextColor(40,60,90);
+          pdf.text('MTBF - Mes', margin + cw*2 + gap*2 + cw/2, startY + 3.5, { align: 'center' });
+          pdf.addImage(imgMtbfMes, 'JPEG', margin + cw*2 + gap*2, startY + 5, cw, rh - 5, undefined, 'MEDIUM');
+        }
+
+        // ── Fila 2: Tabla MTTR equipo | MTTR Semana | MTTR Mes
+        const row2Y = startY + rh + gap;
+
+        agregarTablaEnCeldaPDF(pdf, {
+          titulo: 'MTTR por Equipo',
+          columnas: [
+            { header: 'Equipo',   dataKey: 'equipo' },
+            { header: 'MTTR (h)', dataKey: 'mttr' },
+            { header: 'Fallas',   dataKey: 'fallas' },
+            { header: 'Hrs Mtto', dataKey: 'horasMttoCorrectivo' },
+          ],
+          filas: this.DataMtbfMttrEquipo.map(d => ({
+            equipo: d.equipo,
+            mttr:   Number(d.mttr || 0).toFixed(2),
+            fallas: d.fallas || 0,
+            horasMttoCorrectivo: Number(d.horasMttoCorrectivo || 0).toFixed(2),
+          })),
+        }, margin, row2Y, cw, rh);
+
+        const imgMttrSem = this.chartMttrSemana?.getChartImage(opts);
+        if (imgMttrSem) {
+          pdf.setFontSize(7); pdf.setFont('helvetica','bold'); pdf.setTextColor(40,60,90);
+          pdf.text('MTTR - Semana', margin + cw + gap + cw/2, row2Y + 3.5, { align: 'center' });
+          pdf.addImage(imgMttrSem, 'JPEG', margin + cw + gap, row2Y + 5, cw, rh - 5, undefined, 'MEDIUM');
+        }
+
+        const imgMttrMes = this.chartMttrMes?.getChartImage(opts);
+        if (imgMttrMes) {
+          pdf.setFontSize(7); pdf.setFont('helvetica','bold'); pdf.setTextColor(40,60,90);
+          pdf.text('MTTR - Mes', margin + cw*2 + gap*2 + cw/2, row2Y + 3.5, { align: 'center' });
+          pdf.addImage(imgMttrMes, 'JPEG', margin + cw*2 + gap*2, row2Y + 5, cw, rh - 5, undefined, 'MEDIUM');
+        }
       }
-      if (this.turnoAplicado === '' || this.turnoAplicado === 'NOCHE') {
-        agregarPaginaGraficoCompleto(
-          pdf, 'TALADRO LARGO — ANÁLISIS TURNO NOCHE',
-          this.chartScatterNoche?.getChartImage(scatterOpts),
-          'Scatter Turnos — Noche'
-        );
-      }
+
+      // ── PÁGINA 12: YTD ───────────────────────────────────────────────────
+      agregarPaginaGraficos2x3(pdf, 'TALADRO LARGO — YTD', [
+        { img: this.chartYtdDisp?.getChartImage(opts),         titulo: 'Disponibilidad Año' },
+        { img: this.chartYtdUtil?.getChartImage(opts),         titulo: 'Utilización Año' },
+        { img: this.chartYtdRend?.getChartImage(opts),         titulo: 'Rendimiento Año' },
+        { img: this.chartYtdEquipos?.getChartImage(opts),      titulo: 'Equipos Utilizados' },
+        { img: this.chartYtdMetros?.getChartImage(opts),       titulo: 'Metros Producción' },
+        { img: this.chartYtdHrsOp?.getChartImage(opts),        titulo: 'Horas Operativas' },
+      ]);
+
+      // ── PÁGINA 13: Horas Operativas ──────────────────────────────────────
+      agregarPaginaGraficos2x3(pdf, 'TALADRO LARGO — HORAS OPERATIVAS', [
+        { img: this.chartHrsOpMes?.getChartImage(opts),        titulo: 'Hrs Operativas Mes' },
+        { img: this.chartHrsOpSemana?.getChartImage(opts),     titulo: 'Hrs Operativas Semana' },
+        { img: this.chartHrsOpDia?.getChartImage(opts),        titulo: 'Hrs Operativas Día' },
+      ]);
 
       const fecha = new Date().toISOString().slice(0, 10);
       pdf.save(`taladro-largo-${fecha}.pdf`);
@@ -559,6 +735,38 @@ export class PrincipalGraficoLargoComponent implements OnInit {
     this.DataRendimientoPorDia = this.RendimientoSimbaPorDia();
     this.DataRendimientoPorSemana = this.RendimientoSimbaPorSemana();
     this.DataRendimientoPorMes = this.RendimientoSimbaPorMes();
+    this.DataRendimientoPorTipoPerforacion = this.RendimientoPorTipoPerforacion();
+
+    this.DataProduccionEquipo = this.ProduccionPorEquipo();
+    this.DataProduccionDia = this.ProduccionPorDia();
+    this.DataProduccionSemana = this.ProduccionPorSemana();
+    this.DataProduccionMes = this.ProduccionPorMes();
+    this.DataProduccionGuardia = this.ProduccionPorGuardia();
+    this.DataProduccionTipoPerforacion = this.ProduccionPorTipoPerforacion();
+    this.DataProduccionPromedioDia = this.ProduccionPromedioPorDia();
+
+    this.DataRankingUtilizacionGuardia = this.UtilizacionPorGuardia();
+    this.DataRankingRendimientoGuardia = this.RendimientoPorGuardia();
+    this.DataRankingDisponibilidadGuardia = this.DisponibilidadPorGuardia();
+    this.DataRankingOperadorUtilizacion = this.UtilizacionPorOperador();
+    this.DataRankingOperadorRendimiento = this.RendimientoPorOperador();
+    this.DataRankingMetrosGuardia = this.MetrosPerforadosPorGuardia();
+    this.DataRankingMetrosOperador = this.MetrosPerforadosPorOperador();
+
+    this.DataMtbfMttrEquipo = this.MtbfMttrPorEquipo();
+    this.DataMtbfMttrSemana = this.MtbfMttrPorSemana();
+    this.DataMtbfMttrMes = this.MtbfMttrPorMes();
+    this.DataMtbfMttrAno = this.MtbfMttrPorAno();
+
+    this.DataHorasOperativasDia = this.HorasOperativasPorDia();
+    this.DataHorasOperativasSemana = this.HorasOperativasPorSemana();
+    this.DataHorasOperativasMes = this.HorasOperativasPorMes();
+
+    this.DataYtdEquiposUtilizados = this.YtdEquiposUtilizadosPorMes();
+
+    this.DataParetoDisponibilidadDetalle = this.ParetoDisponibilidadDetalle();
+    this.DataParetoUtilizacionDetalle = this.ParetoUtilizacionDetalle();
+    this.KpiLargo = this.calcularKpiLargo();
 
     this.DataDisponibilidadEquipo = this.DisponibilidadPorEquipo();
     this.DataDisponibilidadDia = this.DisponibilidadPorDia();
@@ -712,16 +920,8 @@ export class PrincipalGraficoLargoComponent implements OnInit {
       }
 
       try {
-        const op = registro.operacion || registro;
-
-        const prod = Number(op.metros_perforados_produccion) || 0;
-        const rim = Number(op.metros_perforados_rimados) || 0;
-        const rep = Number(op.metros_perforados_repaso) || 0;
-        const ali = Number(op.metros_perforados_alivio) || 0;
-
-        const metrosRegistro = prod + rim + rep + ali;
-
-        totalMetros += metrosRegistro;
+        const resumen = this.calcularMetrosPerforadosSimba(registro.operacion);
+        totalMetros += resumen.metrosPerforados;
       } catch (error) {
         console.error(`Error en registro ${registro.numero}:`, error);
       }
@@ -1966,6 +2166,309 @@ export class PrincipalGraficoLargoComponent implements OnInit {
     return resultado;
   }
 
+  RendimientoPorTipoPerforacion() {
+    const resultadoMap = new Map<string, any>();
+
+    this.operacionesFiltradas.forEach((op) => {
+      const registrosArray = op.registros;
+
+      if (!Array.isArray(registrosArray)) return;
+
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+
+        if (!this.esCodigoOperativo(codigo)) continue;
+
+        if (!registro.hora_inicio || !registro.hora_final) continue;
+
+        const horas = this.calcularDuracionHoras(
+          registro.hora_inicio,
+          registro.hora_final,
+        );
+
+        if (!horas || horas <= 0) continue;
+
+        const operacion = registro.operacion;
+
+        if (!operacion) continue;
+
+        const barrasArray = operacion.barras;
+
+        if (!Array.isArray(barrasArray)) continue;
+
+        for (const barra of barrasArray) {
+          const tipo = String(barra.tipo_perforacion || 'SIN TIPO')
+            .trim()
+            .toUpperCase();
+
+          const longitud = this.convertirNumero(barra.longitud_perforacion);
+
+          if (!resultadoMap.has(tipo)) {
+            resultadoMap.set(tipo, {
+              tipo,
+              metrosPerforados: 0,
+              horasOperativas: 0,
+              rendimiento: 0,
+              cantidadRegistros: 0,
+            });
+          }
+
+          const item = resultadoMap.get(tipo);
+
+          item.metrosPerforados += longitud;
+          item.horasOperativas += horas;
+          item.cantidadRegistros += 1;
+        }
+      }
+    });
+
+    const resultado = Array.from(resultadoMap.values()).map((item) => {
+      item.metrosPerforados = Number(item.metrosPerforados.toFixed(2));
+      item.horasOperativas = Number(item.horasOperativas.toFixed(2));
+      item.rendimiento =
+        item.horasOperativas > 0
+          ? Number((item.metrosPerforados / item.horasOperativas).toFixed(2))
+          : 0;
+
+      return item;
+    });
+
+    resultado.sort((a, b) => b.rendimiento - a.rendimiento);
+
+    return resultado;
+  }
+
+  // =========================================
+  // KPI CARDS
+  // =========================================
+
+  calcularKpiLargo() {
+    // RendimientoALL: metros / horas operativas de TODOS los datos (sin filtro fecha)
+    let totalMetrosAll = 0;
+    let totalHrsOpAll = 0;
+
+    this.operacionesOriginal.forEach((op) => {
+      const registrosArray = op.registros;
+      if (!Array.isArray(registrosArray)) return;
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+        if (!this.esCodigoOperativo(codigo)) continue;
+        if (!registro.hora_inicio || !registro.hora_final) continue;
+        const horas = this.calcularDuracionHoras(registro.hora_inicio, registro.hora_final);
+        if (!horas || horas <= 0) continue;
+        const resumen = this.calcularMetrosPerforadosSimba(registro.operacion);
+        totalMetrosAll += resumen.metrosPerforados;
+        totalHrsOpAll += horas;
+      }
+    });
+
+    const rendimientoAll = totalHrsOpAll > 0
+      ? Number((totalMetrosAll / totalHrsOpAll).toFixed(2))
+      : 0;
+
+    // Total metros perforados del período filtrado
+    let totalMetros = 0;
+    this.operacionesFiltradas.forEach((op) => {
+      const registrosArray = op.registros;
+      if (!Array.isArray(registrosArray)) return;
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+        if (!this.esCodigoOperativo(codigo)) continue;
+        const resumen = this.calcularMetrosPerforadosSimba(registro.operacion);
+        totalMetros += resumen.metrosPerforados;
+      }
+    });
+
+    // Promedio metros x día: total metros / días distintos con datos
+    const fechasConDatos = new Set<string>();
+    this.operacionesFiltradas.forEach((op) => {
+      if (op.fecha) fechasConDatos.add(String(op.fecha));
+    });
+    const diasConDatos = fechasConDatos.size || 1;
+    const promedioMetrosDia = Number((totalMetros / diasConDatos).toFixed(2));
+
+    // Promedio horas operativas x día
+    let totalHrsOp = 0;
+    this.operacionesFiltradas.forEach((op) => {
+      const registrosArray = op.registros;
+      if (!Array.isArray(registrosArray)) return;
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+        if (!this.esCodigoOperativo(codigo)) continue;
+        if (!registro.hora_inicio || !registro.hora_final) continue;
+        const horas = this.calcularDuracionHoras(registro.hora_inicio, registro.hora_final);
+        if (!horas || horas <= 0) continue;
+        totalHrsOp += horas;
+      }
+    });
+    const promedioHrsOperativas = Number((totalHrsOp / diasConDatos).toFixed(2));
+
+    return {
+      rendimientoAll,
+      totalMetros: Number(totalMetros.toFixed(2)),
+      promedioMetrosDia,
+      promedioHrsOperativas,
+    };
+  }
+
+  // =========================================
+  // RANKING — por Operador
+  // =========================================
+
+  UtilizacionPorOperador() {
+    const resultadoMap = new Map<string, any>();
+
+    this.operacionesFiltradas.forEach((op) => {
+      const operador = String(op.operador || 'SIN OPERADOR').trim();
+
+      if (!resultadoMap.has(operador)) {
+        resultadoMap.set(operador, {
+          operador,
+          horasTotales: 0,
+          horasMtto: 0,
+          horasDisponibles: 0,
+          horasOperativas: 0,
+          utilizacion: 0,
+          cantidadOperaciones: 0,
+        });
+      }
+
+      const item = resultadoMap.get(operador);
+      item.cantidadOperaciones += 1;
+
+      const registrosArray = op.registros;
+      if (!Array.isArray(registrosArray)) return;
+
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+        if (!registro.hora_inicio || !registro.hora_final) continue;
+
+        const horas = this.calcularDuracionHoras(registro.hora_inicio, registro.hora_final);
+        if (!horas || horas <= 0) continue;
+
+        const estado = String(registro.estado || '').trim().toUpperCase();
+
+        item.horasTotales += horas;
+
+        if (estado === 'MANTENIMIENTO' || this.esCodigoMantenimiento(codigo)) {
+          item.horasMtto += horas;
+        }
+        if (estado === 'OPERATIVO' || this.esCodigoOperativo(codigo)) {
+          item.horasOperativas += horas;
+        }
+      }
+    });
+
+    return Array.from(resultadoMap.values())
+      .map((item) => {
+        item.horasDisponibles = item.horasTotales - item.horasMtto;
+        item.utilizacion = item.horasDisponibles > 0
+          ? Number(((item.horasOperativas / item.horasDisponibles) * 100).toFixed(2))
+          : 0;
+        item.horasTotales = Number(item.horasTotales.toFixed(2));
+        item.horasMtto = Number(item.horasMtto.toFixed(2));
+        item.horasDisponibles = Number(item.horasDisponibles.toFixed(2));
+        item.horasOperativas = Number(item.horasOperativas.toFixed(2));
+        return item;
+      })
+      .filter((item) => item.horasTotales > 0)
+      .sort((a, b) => b.utilizacion - a.utilizacion);
+  }
+
+  RendimientoPorOperador() {
+    const resultadoMap = new Map<string, any>();
+
+    this.operacionesFiltradas.forEach((op) => {
+      const operador = String(op.operador || 'SIN OPERADOR').trim();
+
+      if (!resultadoMap.has(operador)) {
+        resultadoMap.set(operador, {
+          operador,
+          metrosPerforados: 0,
+          horasOperativas: 0,
+          rendimiento: 0,
+          cantidadOperaciones: 0,
+        });
+      }
+
+      const item = resultadoMap.get(operador);
+      item.cantidadOperaciones += 1;
+
+      const registrosArray = op.registros;
+      if (!Array.isArray(registrosArray)) return;
+
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+        if (!this.esCodigoOperativo(codigo)) continue;
+        if (!registro.hora_inicio || !registro.hora_final) continue;
+
+        const horas = this.calcularDuracionHoras(registro.hora_inicio, registro.hora_final);
+        if (!horas || horas <= 0) continue;
+
+        const resumen = this.calcularMetrosPerforadosSimba(registro.operacion);
+        item.metrosPerforados += resumen.metrosPerforados;
+        item.horasOperativas += horas;
+      }
+    });
+
+    return Array.from(resultadoMap.values())
+      .map((item) => {
+        item.metrosPerforados = Number(item.metrosPerforados.toFixed(2));
+        item.horasOperativas = Number(item.horasOperativas.toFixed(2));
+        item.rendimiento = item.horasOperativas > 0
+          ? Number((item.metrosPerforados / item.horasOperativas).toFixed(2))
+          : 0;
+        return item;
+      })
+      .filter((item) => item.rendimiento > 0)
+      .sort((a, b) => b.rendimiento - a.rendimiento);
+  }
+
+  MetrosPerforadosPorGuardia() {
+    // Reutiliza ProduccionPorGuardia — misma lógica
+    return this.ProduccionPorGuardia();
+  }
+
+  MetrosPerforadosPorOperador() {
+    const resultadoMap = new Map<string, any>();
+
+    this.operacionesFiltradas.forEach((op) => {
+      const operador = String(op.operador || 'SIN OPERADOR').trim();
+      const equipo = String(op.modelo_equipo || op.n_equipo || 'SIN EQUIPO').trim();
+      const key = `${equipo}||${operador}`;
+
+      if (!resultadoMap.has(key)) {
+        resultadoMap.set(key, {
+          operador,
+          equipo,
+          metrosPerforados: 0,
+          cantidadOperaciones: 0,
+        });
+      }
+
+      const item = resultadoMap.get(key);
+      item.cantidadOperaciones += 1;
+
+      const registrosArray = op.registros;
+      if (!Array.isArray(registrosArray)) return;
+
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+        if (!this.esCodigoOperativo(codigo)) continue;
+        const resumen = this.calcularMetrosPerforadosSimba(registro.operacion);
+        item.metrosPerforados += resumen.metrosPerforados;
+      }
+    });
+
+    return Array.from(resultadoMap.values())
+      .map((item) => {
+        item.metrosPerforados = Number(item.metrosPerforados.toFixed(2));
+        return item;
+      })
+      .filter((item) => item.metrosPerforados > 0)
+      .sort((a, b) => b.metrosPerforados - a.metrosPerforados);
+  }
+
   RendimientoSimbaPorDia() {
     return this.calcularRendimientoSimbaBasePorDia(
       this.operacionesFiltradas,
@@ -1979,6 +2482,557 @@ export class PrincipalGraficoLargoComponent implements OnInit {
 
   RendimientoSimbaPorMes() {
     return this.calcularRendimientoSimbaPorPeriodoVisual('MES');
+  }
+
+  // =========================================
+  // HORAS OPERATIVAS — por período
+  // =========================================
+
+  HorasOperativasPorDia() {
+    const resultadoMap = new Map<string, any>();
+
+    if (this.fechaInicio && this.fechaFin) {
+      generarDiasEntreFechas(this.fechaInicio, this.fechaFin).forEach((dia) => {
+        resultadoMap.set(dia.key, { key: dia.key, periodo: dia.label, horasOperativas: 0, cantidadOperaciones: 0 });
+      });
+    }
+
+    this.operacionesFiltradas.forEach((op) => {
+      const periodo = obtenerPeriodo(op.fecha, 'DIA');
+      if (!periodo) return;
+      if (!resultadoMap.has(periodo.key)) {
+        resultadoMap.set(periodo.key, { key: periodo.key, periodo: periodo.label, horasOperativas: 0, cantidadOperaciones: 0 });
+      }
+      const item = resultadoMap.get(periodo.key);
+      item.cantidadOperaciones += 1;
+
+      const registrosArray = op.registros;
+      if (!Array.isArray(registrosArray)) return;
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+        if (!this.esCodigoOperativo(codigo)) continue;
+        if (!registro.hora_inicio || !registro.hora_final) continue;
+        const horas = this.calcularDuracionHoras(registro.hora_inicio, registro.hora_final);
+        if (!horas || horas <= 0) continue;
+        item.horasOperativas += horas;
+      }
+    });
+
+    return Array.from(resultadoMap.values())
+      .map((item) => { item.horasOperativas = Number(item.horasOperativas.toFixed(2)); return item; })
+      .sort((a, b) => String(a.key).localeCompare(String(b.key)));
+  }
+
+  HorasOperativasPorSemana() {
+    return this.calcularHorasOperativasPorPeriodo('SEMANA');
+  }
+
+  HorasOperativasPorMes() {
+    return this.calcularHorasOperativasPorPeriodo('MES');
+  }
+
+  private calcularHorasOperativasPorPeriodo(tipo: 'SEMANA' | 'MES') {
+    const resultadoMap = new Map<string, any>();
+
+    if (this.fechaInicio && this.fechaFin) {
+      generarDiasEntreFechas(this.fechaInicio, this.fechaFin).forEach((dia) => {
+        const periodo = obtenerPeriodoDesdeKey(dia.key, tipo);
+        if (!periodo || resultadoMap.has(periodo.key)) return;
+        resultadoMap.set(periodo.key, { key: periodo.key, periodo: periodo.label, horasOperativas: 0, cantidadOperaciones: 0 });
+      });
+    }
+
+    const datosDia = this.HorasOperativasPorDia();
+    datosDia.forEach((dia) => {
+      const periodo = obtenerPeriodoDesdeKey(dia.key, tipo);
+      if (!periodo || !resultadoMap.has(periodo.key)) return;
+      const item = resultadoMap.get(periodo.key);
+      item.horasOperativas += Number(dia.horasOperativas || 0);
+      item.cantidadOperaciones += Number(dia.cantidadOperaciones || 0);
+    });
+
+    return Array.from(resultadoMap.values())
+      .map((item) => { item.horasOperativas = Number(item.horasOperativas.toFixed(2)); return item; })
+      .sort((a, b) => String(a.key).localeCompare(String(b.key)));
+  }
+
+  // =========================================
+  // YTD — acumulados anuales
+  // =========================================
+
+  YtdEquiposUtilizadosPorMes() {
+    const resultadoMap = new Map<string, any>();
+
+    if (this.fechaInicio && this.fechaFin) {
+      generarDiasEntreFechas(this.fechaInicio, this.fechaFin).forEach((dia) => {
+        const periodo = obtenerPeriodoDesdeKey(dia.key, 'MES');
+        if (!periodo || resultadoMap.has(periodo.key)) return;
+        resultadoMap.set(periodo.key, { key: periodo.key, periodo: periodo.label, equiposUtilizados: 0, equipos: new Set<string>() });
+      });
+    }
+
+    this.operacionesFiltradas.forEach((op) => {
+      const periodo = obtenerPeriodoDesdeKey(obtenerPeriodo(op.fecha, 'DIA')?.key || '', 'MES');
+      if (!periodo) return;
+      if (!resultadoMap.has(periodo.key)) {
+        resultadoMap.set(periodo.key, { key: periodo.key, periodo: periodo.label, equiposUtilizados: 0, equipos: new Set<string>() });
+      }
+      const item = resultadoMap.get(periodo.key);
+      const equipo = String(op.modelo_equipo || op.n_equipo || '').trim();
+      if (equipo) item.equipos.add(equipo);
+    });
+
+    return Array.from(resultadoMap.values())
+      .map((item) => {
+        item.equiposUtilizados = item.equipos.size;
+        delete item.equipos;
+        return item;
+      })
+      .sort((a, b) => String(a.key).localeCompare(String(b.key)));
+  }
+
+  // =========================================
+  // MTBF / MTTR
+  // =========================================
+
+  private calcularMtbfMttrBase(operaciones: any[]) {
+    const resultadoMap = new Map<string, any>();
+
+    operaciones.forEach((op) => {
+      const key = String(op.modelo_equipo || op.n_equipo || 'SIN EQUIPO').trim();
+
+      if (!resultadoMap.has(key)) {
+        resultadoMap.set(key, {
+          equipo: key,
+          horasTotales: 0,
+          horasMttoCorrectivo: 0,
+          horasSinMttoCorrectivo: 0,
+          fallas: 0,
+          cantidadRegistros: 0,
+          cantidadRegistrosMttoCorrectivo: 0,
+        });
+      }
+
+      const item = resultadoMap.get(key);
+
+      const registrosArray = op.registros;
+      if (!Array.isArray(registrosArray)) return;
+
+      for (const registro of registrosArray) {
+        if (!registro.hora_inicio || !registro.hora_final) continue;
+
+        const horas = this.calcularDuracionHoras(registro.hora_inicio, registro.hora_final);
+        if (!horas || horas <= 0) continue;
+
+        const codigo = String(registro.codigo || '').trim();
+        const estado = String(registro.estado || '').trim().toUpperCase();
+        const esMtto = estado === 'MANTENIMIENTO' || this.esCodigoMantenimiento(codigo);
+
+        item.horasTotales += horas;
+        item.cantidadRegistros += 1;
+
+        // Mantenimiento correctivo = falla (no preventivo)
+        // Usamos todos los registros de mantenimiento como fallas
+        if (esMtto) {
+          item.horasMttoCorrectivo += horas;
+          item.fallas += 1;
+          item.cantidadRegistrosMttoCorrectivo += 1;
+        }
+      }
+    });
+
+    return Array.from(resultadoMap.values()).map((item) => {
+      item.horasSinMttoCorrectivo = item.horasTotales - item.horasMttoCorrectivo;
+      item.mtbf = item.fallas > 0
+        ? Number((item.horasSinMttoCorrectivo / item.fallas).toFixed(2))
+        : 0;
+      item.mttr = item.fallas > 0
+        ? Number((item.horasMttoCorrectivo / item.fallas).toFixed(2))
+        : 0;
+      item.horasTotales = Number(item.horasTotales.toFixed(2));
+      item.horasMttoCorrectivo = Number(item.horasMttoCorrectivo.toFixed(2));
+      item.horasSinMttoCorrectivo = Number(item.horasSinMttoCorrectivo.toFixed(2));
+      return item;
+    });
+  }
+
+  MtbfMttrPorEquipo() {
+    return this.calcularMtbfMttrBase(this.operacionesFiltradas)
+      .sort((a, b) => b.mtbf - a.mtbf);
+  }
+
+  MtbfMttrPorMes() {
+    return this.calcularMtbfMttrPorPeriodo('MES');
+  }
+
+  MtbfMttrPorSemana() {
+    return this.calcularMtbfMttrPorPeriodo('SEMANA');
+  }
+
+  MtbfMttrPorAno() {
+    return this.calcularMtbfMttrPorPeriodo('ANO');
+  }
+
+  private calcularMtbfMttrPorPeriodo(tipo: 'SEMANA' | 'MES' | 'ANO') {
+    const resultadoMap = new Map<string, any>();
+
+    if (tipo !== 'ANO' && this.fechaInicio && this.fechaFin) {
+      generarDiasEntreFechas(this.fechaInicio, this.fechaFin).forEach((dia) => {
+        const periodo = obtenerPeriodoDesdeKey(dia.key, tipo as 'SEMANA' | 'MES');
+        if (!periodo || resultadoMap.has(periodo.key)) return;
+        resultadoMap.set(periodo.key, {
+          key: periodo.key, periodo: periodo.label, anio: periodo.anio || null,
+          horasTotales: 0, horasMttoCorrectivo: 0, horasSinMttoCorrectivo: 0,
+          fallas: 0, cantidadRegistros: 0, cantidadRegistrosMttoCorrectivo: 0,
+          mtbf: 0, mttr: 0,
+        });
+      });
+    }
+
+    this.operacionesFiltradas.forEach((op) => {
+      const fecha = String(op.fecha || '').trim();
+      if (!fecha) return;
+
+      let periodoKey: string;
+      let periodoLabel: string;
+      let anio: string;
+
+      if (tipo === 'ANO') {
+        anio = fecha.split('-')[0] || '';
+        periodoKey = anio;
+        periodoLabel = anio;
+      } else {
+        const p = obtenerPeriodoDesdeKey(
+          obtenerPeriodo(fecha, 'DIA')?.key || '',
+          tipo as 'SEMANA' | 'MES',
+        );
+        if (!p) return;
+        periodoKey = p.key;
+        periodoLabel = p.label;
+        anio = String(p.anio || '');
+      }
+
+      if (!resultadoMap.has(periodoKey)) {
+        resultadoMap.set(periodoKey, {
+          key: periodoKey, periodo: periodoLabel, anio,
+          horasTotales: 0, horasMttoCorrectivo: 0, horasSinMttoCorrectivo: 0,
+          fallas: 0, cantidadRegistros: 0, cantidadRegistrosMttoCorrectivo: 0,
+          mtbf: 0, mttr: 0,
+        });
+      }
+
+      const item = resultadoMap.get(periodoKey);
+
+      const registrosArray = op.registros;
+      if (!Array.isArray(registrosArray)) return;
+
+      for (const registro of registrosArray) {
+        if (!registro.hora_inicio || !registro.hora_final) continue;
+        const horas = this.calcularDuracionHoras(registro.hora_inicio, registro.hora_final);
+        if (!horas || horas <= 0) continue;
+
+        const codigo = String(registro.codigo || '').trim();
+        const estado = String(registro.estado || '').trim().toUpperCase();
+        const esMtto = estado === 'MANTENIMIENTO' || this.esCodigoMantenimiento(codigo);
+
+        item.horasTotales += horas;
+        item.cantidadRegistros += 1;
+
+        if (esMtto) {
+          item.horasMttoCorrectivo += horas;
+          item.fallas += 1;
+          item.cantidadRegistrosMttoCorrectivo += 1;
+        }
+      }
+    });
+
+    return Array.from(resultadoMap.values())
+      .map((item) => {
+        item.horasSinMttoCorrectivo = item.horasTotales - item.horasMttoCorrectivo;
+        item.mtbf = item.fallas > 0
+          ? Number((item.horasSinMttoCorrectivo / item.fallas).toFixed(2))
+          : 0;
+        item.mttr = item.fallas > 0
+          ? Number((item.horasMttoCorrectivo / item.fallas).toFixed(2))
+          : 0;
+        item.horasTotales = Number(item.horasTotales.toFixed(2));
+        item.horasMttoCorrectivo = Number(item.horasMttoCorrectivo.toFixed(2));
+        item.horasSinMttoCorrectivo = Number(item.horasSinMttoCorrectivo.toFixed(2));
+        return item;
+      })
+      .sort((a, b) => String(a.key).localeCompare(String(b.key)));
+  }
+
+  // =========================================
+  // PRODUCCIÓN — metros perforados
+  // =========================================
+
+  ProduccionPorEquipo() {
+    const resultadoMap = new Map<string, any>();
+
+    this.operacionesFiltradas.forEach((op) => {
+      const key = String(op.modelo_equipo || op.n_equipo || 'SIN EQUIPO').trim();
+
+      if (!resultadoMap.has(key)) {
+        resultadoMap.set(key, {
+          n_equipo: key,
+          equipo: op.equipo || 'TALADRO LARGO',
+          metrosPerforados: 0,
+          horasOperativas: 0,
+          cantidadOperaciones: 0,
+        });
+      }
+
+      const item = resultadoMap.get(key);
+      item.cantidadOperaciones += 1;
+
+      const registrosArray = op.registros;
+      if (!Array.isArray(registrosArray)) return;
+
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+        if (!this.esCodigoOperativo(codigo)) continue;
+        if (!registro.hora_inicio || !registro.hora_final) continue;
+
+        const horas = this.calcularDuracionHoras(registro.hora_inicio, registro.hora_final);
+        if (!horas || horas <= 0) continue;
+
+        const resumen = this.calcularMetrosPerforadosSimba(registro.operacion);
+        item.metrosPerforados += resumen.metrosPerforados;
+        item.horasOperativas += horas;
+      }
+    });
+
+    return Array.from(resultadoMap.values())
+      .map((item) => {
+        item.metrosPerforados = Number(item.metrosPerforados.toFixed(2));
+        item.horasOperativas = Number(item.horasOperativas.toFixed(2));
+        return item;
+      })
+      .filter((item) => item.metrosPerforados > 0)
+      .sort((a, b) => b.metrosPerforados - a.metrosPerforados);
+  }
+
+  ProduccionPorGuardia() {
+    const resultadoMap = new Map<string, any>();
+
+    this.operacionesFiltradas.forEach((op) => {
+      const key = String(op.seccion || 'SIN GUARDIA').trim();
+
+      if (!resultadoMap.has(key)) {
+        resultadoMap.set(key, {
+          guardia: key,
+          metrosPerforados: 0,
+          horasOperativas: 0,
+          cantidadOperaciones: 0,
+        });
+      }
+
+      const item = resultadoMap.get(key);
+      item.cantidadOperaciones += 1;
+
+      const registrosArray = op.registros;
+      if (!Array.isArray(registrosArray)) return;
+
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+        if (!this.esCodigoOperativo(codigo)) continue;
+        if (!registro.hora_inicio || !registro.hora_final) continue;
+
+        const horas = this.calcularDuracionHoras(registro.hora_inicio, registro.hora_final);
+        if (!horas || horas <= 0) continue;
+
+        const resumen = this.calcularMetrosPerforadosSimba(registro.operacion);
+        item.metrosPerforados += resumen.metrosPerforados;
+        item.horasOperativas += horas;
+      }
+    });
+
+    return Array.from(resultadoMap.values())
+      .map((item) => {
+        item.metrosPerforados = Number(item.metrosPerforados.toFixed(2));
+        item.horasOperativas = Number(item.horasOperativas.toFixed(2));
+        return item;
+      })
+      .filter((item) => item.metrosPerforados > 0)
+      .sort((a, b) => b.metrosPerforados - a.metrosPerforados);
+  }
+
+  ProduccionPorTipoPerforacion() {
+    const resultadoMap = new Map<string, any>();
+
+    this.operacionesFiltradas.forEach((op) => {
+      const registrosArray = op.registros;
+      if (!Array.isArray(registrosArray)) return;
+
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+        if (!this.esCodigoOperativo(codigo)) continue;
+
+        const operacion = registro.operacion;
+        if (!operacion || !Array.isArray(operacion.barras)) continue;
+
+        for (const barra of operacion.barras) {
+          const tipo = String(barra.tipo_perforacion || 'SIN TIPO').trim().toUpperCase();
+          const longitud = this.convertirNumero(barra.longitud_perforacion);
+
+          if (!resultadoMap.has(tipo)) {
+            resultadoMap.set(tipo, { tipo, metrosPerforados: 0, cantidadRegistros: 0 });
+          }
+
+          const item = resultadoMap.get(tipo);
+          item.metrosPerforados += longitud;
+          item.cantidadRegistros += 1;
+        }
+      }
+    });
+
+    return Array.from(resultadoMap.values())
+      .map((item) => {
+        item.metrosPerforados = Number(item.metrosPerforados.toFixed(2));
+        return item;
+      })
+      .filter((item) => item.metrosPerforados > 0)
+      .sort((a, b) => b.metrosPerforados - a.metrosPerforados);
+  }
+
+  ProduccionPorDia() {
+    const resultadoMap = new Map<string, any>();
+
+    if (this.fechaInicio && this.fechaFin) {
+      generarDiasEntreFechas(this.fechaInicio, this.fechaFin).forEach((dia) => {
+        resultadoMap.set(dia.key, { key: dia.key, periodo: dia.label, metrosPerforados: 0, horasOperativas: 0, cantidadOperaciones: 0 });
+      });
+    }
+
+    this.operacionesFiltradas.forEach((op) => {
+      const periodo = obtenerPeriodo(op.fecha, 'DIA');
+      if (!periodo) return;
+
+      if (!resultadoMap.has(periodo.key)) {
+        resultadoMap.set(periodo.key, { key: periodo.key, periodo: periodo.label, metrosPerforados: 0, horasOperativas: 0, cantidadOperaciones: 0 });
+      }
+
+      const item = resultadoMap.get(periodo.key);
+      item.cantidadOperaciones += 1;
+
+      const registrosArray = op.registros;
+      if (!Array.isArray(registrosArray)) return;
+
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+        if (!this.esCodigoOperativo(codigo)) continue;
+        if (!registro.hora_inicio || !registro.hora_final) continue;
+
+        const horas = this.calcularDuracionHoras(registro.hora_inicio, registro.hora_final);
+        if (!horas || horas <= 0) continue;
+
+        const resumen = this.calcularMetrosPerforadosSimba(registro.operacion);
+        item.metrosPerforados += resumen.metrosPerforados;
+        item.horasOperativas += horas;
+      }
+    });
+
+    return Array.from(resultadoMap.values())
+      .map((item) => {
+        item.metrosPerforados = Number(item.metrosPerforados.toFixed(2));
+        item.horasOperativas = Number(item.horasOperativas.toFixed(2));
+        return item;
+      })
+      .sort((a, b) => String(a.key).localeCompare(String(b.key)));
+  }
+
+  ProduccionPorSemana() {
+    return this.calcularProduccionPorPeriodo('SEMANA');
+  }
+
+  ProduccionPorMes() {
+    return this.calcularProduccionPorPeriodo('MES');
+  }
+
+  private calcularProduccionPorPeriodo(tipo: 'SEMANA' | 'MES') {
+    const resultadoMap = new Map<string, any>();
+
+    if (this.fechaInicio && this.fechaFin) {
+      generarDiasEntreFechas(this.fechaInicio, this.fechaFin).forEach((dia) => {
+        const periodo = obtenerPeriodoDesdeKey(dia.key, tipo);
+        if (!periodo || resultadoMap.has(periodo.key)) return;
+        resultadoMap.set(periodo.key, { key: periodo.key, periodo: periodo.label, metrosPerforados: 0, horasOperativas: 0, cantidadOperaciones: 0 });
+      });
+    }
+
+    const datosDia = this.ProduccionPorDia();
+
+    datosDia.forEach((dia) => {
+      const periodo = obtenerPeriodoDesdeKey(dia.key, tipo);
+      if (!periodo || !resultadoMap.has(periodo.key)) return;
+
+      const item = resultadoMap.get(periodo.key);
+      item.metrosPerforados += Number(dia.metrosPerforados || 0);
+      item.horasOperativas += Number(dia.horasOperativas || 0);
+      item.cantidadOperaciones += Number(dia.cantidadOperaciones || 0);
+    });
+
+    return Array.from(resultadoMap.values())
+      .map((item) => {
+        item.metrosPerforados = Number(item.metrosPerforados.toFixed(2));
+        item.horasOperativas = Number(item.horasOperativas.toFixed(2));
+        return item;
+      })
+      .sort((a, b) => String(a.key).localeCompare(String(b.key)));
+  }
+
+  ProduccionPromedioPorDia() {
+    const resultadoMap = new Map<string, any>();
+
+    this.operacionesFiltradas.forEach((op) => {
+      const key = String(op.modelo_equipo || op.n_equipo || 'SIN EQUIPO').trim();
+      const fecha = String(op.fecha || '').trim();
+
+      if (!fecha) return;
+
+      if (!resultadoMap.has(key)) {
+        resultadoMap.set(key, {
+          n_equipo: key,
+          equipo: op.equipo || 'TALADRO LARGO',
+          metrosPerforados: 0,
+          fechas: new Set<string>(),
+          promedioMetrosDia: 0,
+          diasConDatos: 0,
+        });
+      }
+
+      const item = resultadoMap.get(key);
+
+      const registrosArray = op.registros;
+      if (!Array.isArray(registrosArray)) return;
+
+      let metrosTurno = 0;
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+        if (!this.esCodigoOperativo(codigo)) continue;
+        const resumen = this.calcularMetrosPerforadosSimba(registro.operacion);
+        metrosTurno += resumen.metrosPerforados;
+      }
+
+      if (metrosTurno > 0) {
+        item.metrosPerforados += metrosTurno;
+        item.fechas.add(fecha);
+      }
+    });
+
+    return Array.from(resultadoMap.values())
+      .map((item) => {
+        item.diasConDatos = item.fechas.size;
+        item.metrosPerforados = Number(item.metrosPerforados.toFixed(2));
+        item.promedioMetrosDia = item.diasConDatos > 0
+          ? Number((item.metrosPerforados / item.diasConDatos).toFixed(2))
+          : 0;
+        delete item.fechas;
+        return item;
+      })
+      .filter((item) => item.promedioMetrosDia > 0)
+      .sort((a, b) => b.promedioMetrosDia - a.promedioMetrosDia);
   }
 
   DisponibilidadPorEquipo() {
@@ -2111,17 +3165,11 @@ export class PrincipalGraficoLargoComponent implements OnInit {
         // Solo registros que afectan disponibilidad
         if (!esMantenimiento) continue;
 
-        const observacion = String(
-          registro.operacion?.observaciones || 'SIN OBSERVACIÓN',
-        )
-          .trim()
-          .toUpperCase();
+        const actividad = this.obtenerActividadPorCodigo(codigo);
 
-        const key = observacion || 'SIN OBSERVACIÓN';
-
-        if (!resultadoMap.has(key)) {
-          resultadoMap.set(key, {
-            observacion: key,
+        if (!resultadoMap.has(actividad)) {
+          resultadoMap.set(actividad, {
+            actividad,
 
             horasGeneral: 0,
             paretoDispObs: 0,
@@ -2133,7 +3181,7 @@ export class PrincipalGraficoLargoComponent implements OnInit {
           });
         }
 
-        const item = resultadoMap.get(key);
+        const item = resultadoMap.get(actividad);
 
         item.horasGeneral += horas;
         item.cantidadRegistros += 1;
@@ -2153,7 +3201,7 @@ export class PrincipalGraficoLargoComponent implements OnInit {
         return b.horasGeneral - a.horasGeneral;
       }
 
-      return String(a.observacion).localeCompare(String(b.observacion));
+      return String(a.actividad).localeCompare(String(b.actividad));
     });
 
     const totalHorasGeneral = resultado.reduce(
@@ -2557,6 +3605,122 @@ export class PrincipalGraficoLargoComponent implements OnInit {
     });
 
     return resultado;
+  }
+
+  // =========================================
+  // PARETO DETALLE — por Observación
+  // =========================================
+
+  ParetoDisponibilidadDetalle() {
+    // Agrupa horas de MANTENIMIENTO por observación del registro
+    const resultadoMap = new Map<string, any>();
+
+    this.operacionesFiltradas.forEach((op) => {
+      const registrosArray = op.registros;
+      if (!Array.isArray(registrosArray)) return;
+
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+        const estado = String(registro.estado || '').trim().toUpperCase();
+        const esMtto = estado === 'MANTENIMIENTO' || this.esCodigoMantenimiento(codigo);
+
+        if (!esMtto) continue;
+        if (!registro.hora_inicio || !registro.hora_final) continue;
+
+        const horas = this.calcularDuracionHoras(registro.hora_inicio, registro.hora_final);
+        if (!horas || horas <= 0) continue;
+
+        const observacion = String(
+          (registro.operacion as any)?.observaciones ||
+          ''
+        ).trim();
+
+        // Si no hay observación, usar la actividad del código como fallback
+        const label = observacion || this.obtenerActividadPorCodigo(codigo) || `COD ${codigo}` || 'SIN OBSERVACIÓN';
+
+        if (!resultadoMap.has(label)) {
+          resultadoMap.set(label, {
+            observacion: label,
+            horasTotales: 0,
+            cantidadRegistros: 0,
+            codigosRelacionados: new Set<string>(),
+          });
+        }
+
+        const item = resultadoMap.get(label);
+        item.horasTotales += horas;
+        item.cantidadRegistros += 1;
+        if (codigo) item.codigosRelacionados.add(codigo);
+      }
+    });
+
+    return Array.from(resultadoMap.values())
+      .map((item) => {
+        item.horasTotales = Number(item.horasTotales.toFixed(2));
+        item.codigosRelacionados = Array.from(item.codigosRelacionados);
+        return item;
+      })
+      .sort((a, b) => b.horasTotales - a.horasTotales);
+  }
+
+  ParetoUtilizacionDetalle() {
+    // Agrupa horas de DEMORA por observación del registro
+    const resultadoMap = new Map<string, any>();
+
+    this.operacionesFiltradas.forEach((op) => {
+      const registrosArray = op.registros;
+      if (!Array.isArray(registrosArray)) return;
+
+      for (const registro of registrosArray) {
+        const codigo = String(registro.codigo || '').trim();
+        if (!this.esDemoraPorCodigo(codigo)) continue;
+        if (!registro.hora_inicio || !registro.hora_final) continue;
+
+        const horas = this.calcularDuracionHoras(registro.hora_inicio, registro.hora_final);
+        if (!horas || horas <= 0) continue;
+
+        const observacion = String(
+          (registro.operacion as any)?.observaciones ||
+          'SIN OBSERVACIÓN'
+        ).trim() || 'SIN OBSERVACIÓN';
+
+        const actividad = this.obtenerActividadPorCodigo(codigo);
+        const tipoDemora = this.obtenerTipoDemora(codigo);
+
+        if (!resultadoMap.has(observacion)) {
+          resultadoMap.set(observacion, {
+            observacion,
+            descripcion: observacion,
+            horasDemora: 0,
+            cantidadRegistros: 0,
+            tipoDemora,
+            codigos: new Set<string>(),
+          });
+        }
+
+        const item = resultadoMap.get(observacion);
+        item.horasDemora += horas;
+        item.cantidadRegistros += 1;
+        if (codigo) item.codigos.add(codigo);
+      }
+    });
+
+    return Array.from(resultadoMap.values())
+      .map((item) => {
+        item.horasDemora = Number(item.horasDemora.toFixed(2));
+        item.codigos = Array.from(item.codigos);
+        return item;
+      })
+      .sort((a, b) => b.horasDemora - a.horasDemora);
+  }
+
+  private obtenerTipoDemora(codigo: string): string {
+    const estado = this.mapaEstados.get(String(codigo || '').trim());
+    if (!estado) return 'DEMORA';
+    const familia = this.normalizarTexto(estado.categoria);
+    if (familia.includes('NO OPERATIVA')) return 'NO OPERATIVA';
+    if (familia.includes('OPERATIVA')) return 'OPERATIVA';
+    return 'DEMORA';
   }
 
   private obtenerActividadPorCodigo(codigo: string): string {
@@ -3260,9 +4424,6 @@ export class PrincipalGraficoLargoComponent implements OnInit {
       };
     }
 
-    const longBarrasPies = this.convertirNumero(operacion.long_barras);
-    const longBarrasMetros = longBarrasPies * 0.3048;
-
     const barrasArray = operacion.barras;
 
     if (!Array.isArray(barrasArray)) {
@@ -3278,10 +4439,11 @@ export class PrincipalGraficoLargoComponent implements OnInit {
     let totalBarras = 0;
 
     for (const barra of barrasArray) {
+      const longitudPerforacion = this.convertirNumero(barra.longitud_perforacion);
       const nTaladro = this.convertirNumero(barra.n_taladro);
       const nBarras = this.convertirNumero(barra.n_barras);
 
-      metrosPerforados += nTaladro * nBarras * longBarrasMetros;
+      metrosPerforados += longitudPerforacion;
 
       totalTaladros += nTaladro;
       totalBarras += nBarras;
