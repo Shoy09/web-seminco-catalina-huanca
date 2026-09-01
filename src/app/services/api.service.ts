@@ -10,7 +10,8 @@ export class ApiService {
   // private readonly apiUrl = 'https://backendseminco-production.up.railway.app/api';
    //private readonly apiUrl = 'http://localhost:3000/api'; 
     //private readonly apiUrl = 'https://api-seminco-4.vercel.app/api';
-    private readonly apiUrl = 'https://api-seminco-catalina-huanca.vercel.app/api';
+    // private readonly apiUrl = 'https://api-seminco-catalina-huanca.vercel.app/api';
+     private readonly apiUrl = 'https://api-catalina-b7fhctc3e7gaf5ca.canadacentral-01.azurewebsites.net/api';
   constructor(private readonly http: HttpClient) {}
 
   // Obtener datos
