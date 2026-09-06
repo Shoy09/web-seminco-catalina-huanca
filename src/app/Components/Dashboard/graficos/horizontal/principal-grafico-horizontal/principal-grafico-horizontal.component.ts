@@ -57,6 +57,7 @@ import { MttrAnoComponent } from '../../shared/Graficos components/MTBF-MTTR/MTT
 
 import { PresentacionHorizontalDialogComponent } from '../presentacion-dialog/presentacion-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { ExcelHorizontalExportService } from 'app/services/Excel/ExcelHorizontalExportService.service';
 @Component({
   selector: 'app-principal-grafico-horizontal',
   imports: [
@@ -215,6 +216,7 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
     private operacionesService: OperacionesService,
     private estadoService: EstadoService,
     private dialog: MatDialog,
+    private excelExportService: ExcelHorizontalExportService
   ) {}
 
   ngOnInit(): void {
@@ -2664,5 +2666,12 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
 
   private delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  exportarExcel() {
+    this.excelExportService.exportOperacionesToExcel(
+      this.operacionesFiltradas, 
+      'Operaciones_Horizontales'
+    );
   }
 }

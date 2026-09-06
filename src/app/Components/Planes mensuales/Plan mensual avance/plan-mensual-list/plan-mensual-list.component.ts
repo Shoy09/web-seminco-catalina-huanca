@@ -210,11 +210,19 @@ export class PlanMensualListComponent implements OnInit {
     });
   }
   
-  
 
 async enviarDatosAlServidor(planes: PlanMensual[]): Promise<void> {
-    //console.log('Iniciando envío de datos al servidor. Total planes:', planes.length);
-    this.mostrarPantallaCarga();
+    console.log('Iniciando envío de datos de avance. Total planes:', planes.length);
+    
+    // Abrir diálogo con datos iniciales
+    const dialogRef = this.dialog.open(LoadingDialogComponent, {
+        disableClose: true,
+        data: {
+            total: planes.length,
+            current: 0,
+            mensaje: 'Subiendo registros...'
+        }
+    });
 
     let enviados = 0;
     let errores = 0;
@@ -222,17 +230,28 @@ async enviarDatosAlServidor(planes: PlanMensual[]): Promise<void> {
     // Enviar registros uno por uno
     for (const [index, plan] of planes.entries()) {
         try {
-            //console.log(`Enviando plan mensual ${index + 1}/${planes.length}`, plan);
+            console.log(`Enviando plan de avance ${index + 1}/${planes.length}`);
             const response = await this.planMensualService.createPlanMensual(plan).toPromise();
-            //console.log(`Plan mensual ${index + 1} enviado con éxito`, response);
+            console.log(`Plan de avance ${index + 1} enviado con éxito`, response);
             enviados++;
         } catch (error) {
-            //console.error(`Error al enviar plan mensual ${index + 1}:`, error);
+            console.error(`Error al enviar plan de avance ${index + 1}:`, error);
             errores++;
-            // Opcional: puedes agregar un reintento aquí si es necesario
+        }
+
+        // Actualizar el progreso en el diálogo
+        dialogRef.componentInstance.data.current = index + 1;
+        
+        // Actualizar mensaje si es necesario
+        if (errores > 0) {
+            dialogRef.componentInstance.data.mensaje = 
+                `Subiendo registros... (${errores} errores hasta ahora)`;
         }
     }
 
+    // Cerrar el diálogo después de completar
+    dialogRef.close();
+    
     this.verificarCargaCompleta(planes.length, enviados, errores);
 }
   

@@ -243,8 +243,17 @@ mapearFilaAPlanProduccion(fila: any): PlanProduccion {
 }
 
 async enviarDatosAlServidor(planes: PlanProduccion[]): Promise<void> {
-    //console.log('Iniciando envío de datos al servidor. Total planes:', planes.length);
-    this.mostrarPantallaCarga();
+    console.log('Iniciando envío de datos de producción. Total planes:', planes.length);
+    
+    // Abrir diálogo con datos iniciales
+    const dialogRef = this.dialog.open(LoadingDialogComponent, {
+        disableClose: true,
+        data: {
+            total: planes.length,
+            current: 0,
+            mensaje: 'Subiendo registros...'
+        }
+    });
 
     let enviados = 0;
     let errores = 0;
@@ -252,16 +261,28 @@ async enviarDatosAlServidor(planes: PlanProduccion[]): Promise<void> {
     // Enviar registros uno por uno
     for (const [index, plan] of planes.entries()) {
         try {
-            //console.log(`Enviando plan ${index + 1}/${planes.length}`, plan);
+            console.log(`Enviando plan de producción ${index + 1}/${planes.length}`);
             const response = await this.planProduccionService.createPlanProduccion(plan).toPromise();
-            //console.log(`Plan ${index + 1} enviado con éxito`, response);
+            console.log(`Plan de producción ${index + 1} enviado con éxito`, response);
             enviados++;
         } catch (error) {
-            //console.error(`Error al enviar plan ${index + 1}:`, error);
+            console.error(`Error al enviar plan de producción ${index + 1}:`, error);
             errores++;
+        }
+
+        // Actualizar el progreso en el diálogo
+        dialogRef.componentInstance.data.current = index + 1;
+        
+        // Actualizar mensaje si es necesario
+        if (errores > 0) {
+            dialogRef.componentInstance.data.mensaje = 
+                `Subiendo registros... (${errores} errores hasta ahora)`;
         }
     }
 
+    // Cerrar el diálogo después de completar
+    dialogRef.close();
+    
     this.verificarCargaCompleta(planes.length, enviados, errores);
 }
 

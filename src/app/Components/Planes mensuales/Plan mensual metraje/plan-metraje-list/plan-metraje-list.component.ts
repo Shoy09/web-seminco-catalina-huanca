@@ -224,10 +224,18 @@ export class PlanMetrajeListComponent implements OnInit {
     };
   }
   
-
 async enviarDatosAlServidor(planes: PlanMetraje[]): Promise<void> {
-    //console.log('Iniciando envío de datos de metraje. Total planes:', planes.length);
-    this.mostrarPantallaCarga();
+    console.log('Iniciando envío de datos de metraje. Total planes:', planes.length);
+    
+    // Abrir diálogo con datos iniciales
+    const dialogRef = this.dialog.open(LoadingDialogComponent, {
+        disableClose: true,
+        data: {
+            total: planes.length,
+            current: 0,
+            mensaje: 'Subiendo registros...'
+        }
+    });
 
     let enviados = 0;
     let errores = 0;
@@ -235,19 +243,31 @@ async enviarDatosAlServidor(planes: PlanMetraje[]): Promise<void> {
     // Enviar registros uno por uno
     for (const [index, plan] of planes.entries()) {
         try {
-            //console.log(`Enviando plan de metraje ${index + 1}/${planes.length}`);
+            console.log(`Enviando plan de metraje ${index + 1}/${planes.length}`);
             const response = await this.planMetrajeService.createPlanMetraje(plan).toPromise();
-            //console.log(`Plan de metraje ${index + 1} enviado con éxito`, response);
+            console.log(`Plan de metraje ${index + 1} enviado con éxito`, response);
             enviados++;
         } catch (error) {
-            //console.error(`Error al enviar plan de metraje ${index + 1}:`, error);
+            console.error(`Error al enviar plan de metraje ${index + 1}:`, error);
             errores++;
-            // Opcional: puedes agregar lógica adicional de manejo de errores aquí
+        }
+
+        // Actualizar el progreso en el diálogo
+        dialogRef.componentInstance.data.current = index + 1;
+        
+        // Actualizar mensaje si es necesario
+        if (errores > 0) {
+            dialogRef.componentInstance.data.mensaje = 
+                `Subiendo registros... (${errores} errores hasta ahora)`;
         }
     }
 
+    // Cerrar el diálogo después de completar
+    dialogRef.close();
+    
     this.verificarCargaCompleta(planes.length, enviados, errores);
 }
+
 
   verificarCargaCompleta(total: number, enviados: number, errores: number): void {
     if (enviados + errores === total) {
