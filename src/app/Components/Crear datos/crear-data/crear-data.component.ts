@@ -26,6 +26,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { TipoLaborService } from '../../../services/tipo-labor-scam.service';
 
 @Component({
   selector: 'app-crear-data',
@@ -88,6 +89,7 @@ export class CrearDataComponent implements OnInit, AfterViewInit {
     private materialService: MaterialService,
   private empresaService: EmpresaService,
   private toneladasScoopService: ToneladasScoopService,
+  private tipoLaborService: TipoLaborService,
   ) {}
 
   ngOnInit() {
@@ -212,7 +214,12 @@ export class CrearDataComponent implements OnInit, AfterViewInit {
       this.empresaService.getEmpresas().subscribe({ next: asignar, error: (err) => console.error(err) });
     } else if (tipo === 'ToneladasScoop') {
       this.toneladasScoopService.getToneladasScoops().subscribe({ next: asignar, error: (err) => console.error(err) });
-    }
+    }else if (tipo === 'Tipo de Labor') {
+    this.tipoLaborService.getTiposLabor().subscribe({
+      next: asignar,
+      error: (err) => console.error(err)
+    });
+  }
   }
 
   /** Abre el dialog para crear un nuevo registro */
@@ -504,6 +511,23 @@ export class CrearDataComponent implements OnInit, AfterViewInit {
         }
     ]
 },
+{
+    nombre: 'Tipo de Labor',
+    icon: 'mas.svg',
+    tipo: 'Tipo de Labor',
+    datos: [],
+    campos: [
+      { nombre: 'nombre', label: 'Tipo de Labor', tipo: 'text' },
+      { 
+        nombre: 'proceso', 
+        label: 'Proceso', 
+        tipo: 'select', 
+        opciones: [
+          'PERFORACIÓN TALADROS LARGOS', 'PERFORACIÓN HORIZONTAL', 'EMPERNADOR', 'SCISSOR', 'SCALAMIN', 'ROMPEBANCOS', 'ANFOCHANGER', 'SCOOPTRAM', 'DUMPER'
+        ]
+      },
+    ]
+  },
   ];  
 
   cerrarModal() {
@@ -579,6 +603,11 @@ actualizarDatos() {
     } else if (this.modalContenido.tipo === 'ToneladasScoop') {
       if (datosActualizados.fecha) datosActualizados.fecha = this.formatearFecha(datosActualizados.fecha);
       this.toneladasScoopService.updateToneladasScoop(id, datosActualizados).subscribe({ next: onSuccess, error: (err) => console.error('Error al actualizar Toneladas Scoop:', err) });
+    }else if (this.modalContenido.tipo === 'Tipo de Labor') {
+      this.tipoLaborService.updateTipoLabor(id, datosActualizados).subscribe({
+        next: onSuccess,
+        error: (err) => console.error('Error al actualizar Tipo de Labor:', err)
+      });
     }
   }
 }
@@ -861,7 +890,14 @@ else if (button.tipo === 'Mallas') {
     },
     error: (err) => console.error('Error al cargar materiales:', err)
   });
-}
+}else if (button.tipo === 'Tipo de Labor') {
+    this.tipoLaborService.getTiposLabor().subscribe({
+      next: (data) => {
+        this.modalContenido.datos = data;
+      },
+      error: (err) => console.error('Error al cargar Tipo de Labor:', err)
+    });
+  }
 
   }
 
@@ -926,7 +962,12 @@ else if (button.tipo === 'Mallas') {
       } else if (this.modalContenido.tipo === 'ToneladasScoop') {
         if (nuevoRegistro.fecha) nuevoRegistro.fecha = this.formatearFecha(nuevoRegistro.fecha);
         this.toneladasScoopService.createToneladasScoop(nuevoRegistro).subscribe({ next: onSuccess, error: (err) => console.error('Error al guardar Toneladas Scoop:', err) });
-      }
+      }else if (this.modalContenido.tipo === 'Tipo de Labor') {
+      this.tipoLaborService.createTipoLabor(nuevoRegistro).subscribe({ 
+        next: onSuccess, 
+        error: (err) => console.error('Error al guardar Tipo de Labor:', err) 
+      });
+    }
     }
   }
 
@@ -964,7 +1005,12 @@ else if (button.tipo === 'Mallas') {
       this.empresaService.deleteEmpresa(item.id).subscribe({ next: quitarDeTabla, error: (err) => console.error('Error al eliminar Empresa:', err) });
     } else if (this.modalContenido.tipo === 'ToneladasScoop') {
       this.toneladasScoopService.deleteToneladasScoop(item.id).subscribe({ next: quitarDeTabla, error: (err) => console.error('Error al eliminar Toneladas Scoop:', err) });
-    }
+    }else if (this.modalContenido.tipo === 'Tipo de Labor') {
+    this.tipoLaborService.deleteTipoLabor(item.id).subscribe({ 
+      next: quitarDeTabla, 
+      error: (err) => console.error('Error al eliminar Tipo de Labor:', err) 
+    });
+  }
   }
 
   formatearFecha(fecha: string | Date): string {
