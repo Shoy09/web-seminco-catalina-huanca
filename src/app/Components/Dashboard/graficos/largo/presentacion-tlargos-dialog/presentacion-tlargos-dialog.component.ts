@@ -79,317 +79,341 @@ export class PresentacionTlargosDialogComponent {
       this.MetrosPerforadosPorLaborYRangoHora(this.turnoAplicado);
   }
 
-  MetrosPerforadosPorRangoHoraCompleto(turno: string = '') {
-    const resultadoMap = new Map<string, any>();
-    const tiposPerforacionSet = new Set<string>();
+  private obtenerHorasValidas(registro: any): { horaInicio: string; horaFinal: string } | null {
+  if (!registro.hora_inicio) return null;
+  
+  let horaInicio = registro.hora_inicio;
+  let horaFinal = registro.hora_final;
+  
+  // Si hora_final es null o undefined, calcular automáticamente
+  if (!horaFinal) {
+    const [hours, minutes] = horaInicio.split(':').map(Number);
+    const endMinutes = minutes + 60; // Asumir 1 hora de duración
+    const endHours = hours + Math.floor(endMinutes / 60);
+    const finalMinutes = endMinutes % 60;
+    horaFinal = `${String(endHours).padStart(2, '0')}:${String(finalMinutes).padStart(2, '0')}`;
+    
+    console.log(`⏰ Hora final null en registro, usando: ${horaInicio} → ${horaFinal}`);
+  }
+  
+  return { horaInicio, horaFinal };
+}
 
-    const rangosHora = obtenerRangosHoraPorTurno(turno);
+MetrosPerforadosPorRangoHoraCompleto(turno: string = '') {
+  const resultadoMap = new Map<string, any>();
+  const tiposPerforacionSet = new Set<string>();
 
-    // 1. Obtener tipos de perforación dinámicos
-    this.data.operaciones.forEach((op: any) => {
-      if (turno && op.turno !== turno) return;
+  const rangosHora = obtenerRangosHoraPorTurno(turno);
 
-      const registrosArray = op.registros;
+  // 1. Obtener tipos de perforación dinámicos
+  this.data.operaciones.forEach((op: any) => {
+    if (turno && op.turno !== turno) return;
 
-      if (!Array.isArray(registrosArray)) return;
+    const registrosArray = op.registros;
 
-      for (const registro of registrosArray) {
-        const estado = normalizarTexto(registro.estado);
+    if (!Array.isArray(registrosArray)) return;
 
-        if (estado !== 'OPERATIVO') continue;
-        if (!registro.hora_inicio || !registro.hora_final) continue;
+    for (const registro of registrosArray) {
+      const estado = normalizarTexto(registro.estado);
 
-        const detalleMetros = this.obtenerMetrosPorTipoPerforacionTLargos(
-          registro.operacion,
+      if (estado !== 'OPERATIVO') continue;
+      
+      // 🔥 Obtener horas válidas (con soporte para hora_final null)
+      const horasValidas = this.obtenerHorasValidas(registro);
+      if (!horasValidas) continue;
+
+      const detalleMetros = this.obtenerMetrosPorTipoPerforacionTLargos(
+        registro.operacion,
+      );
+
+      detalleMetros.forEach((item) => {
+        tiposPerforacionSet.add(item.tipoPerforacion);
+      });
+    }
+  });
+
+  const tiposPerforacion = Array.from(tiposPerforacionSet).sort();
+
+  // 2. Inicializar todos los rangos
+  rangosHora.forEach((rangoHora) => {
+    const nuevoItem: any = {
+      rangoHora,
+      total: 0,
+      cantidadRegistros: 0,
+      minutosOperativos: 0,
+      equipos: {},
+    };
+
+    tiposPerforacion.forEach((tipo) => {
+      nuevoItem[tipo] = 0;
+    });
+
+    resultadoMap.set(rangoHora, nuevoItem);
+  });
+
+  // 3. Procesar registros con ponderación por tiempo
+  this.data.operaciones.forEach((op: any) => {
+    if (turno && op.turno !== turno) return;
+
+    const registrosArray = op.registros;
+
+    if (!Array.isArray(registrosArray)) return;
+
+    for (const registro of registrosArray) {
+      const estado = normalizarTexto(registro.estado);
+
+      if (estado !== 'OPERATIVO') continue;
+      
+      // 🔥 Obtener horas válidas (con soporte para hora_final null)
+      const horasValidas = this.obtenerHorasValidas(registro);
+      if (!horasValidas) continue;
+
+      const operacionData = registro.operacion || {};
+
+      const detalleMetros =
+        this.obtenerMetrosPorTipoPerforacionTLargos(operacionData);
+
+      if (!detalleMetros.length) continue;
+
+      const labor = String(operacionData.labor || 'SIN LABOR').trim();
+
+      const claveLabor = labor === '' ? 'SIN LABOR' : labor;
+
+      const nEquipo = String(
+        op.modelo_equipo || op.n_equipo || 'SIN EQUIPO',
+      ).trim();
+
+      for (const detalle of detalleMetros) {
+        const tipoPerforacion = detalle.tipoPerforacion;
+        const metros = detalle.metros;
+
+        if (metros <= 0) continue;
+
+        // 🔥 Usar horas validadas en lugar de registro.hora_inicio/final
+        const distribucionMetros = distribuirValorPorRangosHora(
+          horasValidas.horaInicio,
+          horasValidas.horaFinal,
+          metros,
+          rangosHora,
         );
 
-        detalleMetros.forEach((item) => {
-          tiposPerforacionSet.add(item.tipoPerforacion);
-        });
-      }
-    });
+        for (const tramo of distribucionMetros) {
+          const item = resultadoMap.get(tramo.rangoHora);
 
-    const tiposPerforacion = Array.from(tiposPerforacionSet).sort();
+          if (!item) continue;
 
-    // 2. Inicializar todos los rangos
-    rangosHora.forEach((rangoHora) => {
-      const nuevoItem: any = {
-        rangoHora,
-        total: 0,
-        cantidadRegistros: 0,
-        minutosOperativos: 0,
-        equipos: {},
-      };
+          const metrosPonderados = tramo.valor;
 
-      tiposPerforacion.forEach((tipo) => {
-        nuevoItem[tipo] = 0;
-      });
-
-      resultadoMap.set(rangoHora, nuevoItem);
-    });
-
-    // 3. Procesar registros con ponderación por tiempo
-    this.data.operaciones.forEach((op: any) => {
-      if (turno && op.turno !== turno) return;
-
-      const registrosArray = op.registros;
-
-      if (!Array.isArray(registrosArray)) return;
-
-      for (const registro of registrosArray) {
-        const estado = normalizarTexto(registro.estado);
-
-        if (estado !== 'OPERATIVO') continue;
-        if (!registro.hora_inicio || !registro.hora_final) continue;
-
-        const operacionData = registro.operacion || {};
-
-        const detalleMetros =
-          this.obtenerMetrosPorTipoPerforacionTLargos(operacionData);
-
-        if (!detalleMetros.length) continue;
-
-        const labor = String(operacionData.labor || 'SIN LABOR').trim();
-
-        const claveLabor = labor === '' ? 'SIN LABOR' : labor;
-
-        const nEquipo = String(
-          op.modelo_equipo || op.n_equipo || 'SIN EQUIPO',
-        ).trim();
-
-        for (const detalle of detalleMetros) {
-          const tipoPerforacion = detalle.tipoPerforacion;
-          const metros = detalle.metros;
-
-          if (metros <= 0) continue;
-
-          const distribucionMetros = distribuirValorPorRangosHora(
-            registro.hora_inicio,
-            registro.hora_final,
-            metros,
-            rangosHora,
-          );
-
-          for (const tramo of distribucionMetros) {
-            const item = resultadoMap.get(tramo.rangoHora);
-
-            if (!item) continue;
-
-            const metrosPonderados = tramo.valor;
-
-            if (item[tipoPerforacion] === undefined) {
-              item[tipoPerforacion] = 0;
-            }
-
-            item[tipoPerforacion] += metrosPonderados;
-            item.total += metrosPonderados;
-
-            item.cantidadRegistros += 1;
-            item.minutosOperativos += tramo.minutos;
-
-            if (!item.equipos[nEquipo]) {
-              item.equipos[nEquipo] = {
-                total: 0,
-                labores: {},
-                tipos: {},
-              };
-            }
-
-            item.equipos[nEquipo].total += metrosPonderados;
-
-            if (!item.equipos[nEquipo].labores[claveLabor]) {
-              item.equipos[nEquipo].labores[claveLabor] = 0;
-            }
-
-            item.equipos[nEquipo].labores[claveLabor] += metrosPonderados;
-
-            if (!item.equipos[nEquipo].tipos[tipoPerforacion]) {
-              item.equipos[nEquipo].tipos[tipoPerforacion] = 0;
-            }
-
-            item.equipos[nEquipo].tipos[tipoPerforacion] += metrosPonderados;
+          if (item[tipoPerforacion] === undefined) {
+            item[tipoPerforacion] = 0;
           }
+
+          item[tipoPerforacion] += metrosPonderados;
+          item.total += metrosPonderados;
+
+          item.cantidadRegistros += 1;
+          item.minutosOperativos += tramo.minutos;
+
+          if (!item.equipos[nEquipo]) {
+            item.equipos[nEquipo] = {
+              total: 0,
+              labores: {},
+              tipos: {},
+            };
+          }
+
+          item.equipos[nEquipo].total += metrosPonderados;
+
+          if (!item.equipos[nEquipo].labores[claveLabor]) {
+            item.equipos[nEquipo].labores[claveLabor] = 0;
+          }
+
+          item.equipos[nEquipo].labores[claveLabor] += metrosPonderados;
+
+          if (!item.equipos[nEquipo].tipos[tipoPerforacion]) {
+            item.equipos[nEquipo].tipos[tipoPerforacion] = 0;
+          }
+
+          item.equipos[nEquipo].tipos[tipoPerforacion] += metrosPonderados;
         }
       }
+    }
+  });
+
+  // 4. Convertir a array y redondear al final
+  const resultado = Array.from(resultadoMap.values()).map((item) => {
+    item.total = Number(item.total.toFixed(2));
+    item.minutosOperativos = Number(item.minutosOperativos.toFixed(2));
+
+    tiposPerforacion.forEach((tipo) => {
+      item[tipo] = Number((item[tipo] || 0).toFixed(2));
     });
 
-    // 4. Convertir a array y redondear al final
-    const resultado = Array.from(resultadoMap.values()).map((item) => {
-      item.total = Number(item.total.toFixed(2));
-      item.minutosOperativos = Number(item.minutosOperativos.toFixed(2));
+    Object.keys(item.equipos).forEach((equipo) => {
+      item.equipos[equipo].total = Number(
+        item.equipos[equipo].total.toFixed(2),
+      );
 
-      tiposPerforacion.forEach((tipo) => {
-        item[tipo] = Number((item[tipo] || 0).toFixed(2));
+      Object.keys(item.equipos[equipo].labores).forEach((labor) => {
+        item.equipos[equipo].labores[labor] = Number(
+          item.equipos[equipo].labores[labor].toFixed(2),
+        );
       });
 
-      Object.keys(item.equipos).forEach((equipo) => {
-        item.equipos[equipo].total = Number(
-          item.equipos[equipo].total.toFixed(2),
+      Object.keys(item.equipos[equipo].tipos).forEach((tipo) => {
+        item.equipos[equipo].tipos[tipo] = Number(
+          item.equipos[equipo].tipos[tipo].toFixed(2),
+        );
+      });
+    });
+
+    return item;
+  });
+
+  console.log(
+    `📊 METROS POR RANGO HORA TALADROS LARGOS PONDERADO (Turno: ${
+      turno || 'TODOS'
+    }):`,
+    resultado,
+  );
+
+  return resultado;
+}
+  
+MetrosPerforadosPorLaborYRangoHora(turno: string = '') {
+  const resultadoMap = new Map<string, any>();
+  const rangosHora = obtenerRangosHoraPorTurno(turno);
+
+  this.data.operaciones.forEach((op: any) => {
+    if (turno && op.turno !== turno) return;
+
+    const registrosArray = op.registros;
+
+    if (!Array.isArray(registrosArray)) return;
+
+    for (const registro of registrosArray) {
+      const estado = normalizarTexto(registro.estado);
+
+      if (estado !== 'OPERATIVO') continue;
+      
+      // 🔥 FIX: Usar la función obtenerHorasValidas
+      const horasValidas = this.obtenerHorasValidas(registro);
+      if (!horasValidas) continue;
+
+      const operacionData = registro.operacion || {};
+
+      const detalleMetros =
+        this.obtenerMetrosPorTipoPerforacionTLargos(operacionData);
+
+      if (!detalleMetros.length) continue;
+
+      const labor = String(operacionData.labor || 'SIN LABOR').trim();
+      const claveLabor = labor === '' ? 'SIN LABOR' : labor;
+      const equipo = String(
+        op.modelo_equipo || op.n_equipo || 'SIN EQUIPO',
+      ).trim();
+
+      for (const detalle of detalleMetros) {
+        const tipoPerforacion = detalle.tipoPerforacion;
+        const metros = detalle.metros;
+
+        if (metros <= 0) continue;
+
+        // 🔥 FIX: Usar horas validadas
+        const distribucionMetros = distribuirValorPorRangosHora(
+          horasValidas.horaInicio,  // ✅ Ya validada
+          horasValidas.horaFinal,    // ✅ Ya validada
+          metros,
+          rangosHora,
         );
 
-        Object.keys(item.equipos[equipo].labores).forEach((labor) => {
-          item.equipos[equipo].labores[labor] = Number(
-            item.equipos[equipo].labores[labor].toFixed(2),
-          );
-        });
+        for (const tramo of distribucionMetros) {
+          const rangoHora = tramo.rangoHora;
+          const metrosPonderados = tramo.valor;
 
-        Object.keys(item.equipos[equipo].tipos).forEach((tipo) => {
-          item.equipos[equipo].tipos[tipo] = Number(
-            item.equipos[equipo].tipos[tipo].toFixed(2),
-          );
-        });
-      });
+          const clave = `${claveLabor}|${rangoHora}`;
 
-      return item;
-    });
-
-    console.log(
-      `📊 METROS POR RANGO HORA TALADROS LARGOS PONDERADO (Turno: ${
-        turno || 'TODOS'
-      }):`,
-      resultado,
-    );
-
-    return resultado;
-  }
-
-  MetrosPerforadosPorLaborYRangoHora(turno: string = '') {
-    const resultadoMap = new Map<string, any>();
-
-    const rangosHora = obtenerRangosHoraPorTurno(turno);
-
-    this.data.operaciones.forEach((op: any) => {
-      if (turno && op.turno !== turno) return;
-
-      const registrosArray = op.registros;
-
-      if (!Array.isArray(registrosArray)) return;
-
-      for (const registro of registrosArray) {
-        const estado = normalizarTexto(registro.estado);
-
-        if (estado !== 'OPERATIVO') continue;
-        if (!registro.hora_inicio || !registro.hora_final) continue;
-
-        const operacionData = registro.operacion || {};
-
-        const detalleMetros =
-          this.obtenerMetrosPorTipoPerforacionTLargos(operacionData);
-
-        if (!detalleMetros.length) continue;
-
-        const labor = String(operacionData.labor || 'SIN LABOR').trim();
-
-        const claveLabor = labor === '' ? 'SIN LABOR' : labor;
-
-        const equipo = String(
-          op.modelo_equipo || op.n_equipo || 'SIN EQUIPO',
-        ).trim();
-
-        for (const detalle of detalleMetros) {
-          const tipoPerforacion = detalle.tipoPerforacion;
-          const metros = detalle.metros;
-
-          if (metros <= 0) continue;
-
-          const distribucionMetros = distribuirValorPorRangosHora(
-            registro.hora_inicio,
-            registro.hora_final,
-            metros,
-            rangosHora,
-          );
-
-          for (const tramo of distribucionMetros) {
-            const rangoHora = tramo.rangoHora;
-            const metrosPonderados = tramo.valor;
-
-            const clave = `${claveLabor}|${rangoHora}`;
-
-            if (!resultadoMap.has(clave)) {
-              resultadoMap.set(clave, {
-                labor: claveLabor,
-                rangoHora,
-
-                total: 0,
-                cantidadRegistros: 0,
-                minutosOperativos: 0,
-
-                tipos: {},
-                equipos: {},
-              });
-            }
-
-            const item = resultadoMap.get(clave);
-
-            item.total += metrosPonderados;
-            item.cantidadRegistros += 1;
-            item.minutosOperativos += tramo.minutos;
-
-            if (!item.tipos[tipoPerforacion]) {
-              item.tipos[tipoPerforacion] = 0;
-            }
-
-            item.tipos[tipoPerforacion] += metrosPonderados;
-
-            if (!item.equipos[equipo]) {
-              item.equipos[equipo] = 0;
-            }
-
-            item.equipos[equipo] += metrosPonderados;
+          if (!resultadoMap.has(clave)) {
+            resultadoMap.set(clave, {
+              labor: claveLabor,
+              rangoHora,
+              total: 0,
+              cantidadRegistros: 0,
+              minutosOperativos: 0,
+              tipos: {},
+              equipos: {},
+            });
           }
+
+          const item = resultadoMap.get(clave);
+
+          item.total += metrosPonderados;
+          item.cantidadRegistros += 1;
+          item.minutosOperativos += tramo.minutos;
+
+          if (!item.tipos[tipoPerforacion]) {
+            item.tipos[tipoPerforacion] = 0;
+          }
+
+          item.tipos[tipoPerforacion] += metrosPonderados;
+
+          if (!item.equipos[equipo]) {
+            item.equipos[equipo] = 0;
+          }
+
+          item.equipos[equipo] += metrosPonderados;
         }
       }
+    }
+  });
+
+  const resultadoPorLabor = new Map<string, any>();
+
+  Array.from(resultadoMap.values()).forEach((item) => {
+    const labor = item.labor;
+
+    if (!resultadoPorLabor.has(labor)) {
+      resultadoPorLabor.set(labor, {
+        labor,
+        turno: turno || 'TODOS',
+        rangos: [],
+      });
+    }
+
+    const laborItem = resultadoPorLabor.get(labor);
+
+    const rangoObj: any = {
+      rangoHora: item.rangoHora,
+      total: Number(item.total.toFixed(2)),
+      cantidadRegistros: item.cantidadRegistros,
+      minutosOperativos: Number(item.minutosOperativos.toFixed(2)),
+    };
+
+    Object.keys(item.tipos).forEach((tipo) => {
+      rangoObj[tipo] = Number(item.tipos[tipo].toFixed(2));
     });
 
-    const resultadoPorLabor = new Map<string, any>();
+    rangoObj.equipos = {};
 
-    Array.from(resultadoMap.values()).forEach((item) => {
-      const labor = item.labor;
-
-      if (!resultadoPorLabor.has(labor)) {
-        resultadoPorLabor.set(labor, {
-          labor,
-          turno: turno || 'TODOS',
-          rangos: [],
-        });
-      }
-
-      const laborItem = resultadoPorLabor.get(labor);
-
-      const rangoObj: any = {
-        rangoHora: item.rangoHora,
-
-        total: Number(item.total.toFixed(2)),
-        cantidadRegistros: item.cantidadRegistros,
-        minutosOperativos: Number(item.minutosOperativos.toFixed(2)),
-      };
-
-      Object.keys(item.tipos).forEach((tipo) => {
-        rangoObj[tipo] = Number(item.tipos[tipo].toFixed(2));
-      });
-
-      rangoObj.equipos = {};
-
-      Object.keys(item.equipos).forEach((equipo) => {
-        rangoObj.equipos[equipo] = Number(item.equipos[equipo].toFixed(2));
-      });
-
-      laborItem.rangos.push(rangoObj);
-
-      laborItem.rangos.sort((a: any, b: any) => {
-        const indexA = rangosHora.indexOf(a.rangoHora);
-        const indexB = rangosHora.indexOf(b.rangoHora);
-
-        return indexA - indexB;
-      });
+    Object.keys(item.equipos).forEach((equipo) => {
+      rangoObj.equipos[equipo] = Number(item.equipos[equipo].toFixed(2));
     });
 
-    const resultado = Array.from(resultadoPorLabor.values()).sort((a, b) =>
-      String(a.labor).localeCompare(String(b.labor)),
-    );
+    laborItem.rangos.push(rangoObj);
 
-    return resultado;
-  }
+    laborItem.rangos.sort((a: any, b: any) => {
+      const indexA = rangosHora.indexOf(a.rangoHora);
+      const indexB = rangosHora.indexOf(b.rangoHora);
+      return indexA - indexB;
+    });
+  });
+
+  const resultado = Array.from(resultadoPorLabor.values()).sort((a, b) =>
+    String(a.labor).localeCompare(String(b.labor)),
+  );
+
+  return resultado;
+}
 
   private obtenerMetrosPorTipoPerforacionTLargos(operacion: OperacionTLargos) {
     if (!operacion) return [];
