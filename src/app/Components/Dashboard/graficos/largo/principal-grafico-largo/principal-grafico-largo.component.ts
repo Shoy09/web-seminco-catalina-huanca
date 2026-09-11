@@ -82,6 +82,7 @@ import { KpiLargoComponent } from '../Graficos components/Hoja 1/kpi-largo/kpi-l
 import { MatDialog } from '@angular/material/dialog';
 import { Equipo } from '../../../../../models/equipo.model';
 import { PresentacionTlargosDialogComponent } from '../presentacion-tlargos-dialog/presentacion-tlargos-dialog.component';
+import { ExcelTaladroLargoExportService } from 'app/services/Excel/excel-taladro-largo-export.service';
 
 @Component({
   selector: 'app-principal-grafico-largo',
@@ -314,6 +315,7 @@ export class PrincipalGraficoLargoComponent implements OnInit {
     private operacionesService: OperacionesService,
     private estadoService: EstadoService,
     private dialog: MatDialog,
+    private excelExportService: ExcelTaladroLargoExportService
   ) {}
 
   ngOnInit(): void {
@@ -4509,5 +4511,12 @@ export class PrincipalGraficoLargoComponent implements OnInit {
       .toUpperCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '');
+  }
+
+  exportarExcel() {
+    this.excelExportService.exportOperacionesToExcel(
+      this.operacionesFiltradas, 
+      'Operaciones_Simba'
+    );
   }
 }

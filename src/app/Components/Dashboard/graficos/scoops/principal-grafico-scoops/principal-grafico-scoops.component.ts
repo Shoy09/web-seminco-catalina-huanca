@@ -67,6 +67,7 @@ import { generarDiasEntreFechas, MESES_CORTOS, obtenerPeriodo, obtenerPeriodoDes
 import { ParetoUtilizacionComponent } from '../../shared/Graficos components/Pareto/pareto-utilizacion/pareto-utilizacion.component';
 import { ParetoDisponibilidadComponent } from '../../shared/Graficos components/Pareto/pareto-disponibilidad/pareto-disponibilidad.component';
 import { ToneladasScoopService } from '../../../../../services/toneladas-scoop.service';
+import { ExcelScoopExportService } from 'app/services/Excel/excel-scoop-export.service';
 
 
 @Component({
@@ -224,7 +225,8 @@ constructor(
         private excelImportService: ExcelImportService,
         private equipoService: EquipoService,
         private dialog: MatDialog,
-private toneladasScoopService: ToneladasScoopService
+private toneladasScoopService: ToneladasScoopService,
+private excelExportService: ExcelScoopExportService
   ) {}
 
   ngOnInit(): void {
@@ -3987,5 +3989,12 @@ private calcularHorasOperativasBasePorDia() {
 
   return resultado;
 }
+
+exportarExcel() {
+    this.excelExportService.exportOperacionesToExcel(
+      this.operacionesFiltradas, 
+      'Operaciones_Scoops'
+    );
+  }
 
 }

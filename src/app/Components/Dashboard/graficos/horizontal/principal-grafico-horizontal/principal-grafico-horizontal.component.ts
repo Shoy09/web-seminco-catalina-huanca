@@ -2668,7 +2668,7 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  exportarExcel() {
+exportarExcel() {
     this.excelExportService.exportOperacionesToExcel(
       this.operacionesFiltradas, 
       'Operaciones_Horizontales'

@@ -49,15 +49,15 @@ export class ExcelHorizontalExportService {
             'EQUIPO': op.n_equipo || '',
             'N° ITEM': registro.numero || '', // ✅ Usamos el número del registro
             'FECHA': this.formatearFecha(op.fecha),
-            'TURNO': op.turno || '',
+             'TURNO': this.formatearTurno(op.turno), 
             'GUARDIA': this.obtenerGuardia(op),
-            'OPERADOR': op.operador || '',
+            'OPERADOR': this.formatearOperador(op.operador),
             'JEFE DE GUARDIA': op.jefe_guardia || '',
             'SEMANA': this.calcularSemana(op.fecha),
             'CÓDIGO DE ACTIVIDAD': registro.codigo || '',
             'HORA INICIAL': registro.hora_inicio || '',
             'HORA FINAL': registro.hora_final || '',
-            'HORAS': horas,
+            //'HORAS': horas,
             'HORO ELEC INICIAL': horometros.electrico?.inicio ?? '',
             'HORO ELEC FINAL': horometros.electrico?.final ?? '',
             'HORAS ELÉCTRICO': horometros.electrico?.diferencia ?? '',
@@ -66,7 +66,7 @@ export class ExcelHorizontalExportService {
             'HORAS PERCUSIÓN': horometros.percusion?.diferencia ?? '',
             'HOROMETRO M INICIAL': horometros.motor?.inicio ?? '',
             'HOROMETRO M FINAL': horometros.motor?.final ?? '',
-            'HORAS MOTOR': horometros.motor?.diferencia ?? '',
+            //'HORAS MOTOR': horometros.motor?.diferencia ?? '',
             'LABOR': perforacionData.labor || '',
             'Nº DE TALADRO': perforacionData.tal_prod || '',
             'Nº TAL. RIMADO': perforacionData.tal_rimados || '',
@@ -211,38 +211,34 @@ export class ExcelHorizontalExportService {
   }
 
   private formatearFecha(fecha: string): string {
-    if (!fecha) return '';
-    
-    try {
-      const date = new Date(fecha);
-      if (isNaN(date.getTime())) return fecha;
-      
-      const day = date.getDate().toString().padStart(2, '0');
-      const month = (date.getMonth() + 1).toString().padStart(2, '0');
-      const year = date.getFullYear();
-      
-      return `${day}/${month}/${year}`;
-    } catch {
-      return fecha;
-    }
-  }
+  if (!fecha) return '';
+
+  // Si viene en formato ISO "YYYY-MM-DD" (o con hora), tomamos solo la parte de fecha
+  const soloFecha = fecha.split('T')[0]; // "2026-09-09"
+  const partes = soloFecha.split('-');
+
+  if (partes.length !== 3) return fecha; // formato inesperado, devolvemos tal cual
+
+  const [year, month, day] = partes;
+  return `${day}/${month}/${year}`; // "09/09/2026"
+}
 
   private calcularSemana(fecha: string): string {
-    if (!fecha) return '';
-    
-    try {
-      const date = new Date(fecha);
-      if (isNaN(date.getTime())) return '';
-      
-      const startOfYear = new Date(date.getFullYear(), 0, 1);
-      const diff = (date.getTime() - startOfYear.getTime()) / 86400000;
-      const weekNumber = Math.ceil((diff + startOfYear.getDay() + 1) / 7);
-      
-      return `SEM ${weekNumber}`;
-    } catch {
-      return '';
-    }
+  if (!fecha) return '';
+  try {
+    const soloFecha = fecha.split('T')[0];
+    const [year, month, day] = soloFecha.split('-').map(Number);
+    const date = new Date(Date.UTC(year, month - 1, day));
+
+    const startOfYear = new Date(Date.UTC(year, 0, 1));
+    const diff = (date.getTime() - startOfYear.getTime()) / 86400000;
+    const weekNumber = Math.ceil((diff + startOfYear.getUTCDay() + 1) / 7);
+
+    return `SEM ${weekNumber}`;
+  } catch {
+    return '';
   }
+}
 
   private obtenerGuardia(op: OperacionBaseJumbo): string {
     return op.seccion || '';
@@ -273,4 +269,19 @@ export class ExcelHorizontalExportService {
 
     worksheet['!cols'] = columnWidths;
   }
+
+  private formatearTurno(turno: string | undefined | null): string {
+  if (!turno) return '';
+
+  return turno
+    .toString()
+    .toUpperCase()
+    .normalize('NFD')                    // Descompone letras con tilde
+    .replace(/[\u0300-\u036f]/g, '');    // Elimina los diacríticos
+}
+
+private formatearOperador(operador: string | undefined | null): string {
+  if (!operador) return '';
+  return operador.toString().toUpperCase();
+}
 }
