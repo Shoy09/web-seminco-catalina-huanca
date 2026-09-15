@@ -24,19 +24,19 @@ export class MenuComponent implements OnInit {
   rolUsuario:    string = '';
   nombreUsuario: string = 'Usuario';
 
-
-  menus: MenuItem[] = [
+  // 1) El menú completo pasa a ser privado y ya no se bindea en el HTML
+  private menusCompletos: MenuItem[] = [
     {
       label: 'Dashboard',
       icon: 'pi pi-chart-bar',
       items: [
-        { label: 'Perforación Tal. Largo',   routerLink: ['/Dashboard/grafico-tal-largo'] },
-        { label: 'Perforación Horizontal',    routerLink: ['/Dashboard/grafico-horizontal'] },
-        { label: 'Empernador', routerLink: ['/Dashboard/grafico-sostenimiento'] },
-        { label: 'Scooptram',                   routerLink: ['/Dashboard/grafico-scoops'] },
-        { label: 'Acarreo',                   routerLink: ['/Dashboard/grafico-acarreo'] },
-        { label: 'Explosivos',                routerLink: ['/Dashboard/explosivos-graficos'] },
-        { label: 'Línea de tiempo',           routerLink: ['/Dashboard/linea-de-tiempo'] },
+        { label: 'Perforación Tal. Largo', routerLink: ['/Dashboard/grafico-tal-largo'] },
+        { label: 'Perforación Horizontal', routerLink: ['/Dashboard/grafico-horizontal'] },
+        { label: 'Empernador',             routerLink: ['/Dashboard/grafico-sostenimiento'] },
+        { label: 'Scooptram',              routerLink: ['/Dashboard/grafico-scoops'] },
+        { label: 'Acarreo',                routerLink: ['/Dashboard/grafico-acarreo'] },
+        { label: 'Explosivos',             routerLink: ['/Dashboard/explosivos-graficos'] },
+        { label: 'Línea de tiempo',        routerLink: ['/Dashboard/linea-de-tiempo'] },
       ],
     },
     {
@@ -50,9 +50,9 @@ export class MenuComponent implements OnInit {
       label: 'Planes',
       icon: 'pi pi-calendar',
       items: [
-        { label: 'Plan de Avance',    routerLink: ['/Dashboard/plan-avance'] },
-        { label: 'Plan de Metraje',   routerLink: ['/Dashboard/plan-metraje'] },
-        { label: 'Plan de Producción',routerLink: ['/Dashboard/plan-produccion'] },
+        { label: 'Plan de Avance',     routerLink: ['/Dashboard/plan-avance'] },
+        { label: 'Plan de Metraje',    routerLink: ['/Dashboard/plan-metraje'] },
+        { label: 'Plan de Producción', routerLink: ['/Dashboard/plan-produccion'] },
       ],
     },
     {
@@ -64,7 +64,7 @@ export class MenuComponent implements OnInit {
         { label: 'Checklist',         routerLink: ['/Dashboard/checklist'] },
         { label: 'Checklist Carguío', routerLink: ['/Dashboard/checklist-telemando'] },
         { label: 'Explosivos',        routerLink: ['/Dashboard/explosivos'] },
-        { label: 'Documentos', routerLink: ['/Dashboard/documentos'] },
+        { label: 'Documentos',        routerLink: ['/Dashboard/documentos'] },
       ],
     },
     {
@@ -84,6 +84,16 @@ export class MenuComponent implements OnInit {
     },
   ];
 
+  // 2) Este es el que se bindea en el HTML (se llena tras aplicar el filtro)
+  menus: MenuItem[] = [];
+
+  // 3) Tabla de permisos por rol (los roles que NO estén aquí ven todo)
+  private permisosPorRol: Record<string, string[]> = {
+    trabajador: ['Dashboard'],
+    // admin:    ['Dashboard', 'Validaciones', 'Planes', 'Carga de Datos', 'Roles', 'Notificaciones'],
+    // jefe:     ['Dashboard', 'Validaciones', 'Planes'],
+  };
+
   menuOpenIndex: number | null = null;
   menuColapsado = false;
   menuMovilAbierto = false;
@@ -92,6 +102,9 @@ export class MenuComponent implements OnInit {
   constructor(private router: Router, private usuarioService: UsuarioService) {
     this.rolUsuario    = localStorage.getItem('rol')             || '';
     this.nombreUsuario = localStorage.getItem('nombre_completo') || 'Usuario';
+
+    // 4) Aplicamos el filtro de una vez con el rol que ya tenemos en localStorage
+    this.aplicarFiltroPorRol();
   }
 
   ngOnInit(): void {
@@ -104,10 +117,23 @@ export class MenuComponent implements OnInit {
           this.rolUsuario    = usuario.rol    || this.rolUsuario;
           localStorage.setItem('nombre_completo', this.nombreUsuario);
           localStorage.setItem('rol', this.rolUsuario);
+
+          // 5) Re-aplicamos porque el rol pudo cambiar tras la respuesta
+          this.aplicarFiltroPorRol();
         },
         error: () => {}
       });
     }
+  }
+
+  // 6) Lógica del filtro por rol
+  private aplicarFiltroPorRol(): void {
+    const rol = (this.rolUsuario || '').toLowerCase();
+    const permitidos = this.permisosPorRol[rol];
+
+    this.menus = permitidos
+      ? this.menusCompletos.filter(m => permitidos.includes(m.label!))
+      : [...this.menusCompletos]; // roles sin restricción ven todo
   }
 
   isMenuPadreActivo(menu: any): boolean {

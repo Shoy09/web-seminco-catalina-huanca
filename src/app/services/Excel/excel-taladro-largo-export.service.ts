@@ -8,24 +8,19 @@ import * as XLSX from 'xlsx';
 export class ExcelTaladroLargoExportService {
 
   exportOperacionesToExcel(operacionesOriginal: OperacionBaseJumbo[], fileName: string) {
-    // Filtrar solo operaciones con estado "cerrado"
     const operacionesCerradas = operacionesOriginal.filter(op =>
       op.estado?.toLowerCase() === 'cerrado'
     );
 
-    // Preparar datos para el formato solicitado
     const excelData = this.prepareExcelData(operacionesCerradas);
 
-    // Crear libro de trabajo
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(excelData);
 
-    // Ajustar anchos de columna
     this.adjustColumnWidth(ws, excelData);
 
     XLSX.utils.book_append_sheet(wb, ws, 'OPERACIONES');
 
-    // Exportar archivo
     XLSX.writeFile(wb, `${fileName}_${new Date().toISOString().slice(0, 10)}.xlsx`);
   }
 
@@ -33,24 +28,54 @@ export class ExcelTaladroLargoExportService {
     const data: any[] = [];
 
     operaciones.forEach(op => {
+      // 🆕 Bandera para colocar los horómetros solo en la primera fila de la operación
+      let horometrosYaColocados = false;
+
       if (op.registros && op.registros.length > 0) {
         op.registros.forEach((registro: any) => {
-          // Calcular horas
-          const horas = this.calcularHoras(registro.hora_inicio, registro.hora_final ?? '');
-
-          // Obtener barras del registro
           const barras = registro.operacion?.barras || [];
 
-          // 🔥 Si el registro tiene varias barras, generamos UNA FILA POR BARRA
           if (barras.length > 0) {
-            barras.forEach((barra: any) => {
-              const row = this.buildRow(op, registro, barra, horas);
+            // 🔥 Calcular los intervalos de tiempo para cada barra
+            const intervalos = this.calcularIntervalosPorBarra(
+              registro.hora_inicio || '',
+              registro.hora_final || '',
+              barras.length
+            );
+
+            barras.forEach((barra: any, indexBarra: number) => {
+              const mostrarHorometros = !horometrosYaColocados && indexBarra === 0;
+
+              const row = this.buildRow(
+                op,
+                registro,
+                barra,
+                intervalos[indexBarra].horaInicio,
+                intervalos[indexBarra].horaFinal,
+                mostrarHorometros
+              );
               data.push(row);
+
+              if (mostrarHorometros) {
+                horometrosYaColocados = true;
+              }
             });
           } else {
-            // Si no hay barras, generamos una sola fila con los datos del registro
-            const row = this.buildRow(op, registro, null, horas);
+            // Sin barras: una sola fila con el rango original
+            const mostrarHorometros = !horometrosYaColocados;
+            const row = this.buildRow(
+              op,
+              registro,
+              null,
+              registro.hora_inicio || '',
+              registro.hora_final || '',
+              mostrarHorometros
+            );
             data.push(row);
+
+            if (mostrarHorometros) {
+              horometrosYaColocados = true;
+            }
           }
         });
       }
@@ -60,52 +85,195 @@ export class ExcelTaladroLargoExportService {
   }
 
   /**
-   * Construye una fila del Excel a partir de la operación, el registro y (opcional) una barra
+   * Divide el rango [horaInicio, horaFinal] en `cantidad` intervalos iguales.
+   * Ejemplo: 02:00 → 03:30 con 14 barras → 14 sub-rangos de ~6.43 min cada uno.
    */
-  private buildRow(op: OperacionBaseJumbo, registro: any, barra: any | null, horas: number): any {
+  private calcularIntervalosPorBarra(
+    horaInicio: string,
+    horaFinal: string,
+    cantidad: number
+  ): { horaInicio: string; horaFinal: string }[] {
+    const intervalos: { horaInicio: string; horaFinal: string }[] = [];
+
+    if (!horaInicio || !horaFinal || cantidad <= 0) {
+      // Si no hay datos válidos, devolvemos el mismo rango repetido
+      for (let i = 0; i < Math.max(cantidad, 1); i++) {
+        intervalos.push({ horaInicio, horaFinal });
+      }
+      return intervalos;
+    }
+
+    // Convertir horas a minutos desde medianoche
+    const minutosInicio = this.horaAMinutos(horaInicio);
+    let minutosFinal = this.horaAMinutos(horaFinal);
+
+    // Si cruza medianoche, sumar 24h
+    if (minutosFinal < minutosInicio) {
+      minutosFinal += 24 * 60;
+    }
+
+    const duracionTotal = minutosFinal - minutosInicio;
+
+    // Si la duración es 0, no tiene sentido dividir
+    if (duracionTotal <= 0) {
+      for (let i = 0; i < cantidad; i++) {
+        intervalos.push({ horaInicio, horaFinal });
+      }
+      return intervalos;
+    }
+
+    const duracionPorBarra = duracionTotal / cantidad;
+
+    for (let i = 0; i < cantidad; i++) {
+      const inicioMin = minutosInicio + duracionPorBarra * i;
+      const finMin = minutosInicio + duracionPorBarra * (i + 1);
+
+      intervalos.push({
+        horaInicio: this.minutosAHora(inicioMin),
+        horaFinal: this.minutosAHora(finMin)
+      });
+    }
+
+    return intervalos;
+  }
+
+  /**
+   * Convierte "HH:MM" a minutos desde medianoche
+   */
+  private horaAMinutos(hora: string): number {
+    if (!hora) return 0;
+    const [h, m] = hora.split(':').map(Number);
+    return (h || 0) * 60 + (m || 0);
+  }
+
+  /**
+   * Convierte minutos desde medianoche a "HH:MM" (maneja cruce de medianoche)
+   */
+  private minutosAHora(minutos: number): string {
+    // Normalizar dentro de 0-1439
+    let mins = Math.round(minutos) % (24 * 60);
+    if (mins < 0) mins += 24 * 60;
+
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+
+    return `${this.pad2(h)}:${this.pad2(m)}`;
+  }
+
+  private pad2(n: number): string {
+    return n < 10 ? `0${n}` : `${n}`;
+  }
+
+  /**
+   * Construye una fila del Excel
+   */
+  private buildRow(
+    op: OperacionBaseJumbo,
+    registro: any,
+    barra: any | null,
+    horaInicio: string,
+    horaFinal: string,
+    mostrarHorometros: boolean
+  ): any {
     const operacionData = registro.operacion || {};
+    const horometros = this.getHorometros(op, registro);
 
     return {
       'EQUIPO': op.n_equipo || '',
       'N° ITEM': registro.numero || '',
       'FECHA': this.formatearFecha(op.fecha),
-      'TURNO': this.formatearTurno(op.turno), 
+      'TURNO': this.formatearTurno(op.turno),
       'GUARDIA': this.obtenerGuardia(op),
       'OPERADOR': this.formatearOperador(op.operador),
       'JEFE DE GUARDIA': op.jefe_guardia || '',
       'SEMANA': this.calcularSemana(op.fecha),
       'CÓDIGO DE ACTIVIDAD': registro.codigo || '',
-      'HORA INICIAL': registro.hora_inicio || '',
-      'HORA FINAL': registro.hora_final || '',
-    //   'HORAS': horas,
-
-      // ⚠️ REVISAR: ¿de dónde viene la labor? En tu ejemplo, `operacion.labor` viene vacío.
+      'HORA INICIAL': horaInicio,
+      'HORA FINAL': horaFinal,
+      // 'HORAS': horas,
       'LABOR': operacionData.labor || '',
-
-      // ⚠️ REVISAR: estos vienen del array `barras`
       'Nº DE FILA': barra?.n_fila ?? '',
       'Nº DE TALADRO': barra?.n_taladro ?? '',
       'Nº DE BARRAS': barra?.n_barras ?? '',
       'METROS PERFORADOS': barra?.longitud_perforacion ?? '',
       'TIPO DE TALADRO': barra?.tipo_perforacion ?? '',
-      'OBSERVACIÓN': operacionData.observaciones || ''
+      'OBSERVACIÓN': operacionData.observaciones || '',
+
+      // 🔥 Horómetros solo en la primera fila de la operación
+      'HEI': mostrarHorometros ? (horometros.electrico.inicio ?? '') : '',
+      'HEF': mostrarHorometros ? (horometros.electrico.final ?? '') : '',
+      'HPI': mostrarHorometros ? (horometros.percusion.inicio ?? '') : '',
+      'HPF': mostrarHorometros ? (horometros.percusion.final ?? '') : '',
+      'HMI': mostrarHorometros ? (horometros.motor.inicio ?? '') : '',
+      'HMF': mostrarHorometros ? (horometros.motor.final ?? '') : ''
     };
   }
 
-  private calcularHoras(horaInicio: string, horaFinal: string): number {
-    if (!horaInicio || !horaFinal) return 0;
+  private getHorometros(op: OperacionBaseJumbo, registro: any): any {
+    let horometrosData = registro.horometros;
 
-    try {
-      const [h1, m1] = horaInicio.split(':').map(Number);
-      const [h2, m2] = horaFinal.split(':').map(Number);
-
-      let minutos = (h2 * 60 + m2) - (h1 * 60 + m1);
-      if (minutos < 0) minutos += 1440; // Si pasa de medianoche
-
-      return Math.round((minutos / 60) * 100000) / 100000; // 5 decimales como en tu ejemplo
-    } catch {
-      return 0;
+    if (!horometrosData || Object.keys(horometrosData).length === 0) {
+      horometrosData = op.horometros;
     }
+
+    return this.procesarHorometros(horometrosData);
+  }
+
+  private procesarHorometros(horometros: any): any {
+    const defaultHorometro = { inicio: '', final: '' };
+
+    const result = {
+      electrico: { ...defaultHorometro },
+      percusion: { ...defaultHorometro },
+      motor: { ...defaultHorometro }
+    };
+
+    if (!horometros) return result;
+
+    if (typeof horometros === 'object' && !Array.isArray(horometros)) {
+      if (horometros.electrico) {
+        result.electrico = {
+          inicio: horometros.electrico.inicio ?? '',
+          final: horometros.electrico.final ?? ''
+        };
+      }
+      if (horometros.percusion) {
+        result.percusion = {
+          inicio: horometros.percusion.inicio ?? '',
+          final: horometros.percusion.final ?? ''
+        };
+      }
+      if (horometros.diesel) {
+        result.motor = {
+          inicio: horometros.diesel.inicio ?? '',
+          final: horometros.diesel.final ?? ''
+        };
+      }
+      if (horometros.motor) {
+        result.motor = {
+          inicio: horometros.motor.inicio ?? '',
+          final: horometros.motor.final ?? ''
+        };
+      }
+    }
+
+    if (Array.isArray(horometros)) {
+      horometros.forEach((h: any) => {
+        const nombre = h.nombre?.toLowerCase() || '';
+        const inicio = h.inicio || h.inicial || '';
+        const final = h.final || '';
+
+        if (nombre.includes('electrico') || nombre.includes('eléctrico')) {
+          result.electrico = { inicio, final };
+        } else if (nombre.includes('percusion')) {
+          result.percusion = { inicio, final };
+        } else if (nombre.includes('motor') || nombre.includes('diesel')) {
+          result.motor = { inicio, final };
+        }
+      });
+    }
+
+    return result;
   }
 
   private formatearFecha(fecha: string): string {
@@ -167,20 +335,18 @@ export class ExcelTaladroLargoExportService {
     worksheet['!cols'] = columnWidths;
   }
 
+  private formatearTurno(turno: string | undefined | null): string {
+    if (!turno) return '';
 
-    private formatearTurno(turno: string | undefined | null): string {
-  if (!turno) return '';
+    return turno
+      .toString()
+      .toUpperCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+  }
 
-  return turno
-    .toString()
-    .toUpperCase()
-    .normalize('NFD')                    // Descompone letras con tilde
-    .replace(/[\u0300-\u036f]/g, '');    // Elimina los diacríticos
-}
-
-private formatearOperador(operador: string | undefined | null): string {
-  if (!operador) return '';
-  return operador.toString().toUpperCase();
-}
-
+  private formatearOperador(operador: string | undefined | null): string {
+    if (!operador) return '';
+    return operador.toString().toUpperCase();
+  }
 }
