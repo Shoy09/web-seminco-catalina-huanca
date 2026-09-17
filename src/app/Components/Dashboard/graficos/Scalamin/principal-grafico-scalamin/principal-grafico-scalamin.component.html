@@ -1,0 +1,66 @@
+<div class="space-y-3">
+
+  <!-- ══════════════════════════════════════════════════════════
+       BARRA DE CONTROL
+  ══════════════════════════════════════════════════════════════ -->
+  <section class="overflow-hidden rounded-2xl border border-border bg-surface shadow-sm">
+
+    <!-- Franja de título -->
+    <div class="flex items-center justify-between bg-gradient-to-r from-secondary via-secondary-75 to-primary px-4 py-2.5 text-white">
+      <div class="flex items-center gap-2">
+        <span class="material-icons ic-header">analytics</span>
+        <span class="text-sm font-bold tracking-tight">Taladro Largo</span>
+        <span class="hidden text-xs text-white/50 sm:inline">— Dashboard de Indicadores</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <!-- <button class="btn-header" (click)="Presentacion()">
+          <span class="material-icons ic-sm">slideshow</span>
+          Presentación
+        </button>
+        <button class="btn-header" (click)="generarPDF()">
+          <span class="material-icons ic-sm">picture_as_pdf</span>
+          PDF
+        </button> -->
+        <button class="btn-header" (click)="exportarExcel()">
+    <span class="material-icons ic-sm">table_chart</span> Excel
+  </button>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="flex flex-wrap items-center gap-3 px-3 py-2">
+
+      <div class="flex items-center gap-1.5">
+        <label class="label-filtro">Desde</label>
+        <input type="date" [(ngModel)]="fechaInicio" class="input-filtro" />
+      </div>
+
+      <div class="flex items-center gap-1.5">
+        <label class="label-filtro">Hasta</label>
+        <input type="date" [(ngModel)]="fechaFin" class="input-filtro" />
+      </div>
+
+      <div class="flex items-center gap-1.5">
+        <label class="label-filtro">Turno</label>
+        <select [(ngModel)]="turnoSeleccionado" class="input-filtro cursor-pointer">
+          <option value="">Todos</option>
+          <option value="DÍA">Día</option>
+          <option value="NOCHE">Noche</option>
+        </select>
+      </div>
+
+      <button (click)="aplicarFiltro()" class="btn-primary">
+        <span class="material-icons ic-sm">filter_alt</span>
+        Aplicar
+      </button>
+      <button (click)="quitarFiltro()" class="btn-ghost">
+        <span class="material-icons ic-sm">close</span>
+        Limpiar
+      </button>
+      <button (click)="toggleDataZoom()" class="btn-ghost">
+        <span class="material-icons ic-sm">zoom_in</span>
+        {{ showZoom ? 'Ocultar zoom' : 'Zoom' }}
+      </button>
+
+    </div>
+  </section>

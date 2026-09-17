@@ -22,9 +22,9 @@ import { MatDialog } from '@angular/material/dialog';
   templateUrl: './principal.component.html',
   styleUrls: ['./principal.component.css']
 })
-export class PrincipalSostenimientoComponent implements OnInit {
+export class PrincipalScalaminComponent implements OnInit {
 
-  tipo: string = 'empernador';
+  tipo: string = 'scalamin';
   operacion!: OperacionBase;
   operacionOriginal!: OperacionBase;
   loading = false;
@@ -156,10 +156,6 @@ validarCambios() {
 
   registros: JSON.stringify(nuevaRaw.registros),   // 👈 AGREGA ESTO
 
-  tipo_equipo: JSON.stringify(
-    this.normalizarTipoEquipo(this.cardData.tiposEquipo)
-  ),
-
   [campoObservacion]: JSON.stringify(original),
   revisado: revisionActual + 1,
   aprobacion: estadoSeleccionado
@@ -229,10 +225,7 @@ validarCambios() {
       jefe_guardia: this.cardData.jefeGuardia,
       equipo: this.cardData.equipo,
       n_equipo: this.cardData.codigo,
-      seccion: this.cardData.seccion,
-      tipo_equipo: JSON.stringify(
-  this.normalizarTipoEquipo(this.cardData.tiposEquipo)
-),
+      guardia: this.cardData.guardia,
 
       registros: this.tablaData,
 
@@ -278,8 +271,6 @@ validarCambios() {
 
     return {
       diesel: data.diesel ? map(data.diesel) : null,
-      electrico: data.electrico ? map(data.electrico) : null,
-      empernador: data.empernador ? map(data.empernador) : null,
       percusion: data.percusion ? map(data.percusion) : null,
     };
   }
@@ -307,8 +298,7 @@ validarCambios() {
       jefeGuardia: op.jefe_guardia,
       equipo: op.equipo,
       codigo: op.n_equipo,
-      seccion: op.seccion || '',
-      tipo_equipo: op.tipo_equipo || '',
+      guardia: op.guardia || '', 
     };
   }
 
@@ -356,8 +346,6 @@ validarCambios() {
 
     return {
       diesel: h.diesel || null,
-      electrico: h.electrico || null,
-      empernador: h.empernador || null,
       percusion: h.percusion || null
     };
   }

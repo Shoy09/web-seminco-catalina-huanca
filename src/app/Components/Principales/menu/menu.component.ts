@@ -37,6 +37,7 @@ export class MenuComponent implements OnInit {
         { label: 'Acarreo',                routerLink: ['/Dashboard/grafico-acarreo'] },
         { label: 'Explosivos',             routerLink: ['/Dashboard/explosivos-graficos'] },
         { label: 'Línea de tiempo',        routerLink: ['/Dashboard/linea-de-tiempo'] },
+        { label: 'Scalamin', routerLink: ['/Dashboard/grafico-scalamin'] },
       ],
     },
     {

@@ -1,4 +1,5 @@
 import { OperacionJumbo } from './OperacionJumbo';
+import { OperacionScalamin } from './OperacionScalamin';
 import { OperacionScoop } from './OperacionScoop';
 import { OperacionSostenimiento } from './OperacionSostenimiento';
 import { OperacionTLargos } from './OperacionTLargos';
@@ -12,6 +13,7 @@ export interface OperacionBase<TOperacion = TipoOperacionRegistro> {
   jefe_guardia: string;
   equipo: string;
   n_equipo: string;
+  guardia?: string;
 
   estado?: string;
   envio?: number;
@@ -52,12 +54,13 @@ export type TipoOperacionRegistro =
   | OperacionScoop
   | OperacionTLargos
   | OperacionVolquete
-  | OperacionSostenimiento;
+  | OperacionSostenimiento
+  | OperacionScalamin;
 
   export type OperacionBaseJumbo = OperacionBase<OperacionJumbo>;
   export type OperacionBaseScoop = OperacionBase<OperacionScoop>;
   export type OperacionBaseTLargos = OperacionBase<OperacionTLargos>;
   export type OperacionBaseSostenimiento = OperacionBase<OperacionSostenimiento>;
   export type OperacionBaseVolquete = OperacionBase<OperacionVolquete>;
-
+export type OperacionBaseScalamin = OperacionBase<OperacionScalamin>; 
 

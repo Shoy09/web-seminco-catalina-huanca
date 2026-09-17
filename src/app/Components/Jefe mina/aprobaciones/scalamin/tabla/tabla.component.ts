@@ -8,11 +8,10 @@ import { MatDialog } from '@angular/material/dialog';
 
 interface Operacion {
   labor: string;
+  tipo_labor_texto: string;
+  area_m2: number;
+  metros_lineales: number;
   observaciones?: string;
-  // 🔥 Nuevos arrays
-  perno?: any[];
-  malla?: any[];
-  perforacion?: any[];
 }
 
 interface Registro {
@@ -60,31 +59,24 @@ export class TablaComponent implements OnChanges {
     }
   }
 
-  mapearDatos() {
-    this.datos = this.data.map((item: any, index: number) => ({
-      nro: item.numero,
-      estado: item.estado,
-      codigo: item.codigo,
-      horaInicio: item.hora_inicio,
-      horaFin: item.hora_final || '--:--',
-      color: this.getColorEstado(item.estado),
-      indiceOriginal: index, // 🔥 Guardar índice
-      operacion: item.operacion || {
-        nivel: '',
-        tipo_labor: '',
-        labor: '',
-        ala: '',
-        observaciones: '',
-        // 🔥 Campos sostenimiento
-        tipo_pernos: '',
-        log_pernos: '',
-        n_pernos_instalados: '',
-        tipo_malla: '',
-        mt52_malla: '',
-        sistematico_puntual: ''
-      }
-    }));
-  }
+mapearDatos() {
+  this.datos = this.data.map((item: any, index: number) => ({
+    nro: item.numero,
+    estado: item.estado,
+    codigo: item.codigo,
+    horaInicio: item.hora_inicio,
+    horaFin: item.hora_final || '--:--',
+    color: this.getColorEstado(item.estado),
+    indiceOriginal: index,
+    operacion: item.operacion || {
+      labor: '',
+      tipo_labor_texto: '',
+      area_m2: 0,
+      metros_lineales: 0,
+      observaciones: ''
+    }
+  }));
+}
 
   getColorEstado(estado: string): string {
     const e = estado?.toUpperCase();
@@ -148,20 +140,19 @@ export class TablaComponent implements OnChanges {
   }
 
   // 🔥 Manejar cambios desde formulario-perforacion (SOSTENIMIENTO)
-onGuardarPerforacion(datosPerforacion: any) {
-  console.log('📥 Datos recibidos del formulario:', datosPerforacion);
+onGuardarPerforacion(datos: any) {
+  console.log('📥 Datos recibidos del formulario scalamin:', datos);
 
   if (this.registroEnEdicion) {
     this.registroEnEdicion.operacion = {
-      // 🔥 Nuevos campos (arrays)
-      labor: datosPerforacion.labor || '',
-      observaciones: datosPerforacion.observaciones || '',
-      perno: datosPerforacion.perno || [],
-      malla: datosPerforacion.malla || [],
-      perforacion: datosPerforacion.perforacion || [],
+      labor: datos.labor || '',
+      tipo_labor_texto: datos.tipo_labor_texto || '',
+      area_m2: datos.area_m2 ?? 0,
+      metros_lineales: datos.metros_lineales ?? 0,
+      observaciones: datos.observaciones || '',
     } as any;
 
-    console.log('✅ Operación sostenimiento actualizada:', this.registroEnEdicion.operacion);
+    console.log('✅ Operación scalamin actualizada:', this.registroEnEdicion.operacion);
 
     this.emitirCambios();
   }

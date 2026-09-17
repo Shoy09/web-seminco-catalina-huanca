@@ -41,12 +41,12 @@ export class EquiposMenuComponent {
       icono: 'fas fa-cut',
       color: '#f39c12'
     },
-    // { 
-    //   nombre: 'SCALAMIN', 
-    //   ruta: '/Dashboard/jefe-mina/scalamin',
-    //   icono: 'fas fa-chart-line',
-    //   color: '#9b59b6'
-    // },
+    { 
+      nombre: 'SCALAMIN', 
+      ruta: '/Dashboard/jefe-mina/scalamin',
+      icono: 'fas fa-chart-line',
+      color: '#9b59b6'
+    },
     // { 
     //   nombre: 'ROMPEBANCOS', 
     //   ruta: '/Dashboard/jefe-mina/rompebancos',

@@ -60,7 +60,7 @@ export class OperacionesListScalaminComponent implements OnInit {
 
   cargarDatos() {
     this.loading = true;
-    this.operacionesService.getPorJefe(this.tipo, this.jefe_guardia).subscribe({
+    this.operacionesService.getAll(this.tipo).subscribe({
       next: (resp: any) => {
         this.operacionesOriginal = resp.data;
         this.operacionesFiltradas = [...this.operacionesOriginal]

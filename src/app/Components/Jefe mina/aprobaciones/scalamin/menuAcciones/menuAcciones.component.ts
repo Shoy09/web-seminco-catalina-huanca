@@ -101,9 +101,7 @@ export class MenuAccionesComponent implements OnInit, OnChanges {
 
     this.filasHorometro = [
       { nombre: 'Diesel', ...map(data?.diesel) },
-      { nombre: 'Eléctrico', ...map(data?.electrico) },
       { nombre: 'Percusión', ...map(data?.percusion) },
-      { nombre: 'Empernador', ...map(data?.empernador) }
     ];
   }
 
@@ -179,9 +177,7 @@ export class MenuAccionesComponent implements OnInit, OnChanges {
 
     const data = {
       diesel: map(this.filasHorometro[0]),
-      electrico: map(this.filasHorometro[1]),
-      percusion: map(this.filasHorometro[2]),
-      empernador: map(this.filasHorometro[3]),
+      percusion: map(this.filasHorometro[1]),
     };
 
     console.log('🟢 Horómetros guardados:', data);

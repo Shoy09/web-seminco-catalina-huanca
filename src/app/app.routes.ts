@@ -39,6 +39,8 @@ import { PrincipalScissorComponent } from './Components/Jefe mina/aprobaciones/s
 import { PrincipalGraficoAcarreoComponent } from './Components/Dashboard/graficos/acarreo/principal-grafico-acarreo/principal-grafico-acarreo.component';
 import { NotificacionesEmailComponent } from './Components/Notificaciones/notificaciones-email/notificaciones-email.component';
 import { ListPdfComponent } from './Components/pdf/list-pdf/list-pdf.component';
+import { PrincipalGraficoScalaminComponent } from './Components/Dashboard/graficos/Scalamin/principal-grafico-scalamin/principal-grafico-scalamin.component';
+import { PrincipalScalaminComponent } from './Components/Jefe mina/aprobaciones/scalamin/principal/principal.component';
 
 
 
@@ -85,10 +87,11 @@ export const routes: Routes = [
 
       
       { path: 'jefe-mina/scalamin', component: OperacionesListScalaminComponent },
-      { path: 'jefe-mina/anfochanger', component: OperacionesListAnfochaComponent },
+      {path:'jefe-mina/scalamin/operacion/:id', component:PrincipalScalaminComponent},
       
 { path: 'power-bi', component: PowerBiPublicComponent },
 { path: 'grafico-horizontal', component: PrincipalGraficoHorizontalComponent },
+{ path: 'grafico-scalamin', component: PrincipalGraficoScalaminComponent },
 { path: 'grafico-tal-largo', component: PrincipalGraficoLargoComponent },
 {path: 'grafico-sostenimiento', component: PrincipalGraficoSostenimientoComponent},
 {path: 'grafico-scoops', component: PrincipalGraficoScoopsComponent},

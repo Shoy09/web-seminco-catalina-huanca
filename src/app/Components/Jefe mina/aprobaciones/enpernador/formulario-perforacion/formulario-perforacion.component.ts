@@ -1,14 +1,34 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component, EventEmitter, Input, OnInit, Output, OnChanges, SimpleChanges
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+// 🔥 INTERFACES NUEVAS
+interface Perno {
+  tipo_pernos: string;
+  log_pernos: string;
+  n_pernos_instalados: number | null;
+  sistematico_puntual: string;
+}
+
+interface Malla {
+  tipo_malla: string;
+  mt52_malla: string;
+}
+
+interface Perforacion {
+  n_taladros: number | null;
+  longitud_perforacion: number | null;
+  tipo_perforacion: string;
+}
+
 interface DatosPerforacion {
-  ubicacion: { nivel: string; tipoLabor: string; labor: string; ala: string; };
-  taladros: { produccion: string; rimados: string; alivio: string; repaso: string; };
-  barras: { longitud: string; nBarra: string; };
-  pernos: { tipo: string; log: string; nInstalados: string; };
-  malla: { tipo: string; mts2: string; sistematicoPuntual: string; };
+  labor: string;
   observaciones: string;
+  perno: Perno[];
+  malla: Malla[];
+  perforacion: Perforacion[];
 }
 
 @Component({
@@ -16,26 +36,50 @@ interface DatosPerforacion {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './formulario-perforacion.component.html',
-  styleUrl: './formulario-perforacion.component.css'
+  styleUrl: './formulario-perforacion.component.css',
 })
 export class FormularioPerforacionComponent implements OnInit, OnChanges {
-
   @Input() visible = false;
   @Input() operacion: any;
+  @Input() estado: string = '';
   @Output() cerrar = new EventEmitter<void>();
-  @Output() guardar = new EventEmitter<any>(); // 🔥 NUEVO: emitir datos guardados
-@Input() estado: string = '';
+  @Output() guardar = new EventEmitter<any>();
 
   public formularioInvalido = false;
   public datosPerforacion: DatosPerforacion = this.getInitDatosPerforacion();
 
-  // 🔥 LISTAS DINÁMICAS
-  public niveles: string[] = ['100', '200'];
-  public tiposLabor: string[] = ['RAMPA', 'GALERIA'];
-  public labores: string[] = ['RAMPA 1', 'GALERIA A'];
-  public alas: string[] = ['NORTE', 'SUR'];
+  // 🔥 LISTAS DE OPCIONES
+  public tiposPerforacion: string[] = [
+  'FRENTE',
+  'REALCE',
+  'SELLADA',
+  'MANTENIMIENTO',
+  'BREASTING',
+  'DESQUINCHE',
+  'INTERSECCIÓN',
+  'REHABILITACIÓN',
+  'NICHO',
+  'SERVICIOS'
+];
+
+  public tiposPerno: string[] = [
+  'Split Set',
+  'Swellex',
+  'Perno Helicoidal',
+  'NICHO',
+  'SERVICIOS'
+];
+
+  public tiposMalla: string[] = [
+  'Malla m2 C-10',
+  'Malla m2 C-8',
+  'Malla m2 Eslabonada'
+];
+
+  public tiposSistematico: string[] = ['Puntual', 'Sistemático'];
 
   constructor() {}
+
   ngOnInit() {}
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -44,59 +88,128 @@ export class FormularioPerforacionComponent implements OnInit, OnChanges {
     }
   }
 
+  public get mostrarCamposCompletos(): boolean {
+    return this.estado === 'OPERATIVO';
+  }
+
+  // 🔥 CARGA DATOS DESDE OPERACIÓN
   cargarDatosOperacion(op: any) {
     console.log('📥 Datos recibidos en operacion:', op);
 
-    // 🔥 UBICACIÓN
-    this.datosPerforacion.ubicacion.nivel = op.nivel || '';
-    this.datosPerforacion.ubicacion.tipoLabor = op.tipo_labor || '';
-    this.datosPerforacion.ubicacion.labor = op.labor || '';
-    this.datosPerforacion.ubicacion.ala = op.ala || '';
-
-    // 🔥 PERNOS
-    this.datosPerforacion.pernos.tipo = op.tipo_pernos || '';
-    this.datosPerforacion.pernos.log = op.log_pernos || '';
-    this.datosPerforacion.pernos.nInstalados = op.n_pernos_instalados || '';
-
-    // 🔥 MALLA
-    this.datosPerforacion.malla.tipo = op.tipo_malla || '';
-    this.datosPerforacion.malla.mts2 = op.mt52_malla || '';
-    this.datosPerforacion.malla.sistematicoPuntual = op.sistematico_puntual || '';
-
-    // 🔥 OBSERVACIONES
+    this.datosPerforacion.labor = op.labor || '';
     this.datosPerforacion.observaciones = op.observaciones || '';
 
-    // 🔥 LISTAS DINÁMICAS
-    this.agregarSiNoExiste(this.niveles, op.nivel);
-    this.agregarSiNoExiste(this.tiposLabor, op.tipo_labor);
-    this.agregarSiNoExiste(this.labores, op.labor);
-    this.agregarSiNoExiste(this.alas, op.ala);
+    // 🔥 PERNO
+    this.datosPerforacion.perno = Array.isArray(op.perno)
+      ? op.perno.map((p: any) => ({
+          tipo_pernos: p.tipo_pernos || '',
+          log_pernos: p.log_pernos?.toString() || '',
+          n_pernos_instalados: p.n_pernos_instalados ?? null,
+          sistematico_puntual: p.sistematico_puntual || 'Puntual',
+        }))
+      : [];
+
+    // 🔥 MALLA
+    this.datosPerforacion.malla = Array.isArray(op.malla)
+      ? op.malla.map((m: any) => ({
+          tipo_malla: m.tipo_malla || '',
+          mt52_malla: m.mt52_malla?.toString() || '',
+        }))
+      : [];
+
+    // 🔥 PERFORACION
+    this.datosPerforacion.perforacion = Array.isArray(op.perforacion)
+      ? op.perforacion.map((p: any) => ({
+          n_taladros: p.n_taladros ?? null,
+          longitud_perforacion: p.longitud_perforacion ?? null,
+          tipo_perforacion: p.tipo_perforacion || 'FRENTE',
+        }))
+      : [];
+
+    // Si no hay filas, dejamos al menos una vacía para que se pueda editar
+    if (this.datosPerforacion.perno.length === 0) this.agregarPerno();
+    if (this.datosPerforacion.malla.length === 0) this.agregarMalla();
+    if (this.datosPerforacion.perforacion.length === 0) this.agregarPerforacion();
   }
 
-  // 🔥 FUNCIÓN REUTILIZABLE
-  agregarSiNoExiste(lista: string[], valor: string) {
-    if (!valor) return;
+  // =============================
+  // 🔥 PERNO
+  // =============================
+  agregarPerno() {
+    this.datosPerforacion.perno.push({
+      tipo_pernos: '',
+      log_pernos: '',
+      n_pernos_instalados: null,
+      sistematico_puntual: 'Puntual',
+    });
+  }
 
-    const limpio = valor.trim();
-
-    if (limpio && !lista.includes(limpio)) {
-      lista.push(limpio);
+  eliminarPerno(index: number) {
+    if (this.datosPerforacion.perno.length > 1) {
+      this.datosPerforacion.perno.splice(index, 1);
     }
   }
 
+  // =============================
+  // 🔥 MALLA
+  // =============================
+  agregarMalla() {
+    this.datosPerforacion.malla.push({
+      tipo_malla: '',
+      mt52_malla: '',
+    });
+  }
+
+  eliminarMalla(index: number) {
+    if (this.datosPerforacion.malla.length > 1) {
+      this.datosPerforacion.malla.splice(index, 1);
+    }
+  }
+
+  // =============================
+  // 🔥 PERFORACION
+  // =============================
+  agregarPerforacion() {
+    this.datosPerforacion.perforacion.push({
+      n_taladros: null,
+      longitud_perforacion: null,
+      tipo_perforacion: 'FRENTE',
+    });
+  }
+
+  eliminarPerforacion(index: number) {
+    if (this.datosPerforacion.perforacion.length > 1) {
+      this.datosPerforacion.perforacion.splice(index, 1);
+    }
+  }
+
+  // =============================
+  // 🔥 ACCIONES
+  // =============================
   cerrarFormPerforacion() {
     this.cerrar.emit();
   }
 
   guardarPerforacion() {
     if (this.validarFormulario()) {
-      console.log('✅ Datos guardados:', this.datosPerforacion);
-      
-      // 🔥 EMITIR LOS DATOS AL PADRE
-      this.guardar.emit(this.datosPerforacion);
-      
+      const datosAEmitir = {
+        labor: this.datosPerforacion.labor,
+        observaciones: this.datosPerforacion.observaciones,
+        perno: this.datosPerforacion.perno.filter(
+          (p) => p.tipo_pernos && p.tipo_pernos.trim() !== ''
+        ),
+        malla: this.datosPerforacion.malla.filter(
+          (m) => m.tipo_malla && m.tipo_malla.trim() !== ''
+        ),
+        perforacion: this.datosPerforacion.perforacion.filter(
+          (p) => p.longitud_perforacion !== null && p.longitud_perforacion > 0
+        ),
+      };
+
+      console.log('📤 Emitiendo datos perforación:', datosAEmitir);
+      this.guardar.emit(datosAEmitir);
       this.formularioInvalido = false;
-      this.cerrar.emit(); // Cerrar después de guardar
+      this.cerrar.emit();
     } else {
       this.formularioInvalido = true;
       console.warn('⚠️ Formulario inválido: faltan campos obligatorios');
@@ -104,22 +217,29 @@ export class FormularioPerforacionComponent implements OnInit, OnChanges {
   }
 
   validarFormulario(): boolean {
-    const u = this.datosPerforacion.ubicacion;
-    return !!(u.nivel && u.tipoLabor && u.labor);
+    const tienePerforacionValida = this.datosPerforacion.perforacion.some(
+      (p) => p.longitud_perforacion !== null && p.longitud_perforacion > 0
+    );
+
+    return !!(this.datosPerforacion.labor && tienePerforacionValida);
   }
 
   private getInitDatosPerforacion(): DatosPerforacion {
     return {
-      ubicacion: { nivel: '', tipoLabor: '', labor: '', ala: '' },
-      taladros: { produccion: '', rimados: '', alivio: '', repaso: '' },
-      barras: { longitud: '', nBarra: '' },
-      pernos: { tipo: '', log: '', nInstalados: '' },
-      malla: { tipo: '', mts2: '', sistematicoPuntual: '' },
-      observaciones: ''
+      labor: '',
+      observaciones: '',
+      perno: [
+        {
+          tipo_pernos: '',
+          log_pernos: '',
+          n_pernos_instalados: null,
+          sistematico_puntual: 'Puntual',
+        },
+      ],
+      malla: [{ tipo_malla: '', mt52_malla: '' }],
+      perforacion: [
+        { n_taladros: null, longitud_perforacion: null, tipo_perforacion: 'FRENTE' },
+      ],
     };
   }
-
-  public get mostrarCamposCompletos(): boolean {
-  return this.estado === 'OPERATIVO';
-}
 }

@@ -1,0 +1,137 @@
+<div *ngIf="visible"
+     class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 p-2.5 overflow-hidden">
+  <div class="bg-white w-[95%] max-w-[800px] max-h-[90vh] flex flex-col rounded-2xl shadow-2xl
+              animate-[modalIn_0.3s_ease-out] overflow-hidden">
+
+    <!-- Header -->
+    <div class="flex justify-between items-center px-6 py-3 shrink-0
+                bg-gradient-to-r from-[#2b6777] to-[#1a4b58] text-white border-b border-white/10">
+      <div class="flex items-center gap-2.5">
+        <i class="far fa-file-alt text-xl opacity-90"></i>
+        <h1 class="text-lg font-semibold m-0 tracking-tight">Formulario Scalamin</h1>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="bg-gradient-to-r from-[#8bc34a] to-[#6f9e37] text-white text-[10px] font-bold
+                     uppercase tracking-wide px-3 py-1 rounded-full shadow">
+          ✎ EDITABLE
+        </span>
+        <span class="text-xs font-bold uppercase px-3 py-1 rounded-full"
+              [ngClass]="{
+                'bg-success/20 text-green-200':  estado === 'OPERATIVO',
+                'bg-warning/20 text-yellow-200': estado === 'DEMORA',
+                'bg-danger/20 text-red-200':     estado === 'MANTENIMIENTO',
+                'bg-slate-400/30 text-slate-200': !['OPERATIVO','DEMORA','MANTENIMIENTO'].includes(estado)
+              }">
+          {{ estado }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Error de validación -->
+    <div *ngIf="formularioInvalido"
+         class="flex items-center gap-2 mx-6 mt-3 px-4 py-2 bg-red-50 border-l-4 border-red-500
+                text-red-700 text-xs font-semibold rounded-lg shrink-0">
+      <i class="fas fa-exclamation-triangle"></i>
+      Complete los campos obligatorios: Labor y Tipo de labor.
+    </div>
+
+    <!-- Formulario -->
+    <form class="flex-1 overflow-y-auto px-6 py-4 space-y-3">
+
+      <!-- Sección Labor -->
+      <fieldset class="border border-slate-200 rounded-xl px-4 py-3 bg-white">
+        <legend class="inline-flex items-center gap-1.5 px-2 text-[13px] font-bold text-[#1f3b43] bg-white">
+          <i class="fas fa-warehouse text-[#2b6777] text-sm"></i> Información de Labor
+        </legend>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+          <!-- Labor -->
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold text-slate-700 flex items-center gap-1">
+              <i class="fas fa-warehouse text-[#2b6777] text-[11px]"></i>
+              Labor <span class="text-red-500">*</span>
+            </label>
+            <input type="text" placeholder="Ej: BP_3754_W"
+              [(ngModel)]="datosScalamin.labor" name="labor"
+              class="w-full px-3 py-2 border-[1.5px] border-slate-200 rounded-lg bg-white text-xs text-slate-800
+                     focus:outline-none focus:border-[#2b6777] focus:ring-2 focus:ring-[#2b6777]/15 transition-all"/>
+          </div>
+
+          <!-- Tipo de labor -->
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold text-slate-700 flex items-center gap-1">
+              <i class="fas fa-tag text-[#2b6777] text-[11px]"></i>
+              Tipo de labor <span class="text-red-500">*</span>
+            </label>
+            <select [(ngModel)]="datosScalamin.tipo_labor_texto" name="tipo_labor_texto"
+              class="w-full px-3 py-2 border-[1.5px] border-slate-200 rounded-lg bg-white text-xs text-slate-800
+                     cursor-pointer focus:outline-none focus:border-[#2b6777] focus:ring-2 focus:ring-[#2b6777]/15 transition-all">
+              <option value="">-- Seleccionar --</option>
+              <option *ngFor="let t of tiposLabor" [value]="t">{{ t }}</option>
+            </select>
+          </div>
+
+          <!-- Área m² -->
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold text-slate-700 flex items-center gap-1">
+              <i class="fas fa-vector-square text-[#2b6777] text-[11px]"></i>
+              Área (m²)
+            </label>
+            <input type="number" step="0.01" placeholder="0"
+              [(ngModel)]="datosScalamin.area_m2" name="area_m2"
+              class="w-full px-3 py-2 border-[1.5px] border-slate-200 rounded-lg bg-white text-xs text-slate-800
+                     focus:outline-none focus:border-[#2b6777] focus:ring-2 focus:ring-[#2b6777]/15 transition-all"/>
+          </div>
+
+          <!-- Metros lineales -->
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold text-slate-700 flex items-center gap-1">
+              <i class="fas fa-ruler-horizontal text-[#2b6777] text-[11px]"></i>
+              Metros lineales
+            </label>
+            <input type="number" step="0.01" placeholder="0"
+              [(ngModel)]="datosScalamin.metros_lineales" name="metros_lineales"
+              class="w-full px-3 py-2 border-[1.5px] border-slate-200 rounded-lg bg-white text-xs text-slate-800
+                     focus:outline-none focus:border-[#2b6777] focus:ring-2 focus:ring-[#2b6777]/15 transition-all"/>
+          </div>
+
+        </div>
+      </fieldset>
+
+      <!-- Sección Observaciones -->
+      <fieldset class="border border-slate-200 rounded-xl px-4 py-3 bg-white">
+        <legend class="inline-flex items-center gap-1.5 px-2 text-[13px] font-bold text-[#1f3b43] bg-white">
+          <i class="fas fa-comment text-[#2b6777] text-sm"></i> Observaciones
+        </legend>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-semibold text-slate-700 flex items-center gap-1">
+            <i class="fas fa-pen text-[#2b6777] text-[11px]"></i> Observaciones adicionales
+          </label>
+          <textarea rows="3" placeholder="Ingrese observaciones..."
+            [(ngModel)]="datosScalamin.observaciones" name="observaciones"
+            class="w-full px-3 py-2 border-[1.5px] border-slate-200 rounded-lg text-xs text-slate-800 bg-white
+                   resize-y min-h-[60px] focus:outline-none focus:border-[#2b6777] focus:ring-2
+                   focus:ring-[#2b6777]/15 transition-all font-[inherit]"></textarea>
+        </div>
+      </fieldset>
+
+    </form>
+
+    <!-- Footer -->
+    <div class="flex justify-end gap-3 px-6 py-3 border-t border-slate-100 bg-white shrink-0">
+      <button type="button" (click)="cerrarFormPerforacion()"
+        class="flex items-center gap-1.5 px-5 py-2 border-[1.5px] border-slate-200 rounded-lg
+               text-xs font-semibold text-slate-600 bg-white hover:bg-slate-50 hover:text-slate-800
+               active:scale-95 transition-all cursor-pointer">
+        <i class="fas fa-times"></i> Cancelar
+      </button>
+      <button type="button" (click)="guardarPerforacion()"
+        class="flex items-center gap-1.5 px-6 py-2 border-0 rounded-lg text-xs font-semibold text-white
+               bg-gradient-to-r from-[#2b6777] to-[#1f4e5c] shadow-sm
+               hover:brightness-110 hover:-translate-y-0.5 active:scale-95 transition-all cursor-pointer">
+        <i class="fas fa-save"></i> Guardar cambios
+      </button>
+    </div>
+
+  </div>
+</div>
