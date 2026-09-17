@@ -43,6 +43,7 @@ import { PernosDiaComponent } from '../Graficos components/Hoja 1/pernos-dia/per
 import { SchedulerComponent } from '../../Linea de tiempo/scheduler/scheduler.component';
 import { EstadoService } from '../../../../../services/estado.service';
 import { OperacionSostenimiento } from '../../../../../models/OperacionSostenimiento';
+import { ExcelEmpernadorExportService } from 'app/services/Excel/excel-empernador-export.service';
 
 @Component({
   selector: 'app-principal-grafico-sostenimiento',
@@ -136,15 +137,16 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
     nPernoDia: 0,
     totalMetros: 0,
   };
-estadosProceso: any[] = [];
-    ganttData: any[] = [];
-vistaPrincipal: boolean = true;
+  estadosProceso: any[] = [];
+  ganttData: any[] = [];
+  vistaPrincipal: boolean = true;
 
   constructor(
     private planMensualService: PlanMensualService,
     private fechasPlanMensualService: FechasPlanMensualService,
     private operacionesService: OperacionesService,
-    private estadoService: EstadoService
+    private estadoService: EstadoService,
+    private excelExportService: ExcelEmpernadorExportService
   ) {}
 
   ngOnInit(): void {
@@ -160,38 +162,33 @@ vistaPrincipal: boolean = true;
     this.obtenerEstadosPorProceso('EMPERNADOR');
   }
 
-    obtenerEstadosPorProceso(proceso: string) {
-  this.estadoService.getEstadosByProceso(proceso)
-    .subscribe({
-      next: (data) => {
-        this.estadosProceso = data;
-       //console.log('Estados por proceso:', data);
+  obtenerEstadosPorProceso(proceso: string) {
+    this.estadoService.getEstadosByProceso(proceso)
+      .subscribe({
+        next: (data) => {
+          this.estadosProceso = data;
+          this.construirMapaEstados();
+        },
+        error: (err) => {
+          console.error('Error al traer estados por proceso', err);
+        }
+      });
+  }
 
-        // 🔥 CLAVE
-        this.construirMapaEstados();
-      },
-      error: (err) => {
-        console.error('Error al traer estados por proceso', err);
-      }
+  toggleVista() {
+    this.vistaPrincipal = !this.vistaPrincipal;
+  }
+
+  construirMapaEstados() {
+    this.mapaEstados.clear();
+
+    this.estadosProceso.forEach(e => {
+      const codigo = String(e.codigo || '').trim();
+      this.mapaEstados.set(codigo, e);
     });
-}
+  }
 
-toggleVista() {
-  this.vistaPrincipal = !this.vistaPrincipal;
-}
-
-construirMapaEstados() {
-  this.mapaEstados.clear();
-
-  this.estadosProceso.forEach(e => {
-    const codigo = String(e.codigo || '').trim();
-    this.mapaEstados.set(codigo, e);
-  });
-
- //console.log('🧩 Mapa de estados construido:', this.mapaEstados.size);
-}
-
-mapaEstados: Map<string, any> = new Map();
+  mapaEstados: Map<string, any> = new Map();
 
   cargarOperaciones() {
     const tipo = 'empernador';
@@ -199,10 +196,7 @@ mapaEstados: Map<string, any> = new Map();
     this.operacionesService.getAllAprobados<OperacionSostenimiento>(tipo).subscribe({
       next: (resp) => {
         this.operacionesOriginal = resp.data;
-
         console.log('🔥 DATA OPERACIONES:', this.operacionesOriginal);
-
-        // 🔥 SOLO ESTO
         this.aplicarFiltro();
       },
       error: (err) => {
@@ -274,15 +268,13 @@ mapaEstados: Map<string, any> = new Map();
     this.dataLaborFRDetallado = this.procesarLaborFRDetallado();
 
     this.construirGanttDataNuevo();
-
-    //console.log('🔥 DATA DISPAROS EQUIPO:', this.dataDisparosEquipo);
   }
 
   // =========================================
   // 🔥 FILTRO POR FECHA
   // =========================================
   aplicarFiltro() {
-    this.turnoAplicado = this.turnoSeleccionado; // 🔥 CLAVE
+    this.turnoAplicado = this.turnoSeleccionado;
 
     this.operacionesFiltradas = this.operacionesOriginal.filter((op) => {
       if (this.fechaInicio && op.fecha < this.fechaInicio) return false;
@@ -309,12 +301,9 @@ mapaEstados: Map<string, any> = new Map();
   private getTurnoActual(): string {
     const hora = new Date().getHours();
 
-    // Día: 07:00 - 18:59
     if (hora >= 7 && hora < 19) {
       return 'DÍA';
     }
-
-    // Noche: 19:00 - 06:59
     return 'NOCHE';
   }
 
@@ -324,6 +313,48 @@ mapaEstados: Map<string, any> = new Map();
     const month = String(hoy.getMonth() + 1).padStart(2, '0');
     const day = String(hoy.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+  }
+
+  // =========================================
+  // 🔥 HELPERS NUEVO FORMATO (perno/malla/perforacion son ARRAYS)
+  // =========================================
+  private getPerno(opReg: any): any {
+    if (!opReg?.perno) return {};
+    return Array.isArray(opReg.perno) ? (opReg.perno[0] || {}) : opReg.perno;
+  }
+
+  private getMalla(opReg: any): any {
+    if (!opReg?.malla) return {};
+    return Array.isArray(opReg.malla) ? (opReg.malla[0] || {}) : opReg.malla;
+  }
+
+  private getPerforacion(opReg: any): any {
+    if (!opReg?.perforacion) return {};
+    return Array.isArray(opReg.perforacion) ? (opReg.perforacion[0] || {}) : opReg.perforacion;
+  }
+
+  private getNPernos(opReg: any): number {
+    return Number(this.getPerno(opReg).n_pernos_instalados) || 0;
+  }
+
+  private getLogPernos(opReg: any): number {
+    return Number(this.getPerno(opReg).log_pernos) || 0;
+  }
+
+  private getTipoPernos(opReg: any): string {
+    return this.getPerno(opReg).tipo_pernos || 'SIN_TIPO';
+  }
+
+  private getMt52Malla(opReg: any): number {
+    return Number(this.getMalla(opReg).mt52_malla) || 0;
+  }
+
+  private getNTaladros(opReg: any): number {
+    return Number(this.getPerforacion(opReg).n_taladros) || 0;
+  }
+
+  private getLongitudPerforacion(opReg: any): number {
+    return Number(this.getPerforacion(opReg).longitud_perforacion) || 0;
   }
 
   async generarPDF(): Promise<void> {
@@ -433,6 +464,7 @@ mapaEstados: Map<string, any> = new Map();
   }
 
   //METROS PERFORADOS----------------
+  // 🔥 CAMBIO NUEVO FORMATO
   calcularMetrosPerforados(registrosArray: any[]): number {
     if (!Array.isArray(registrosArray)) {
       return 0;
@@ -446,8 +478,9 @@ mapaEstados: Map<string, any> = new Map();
       try {
         const op = registro.operacion || registro;
 
-        const nPernos = Number(op.n_pernos_instalados) || 0;
-        const longPerno = Number(op.log_pernos) || 0;
+        // 🔥 CAMBIO NUEVO FORMATO: acceder a op.perno[0]
+        const nPernos = this.getNPernos(op);
+        const longPerno = this.getLogPernos(op);
 
         const metrosRegistro = nPernos * longPerno * 0.3048;
 
@@ -461,9 +494,9 @@ mapaEstados: Map<string, any> = new Map();
   }
 
   //GRAFICO 1
+  // 🔥 CAMBIO NUEVO FORMATO
   procesarResumen() {
     let totalMetros = 0;
-
     let totalLaboresSostenidas = 0;
     let totalPernos = 0;
 
@@ -472,7 +505,6 @@ mapaEstados: Map<string, any> = new Map();
 
     this.operacionesFiltradas.forEach((op) => {
       const modeloEquipo = `${op.equipo}-${op.n_equipo}`;
-
       equiposSet.add(modeloEquipo);
 
       try {
@@ -484,8 +516,9 @@ mapaEstados: Map<string, any> = new Map();
 
             const opReg = registro.operacion || registro;
 
-            const nPernos = Number(opReg.n_pernos_instalados) || 0;
-            const longPerno = Number(opReg.log_pernos) || 0;
+            // 🔥 CAMBIO NUEVO FORMATO
+            const nPernos = this.getNPernos(opReg);
+            const longPerno = this.getLogPernos(opReg);
 
             const metrosRegistro = nPernos * longPerno * 0.3048;
 
@@ -509,7 +542,6 @@ mapaEstados: Map<string, any> = new Map();
     });
 
     const nDias = fechasSet.size;
-
     const nPernoDia = nDias > 0 ? totalPernos / nDias : 0;
 
     this.resumen = {
@@ -518,29 +550,20 @@ mapaEstados: Map<string, any> = new Map();
       nPernoDia: Number(nPernoDia.toFixed(2)),
       totalMetros: Number(totalMetros.toFixed(0)),
     };
-
-    //console.log('📊 RESUMEN FINAL:', this.resumen);
   }
 
   //GRAFICO 2
-
   private construirLaborReal(opReg: any): string {
-    // const nivel = (opReg.nivel || '').trim();
     const tipo = (opReg.tipo_labor || '').trim();
     const labor = (opReg.labor || '').trim();
     const ala = (opReg.ala || '').trim();
-
-    // return `${nivel}|${tipo}|${labor}|${ala}`;
     return `${tipo}|${labor}|${ala}`;
   }
 
   private construirLaborPlan(plan: any): string {
-    // const nivel = (plan.nivel || '').trim();
     const tipo = (plan.tipo_labor || '').trim();
     const labor = (plan.labor || '').trim();
     const ala = (plan.ala || '').trim();
-
-    // return `${nivel}|${tipo}|${labor}|${ala}`;
     return `${tipo}|${labor}|${ala}`;
   }
 
@@ -549,11 +572,8 @@ mapaEstados: Map<string, any> = new Map();
 
     this.planesMensuales.forEach((plan) => {
       const key = this.construirLaborPlan(plan);
-
       mapa.set(key, plan);
     });
-
-    //console.log('🗺️ MAPA PLANES:', mapa);
 
     return mapa;
   }
@@ -563,41 +583,26 @@ mapaEstados: Map<string, any> = new Map();
     mapaPlanes: Map<string, any>,
   ): string {
     const key = this.construirLaborReal(opReg);
-
     const plan = mapaPlanes.get(key);
 
     if (!plan) {
-      //console.warn('❌ SIN MATCH PLAN:', key, opReg);
       return 'SIN_PLAN';
     }
 
     const ancho = Number(plan.ancho_m) || 0;
-    const alto = Number(plan.alto_m) || 0; // ⚠️ aquí debes confirmar cuál es "alto" real
+    const alto = Number(plan.alto_m) || 0;
 
-    const seccionLabor = `${ancho}x${alto}`;
-
-    // console.log('✅ MATCH:', {
-    //   key,
-    //   seccionLabor,
-    //   plan
-    // });
-
-    return seccionLabor;
+    return `${ancho}x${alto}`;
   }
 
+  // 🔥 CAMBIO NUEVO FORMATO
   PernosPorEquipo() {
     const resultadoMap = new Map<string, any>();
-
-    //const equiposValidos = ['BOLTER-3', 'BOLTER-5', 'BOLTER-7'];
-
-    // 🔥 crear mapa del plan UNA sola vez
     const mapaPlanes = this.crearMapaPlanes();
 
     this.operacionesFiltradas.forEach((op) => {
       const modeloEquipo = `${op.equipo}-${op.n_equipo}`;
       const seccion = op.seccion || 'SIN_SECCION';
-
-      //if (!equiposValidos.includes(modeloEquipo)) return;
 
       const registrosArray = op.registros;
       if (!Array.isArray(registrosArray)) return;
@@ -607,15 +612,13 @@ mapaEstados: Map<string, any> = new Map();
 
         const opReg = registro.operacion || registro;
 
-        const tipoPernos = opReg.tipo_pernos || 'SIN_TIPO';
-        const nPernos = Number(opReg.n_pernos_instalados) || 0;
+        // 🔥 CAMBIO NUEVO FORMATO
+        const tipoPernos = this.getTipoPernos(opReg);
+        const nPernos = this.getNPernos(opReg);
 
         if (nPernos <= 0) continue;
 
-        // 🔥 NUEVO: obtener sección del plan
         const seccionLabor = this.obtenerSeccionLabor(opReg, mapaPlanes);
-
-        // 🔑 NUEVA clave (incluye secciónLabor)
         const key = `${seccion}|${modeloEquipo}|${tipoPernos}|${seccionLabor}`;
 
         if (!resultadoMap.has(key)) {
@@ -623,7 +626,7 @@ mapaEstados: Map<string, any> = new Map();
             seccion,
             modeloEquipo,
             tipoPernos,
-            seccionLabor, // 🔥 nuevo campo
+            seccionLabor,
             totalPernos: 0,
           });
         }
@@ -632,15 +635,11 @@ mapaEstados: Map<string, any> = new Map();
       }
     });
 
-    const resultado = Array.from(resultadoMap.values());
-
-    //console.log('📊 DATA GRAFICO 2 (Pernos por Equipo):', resultado);
-
-    return resultado;
+    return Array.from(resultadoMap.values());
   }
 
   //Grafico 2-2
-
+  // 🔥 CAMBIO NUEVO FORMATO
   procesarPernosPorDia() {
     const mapa = new Map<string, number>();
 
@@ -652,7 +651,6 @@ mapaEstados: Map<string, any> = new Map();
 
         const fecha = op.fecha || 'SIN_FECHA';
         const turno = op.turno || 'SIN_TURNO';
-
         const key = `${fecha}|${turno}`;
 
         let totalPernosDia = 0;
@@ -662,29 +660,24 @@ mapaEstados: Map<string, any> = new Map();
 
           const opReg = registro.operacion || registro;
 
-          const nPernos = Number(opReg.n_pernos_instalados) || 0;
+          // 🔥 CAMBIO NUEVO FORMATO
+          const nPernos = this.getNPernos(opReg);
 
           if (nPernos <= 0) continue;
-
           totalPernosDia += nPernos;
         }
 
-        // 🔥 acumular igual que disparos
         if (mapa.has(key)) {
           mapa.set(key, mapa.get(key)! + totalPernosDia);
         } else {
           mapa.set(key, totalPernosDia);
         }
-      } catch (error) {
-        // opcional log
-      }
+      } catch (error) {}
     });
 
-    // 🔥 salida final igual que disparos
     return Array.from(mapa.entries())
       .map(([key, totalPernos]) => {
         const [fecha, turno] = key.split('|');
-
         return {
           fecha,
           turno,
@@ -698,17 +691,13 @@ mapaEstados: Map<string, any> = new Map();
   }
 
   //Grafico 3
+  // 🔥 CAMBIO NUEVO FORMATO
   PernosPorLabor() {
     const resultadoMap = new Map<string, any>();
-
-    //const equiposValidos = ['BOLTER-3', 'BOLTER-5'];
-
     const mapaPlanes = this.crearMapaPlanes();
 
     this.operacionesFiltradas.forEach((op) => {
-      const modeloEquipo = `${op.equipo}-${op.n_equipo}`; // 🔥 agregar esto
-      //if (!equiposValidos.includes(modeloEquipo)) return; // 🔥 filtro
-
+      const modeloEquipo = `${op.equipo}-${op.n_equipo}`;
       const seccion = op.seccion || 'SIN_SECCION';
 
       const registrosArray = op.registros;
@@ -719,8 +708,9 @@ mapaEstados: Map<string, any> = new Map();
 
         const opReg = registro.operacion || registro;
 
-        const tipoPernos = opReg.tipo_pernos || 'SIN_TIPO';
-        const nPernos = Number(opReg.n_pernos_instalados) || 0;
+        // 🔥 CAMBIO NUEVO FORMATO
+        const tipoPernos = this.getTipoPernos(opReg);
+        const nPernos = this.getNPernos(opReg);
 
         if (nPernos <= 0) continue;
 
@@ -729,9 +719,7 @@ mapaEstados: Map<string, any> = new Map();
         const ala = (opReg.ala || '').trim();
 
         const laborCompleta = `${tipo}${labor}${ala}`;
-
         const seccionLabor = this.obtenerSeccionLabor(opReg, mapaPlanes);
-
         const key = `${seccion}|${laborCompleta}|${tipoPernos}|${seccionLabor}`;
 
         if (!resultadoMap.has(key)) {
@@ -753,20 +741,15 @@ mapaEstados: Map<string, any> = new Map();
 
   //GRAFICO 4
   ProcesarDMyUTI() {
-    //const equiposValidos = ['BOLTER-3', 'BOLTER-5'];
-
     const mapa = new Map<string, any>();
 
     this.operacionesFiltradas.forEach((op) => {
       const modeloEquipo = `${op.equipo}-${op.n_equipo}`;
       const seccion = op.seccion || 'SIN_SECCION';
 
-      //if (!equiposValidos.includes(modeloEquipo)) return;
-
       const registros = op.registros;
       if (!Array.isArray(registros)) return;
 
-      // 🔑 clave por equipo + sección
       const key = `${modeloEquipo}|${seccion}`;
 
       if (!mapa.has(key)) {
@@ -780,35 +763,20 @@ mapaEstados: Map<string, any> = new Map();
       }
 
       const grupo = mapa.get(key);
-
-      // 🔥 1. CONTAR OPERACIÓN (NO registros)
       grupo.n_operaciones++;
 
-      // 🔥 2. DURACIONES
-      const mantenimiento = this.calcularDuracionPorEstado(
-        registros,
-        'MANTENIMIENTO',
-      );
-      const demoras206 = this.calcularDuracionPorEstado(
-        registros,
-        'DEMORA',
-        '206',
-      );
+      const mantenimiento = this.calcularDuracionPorEstado(registros, 'MANTENIMIENTO');
+      const demoras206 = this.calcularDuracionPorEstado(registros, 'DEMORA', '206');
 
       const horasMantenimiento = mantenimiento + demoras206;
-
       grupo.horas_mantenimiento += horasMantenimiento;
 
-      // 🔥 3. HORAS TRABAJADAS
       const horasTrabajadas = this.calcularHorasTrabajadas(op);
-
       grupo.horas_trabajadas += horasTrabajadas;
     });
 
-    // 🔥 TRANSFORMACIÓN FINAL (como DAX)
     const resultado = Array.from(mapa.values()).map((item) => {
       const HayRegistros = item.n_operaciones > 0;
-
       const HorasProgramadas = item.n_operaciones * 10;
 
       const HorasMantenimientoAjustado =
@@ -816,19 +784,13 @@ mapaEstados: Map<string, any> = new Map();
           ? 0.5 * item.n_operaciones
           : item.horas_mantenimiento;
 
-      // 🔥 DM_SOS
       let DM_SOS = null;
-
       if (HayRegistros && HorasProgramadas > 0) {
-        DM_SOS =
-          (HorasProgramadas - HorasMantenimientoAjustado) / HorasProgramadas;
+        DM_SOS = (HorasProgramadas - HorasMantenimientoAjustado) / HorasProgramadas;
       }
 
-      // 🔥 UTI_SOS
       const denominador = HorasProgramadas - HorasMantenimientoAjustado;
-
       let UTI_SOS = null;
-
       if (HayRegistros && denominador > 0) {
         UTI_SOS = item.horas_trabajadas / denominador;
       }
@@ -836,10 +798,8 @@ mapaEstados: Map<string, any> = new Map();
       return {
         modeloEquipo: item.modeloEquipo,
         seccion: item.seccion,
-
         DM_SOS: DM_SOS !== null ? Number(DM_SOS.toFixed(4)) : null,
         UTI_SOS: UTI_SOS !== null ? Number(UTI_SOS.toFixed(4)) : null,
-
         HorasProgramadas,
         HorasMantenimiento: item.horas_mantenimiento,
         HorasMantenimientoAjustado,
@@ -848,10 +808,9 @@ mapaEstados: Map<string, any> = new Map();
       };
     });
 
-    //console.log('📊 DM_SOS + UTI_SOS POR EQUIPO:', resultado);
-
     return resultado;
   }
+
   calcularDuracionPorEstado(
     registros: any[],
     estadoBuscado: string,
@@ -862,7 +821,6 @@ mapaEstados: Map<string, any> = new Map();
     for (const r of registros) {
       if (r.estado === estadoBuscado) {
         if (codigo && r.codigo !== codigo) continue;
-
         total += this.calcularDuracionHoras(r.hora_inicio, r.hora_final);
       }
     }
@@ -889,7 +847,6 @@ mapaEstados: Map<string, any> = new Map();
     let inicio = h1 * 60 + m1;
     let fin = h2 * 60 + m2;
 
-    // 🔥 si cruza medianoche
     if (fin < inicio) {
       fin += 24 * 60;
     }
@@ -900,25 +857,16 @@ mapaEstados: Map<string, any> = new Map();
   //Grafico 5
   procesarDemorasOperativas() {
     const mapa = new Map<string, any>();
-    const tiposEstados = this.getTiposEstadosSOS(); // Obtiene SOLO los 8 estados
+    const tiposEstados = this.getTiposEstadosSOS();
     const equiposUnicos = new Set<string>();
 
-    // 🔥 Lista de códigos permitidos (solo estos 8)
     const codigosPermitidos = new Set([
-      '201',
-      '202',
-      '203',
-      '204',
-      '205',
-      '207',
-      '208',
-      '211',
+      '201', '202', '203', '204', '205', '207', '208', '211',
     ]);
 
     this.operacionesFiltradas.forEach((op) => {
       const modeloEquipo = `${op.equipo}-${op.n_equipo}`;
 
-      // DISTINCTCOUNT
       if (modeloEquipo) {
         equiposUnicos.add(modeloEquipo);
       }
@@ -927,32 +875,24 @@ mapaEstados: Map<string, any> = new Map();
       if (!Array.isArray(registros)) return;
 
       registros.forEach((r) => {
-        // 🔥 FILTRO CRÍTICO: Solo procesar si el código está en la lista permitida
         if (!codigosPermitidos.has(r.codigo)) return;
 
         const tipo = tiposEstados[r.codigo];
-        if (!tipo) return; // Por seguridad, aunque debería existir
+        if (!tipo) return;
 
-        const duracion = this.calcularDuracionHoras(
-          r.hora_inicio,
-          r.hora_final!,
-        );
+        const duracion = this.calcularDuracionHoras(r.hora_inicio, r.hora_final!);
         if (!duracion || duracion <= 0) return;
 
         if (mapa.has(tipo)) {
           mapa.get(tipo).horas += duracion;
         } else {
-          mapa.set(tipo, {
-            tipo_estado: tipo,
-            horas: duracion,
-          });
+          mapa.set(tipo, { tipo_estado: tipo, horas: duracion });
         }
       });
     });
 
     const nEquipos = equiposUnicos.size;
 
-    // Convertir a array (ya solo contiene los 8 estados filtrados)
     let resultado = Array.from(mapa.values())
       .filter((x) => x.horas > 0)
       .map((x) => ({
@@ -961,22 +901,16 @@ mapaEstados: Map<string, any> = new Map();
         promedio: nEquipos > 0 ? x.horas / nEquipos : 0,
       }));
 
-    // RANKX DESC (solo entre los 8 estados)
     resultado.sort((a, b) => b.horas - a.horas);
 
-    // RANK DENSE
     let rank = 1;
     resultado = resultado.map((item, index, arr) => {
       if (index > 0 && item.horas < arr[index - 1].horas) {
         rank = index + 1;
       }
-      return {
-        ...item,
-        rank,
-      };
+      return { ...item, rank };
     });
 
-    // ACUMULADO (solo entre los 8 estados)
     let acumulado = 0;
     const totalHoras = resultado.reduce((sum, x) => sum + x.horas, 0);
 
@@ -989,7 +923,6 @@ mapaEstados: Map<string, any> = new Map();
       };
     });
 
-    //console.log('📊 ESTADOS SOS (solo 8 estados):', resultado);
     return resultado;
   }
 
@@ -999,6 +932,8 @@ mapaEstados: Map<string, any> = new Map();
       // OPERATIVO
       '101': 'Limpieza de mineral',
       '102': 'Perforación de repaso en mineral',
+      '103': 'Perforación de limpieza',              // 🔥 NUEVO
+      '106': 'Traslado / movimiento',                 // 🔥 NUEVO
       '111': 'Perforación en desmonte',
       '112': 'Perforación de repaso en desmonte',
       '120': 'Perforación para sostenimiento',
@@ -1026,6 +961,8 @@ mapaEstados: Map<string, any> = new Map();
       '301': 'Mp inicial/final',
       '302': 'Mantenimiento programado',
       '303': 'Mantenimiento correctivo',
+      '306': 'Mantenimiento varios',                  // 🔥 NUEVO
+      '307': 'Mantenimiento adicional',               // 🔥 NUEVO
 
       // RESERVA
       '401': 'Reserva',
@@ -1034,28 +971,20 @@ mapaEstados: Map<string, any> = new Map();
       '501': 'Fuera De Plan',
     };
   }
+
   //Grafico 6
   procesarDemorasInoperativas() {
     const mapa = new Map<string, any>();
-    const tiposEstados = this.getTiposEstadosSOS(); // Obtiene SOLO los 8 estados
+    const tiposEstados = this.getTiposEstadosSOS();
     const equiposUnicos = new Set<string>();
 
-    // 🔥 Lista de códigos permitidos (solo estos 8)
     const codigosPermitidos = new Set([
-      '209',
-      '210',
-      '212',
-      '213',
-      '214',
-      '215',
-      '216',
-      '217',
+      '209', '210', '212', '213', '214', '215', '216', '217',
     ]);
 
     this.operacionesFiltradas.forEach((op) => {
       const modeloEquipo = `${op.equipo}-${op.n_equipo}`;
 
-      // DISTINCTCOUNT
       if (modeloEquipo) {
         equiposUnicos.add(modeloEquipo);
       }
@@ -1064,32 +993,24 @@ mapaEstados: Map<string, any> = new Map();
       if (!Array.isArray(registros)) return;
 
       registros.forEach((r) => {
-        // 🔥 FILTRO CRÍTICO: Solo procesar si el código está en la lista permitida
         if (!codigosPermitidos.has(r.codigo)) return;
 
         const tipo = tiposEstados[r.codigo];
-        if (!tipo) return; // Por seguridad, aunque debería existir
+        if (!tipo) return;
 
-        const duracion = this.calcularDuracionHoras(
-          r.hora_inicio,
-          r.hora_final!
-        );
+        const duracion = this.calcularDuracionHoras(r.hora_inicio, r.hora_final!);
         if (!duracion || duracion <= 0) return;
 
         if (mapa.has(tipo)) {
           mapa.get(tipo).horas += duracion;
         } else {
-          mapa.set(tipo, {
-            tipo_estado: tipo,
-            horas: duracion,
-          });
+          mapa.set(tipo, { tipo_estado: tipo, horas: duracion });
         }
       });
     });
 
     const nEquipos = equiposUnicos.size;
 
-    // Convertir a array (ya solo contiene los 8 estados filtrados)
     let resultado = Array.from(mapa.values())
       .filter((x) => x.horas > 0)
       .map((x) => ({
@@ -1098,22 +1019,16 @@ mapaEstados: Map<string, any> = new Map();
         promedio: nEquipos > 0 ? x.horas / nEquipos : 0,
       }));
 
-    // RANKX DESC (solo entre los 8 estados)
     resultado.sort((a, b) => b.horas - a.horas);
 
-    // RANK DENSE
     let rank = 1;
     resultado = resultado.map((item, index, arr) => {
       if (index > 0 && item.horas < arr[index - 1].horas) {
         rank = index + 1;
       }
-      return {
-        ...item,
-        rank,
-      };
+      return { ...item, rank };
     });
 
-    // ACUMULADO (solo entre los 8 estados)
     let acumulado = 0;
     const totalHoras = resultado.reduce((sum, x) => sum + x.horas, 0);
 
@@ -1126,23 +1041,20 @@ mapaEstados: Map<string, any> = new Map();
       };
     });
 
-    //console.log('📊 ESTADOS SOS (solo 8 estados):', resultado);
     return resultado;
   }
 
   //Grafico 7
   procesarHorasMantenimiento() {
     const mapa = new Map<string, any>();
-    const tiposEstados = this.getTiposEstadosSOS(); // Obtiene SOLO los 8 estados
+    const tiposEstados = this.getTiposEstadosSOS();
     const equiposUnicos = new Set<string>();
 
-    // 🔥 Lista de códigos permitidos (solo estos 8)
     const codigosPermitidos = new Set(['301', '302', '303', '206']);
 
     this.operacionesFiltradas.forEach((op) => {
       const modeloEquipo = `${op.equipo}-${op.n_equipo}`;
 
-      // DISTINCTCOUNT
       if (modeloEquipo) {
         equiposUnicos.add(modeloEquipo);
       }
@@ -1151,32 +1063,24 @@ mapaEstados: Map<string, any> = new Map();
       if (!Array.isArray(registros)) return;
 
       registros.forEach((r) => {
-        // 🔥 FILTRO CRÍTICO: Solo procesar si el código está en la lista permitida
         if (!codigosPermitidos.has(r.codigo)) return;
 
         const tipo = tiposEstados[r.codigo];
-        if (!tipo) return; // Por seguridad, aunque debería existir
+        if (!tipo) return;
 
-        const duracion = this.calcularDuracionHoras(
-          r.hora_inicio,
-          r.hora_final!,
-        );
+        const duracion = this.calcularDuracionHoras(r.hora_inicio, r.hora_final!);
         if (!duracion || duracion <= 0) return;
 
         if (mapa.has(tipo)) {
           mapa.get(tipo).horas += duracion;
         } else {
-          mapa.set(tipo, {
-            tipo_estado: tipo,
-            horas: duracion,
-          });
+          mapa.set(tipo, { tipo_estado: tipo, horas: duracion });
         }
       });
     });
 
     const nEquipos = equiposUnicos.size;
 
-    // Convertir a array (ya solo contiene los 8 estados filtrados)
     let resultado = Array.from(mapa.values())
       .filter((x) => x.horas > 0)
       .map((x) => ({
@@ -1185,22 +1089,16 @@ mapaEstados: Map<string, any> = new Map();
         promedio: nEquipos > 0 ? x.horas / nEquipos : 0,
       }));
 
-    // RANKX DESC (solo entre los 8 estados)
     resultado.sort((a, b) => b.horas - a.horas);
 
-    // RANK DENSE
     let rank = 1;
     resultado = resultado.map((item, index, arr) => {
       if (index > 0 && item.horas < arr[index - 1].horas) {
         rank = index + 1;
       }
-      return {
-        ...item,
-        rank,
-      };
+      return { ...item, rank };
     });
 
-    // ACUMULADO (solo entre los 8 estados)
     let acumulado = 0;
     const totalHoras = resultado.reduce((sum, x) => sum + x.horas, 0);
 
@@ -1213,65 +1111,49 @@ mapaEstados: Map<string, any> = new Map();
       };
     });
 
-    //console.log('📊 ESTADOS SOS (solo 8 estados):', resultado);
     return resultado;
   }
 
   // Grafico 8
+  // 🔥 CAMBIO NUEVO FORMATO
   ProcesarPernosInstalados() {
-    //const equiposValidos = ['BOLTER-3', 'BOLTER-5'];
-
     const mapa = new Map<string, any>();
 
     this.operacionesFiltradas.forEach((op) => {
       const modeloEquipo = `${op.equipo}-${op.n_equipo}`;
-      //if (!equiposValidos.includes(modeloEquipo)) return;
 
       const registros = op.registros;
       if (!Array.isArray(registros)) return;
 
       registros.forEach((registro) => {
-        // 🔥 solo OPERATIVO (igual que antes)
         if (registro.estado !== 'OPERATIVO') return;
 
         const opReg = registro.operacion || registro;
 
-        const tipoPernos = opReg.tipo_pernos || 'SIN_TIPO';
-        const nPernos = Number(opReg.n_pernos_instalados) || 0;
+        // 🔥 CAMBIO NUEVO FORMATO
+        const tipoPernos = this.getTipoPernos(opReg);
+        const nPernos = this.getNPernos(opReg);
 
         if (nPernos <= 0) return;
 
         if (mapa.has(tipoPernos)) {
           mapa.get(tipoPernos).total += nPernos;
         } else {
-          mapa.set(tipoPernos, {
-            tipoPernos,
-            total: nPernos,
-          });
+          mapa.set(tipoPernos, { tipoPernos, total: nPernos });
         }
       });
     });
 
-    const resultado = Array.from(mapa.values());
-
-    //console.log('📊 PERNOS INSTALADOS POR TIPO:', resultado);
-
-    return resultado;
+    return Array.from(mapa.values());
   }
 
   //Grafico 9
-
   ProcesarMHrEquipo() {
-    //const equiposValidos = ['BOLTER-3', 'BOLTER-5'];
-
     const mapa = new Map<string, any>();
 
     this.operacionesFiltradas.forEach((op) => {
       const modeloEquipo = `${op.equipo}-${op.n_equipo}`;
       const seccion = op.seccion || 'SIN_SECCION';
-
-      // 🔥 filtro igual que los demás
-      //if (!equiposValidos.includes(modeloEquipo)) return;
 
       const registros = op.registros;
       if (!Array.isArray(registros)) return;
@@ -1289,11 +1171,9 @@ mapaEstados: Map<string, any> = new Map();
 
       const grupo = mapa.get(key);
 
-      // 🔥 1. METROS (ya tienes la función)
       const metros = this.calcularMetrosPerforados(registros);
       grupo.metros += metros;
 
-      // 🔥 2. HORAS PERCUSIÓN (como diesel/eléctrico)
       const percusion = (op.horometros as any)?.percusion;
 
       if (percusion) {
@@ -1302,41 +1182,31 @@ mapaEstados: Map<string, any> = new Map();
       }
     });
 
-    // 🔥 CALCULO FINAL (DIVIDE como DAX)
     const resultado = Array.from(mapa.values()).map((item) => {
-      const mh =
-        item.horasPercusion > 0 ? item.metros / item.horasPercusion : 0;
+      const mh = item.horasPercusion > 0 ? item.metros / item.horasPercusion : 0;
 
       return {
         seccion: item.seccion,
         modeloEquipo: item.modeloEquipo,
         metros: Number(item.metros.toFixed(2)),
         horasPercusion: Number(item.horasPercusion.toFixed(2)),
-        MH: Math.round(mh), // 🔥 indicador final
+        MH: Math.round(mh),
       };
     });
-
-    //console.log('📊 M/Hr POR EQUIPO:', resultado);
 
     return resultado;
   }
 
   //Grafico 10
   ProcesarMetrosPerforadosEquipo() {
-    //const equiposValidos = ['BOLTER-3', 'BOLTER-5'];
-
     const mapa = new Map<string, number>();
 
     this.operacionesFiltradas.forEach((op) => {
       const modeloEquipo = `${op.equipo}-${op.n_equipo}`;
 
-      // 🔥 filtro
-      //if (!equiposValidos.includes(modeloEquipo)) return;
-
       const registros = op.registros;
       if (!Array.isArray(registros)) return;
 
-      // 🔥 calcular metros
       const metros = this.calcularMetrosPerforados(registros);
 
       if (mapa.has(modeloEquipo)) {
@@ -1349,26 +1219,19 @@ mapaEstados: Map<string, any> = new Map();
     const resultado = Array.from(mapa.entries()).map(
       ([modeloEquipo, metros]) => ({
         modeloEquipo,
-        metros: Math.round(metros), // 🔥 redondeo final
+        metros: Math.round(metros),
       }),
     );
-
-    //console.log('📊 METROS PERFORADOS POR EQUIPO:', resultado);
 
     return resultado;
   }
 
   //Grafico 11
   ProcesarHorometrosEquipo() {
-    //const equiposValidos = ['BOLTER-3', 'BOLTER-5'];
-
     const mapa = new Map<string, any>();
 
     this.operacionesFiltradas.forEach((op) => {
       const modeloEquipo = `${op.equipo}-${op.n_equipo}`;
-
-      // 🔥 filtro
-      //if (!equiposValidos.includes(modeloEquipo)) return;
 
       const horometros = op.horometros as any;
 
@@ -1383,54 +1246,37 @@ mapaEstados: Map<string, any> = new Map();
 
       const grupo = mapa.get(modeloEquipo);
 
-      // 🔥 DIESEL
       if (horometros?.diesel) {
         const diffDiesel =
-          Number(horometros.diesel.final) - Number(horometros.diesel.inicio) ||
-          0;
-
+          Number(horometros.diesel.final) - Number(horometros.diesel.inicio) || 0;
         grupo.diesel += Number(diffDiesel.toFixed(2));
       }
 
-      // 🔥 ELECTRICO
       if (horometros?.electrico) {
         const diffElectrico =
-          Number(horometros.electrico.final) -
-            Number(horometros.electrico.inicio) || 0;
-
+          Number(horometros.electrico.final) - Number(horometros.electrico.inicio) || 0;
         grupo.electrico += Number(diffElectrico.toFixed(2));
       }
 
-      // 🔥 PERCUSION
       if (horometros?.percusion) {
         const diffPercusion =
-          Number(horometros.percusion.final) -
-            Number(horometros.percusion.inicio) || 0;
-
+          Number(horometros.percusion.final) - Number(horometros.percusion.inicio) || 0;
         grupo.percusion += Number(diffPercusion.toFixed(2));
       }
     });
 
     const resultado = Array.from(mapa.values()).map((item) => ({
       modeloEquipo: item.modeloEquipo,
-
-      // 🔥 redondeo final (como pediste antes)
       diesel: Number(item.diesel.toFixed(2)),
       electrico: Number(item.electrico.toFixed(2)),
       percusion: Number(item.percusion.toFixed(2)),
     }));
 
-    //console.log('📊 HORÓMETROS POR EQUIPO:', resultado);
-
     return resultado;
   }
 
   // Grafico 12
-
   ProcesarHorometrosGlobal() {
-    //const equiposValidos = ['BOLTER-3', 'BOLTER-5'];
-
-    // 🔥 acumulador único (sin Map)
     const acumulado = {
       diesel: 0,
       electrico: 0,
@@ -1439,41 +1285,27 @@ mapaEstados: Map<string, any> = new Map();
 
     this.operacionesFiltradas.forEach((op) => {
       const modeloEquipo = `${op.equipo}-${op.n_equipo}`;
-
-      // 🔥 mismo filtro que siempre
-      //if (!equiposValidos.includes(modeloEquipo)) return;
-
       const horometros = op.horometros as any;
 
-      // 🔥 DIESEL
       if (horometros?.diesel) {
         const diffDiesel =
-          Number(horometros.diesel.final) - Number(horometros.diesel.inicio) ||
-          0;
-
+          Number(horometros.diesel.final) - Number(horometros.diesel.inicio) || 0;
         acumulado.diesel += diffDiesel;
       }
 
-      // 🔥 ELÉCTRICO
       if (horometros?.electrico) {
         const diffElectrico =
-          Number(horometros.electrico.final) -
-            Number(horometros.electrico.inicio) || 0;
-
+          Number(horometros.electrico.final) - Number(horometros.electrico.inicio) || 0;
         acumulado.electrico += diffElectrico;
       }
 
-      // 🔥 PERCUSIÓN
       if (horometros?.percusion) {
         const diffPercusion =
-          Number(horometros.percusion.final) -
-            Number(horometros.percusion.inicio) || 0;
-
+          Number(horometros.percusion.final) - Number(horometros.percusion.inicio) || 0;
         acumulado.percusion += diffPercusion;
       }
     });
 
-    // 🔥 resultado FINAL (una sola fila)
     const resultado = [
       {
         diesel: Number(acumulado.diesel.toFixed(2)),
@@ -1482,82 +1314,45 @@ mapaEstados: Map<string, any> = new Map();
       },
     ];
 
-    //console.log('📊 HORÓMETROS GLOBAL:', resultado);
-
     return resultado;
   }
+
   //======================================
   // HOJA 2
   //======================================
 
   // Grafico 13
   procesarHorasNumericas() {
-    //const equiposValidos = ['BOLTER-3', 'BOLTER-5'];
-
-    // 🔥 usa lista (más limpio y escalable)
-    const codigosValidos = ['101', '102', '111', '112', '120', '201'];
+    // 🔥 AGREGADOS 103 y 106
+    const codigosValidos = ['101', '102', '103', '106', '111', '112', '120', '201'];
 
     const result: any[] = [];
-
-    //console.log('🔍 TOTAL operaciones:', this.operacionesFiltradas?.length);
 
     this.operacionesFiltradas.forEach((op, i) => {
       const modeloEquipo = `${op.equipo}-${op.n_equipo}`;
       const fecha = op.fecha || 'SIN_FECHA';
 
-      // console.log(`➡️ OP[${i}]`, {
-      //   modeloEquipo,
-      //   fecha,
-      //   tieneRegistros: Array.isArray(op.registros)
-      // });
-
-      // 🔥 FILTRO DE EQUIPO
-      // if (!equiposValidos.includes(modeloEquipo)) {
-      //   // console.log('⛔ FUERA POR EQUIPO:', modeloEquipo);
-      //   return;
-      // }
-
       const registrosArray = op.registros;
-      if (!Array.isArray(registrosArray)) {
-        // console.log('⛔ SIN REGISTROS ARRAY');
-        return;
-      }
-
-      // console.log(`✅ REGISTROS encontrados: ${registrosArray.length}`);
+      if (!Array.isArray(registrosArray)) return;
 
       registrosArray.forEach((r, j) => {
-        // 🔥 FIX REAL: limpiar codigo
         const codigo = String(r?.codigo ?? '').trim();
 
-        //console.log(`   📌 REG[${j}] codigo: [${codigo}]`);
-
-        // 🔥 FILTRO CODIGO (ahora correcto)
-        if (!codigosValidos.includes(codigo)) {
-          //console.log('   ⛔ DESCARTADO POR CODIGO');
-          return;
-        }
+        if (!codigosValidos.includes(codigo)) return;
 
         const horaStr = r?.hora_inicio;
 
-        if (!horaStr || typeof horaStr !== 'string') {
-          //console.log('   ⛔ HORA INVALIDA:', horaStr);
-          return;
-        }
+        if (!horaStr || typeof horaStr !== 'string') return;
 
         const partes = horaStr.split(':').map(Number);
 
-        if (partes.length < 2 || isNaN(partes[0]) || isNaN(partes[1])) {
-          //console.log('   ⛔ FORMATO HORA MALO:', horaStr);
-          return;
-        }
+        if (partes.length < 2 || isNaN(partes[0]) || isNaN(partes[1])) return;
 
         const h = partes[0] || 0;
         const m = partes[1] || 0;
         const s = partes[2] || 0;
 
         const hora_decimal = Number((h + m / 60 + s / 3600).toFixed(4));
-
-        //console.log('   ✅ OK →', { horaStr, hora_decimal });
 
         result.push({
           modeloEquipo,
@@ -1569,8 +1364,6 @@ mapaEstados: Map<string, any> = new Map();
       });
     });
 
-    //console.log('📊 RESULTADO FINAL:', result);
-
     return result.sort((a, b) => {
       if (a.fecha === b.fecha) {
         return a.hora_decimal - b.hora_decimal;
@@ -1580,20 +1373,13 @@ mapaEstados: Map<string, any> = new Map();
   }
 
   //Grafico 14
-
+  // 🔥 CAMBIO NUEVO FORMATO
   ProcesarPernosPorMinadoTipo() {
-    //const equiposValidos = ['BOLTER-3', 'BOLTER-5'];
-
     const mapa = new Map<string, any>();
-
-    // 🔥 mapa de planes (igual que antes)
     const mapaPlanes = this.crearMapaPlanes();
 
     this.operacionesFiltradas.forEach((op) => {
       const modeloEquipo = `${op.equipo}-${op.n_equipo}`;
-
-      // 🔥 filtro de equipo
-      //if (!equiposValidos.includes(modeloEquipo)) return;
 
       const registros = op.registros;
       if (!Array.isArray(registros)) return;
@@ -1603,56 +1389,37 @@ mapaEstados: Map<string, any> = new Map();
 
         const opReg = registro.operacion || registro;
 
-        // 🔹 pernos
-        const nPernos = Number(opReg.n_pernos_instalados) || 0;
+        // 🔥 CAMBIO NUEVO FORMATO
+        const nPernos = this.getNPernos(opReg);
         if (nPernos <= 0) continue;
 
-        // 🔥 MATCH CON PLAN
         const keyPlan = this.construirLaborReal(opReg);
         const plan = mapaPlanes.get(keyPlan);
-
-        // 🔥 NUEVO: minado_tipo
         const minadoTipo = plan?.minado_tipo || 'SIN_PLAN';
 
-        // 🔑 clave por minado_tipo
         const key = `${minadoTipo}`;
 
         if (!mapa.has(key)) {
-          mapa.set(key, {
-            minado_tipo: minadoTipo,
-            totalPernos: 0,
-          });
+          mapa.set(key, { minado_tipo: minadoTipo, totalPernos: 0 });
         }
 
         mapa.get(key).totalPernos += nPernos;
       }
     });
 
-    const resultado = Array.from(mapa.values());
-
-    //console.log('📊 PERNOS POR MINADO TIPO:', resultado);
-
-    return resultado;
+    return Array.from(mapa.values());
   }
 
   //Grafico 15
-
   procesarLaborFR() {
     const mapa = new Map<string, Map<string, any>>();
-
-    // 👉 (OPCIONAL) si aún quieres filtrar algunos equipos
-    //const equiposValidos = ['BOLTER-3', 'BOLTER-5'];
 
     this.operacionesFiltradas.forEach((op) => {
       const registrosArray = op.registros;
       if (!Array.isArray(registrosArray)) return;
 
-      // 🔥 NUEVO: construir modelo_equipo correctamente
       const modelo =
         op.equipo && op.n_equipo ? `${op.equipo}-${op.n_equipo}` : 'SIN_EQUIPO';
-
-      // 👉 (OPCIONAL) activar filtro
-      //if (equiposValidos.length && !equiposValidos.includes(modelo)) return;
 
       const fecha = op.fecha || 'SIN_FECHA';
 
@@ -1668,7 +1435,6 @@ mapaEstados: Map<string, any> = new Map();
         const [h, m] = hora.split(':').map(Number);
         const horaDecimal = h + m / 60;
 
-        // 🔥 buscamos la MÁS TEMPRANA
         if (horaDecimal < mejorHora) {
           mejorHora = horaDecimal;
           mejorRegistro = r;
@@ -1685,9 +1451,6 @@ mapaEstados: Map<string, any> = new Map();
 
       const labor_fr = `${tipoLabor}${labor}${ala}`;
 
-      // =========================
-      // MAPA por modelo + fecha
-      // =========================
       const key = modelo;
 
       if (!mapa.has(key)) {
@@ -1696,7 +1459,6 @@ mapaEstados: Map<string, any> = new Map();
 
       const mapaFechas = mapa.get(key)!;
 
-      // solo 1 registro por día (primera labor)
       mapaFechas.set(fecha, {
         modelo_equipo: modelo,
         fecha,
@@ -1705,9 +1467,6 @@ mapaEstados: Map<string, any> = new Map();
       });
     });
 
-    // =========================
-    // OUTPUT FINAL
-    // =========================
     const result: any[] = [];
 
     for (const [, fechasMap] of mapa.entries()) {
@@ -1720,18 +1479,13 @@ mapaEstados: Map<string, any> = new Map();
   }
 
   //Grafico 16
-
+  // 🔥 CAMBIO NUEVO FORMATO
   procesarIndicadores() {
     const mapa = new Map<string, any>();
-
-    //const equiposValidos = ['BOLTER-3', 'BOLTER-5'];
 
     this.operacionesFiltradas.forEach((op) => {
       const modelo =
         op.equipo && op.n_equipo ? `${op.equipo}-${op.n_equipo}` : 'SIN_EQUIPO';
-
-      // 🔥 FILTRO DE EQUIPOS
-      //if (!equiposValidos.includes(modelo)) return;
 
       const registros = op.registros;
       if (!Array.isArray(registros)) return;
@@ -1772,27 +1526,25 @@ mapaEstados: Map<string, any> = new Map();
       registros.forEach((r) => {
         if (r.estado !== 'OPERATIVO') return;
 
-        const opData =
-          typeof r.operacion === 'object' && r.operacion !== null
-            ? r.operacion
-            : {};
+        const opData: any =
+  typeof r.operacion === 'object' && r.operacion !== null
+    ? r.operacion
+    : {};
 
-        //const pernos = Number(opData.n_pernos_instalados) || 0;
-        const pernos = 1;
+        // 🔥 CAMBIO NUEVO FORMATO
+        const pernos = this.getNPernos(opData);
         data.n_pernos += pernos;
 
-        //const logPernos = Number(opData.log_pernos) || 0;
-        const logPernos = 1;
+        const logPernos = this.getLogPernos(opData);
 
         if (logPernos > 0) {
           data.log_pernos += logPernos;
           data.log_pernos_count += 1;
         }
 
-        const tipoLabor =  ''; //opData.tipo_labor || '';
-        
-        const labor = ''; //opData.labor || '';
-        const ala = '';  //opData.ala || '';
+        const tipoLabor = opData.tipo_labor || '';
+        const labor = opData.labor || '';
+        const ala = opData.ala || '';
 
         const laborSOS = `${tipoLabor}${labor}${ala}`;
 
@@ -1824,13 +1576,11 @@ mapaEstados: Map<string, any> = new Map();
       });
     });
 
-    //console.log('🚀 RESULTADO INDICADORES:', resultado);
-
     return resultado;
   }
 
   //Grafico 17
-
+  // 🔥 CAMBIO NUEVO FORMATO
   procesarIndicadoresPorLabor() {
     const resultado: any[] = [];
     const mapaPlanes = this.crearMapaPlanes();
@@ -1842,7 +1592,6 @@ mapaEstados: Map<string, any> = new Map();
       const registros = op.registros;
       if (!Array.isArray(registros)) return;
 
-      // 🔥 PERCUSIÓN TOTAL
       const horometros =
         typeof op.horometros === 'object' && op.horometros !== null
           ? (op.horometros as {
@@ -1857,49 +1606,35 @@ mapaEstados: Map<string, any> = new Map();
         (percusionFinal - percusionInicio).toFixed(2),
       );
 
-      // 🔥 repartir percusión
       const totalRegistros = registros.length || 1;
       const percusionPorRegistro = diferenciaPercusion / totalRegistros;
 
       registros.forEach((r) => {
         if (r.estado !== 'OPERATIVO') return;
 
-        const opData =
-          typeof r.operacion === 'object' && r.operacion !== null
-            ? r.operacion
-            : {};
+        const opData: any =
+  typeof r.operacion === 'object' && r.operacion !== null
+    ? r.operacion
+    : {};
 
-        // 🔥 LABOR
-        const tipoLabor =  ''; //opData.tipo_labor || '';
-        const labor = ''; //opData.labor || '';
-        const ala = '';  //opData.ala || '';
+        // 🔥 CAMBIO NUEVO FORMATO
+        const tipoLabor = opData.tipo_labor || '';
+        const labor = opData.labor || '';
+        const ala = opData.ala || '';
 
         const laborRaw = `${tipoLabor}${labor}${ala}`.trim();
         const laborSOS = laborRaw || 'SIN_LABOR';
 
-        // 🔥 SECCIÓN
         const seccionLabor = this.obtenerSeccionLabor(opData, mapaPlanes);
 
-        // 🔥 PERNOS
-        //const pernos = Number(opData.n_pernos_instalados) || 0;
-        const pernos = 1;
+        // 🔥 CAMBIO NUEVO FORMATO
+        const pernos = this.getNPernos(opData);
+        const logPernos = this.getLogPernos(opData);
+        const mt52 = this.getMt52Malla(opData);
+        const tipoPernos = this.getTipoPernos(opData);
 
-        // 🔥 LONGITUD
-        //const logPernos = Number(opData.log_pernos) || 0;
-        const logPernos = 1;
-
-        // 🔥 MT52
-        //const mt52 = Number(opData.mt52_malla) || 0;
-        const mt52 = 1;
-
-        // 🔥 TIPO PERNOS
-        //const tipoPernos = opData.tipo_pernos || '';
-        const tipoPernos = 'SIN_TIPO'; 
-
-        // 🔥 METROS
         const metros = this.calcularMetrosPerforados([r]);
 
-        // 🔥 KPI
         const sos_m_hr_hp =
           percusionPorRegistro > 0 ? metros / percusionPorRegistro : 0;
 
@@ -1927,7 +1662,6 @@ mapaEstados: Map<string, any> = new Map();
   }
 
   // Grafico 18
-
   procesarFrPorOperadorTurno() {
     const mapa = new Map<string, any>();
 
@@ -1940,14 +1674,8 @@ mapaEstados: Map<string, any> = new Map();
 
       const key = `${operador}-${turno}`;
 
-      // =========================
-      // 🔥 METROS PERFORADOS
-      // =========================
       const metros = this.calcularMetrosPerforados(registrosArray);
 
-      // =========================
-      // 🔥 PERCUSIÓN
-      // =========================
       const horo = (op as any)?.horometros;
       const percusion = horo?.percusion;
 
@@ -1956,9 +1684,6 @@ mapaEstados: Map<string, any> = new Map();
           ? Number(percusion.final) - Number(percusion.inicio)
           : 0;
 
-      // =========================
-      // 🔥 MAPA
-      // =========================
       if (!mapa.has(key)) {
         mapa.set(key, {
           operador,
@@ -1975,9 +1700,6 @@ mapaEstados: Map<string, any> = new Map();
       item.dif_percusion += difPercusion;
     });
 
-    // =========================
-    // 🔥 FR FINAL (tipo DAX)
-    // =========================
     for (const item of mapa.values()) {
       item.fr_mhr_hp =
         item.dif_percusion > 0
@@ -1989,7 +1711,6 @@ mapaEstados: Map<string, any> = new Map();
   }
 
   //Grafico 19
-
   procesarLaborFRDetallado() {
     const mapa = new Map<string, any>();
 
@@ -1997,7 +1718,6 @@ mapaEstados: Map<string, any> = new Map();
       const registrosArray = op.registros;
       if (!Array.isArray(registrosArray)) return;
 
-      // 🔥 NUEVO MODELO_EQUIPO (YA NO VIENE DEL BACK)
       const modelo =
         op.equipo && op.n_equipo ? `${op.equipo}-${op.n_equipo}` : 'SIN_EQUIPO';
 
@@ -2012,7 +1732,6 @@ mapaEstados: Map<string, any> = new Map();
 
         const observaciones = operacion?.observaciones;
 
-        // ❌ filtrar observaciones vacías
         if (!observaciones || !observaciones.trim()) return;
 
         const labor_fr = `${tipo_labor}${labor}${ala}`.trim();
@@ -2021,7 +1740,7 @@ mapaEstados: Map<string, any> = new Map();
 
         if (!mapa.has(key)) {
           mapa.set(key, {
-            modelo_equipo: modelo, // 🔥 YA CORREGIDO
+            modelo_equipo: modelo,
             operador,
             labor_fr,
             observaciones,
@@ -2030,7 +1749,6 @@ mapaEstados: Map<string, any> = new Map();
         }
 
         const item = mapa.get(key)!;
-
         item.count += 1;
       });
     });
@@ -2038,100 +1756,81 @@ mapaEstados: Map<string, any> = new Map();
     return Array.from(mapa.values());
   }
 
-
-
   //GANTT
-private construirGanttDataNuevo(): void {
+  private construirGanttDataNuevo(): void {
+    const fechaMap: Record<string, any> = {};
 
-  const fechaMap: Record<string, any> = {};
+    this.operacionesFiltradas.forEach(op => {
+      const fecha = op.fecha || 'SIN_FECHA';
+      const turno = op.turno || 'SIN_TURNO';
+      const equipoCodigo = `${op.equipo} - ${op.n_equipo}`;
 
-  this.operacionesFiltradas.forEach(op => {
+      const key = `${fecha}|${turno}`;
 
-    const fecha = op.fecha || 'SIN_FECHA';
-    const turno = op.turno || 'SIN_TURNO';
-    const equipoCodigo = `${op.equipo} - ${op.n_equipo}`;
-
-    // 🔥 clave combinada
-    const key = `${fecha}|${turno}`;
-
-    if (!fechaMap[key]) {
-      fechaMap[key] = {
-        fecha,
-        turno,
-        equipos: {}
-      };
-    }
-
-    if (!fechaMap[key].equipos[equipoCodigo]) {
-      fechaMap[key].equipos[equipoCodigo] = {};
-    }
-
-    const registros = Array.isArray(op.registros)
-      ? op.registros
-      : [];
-
-    registros.forEach((reg: any) => {
-
-      const estado = (reg.estado || 'SIN ESTADO').toUpperCase().trim();
-      const codigo = String(reg.codigo || '').trim();
-
-      if (!reg.hora_inicio || !reg.hora_final) return;
-
-      // 🔥 MATCH CONTRA MAPA (igual que tu otro proceso)
-      const estadoMatch = this.mapaEstados.get(codigo);
-
-      // 🔥 puedes mantener estado o usar categoría (te dejo listo)
-      const labor = estadoMatch?.estado_principal || estado;
-
-      if (!fechaMap[key].equipos[equipoCodigo][labor]) {
-        fechaMap[key].equipos[equipoCodigo][labor] = [];
+      if (!fechaMap[key]) {
+        fechaMap[key] = {
+          fecha,
+          turno,
+          equipos: {}
+        };
       }
 
-      fechaMap[key].equipos[equipoCodigo][labor].push({
-        start: reg.hora_inicio,
-        end: reg.hora_final,
+      if (!fechaMap[key].equipos[equipoCodigo]) {
+        fechaMap[key].equipos[equipoCodigo] = {};
+      }
 
-        estado,
-        description: codigo,
+      const registros = Array.isArray(op.registros) ? op.registros : [];
 
-        // 🔥 CAMPOS ENRIQUECIDOS
-        tipo_estado: estadoMatch?.tipo_estado || null,
-        categoria: estadoMatch?.categoria || null,
-        estado_principal: estadoMatch?.estado_principal || null
+      registros.forEach((reg: any) => {
+        const estado = (reg.estado || 'SIN ESTADO').toUpperCase().trim();
+        const codigo = String(reg.codigo || '').trim();
+
+        if (!reg.hora_inicio || !reg.hora_final) return;
+
+        const estadoMatch = this.mapaEstados.get(codigo);
+        const labor = estadoMatch?.estado_principal || estado;
+
+        if (!fechaMap[key].equipos[equipoCodigo][labor]) {
+          fechaMap[key].equipos[equipoCodigo][labor] = [];
+        }
+
+        fechaMap[key].equipos[equipoCodigo][labor].push({
+          start: reg.hora_inicio,
+          end: reg.hora_final,
+          estado,
+          description: codigo,
+          tipo_estado: estadoMatch?.tipo_estado || null,
+          categoria: estadoMatch?.categoria || null,
+          estado_principal: estadoMatch?.estado_principal || null
+        });
       });
-
-      // 🔍 debug opcional
-      // if (!estadoMatch) {
-      //   console.warn('❌ SIN MATCH GANTT:', codigo, reg);
-      // }
-
     });
 
-  });
+    this.ganttData = Object.values(fechaMap).map((item: any) => ({
+      fecha: item.fecha,
+      turno: item.turno,
+      groups: Object.entries(item.equipos).map(
+        ([equipoCodigo, labores]: any) => ({
+          equipoCodigo,
+          rows: Object.entries(labores).map(
+            ([labor, tasks]: any) => ({
+              labor,
+              tasks: tasks.sort((a: any, b: any) =>
+                a.start.localeCompare(b.start)
+              )
+            })
+          )
+        })
+      )
+    }));
 
-  // 🔁 NORMALIZACIÓN FINAL
-  this.ganttData = Object.values(fechaMap).map((item: any) => ({
+    console.log('📊 GANTT DATA NUEVO:', this.ganttData);
+  }
 
-    fecha: item.fecha,
-    turno: item.turno,
-
-    groups: Object.entries(item.equipos).map(
-      ([equipoCodigo, labores]: any) => ({
-        equipoCodigo,
-        rows: Object.entries(labores).map(
-          ([labor, tasks]: any) => ({
-            labor,
-            tasks: tasks.sort((a: any, b: any) =>
-              a.start.localeCompare(b.start)
-            )
-          })
-        )
-      })
-    )
-
-  }));
-
-  console.log('📊 GANTT DATA NUEVO:', this.ganttData);
-}
-
+  exportarExcel() {
+    this.excelExportService.exportOperacionesToExcel(
+      this.operacionesFiltradas,
+      'Operaciones'
+    );
+  }
 }
