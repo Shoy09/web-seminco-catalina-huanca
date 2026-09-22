@@ -125,16 +125,13 @@ export class FormularioPerforacionComponent implements OnInit, OnChanges {
     this.cerrar.emit();
   }
 
-  guardarPerforacion() {
-    if (this.validarFormulario()) {
-      console.log('📤 Emitiendo datos perforación:', this.datosPerforacion);
-      this.guardar.emit(this.datosPerforacion);
-      this.formularioInvalido = false;
-    } else {
-      this.formularioInvalido = true;
-      console.warn('⚠️ Formulario inválido: faltan campos obligatorios');
-    }
-  }
+guardarPerforacion() {
+  // 🔥 Ya no validamos obligatoriamente: se puede guardar con campos vacíos
+  console.log('📤 Emitiendo datos perforación:', this.datosPerforacion);
+  this.guardar.emit(this.datosPerforacion);
+  this.formularioInvalido = false;
+  this.cerrar.emit(); // opcional: cierra el formulario al guardar
+}
 
   validarFormulario(): boolean {
     return !!(

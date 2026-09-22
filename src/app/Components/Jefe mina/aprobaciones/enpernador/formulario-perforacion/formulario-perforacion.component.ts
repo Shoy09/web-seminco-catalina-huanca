@@ -191,30 +191,26 @@ export class FormularioPerforacionComponent implements OnInit, OnChanges {
   }
 
   guardarPerforacion() {
-    if (this.validarFormulario()) {
-      const datosAEmitir = {
-        labor: this.datosPerforacion.labor,
-        observaciones: this.datosPerforacion.observaciones,
-        perno: this.datosPerforacion.perno.filter(
-          (p) => p.tipo_pernos && p.tipo_pernos.trim() !== ''
-        ),
-        malla: this.datosPerforacion.malla.filter(
-          (m) => m.tipo_malla && m.tipo_malla.trim() !== ''
-        ),
-        perforacion: this.datosPerforacion.perforacion.filter(
-          (p) => p.longitud_perforacion !== null && p.longitud_perforacion > 0
-        ),
-      };
+  // 🔥 Ya no validamos obligatoriamente, solo filtramos lo que esté vacío
+  const datosAEmitir = {
+    labor: this.datosPerforacion.labor || '',
+    observaciones: this.datosPerforacion.observaciones || '',
+    perno: this.datosPerforacion.perno.filter(
+      (p) => p.tipo_pernos && p.tipo_pernos.trim() !== ''
+    ),
+    malla: this.datosPerforacion.malla.filter(
+      (m) => m.tipo_malla && m.tipo_malla.trim() !== ''
+    ),
+    perforacion: this.datosPerforacion.perforacion.filter(
+      (p) => p.longitud_perforacion !== null && p.longitud_perforacion > 0
+    ),
+  };
 
-      console.log('📤 Emitiendo datos perforación:', datosAEmitir);
-      this.guardar.emit(datosAEmitir);
-      this.formularioInvalido = false;
-      this.cerrar.emit();
-    } else {
-      this.formularioInvalido = true;
-      console.warn('⚠️ Formulario inválido: faltan campos obligatorios');
-    }
-  }
+  console.log('📤 Emitiendo datos perforación:', datosAEmitir);
+  this.guardar.emit(datosAEmitir);
+  this.formularioInvalido = false;
+  this.cerrar.emit();
+}
 
   validarFormulario(): boolean {
     const tienePerforacionValida = this.datosPerforacion.perforacion.some(
