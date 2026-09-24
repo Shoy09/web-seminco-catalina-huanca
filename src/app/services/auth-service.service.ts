@@ -24,7 +24,7 @@ export class AuthService {
   // No es Observable — redirige el navegador directamente a tu backend
   // que a su vez redirige a Microsoft login
   loginConMicrosoft(): void {
-    const apiUrl = 'https://api-seminco-catalina-huanca.vercel.app/api';
+    const apiUrl = 'https://api-catalina-b7fhctc3e7gaf5ca.canadacentral-01.azurewebsites.net/api';
     // Esta URL inicia el flujo OIDC en tu backend
     window.location.href = `${apiUrl}/auth/oidc/login`;
   }
@@ -47,7 +47,7 @@ export class AuthService {
 
   // ── Logout con cierre de sesión en Microsoft también ─────────────────────
   logoutMicrosoft(): void {
-    const apiUrl = 'https://api-seminco-catalina-huanca.vercel.app/api';
+    const apiUrl = 'https://api-catalina-b7fhctc3e7gaf5ca.canadacentral-01.azurewebsites.net/api';
     this.logout(); // limpia localStorage
     // Llama al backend que devuelve la URL de logout de Microsoft
     fetch(`${apiUrl}/auth/logout`, { method: 'POST' })
