@@ -83,6 +83,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Equipo } from '../../../../../models/equipo.model';
 import { PresentacionTlargosDialogComponent } from '../presentacion-tlargos-dialog/presentacion-tlargos-dialog.component';
 import { ExcelTaladroLargoExportService } from 'app/services/Excel/excel-taladro-largo-export.service';
+import { PresentacionGefeGuardiaTlComponent } from '../presentacion-gefe-guardia-tl/presentacion-gefe-guardia-tl.component';
 
 @Component({
   selector: 'app-principal-grafico-largo',
@@ -377,6 +378,30 @@ export class PrincipalGraficoLargoComponent implements OnInit {
         console.log('Diálogo cerrado', result);
       });
     }
+
+    JefeGuardia() {
+  if (!this.operacionesFiltradas || this.operacionesFiltradas.length === 0) {
+    console.warn('No hay datos filtrados para mostrar');
+    return;
+  }
+
+  const dialogRef = this.dialog.open(PresentacionGefeGuardiaTlComponent, {
+    width: '1800px',
+    maxHeight: '90vh',
+    data: {
+      operaciones: this.operacionesFiltradas,
+      turnoAplicado: this.turnoAplicado,
+      fechaInicio: this.fechaInicio,
+      fechaFin: this.fechaFin,
+    },
+    disableClose: false,
+    autoFocus: true,
+  });
+
+  dialogRef.afterClosed().subscribe((result) => {
+    console.log('Diálogo cerrado', result);
+  });
+}
 
   construirMapaEstados() {
     this.mapaEstados.clear();

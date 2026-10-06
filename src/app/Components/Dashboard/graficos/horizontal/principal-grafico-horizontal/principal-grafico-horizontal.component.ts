@@ -58,6 +58,7 @@ import { MttrAnoComponent } from '../../shared/Graficos components/MTBF-MTTR/MTT
 import { PresentacionHorizontalDialogComponent } from '../presentacion-dialog/presentacion-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ExcelHorizontalExportService } from 'app/services/Excel/ExcelHorizontalExportService.service';
+import { PresentacionJefeGuardiaHzComponent } from '../presentacion-jefe-guardia-hz/presentacion-jefe-guardia-hz.component';
 @Component({
   selector: 'app-principal-grafico-horizontal',
   imports: [
@@ -2673,5 +2674,29 @@ exportarExcel() {
       this.operacionesFiltradas, 
       'Operaciones_Horizontales'
     );
+  }
+
+  JefeGuardia() {
+    if (!this.operacionesFiltradas || this.operacionesFiltradas.length === 0) {
+      console.warn('No hay datos filtrados para mostrar');
+      return;
+    }
+  
+    const dialogRef = this.dialog.open(PresentacionJefeGuardiaHzComponent, {
+      width: '1800px',
+      maxHeight: '90vh',
+      data: {
+        operaciones: this.operacionesFiltradas,
+        turnoAplicado: this.turnoAplicado,
+        fechaInicio: this.fechaInicio,
+        fechaFin: this.fechaFin,
+      },
+      disableClose: false,
+      autoFocus: true,
+    });
+  
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log('Diálogo cerrado', result);
+    });
   }
 }
