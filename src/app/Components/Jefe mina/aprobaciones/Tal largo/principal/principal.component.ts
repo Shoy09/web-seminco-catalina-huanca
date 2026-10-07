@@ -9,6 +9,7 @@ import { OperacionBase } from '../../../../../models/OperacionBase.models';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogEstadoComponent } from '../../dialog-estado/dialog-estado.component';
+import { TalLargoOperacionesListStateService } from '../../../../../services/tal-largo-operaciones-list-state.service';
 
 @Component({
   selector: 'app-principal',
@@ -39,7 +40,8 @@ export class PrincipalTalLargoComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private operacionesService: OperacionesService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private listStateService: TalLargoOperacionesListStateService,
   ) {}
 
   ngOnInit(): void {
@@ -171,8 +173,13 @@ validarCambios() {
     this.operacionesService.actualizar(this.tipo, this.operacion.id!, payload)
       .subscribe({
         next: () => {
-          this.obtenerOperacion();
-          alert(`✅ Actualizado (Rev ${revisionActual + 1})`);
+        this.listStateService.actualizarValidacion(
+          this.operacion.id!,
+          estadoSeleccionado,
+          revisionActual + 1,
+        );
+        this.obtenerOperacion();
+        alert(`✅ Actualizado (Rev ${revisionActual + 1})`);
         },
         error: (err) => {
           console.error(err);

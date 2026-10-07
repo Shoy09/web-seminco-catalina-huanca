@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../../services/auth-service.service';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { ScalaminOperacionesListStateService } from '../../../../services/scalamin-operaciones-list-state.service';
 
 @Component({
   selector: 'app-operaciones-list',
@@ -48,13 +49,29 @@ export class OperacionesListScalaminComponent implements OnInit {
   constructor(
     private operacionesService: OperacionesService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private listStateService: ScalaminOperacionesListStateService,
   ) {}
 
   ngOnInit(): void {
     const nombre = this.authService.getNombreCompleto();
     if (!nombre) { console.error('No se encontró el jefe de guardia'); return; }
     this.jefe_guardia = nombre;
+
+    const estadoGuardado = this.listStateService.consumir();
+    if (estadoGuardado) {
+      this.operacionesOriginal = estadoGuardado.operacionesOriginal;
+      this.operacionesFiltradas = estadoGuardado.operacionesFiltradas;
+      this.fechaInicio = estadoGuardado.fechaInicio;
+      this.fechaFin = estadoGuardado.fechaFin;
+      this.turnoSeleccionado = estadoGuardado.turnoSeleccionado;
+      this.turnoAplicado = estadoGuardado.turnoAplicado;
+      this.mostrarFiltros = estadoGuardado.mostrarFiltros;
+      this.paginaActual = estadoGuardado.paginaActual;
+      this.registrosPorPagina = estadoGuardado.registrosPorPagina;
+      return;
+    }
+
     this.cargarDatos();
   }
 
@@ -149,6 +166,18 @@ export class OperacionesListScalaminComponent implements OnInit {
   }
 
   irDetalle(op: OperacionBase) {
+    this.listStateService.guardar({
+      operacionesOriginal: this.operacionesOriginal,
+      operacionesFiltradas: this.operacionesFiltradas,
+      fechaInicio: this.fechaInicio,
+      fechaFin: this.fechaFin,
+      turnoSeleccionado: this.turnoSeleccionado,
+      turnoAplicado: this.turnoAplicado,
+      mostrarFiltros: this.mostrarFiltros,
+      paginaActual: this.paginaActual,
+      registrosPorPagina: this.registrosPorPagina,
+    });
+
     this.router.navigate(['/Dashboard/jefe-mina/scalamin/operacion', op.id]);
   }
 }

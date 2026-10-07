@@ -9,6 +9,7 @@ import { OperacionBase } from '../../../../../models/OperacionBase.models';
 import { CommonModule } from '@angular/common';
 import { DialogEstadoComponent } from '../../dialog-estado/dialog-estado.component';
 import { MatDialog } from '@angular/material/dialog';
+import { EmpernadorOperacionesListStateService } from '../../../../../services/empernador-operaciones-list-state.service';
 
 @Component({
   selector: 'app-principal',
@@ -40,7 +41,8 @@ export class PrincipalSostenimientoComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private operacionesService: OperacionesService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private listStateService: EmpernadorOperacionesListStateService,
   ) {}
 
   ngOnInit(): void {
@@ -174,6 +176,11 @@ validarCambios() {
         next: (resp) => {
           console.log('🟢 RESPUESTA BACKEND:', resp);
 
+          this.listStateService.actualizarValidacion(
+            this.operacion.id!,
+            estadoSeleccionado,
+            revisionActual + 1,
+          );
           this.loading = false;
           this.obtenerOperacion();
 

@@ -63,41 +63,37 @@ export class FormularioOperacionComponent implements OnInit, OnChanges {
   }
 
   // 🔥 GENERAR HORAS CADA 5 MINUTOS
-  generarHoras(): string[] {
-    const horas: string[] = [];
+generarHoras(): string[] {
+  const horas: string[] = [];
 
-    const inicio = this.turno === 'NOCHE' ? 19 : 7;
-    const fin = this.turno === 'NOCHE' ? 7 : 19;
+  const inicioHora = this.turno === 'NOCHE' ? 18 : 6;
+  const inicioMin  = 30;
+  const finHora    = this.turno === 'NOCHE' ? 6  : 18;
+  const finMin     = 30;
 
-    let current = new Date();
-    current.setHours(inicio, 0, 0, 0);
+  const current = new Date();
+  current.setHours(inicioHora, inicioMin, 0, 0);
 
-    while (true) {
-      const h = current.getHours().toString().padStart(2, '0');
-      const m = current.getMinutes().toString().padStart(2, '0');
+  while (true) {
+    const h = current.getHours().toString().padStart(2, '0');
+    const m = current.getMinutes().toString().padStart(2, '0');
 
-      horas.push(`${h}:${m}`);
+    horas.push(`${h}:${m}`);
 
-      current.setMinutes(current.getMinutes() + 5);
+    current.setMinutes(current.getMinutes() + 5);
 
-      const ch = current.getHours();
-      const cm = current.getMinutes();
+    const ch = current.getHours();
+    const cm = current.getMinutes();
 
-      if (this.turno === 'NOCHE') {
-        if (ch === fin && cm === 0) {
-          horas.push('07:00');
-          break;
-        }
-      } else {
-        if (ch === fin && cm === 0) {
-          horas.push('19:00');
-          break;
-        }
-      }
+    // 🔥 Cortar cuando llegue a la hora final exacta
+    if (ch === finHora && cm === finMin) {
+      horas.push(`${String(finHora).padStart(2, '0')}:${String(finMin).padStart(2, '0')}`);
+      break;
     }
-
-    return horas;
   }
+
+  return horas;
+}
 
   // 🔥 FILTRAR HORAS FIN
   getHorasFin(): string[] {
