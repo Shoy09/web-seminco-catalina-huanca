@@ -65,7 +65,10 @@
 
   <div class="dialog-body min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-4 sm:p-6">
 
-    <!-- KPI CARDS -->
+    <!-- ============================================ -->
+    <!-- KPI CARDS — COMENTADO                        -->
+    <!-- ============================================ -->
+    <!--
     <section class="rounded-xl border border-border/70 bg-surface p-4 shadow-sm sm:p-5">
       <h3 class="mb-4 flex items-center gap-2 border-l-4 border-primary pl-3 text-sm font-bold text-secondary">
         <span class="dialog-icon text-lg text-primary" aria-hidden="true">insights</span>
@@ -137,8 +140,12 @@
         </div>
       </div>
     </section>
+    -->
 
-    <!-- GRÁFICOS -->
+    <!-- ============================================ -->
+    <!-- GRÁFICOS — COMENTADO                         -->
+    <!-- ============================================ -->
+    <!--
     <div class="graficos-grid grid grid-cols-1 gap-4 xl:grid-cols-2">
 
       <section class="rounded-xl border border-border/70 bg-surface p-4 shadow-sm sm:p-5">
@@ -292,61 +299,84 @@
       </section>
 
     </div>
+    -->
 
-    <!-- RESUMEN POR EQUIPO, LABOR Y TIPO -->
-    <section class="mx-auto w-full max-w-5xl rounded-xl border border-border/70 bg-surface p-4 shadow-sm sm:p-5">
-      <div class="mx-auto mb-4 flex max-w-4xl flex-wrap items-center justify-between gap-2 border-l-4 border-primary pl-3">
-        <h3 class="m-0 text-sm font-bold text-secondary">Resumen de metraje por labor</h3>
-        <span class="rounded-full bg-surface-soft px-3 py-1 text-xs text-ink-75">
-          {{ resumenLabores.length }} registros
-        </span>
-      </div>
+<!-- ============================================ -->
+<!-- RESUMEN DE PERFORACIÓN POR EQUIPO (TABLA)    -->
+<!-- ============================================ -->
+<section class="w-full rounded-xl border border-border/70 bg-surface p-4 shadow-sm sm:p-5">
+  <div class="mb-4 flex flex-wrap items-center justify-between gap-2 border-l-4 border-primary pl-3">
+    <h3 class="m-0 text-sm font-bold text-secondary">Resumen de perforación por equipo</h3>
+    <span class="rounded-full bg-surface-soft px-3 py-1 text-xs text-ink-75">
+      {{ resumenLabores.length }} registros
+    </span>
+  </div>
 
-      @if (resumenLabores.length > 0) {
-        <div class="mx-auto max-w-4xl overflow-x-auto rounded-lg border border-border/70">
-          <table class="w-full min-w-[560px] table-fixed border-collapse text-left text-sm">
-            <colgroup>
-              <col class="w-[18%]">
-              <col class="w-[24%]">
-              <col class="w-[38%]">
-              <col class="w-[20%]">
-            </colgroup>
-            <thead class="bg-secondary text-xs uppercase tracking-wide text-white">
-              <tr>
-                <th scope="col" class="px-3 py-3 font-semibold sm:px-4">Equipo</th>
-                <th scope="col" class="px-3 py-3 font-semibold sm:px-4">Labor</th>
-                <th scope="col" class="px-3 py-3 font-semibold sm:px-4">Tipo de labor</th>
-                <th scope="col" class="px-3 py-3 text-right font-semibold sm:px-4">Metraje (m)</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-border/70">
-              @for (fila of resumenLabores; track $index) {
-                <tr class="transition-colors odd:bg-surface even:bg-surface-soft/60 hover:bg-primary/10">
-                  <td class="break-words px-3 py-3 font-semibold text-secondary sm:px-4">{{ fila.equipo }}</td>
-                  <td class="break-words px-3 py-3 text-ink sm:px-4">{{ fila.labor }}</td>
-                  <td class="break-words px-3 py-3 text-ink-75 sm:px-4">{{ fila.tipoLabor }}</td>
-                  <td class="whitespace-nowrap px-3 py-3 text-right font-semibold tabular-nums text-secondary sm:px-4">
-                    {{ fila.metraje | number:'1.2-2' }}
-                  </td>
-                </tr>
-              }
-            </tbody>
-            <tfoot class="border-t-2 border-border bg-surface-soft">
-              <tr>
-                <th colspan="3" scope="row" class="px-3 py-3 text-right text-xs font-bold uppercase tracking-wide text-secondary sm:px-4">
-                  Total metraje
-                </th>
-                <td class="whitespace-nowrap px-3 py-3 text-right font-bold tabular-nums text-secondary sm:px-4">
-                  {{ kpis.totalMetros | number:'1.2-2' }} m
-                </td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-      } @else {
-        <p class="vacio mx-auto max-w-4xl">No hay labores con metraje para los filtros seleccionados.</p>
-      }
-    </section>
+  @if (resumenLabores.length > 0) {
+    <div class="w-full overflow-x-auto rounded-lg border border-border/70">
+      <table class="w-full min-w-[560px] table-fixed border-collapse text-left text-sm sm:min-w-[820px]">
+        <colgroup>
+          <col class="w-[11%] sm:w-[10%]">  <!-- Equipo -->
+          <col class="w-[18%] sm:w-[16%]">  <!-- Labor -->
+          <col class="w-[8%] sm:w-[6%]">    <!-- Fila -->
+          <col class="w-[17%] sm:w-[16%]">  <!-- Tipo perforación -->
+          <col class="w-[10%] sm:w-[9%]">   <!-- N° barras -->
+          <col class="w-[11%] sm:w-[10%]">  <!-- N° taladros -->
+          <col class="w-[12%] sm:w-[10%]">  <!-- Long. barra -->
+          <col class="w-[13%] sm:w-[13%]">  <!-- Metraje -->
+        </colgroup>
+        <thead class="bg-secondary text-xs uppercase tracking-wide text-white">
+          <tr>
+            <th scope="col" class="px-2 py-3 text-left font-semibold sm:px-3">Equipo</th>
+            <th scope="col" class="px-2 py-3 text-left font-semibold sm:px-3">Labor</th>
+            <th scope="col" class="px-2 py-3 text-center font-semibold sm:px-3">Fila</th>
+            <th scope="col" class="px-2 py-3 text-left font-semibold sm:px-3">
+              Tipo<br class="sm:hidden"> perf.
+            </th>
+            <th scope="col" class="px-2 py-3 text-right font-semibold sm:px-3">
+              N°<br> barras
+            </th>
+            <th scope="col" class="px-2 py-3 text-right font-semibold sm:px-3">
+              N°<br> taladros
+            </th>
+            <th scope="col" class="px-2 py-3 text-right font-semibold sm:px-3">
+              Long.<br> barra (m)
+            </th>
+            <th scope="col" class="px-2 py-3 text-right font-semibold sm:px-3">Metraje (m)</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-border/70">
+          @for (fila of resumenLabores; track $index) {
+            <tr class="transition-colors odd:bg-surface even:bg-surface-soft/60 hover:bg-primary/10">
+              <td class="px-2 py-2.5 align-middle font-semibold text-secondary sm:px-3">{{ fila.equipo }}</td>
+              <td class="px-2 py-2.5 align-middle text-ink sm:px-3">{{ fila.labor }}</td>
+              <td class="px-2 py-2.5 align-middle text-center tabular-nums text-ink-75 sm:px-3">{{ fila.nFila }}</td>
+              <td class="px-2 py-2.5 align-middle text-ink-75 sm:px-3">{{ fila.tipoPerforacion }}</td>
+              <td class="px-2 py-2.5 align-middle text-right tabular-nums text-ink sm:px-3">{{ fila.nBarras }}</td>
+              <td class="px-2 py-2.5 align-middle text-right tabular-nums text-ink sm:px-3">{{ fila.nTaladros }}</td>
+              <td class="px-2 py-2.5 align-middle text-right tabular-nums text-ink sm:px-3">{{ fila.longBarra | number:'1.1-2' }}</td>
+              <td class="px-2 py-2.5 align-middle text-right font-semibold tabular-nums text-secondary sm:px-3">{{ fila.metraje | number:'1.2-2' }}</td>
+            </tr>
+          }
+        </tbody>
+        <tfoot class="border-t-2 border-border bg-surface-soft">
+          <tr>
+            <td colspan="8" class="px-3 py-3">
+              <div class="flex items-center justify-end gap-3 text-xs font-bold uppercase tracking-wide text-secondary">
+                <span>Total metraje</span>
+                <span class="text-sm normal-case tabular-nums text-secondary">
+                  {{ totalMetrajeResumen | number:'1.2-2' }} m
+                </span>
+              </div>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  } @else {
+    <p class="vacio">No hay operaciones de perforación con metraje para los filtros seleccionados.</p>
+  }
+</section>
 
   </div>
 </div>

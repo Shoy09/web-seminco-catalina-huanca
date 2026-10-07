@@ -66,7 +66,7 @@
   <div class="dialog-body min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-4 sm:p-6">
 
     <!-- KPI CARDS -->
-    <section class="rounded-xl border border-border/70 bg-surface p-4 shadow-sm sm:p-5">
+    <!-- <section class="rounded-xl border border-border/70 bg-surface p-4 shadow-sm sm:p-5">
       <h3 class="mb-4 flex items-center gap-2 border-l-4 border-primary pl-3 text-sm font-bold text-secondary">
         <span class="dialog-icon text-lg text-primary" aria-hidden="true">insights</span>
         Resumen General
@@ -138,8 +138,8 @@
       </div>
     </section>
 
-    <!-- GRÁFICOS -->
-    <div class="graficos-grid grid grid-cols-1 gap-4 xl:grid-cols-2">
+   <!--GRÁFICOS -->
+    <!--<div class="graficos-grid grid grid-cols-1 gap-4 xl:grid-cols-2">
 
       <section class="rounded-xl border border-border/70 bg-surface p-4 shadow-sm sm:p-5">
         <h3 class="mb-4 flex items-center gap-2 border-l-4 border-primary pl-3 text-sm font-bold text-secondary">Metros por Equipo</h3>
@@ -306,11 +306,11 @@
         </div>
       </section>
 
-    </div>
+    </div> -->
 
     <!-- RESUMEN POR EQUIPO Y DETALLE DE PERFORACIÓN -->
     <section class="mx-auto w-full max-w-7xl rounded-xl border border-border/70 bg-surface p-4 shadow-sm sm:p-5">
-      <div class="mx-auto mb-4 flex max-w-6xl flex-wrap items-center justify-between gap-2 border-l-4 border-primary pl-3">
+      <div class="mb-4 flex flex-wrap items-center justify-between gap-2 border-l-4 border-primary pl-3">
         <h3 class="m-0 text-sm font-bold text-secondary">Resumen de perforación por equipo</h3>
         <span class="rounded-full bg-surface-soft px-3 py-1 text-xs text-ink-75">
           {{ resumenLabores.length }} registros
@@ -318,19 +318,19 @@
       </div>
 
       @if (resumenLabores.length > 0) {
-        <div class="mx-auto max-w-6xl overflow-x-auto rounded-lg border border-border/70">
-          <table class="w-full min-w-[1200px] table-fixed border-collapse text-left text-sm">
+        <div class="w-full overflow-x-auto rounded-lg border border-border/70">
+          <table class="w-full min-w-[900px] table-fixed border-collapse text-left text-sm">
             <colgroup>
-              <col class="w-[10%]">
-              <col class="w-[15%]">
-              <col class="w-[17%]">
-              <col class="w-[10%]">
-              <col class="w-[11%]">
-              <col class="w-[11%]">
-              <col class="w-[8%]">
-              <col class="w-[8%]">
-              <col class="w-[10%]">
-            </colgroup>
+  <col class="w-[9%]">   <!-- Equipo -->
+  <col class="w-[14%]">  <!-- Labor -->
+  <col class="w-[15%]">  <!-- Tipo perforación -->
+  <col class="w-[10%]">  <!-- Material -->
+  <col class="w-[10%]">  <!-- Long. barras -->
+  <col class="w-[10%]">  <!-- Tal. producción -->
+  <col class="w-[9%]">   <!-- Tal. rimados -->
+  <col class="w-[9%]">   <!-- Tal. alivio -->
+  <col class="w-[14%]">  <!-- Metraje -->
+</colgroup>
             <thead class="bg-secondary text-xs uppercase tracking-wide text-white">
               <tr>
                 <th scope="col" class="px-3 py-3 font-semibold sm:px-4">Equipo</th>
@@ -382,7 +382,7 @@
           </table>
         </div>
       } @else {
-        <p class="vacio mx-auto max-w-6xl">No hay operaciones de perforación con metraje para los filtros seleccionados.</p>
+        <p class="vacio">No hay operaciones de perforación con metraje para los filtros seleccionados.</p>
       }
     </section>
 

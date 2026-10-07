@@ -68,6 +68,7 @@ import { ParetoUtilizacionComponent } from '../../shared/Graficos components/Par
 import { ParetoDisponibilidadComponent } from '../../shared/Graficos components/Pareto/pareto-disponibilidad/pareto-disponibilidad.component';
 import { ToneladasScoopService } from '../../../../../services/toneladas-scoop.service';
 import { ExcelScoopExportService } from 'app/services/Excel/excel-scoop-export.service';
+import { PresentacionGefeGuardiaScoopComponent } from '../presentacion-gefe-guardia-scoop/presentacion-gefe-guardia-scoop.component';
 
 
 @Component({
@@ -3996,5 +3997,27 @@ exportarExcel() {
       'Operaciones_Scoops'
     );
   }
+JefeGuardia() {
+  if (!this.operacionesFiltradas || this.operacionesFiltradas.length === 0) {
+    console.warn('No hay datos filtrados para mostrar');
+    return;
+  }
 
+  const dialogRef = this.dialog.open(PresentacionGefeGuardiaScoopComponent, {
+    width: '1800px',
+    maxHeight: '90vh',
+    data: {
+      operaciones: this.operacionesFiltradas,
+      turnoAplicado: this.turnoAplicado,
+      fechaInicio: this.fechaInicio,
+      fechaFin: this.fechaFin,
+    },
+    disableClose: false,
+    autoFocus: true,
+  });
+
+  dialogRef.afterClosed().subscribe((result) => {
+    console.log('Diálogo cerrado', result);
+  });
+}
 }

@@ -44,6 +44,8 @@ import { SchedulerComponent } from '../../Linea de tiempo/scheduler/scheduler.co
 import { EstadoService } from '../../../../../services/estado.service';
 import { OperacionSostenimiento } from '../../../../../models/OperacionSostenimiento';
 import { ExcelEmpernadorExportService } from 'app/services/Excel/excel-empernador-export.service';
+import { PresentacionGefeGuardiaEmpernadorComponent } from '../presentacion-gefe-guardia-empernador/presentacion-gefe-guardia-empernador.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-principal-grafico-sostenimiento',
@@ -146,7 +148,8 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
     private fechasPlanMensualService: FechasPlanMensualService,
     private operacionesService: OperacionesService,
     private estadoService: EstadoService,
-    private excelExportService: ExcelEmpernadorExportService
+    private excelExportService: ExcelEmpernadorExportService,
+    private dialog: MatDialog,
   ) {}
 
   ngOnInit(): void {
@@ -1832,5 +1835,29 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
       this.operacionesFiltradas,
       'Operaciones'
     );
+  }
+
+  JefeGuardia() {
+    if (!this.operacionesFiltradas || this.operacionesFiltradas.length === 0) {
+      console.warn('No hay datos filtrados para mostrar');
+      return;
+    }
+  
+    const dialogRef = this.dialog.open(PresentacionGefeGuardiaEmpernadorComponent, {
+      width: '1800px',
+      maxHeight: '90vh',
+      data: {
+        operaciones: this.operacionesFiltradas,
+        turnoAplicado: this.turnoAplicado,
+        fechaInicio: this.fechaInicio,
+        fechaFin: this.fechaFin,
+      },
+      disableClose: false,
+      autoFocus: true,
+    });
+  
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log('Diálogo cerrado', result);
+    });
   }
 }

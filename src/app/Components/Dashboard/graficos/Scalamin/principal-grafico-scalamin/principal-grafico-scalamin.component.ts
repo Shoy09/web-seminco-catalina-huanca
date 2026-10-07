@@ -16,6 +16,7 @@ import { PlanProduccionService } from 'app/services/plan-produccion.service';
 import { ExcelImportService } from 'app/services/subir data/excel-operacion-mapper-scoops.service';
 import { SchedulerComponent } from '../../Linea de tiempo/scheduler/scheduler.component';
 import { ExcelScalaminExportService } from 'app/services/export/excel-export-scalamin.service';
+import { PresentacionGefeGuardiaScalaminComponent } from '../presentacion-gefe-guardia-scalamin/presentacion-gefe-guardia-scalamin.component';
 
 @Component({
   selector: 'app-principal-grafico-scalamin',
@@ -138,4 +139,28 @@ constructor(
       'Operaciones'
     );
   }
+
+    JefeGuardia() {
+      if (!this.operacionesFiltradas || this.operacionesFiltradas.length === 0) {
+        console.warn('No hay datos filtrados para mostrar');
+        return;
+      }
+    
+      const dialogRef = this.dialog.open(PresentacionGefeGuardiaScalaminComponent, {
+        width: '1800px',
+        maxHeight: '90vh',
+        data: {
+          operaciones: this.operacionesFiltradas,
+          turnoAplicado: this.turnoAplicado,
+          fechaInicio: this.fechaInicio,
+          fechaFin: this.fechaFin,
+        },
+        disableClose: false,
+        autoFocus: true,
+      });
+    
+      dialogRef.afterClosed().subscribe((result) => {
+        console.log('Diálogo cerrado', result);
+      });
+    }
 }

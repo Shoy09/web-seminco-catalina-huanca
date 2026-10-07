@@ -1,0 +1,222 @@
+.dialog-icon {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  font-feature-settings: 'liga';
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+  gap: 0.75rem;
+}
+
+.kpi-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.35rem;
+  border-left: 3px solid #7d8ca0;
+  border-radius: 0.75rem;
+  background: #f7f9f8;
+  padding: 0.85rem 1rem;
+  transition: box-shadow 150ms ease, transform 150ms ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgb(11 31 58 / 8%);
+}
+
+.kpi-card.accent-blue { border-left-color: #38bdf8; }
+.kpi-card.accent-purple { border-left-color: #647c9b; }
+.kpi-card.accent-green { border-left-color: #00a064; }
+.kpi-card.accent-orange { border-left-color: #ff9132; }
+.kpi-card.accent-red { border-left-color: #e74c3c; }
+
+.kpi-label {
+  color: #666;
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.kpi-value {
+  overflow-wrap: anywhere;
+  color: #0b1f3a;
+  font-size: clamp(1rem, 1.4vw, 1.25rem);
+  font-weight: 700;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.barras {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.barra-row {
+  display: grid;
+  grid-template-columns: minmax(5rem, 0.75fr) minmax(3rem, 1.5fr) minmax(4.5rem, auto);
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.72rem;
+}
+
+.barra-label {
+  overflow: hidden;
+  color: #344963;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.barra-track {
+  height: 0.55rem;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: #e8edf2;
+}
+
+.barra-fill {
+  height: 100%;
+  border-radius: inherit;
+  transition: width 350ms ease;
+}
+
+.barra-fill.blue { background: linear-gradient(90deg, #6dccfa, #159bd6); }
+.barra-fill.purple { background: linear-gradient(90deg, #7d8ca0, #344963); }
+.barra-fill.green { background: linear-gradient(90deg, #42c28e, #008653); }
+.barra-fill.orange { background: linear-gradient(90deg, #ffb66f, #eb7a1c); }
+.barra-fill.red { background: linear-gradient(90deg, #f28b80, #d94336); }
+
+.barra-value {
+  color: #333;
+  font-weight: 600;
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.vacio {
+  border: 1px dashed #c6cdd6;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  color: #7d8ca0;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.barra-extra {
+  grid-column: 2 / 4;
+  margin-top: -0.3rem;
+  color: #666;
+  font-size: 0.68rem;
+}
+
+@media (max-width: 640px) {
+  .barra-row {
+    grid-template-columns: minmax(4.5rem, 0.7fr) minmax(2rem, 1fr) minmax(4rem, auto);
+    gap: 0.4rem;
+    font-size: 0.68rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kpi-card,
+  .barra-fill {
+    transition: none;
+  }
+}
+
+/* =========================================================
+   FULLSCREEN — cuando el contenedor está en pantalla completa
+   ========================================================= */
+
+/* Contenedor en fullscreen nativo (cualquier navegador) */
+:host .dialog-container:fullscreen,
+:host .dialog-container:-webkit-full-screen,
+:host .dialog-container:-moz-full-screen,
+:host .dialog-container:-ms-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  height: 100vh !important;
+  height: 100dvh !important;
+  max-height: 100vh !important;
+  max-height: 100dvh !important;
+  width: 100vw !important;
+  width: 100dvw !important;
+  max-width: 100vw !important;
+  max-width: 100dvw !important;
+  min-height: 100vh !important;
+  min-height: 100dvh !important;
+  border-radius: 0 !important;
+  border: none !important;
+  background: #f7f9f8;
+}
+
+/* Fallback por si la clase .fullscreen se aplica desde el TS */
+:host .dialog-container.fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  height: 100vh !important;
+  height: 100dvh !important;
+  max-height: 100vh !important;
+  max-height: 100dvh !important;
+  width: 100vw !important;
+  width: 100dvw !important;
+  max-width: 100vw !important;
+  max-width: 100dvw !important;
+  min-height: 100vh !important;
+  min-height: 100dvh !important;
+  border-radius: 0 !important;
+  border: none !important;
+}
+
+:host .dialog-container.fullscreen .dialog-header,
+:host .dialog-container.fullscreen .dialog-filters {
+  flex: 0 0 auto;
+}
+
+:host .dialog-container.fullscreen .dialog-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+:host .dialog-container.fullscreen .kpis {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+:host .dialog-container.fullscreen .graficos-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 1199px) {
+  :host .dialog-container.fullscreen .kpis {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  :host .dialog-container.fullscreen .graficos-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  :host .dialog-container.fullscreen .kpis,
+  :host .dialog-container.fullscreen .graficos-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  :host .dialog-container.fullscreen .dialog-header {
+    padding: 0.75rem 1rem;
+  }
+
+  :host .dialog-container.fullscreen .dialog-body {
+    padding: 0.75rem;
+  }
+}

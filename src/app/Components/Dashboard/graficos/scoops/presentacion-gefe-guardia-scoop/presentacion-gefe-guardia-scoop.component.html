@@ -1,0 +1,135 @@
+<div
+  #dialogContainer
+  class="dialog-container flex min-h-0 flex-col overflow-hidden rounded-2xl border border-border bg-surface-soft text-ink shadow-xl"
+  [class.fullscreen]="isFullscreen">
+
+  <header class="dialog-header flex shrink-0 items-center justify-between gap-4 bg-gradient-to-r from-secondary via-secondary-75 to-primary px-5 py-4 text-white sm:px-6">
+    <div class="flex min-w-0 items-center gap-3">
+      <span class="dialog-icon hidden text-2xl text-white/80 sm:inline-flex" aria-hidden="true">analytics</span>
+      <div class="min-w-0">
+        <h2 class="m-0 text-base font-bold tracking-tight sm:text-lg">Presentación Jefe de Guardia</h2>
+        <p class="mt-1 text-xs text-white/75 sm:text-sm">Scooptram · Informe operativo</p>
+        <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[0.7rem] text-white/85 sm:text-xs">
+          <span><span class="font-semibold text-white/60">RANGO</span> {{ data.fechaInicio }} — {{ data.fechaFin }}</span>
+          <span><span class="font-semibold text-white/60">TURNO</span> {{ data.turnoAplicado }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex shrink-0 items-center gap-2">
+      <button
+        type="button"
+        class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-white transition-colors hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+        [attr.aria-label]="isFullscreen ? 'Salir pantalla completa' : 'Pantalla completa'"
+        [title]="isFullscreen ? 'Salir pantalla completa' : 'Pantalla completa'"
+        (click)="toggleFullscreen()">
+        <span class="dialog-icon text-xl" aria-hidden="true">{{ isFullscreen ? 'fullscreen_exit' : 'fullscreen' }}</span>
+      </button>
+
+      <button
+        type="button"
+        aria-label="Cerrar diálogo"
+        class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-xl text-white transition-colors hover:bg-red-500/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+        (click)="cerrar()">
+        <span class="dialog-icon" aria-hidden="true">close</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="dialog-filters flex shrink-0 flex-wrap items-center gap-3 border-b border-border bg-surface px-4 py-3 sm:px-6">
+    <label for="equipo-filtro" class="text-xs font-semibold text-secondary-75">Equipo</label>
+    <select
+      id="equipo-filtro"
+      [(ngModel)]="nEquipoSeleccionado"
+      (change)="aplicarFiltro()"
+      class="h-9 min-w-44 rounded-lg border border-border bg-surface-soft px-3 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20">
+      <option value="">— Todos —</option>
+      <option *ngFor="let eq of equiposDisponibles" [value]="eq">{{ eq }}</option>
+    </select>
+
+    <button
+      type="button"
+      class="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border px-3 text-xs font-semibold text-ink-75 transition hover:border-secondary-50 hover:bg-surface-soft hover:text-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      (click)="limpiarFiltro()">
+      <span class="dialog-icon text-base" aria-hidden="true">filter_alt_off</span>
+      Limpiar filtro
+    </button>
+
+    <span class="ml-auto rounded-full bg-surface-soft px-3 py-1.5 text-xs text-ink-75">
+      Mostrando <b class="text-secondary">{{ operacionesFiltradas.length }}</b> de
+      <b class="text-secondary">{{ operacionesOriginal.length }}</b> operaciones
+    </span>
+  </div>
+
+  <div class="dialog-body min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-4 sm:p-6">
+
+    <!-- ============================================ -->
+    <!-- TABLA RESUMEN DE CARGUÍO                     -->
+    <!-- ============================================ -->
+    <section class="w-full rounded-xl border border-border/70 bg-surface p-4 shadow-sm sm:p-5">
+      <div class="mb-4 flex flex-wrap items-center justify-between gap-2 border-l-4 border-primary pl-3">
+        <h3 class="m-0 text-sm font-bold text-secondary">Resumen de carguío por labor</h3>
+        <span class="rounded-full bg-surface-soft px-3 py-1 text-xs text-ink-75">
+          {{ resumenLabores.length }} registros
+        </span>
+      </div>
+
+      @if (resumenLabores.length > 0) {
+        <div class="w-full overflow-x-auto rounded-lg border border-border/70">
+          <table class="w-full min-w-[560px] table-fixed border-collapse text-left text-sm sm:min-w-[820px]">
+            <colgroup>
+              <col class="w-[12%] sm:w-[10%]">  <!-- Equipo -->
+              <col class="w-[20%] sm:w-[18%]">  <!-- Labor inicio -->
+              <col class="w-[22%] sm:w-[20%]">  <!-- Ubicación destino -->
+              <col class="w-[16%] sm:w-[14%]">  <!-- Material -->
+              <col class="w-[15%] sm:w-[13%]">  <!-- N° cucharas -->
+            </colgroup>
+            <thead class="bg-secondary text-xs uppercase tracking-wide text-white">
+              <tr>
+                <th scope="col" class="px-2 py-3 text-left font-semibold sm:px-3">Equipo</th>
+                <th scope="col" class="px-2 py-3 text-left font-semibold sm:px-3">
+                  Labor<br class="sm:hidden"> inicio
+                </th>
+                <th scope="col" class="px-2 py-3 text-left font-semibold sm:px-3">
+                  Ubic.<br class="sm:hidden"> destino
+                </th>
+                <th scope="col" class="px-2 py-3 text-left font-semibold sm:px-3">Material</th>
+                <th scope="col" class="px-2 py-3 text-right font-semibold sm:px-3">
+                  N°<br> cucharas
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-border/70">
+              @for (fila of resumenLabores; track $index) {
+                <tr class="transition-colors odd:bg-surface even:bg-surface-soft/60 hover:bg-primary/10">
+                  <td class="px-2 py-2.5 align-middle font-semibold text-secondary sm:px-3">{{ fila.equipo }}</td>
+                  <td class="px-2 py-2.5 align-middle text-ink sm:px-3">{{ fila.laborInicio }}</td>
+                  <td class="px-2 py-2.5 align-middle text-ink-75 sm:px-3">{{ fila.ubicacionDestino }}</td>
+                  <td class="px-2 py-2.5 align-middle text-ink-75 sm:px-3">{{ fila.material }}</td>
+                  <td class="px-2 py-2.5 align-middle text-right font-semibold tabular-nums text-secondary sm:px-3">
+                    {{ fila.nCucharas }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+            <tfoot class="border-t-2 border-border bg-surface-soft">
+              <tr>
+                <td colspan="5" class="px-3 py-3">
+                  <div class="flex flex-wrap items-center justify-end gap-x-6 gap-y-2 text-xs font-bold uppercase tracking-wide text-secondary">
+                    <span class="flex items-center gap-2">
+                      Total cucharas:
+                      <span class="text-sm normal-case tabular-nums">{{ totalCucharasResumen }}</span>
+                    </span>
+                  </div>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      } @else {
+        <p class="vacio">No hay operaciones de carguío para los filtros seleccionados.</p>
+      }
+    </section>
+
+  </div>
+</div>
