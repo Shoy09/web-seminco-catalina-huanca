@@ -14,6 +14,7 @@ import { CommonModule } from '@angular/common';
 export class SchedulerComponent implements OnChanges, OnDestroy {
 
   @Input() data: any[] = [];
+  @Input() maxHeight: string | null = null;
 
   // ── Turno base: 06:30 → 06:30 del día siguiente (24 h) ─────────
   shiftStartMin = 6 * 60 + 30;                       // 390  → 06:30
@@ -168,7 +169,7 @@ export class SchedulerComponent implements OnChanges, OnDestroy {
 
               tasks.push({
                 ...task,
-                labor:       row.labor        || '',
+                estado_equipo:       row.estado_equipo        || '',
                 description: task.description || '',
                 tipo_estado: task.tipo_estado || '',
                 startMin,
@@ -209,7 +210,7 @@ export class SchedulerComponent implements OnChanges, OnDestroy {
 
   // ── Utilidades ───────────────────────────────────────────────
   trackByEquipo(_: number, item: any) { return item.equipoCodigo; }
-  trackByTask(_: number, item: any)   { return `${item.start}${item.end}${item.labor}`; }
+  trackByTask(_: number, item: any)   { return `${item.start}${item.end}${item.estado_equipo}`; }
 
   minutesToTime(min: number): string {
     const m  = ((min % 1440) + 1440) % 1440;

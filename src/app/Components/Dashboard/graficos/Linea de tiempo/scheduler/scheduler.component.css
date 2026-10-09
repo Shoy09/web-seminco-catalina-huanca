@@ -33,8 +33,7 @@
 /* ── Contenedor con scroll horizontal ────────────────────────── */
 .scheduler-outer {
   width: 100%;
-  overflow-x: auto;
-  overflow-y: visible;
+  overflow: auto;
   border: 1px solid var(--border-strong);
   border-radius: 0.75rem;
   background: #fff;

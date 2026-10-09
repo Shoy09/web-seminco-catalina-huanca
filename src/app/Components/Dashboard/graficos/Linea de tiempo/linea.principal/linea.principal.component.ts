@@ -71,6 +71,7 @@ export class LineaPrincipalComponent {
 
   // Proceso activo seleccionado
   procesoActivo: ProcesoConfig = this.procesos[0];
+  todosProcesosActivo = true;
 
   // ── Datos internos ────────────────────────────────────────────
   estadosProceso: any[] = [];
@@ -79,7 +80,7 @@ export class LineaPrincipalComponent {
   private datosOriginales: Record<string, OperacionBase[]> = {};
   private mapaEstados: Record<string, Map<string, any>> = {};
 
-  ganttActivo: any[] = [];
+  ganttsPorProceso: { proceso: ProcesoConfig; data: any[]; filas: number }[] = [];
 
   constructor(
     private estadoService: EstadoService,
@@ -104,6 +105,12 @@ export class LineaPrincipalComponent {
   // ── Cambio de proceso activo ──────────────────────────────────
   seleccionarProceso(proceso: ProcesoConfig): void {
     this.procesoActivo = proceso;
+    this.todosProcesosActivo = false;
+    this.recalcularGanttActivo();
+  }
+
+  seleccionarTodosProcesos(): void {
+    this.todosProcesosActivo = true;
     this.recalcularGanttActivo();
   }
 
@@ -177,17 +184,24 @@ export class LineaPrincipalComponent {
   }
 
   private recalcularGanttActivo(): void {
-    const id = this.procesoActivo.id;
-    const originales = this.datosOriginales[id] ?? [];
+    this.ganttsPorProceso = this.procesos.map(proceso => {
+      const operacionesFiltradas = (this.datosOriginales[proceso.id] ?? []).filter(op => {
+        if (this.fechaInicio && op.fecha < this.fechaInicio) return false;
+        if (this.fechaFin && op.fecha > this.fechaFin) return false;
+        if (this.turnoAplicado && op.turno !== this.turnoAplicado) return false;
+        return true;
+      });
+      const data = this.construirGanttData(
+        operacionesFiltradas,
+        this.mapaEstados[proceso.id]
+      );
+      const filas = data.reduce(
+        (total, fechaItem) => total + fechaItem.groups.length,
+        0
+      );
 
-    const filtradas = originales.filter(op => {
-      if (this.fechaInicio && op.fecha < this.fechaInicio) return false;
-      if (this.fechaFin   && op.fecha > this.fechaFin)    return false;
-      if (this.turnoAplicado && op.turno !== this.turnoAplicado) return false;
-      return true;
+      return { proceso, data, filas };
     });
-
-    this.ganttActivo = this.construirGanttData(filtradas, this.mapaEstados[id]);
   }
 
   // ── Helpers de fecha/turno ────────────────────────────────────
@@ -208,7 +222,7 @@ export class LineaPrincipalComponent {
     data.forEach(op => {
       const fecha = op.fecha || 'SIN_FECHA';
       const turno = op.turno || 'SIN_TURNO';
-      const equipoCodigo = `${op.equipo} - ${op.n_equipo}`;
+      const equipoCodigo = `${op.n_equipo}`;
       const key = `${fecha}|${turno}`;
 
       if (!fechaMap[key]) fechaMap[key] = { fecha, turno, equipos: {} };
@@ -222,17 +236,18 @@ export class LineaPrincipalComponent {
         if (!reg.hora_inicio || !reg.hora_final) return;
 
         const estadoMatch = mapaEst.get(codigo);
-        const labor = estadoMatch?.estado_principal || estado;
+        const estado_equipo = estadoMatch?.estado_principal || estado;
 
-        if (!fechaMap[key].equipos[equipoCodigo][labor]) {
-          fechaMap[key].equipos[equipoCodigo][labor] = [];
+        if (!fechaMap[key].equipos[equipoCodigo][estado_equipo]) {
+          fechaMap[key].equipos[equipoCodigo][estado_equipo] = [];
         }
 
-        fechaMap[key].equipos[equipoCodigo][labor].push({
+        fechaMap[key].equipos[equipoCodigo][estado_equipo].push({
           start: reg.hora_inicio,
           end: reg.hora_final,
           estado,
           description: codigo,
+          labor: reg.operacion?.labor || null,
           tipo_estado:     estadoMatch?.tipo_estado     || null,
           categoria:       estadoMatch?.categoria       || null,
           estado_principal:estadoMatch?.estado_principal|| null,
@@ -244,10 +259,10 @@ export class LineaPrincipalComponent {
     return Object.values(fechaMap).map((item: any) => ({
       fecha: item.fecha,
       turno: item.turno,
-      groups: Object.entries(item.equipos).map(([equipoCodigo, labores]: any) => ({
+      groups: Object.entries(item.equipos).map(([equipoCodigo, estado_equipoes]: any) => ({
         equipoCodigo,
-        rows: Object.entries(labores).map(([labor, tasks]: any) => ({
-          labor,
+        rows: Object.entries(estado_equipoes).map(([estado_equipo, tasks]: any) => ({
+          estado_equipo,
           tasks: (tasks as any[]).sort((a, b) => a.start.localeCompare(b.start))
         }))
       }))
@@ -256,14 +271,34 @@ export class LineaPrincipalComponent {
 
   // ── Utilidades para el template ───────────────────────────────
   get totalRegistros(): number {
-    return (this.datosOriginales[this.procesoActivo.id] ?? []).length;
+    if (!this.todosProcesosActivo) {
+      return (this.datosOriginales[this.procesoActivo.id] ?? []).length;
+    }
+    return this.procesos.reduce(
+      (total, proceso) => total + (this.datosOriginales[proceso.id] ?? []).length,
+      0
+    );
   }
 
   get totalEquipos(): number {
     const equipos = new Set<string>();
-    (this.datosOriginales[this.procesoActivo.id] ?? []).forEach(op =>
-      equipos.add(`${op.equipo}-${op.n_equipo}`)
-    );
+    const procesos = this.todosProcesosActivo ? this.procesos : [this.procesoActivo];
+    procesos.forEach(proceso => {
+      (this.datosOriginales[proceso.id] ?? []).forEach(op =>
+        equipos.add(`${proceso.id}:${op.equipo}-${op.n_equipo}`)
+      );
+    });
     return equipos.size;
+  }
+
+  get ganttsVisibles(): { proceso: ProcesoConfig; data: any[]; filas: number }[] {
+    if (this.todosProcesosActivo) return this.ganttsPorProceso;
+    return this.ganttsPorProceso.filter(
+      gantt => gantt.proceso.id === this.procesoActivo.id
+    );
+  }
+
+  get hayDatosVisibles(): boolean {
+    return this.ganttsVisibles.some(gantt => gantt.filas > 0);
   }
 }

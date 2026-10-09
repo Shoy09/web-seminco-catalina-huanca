@@ -7,7 +7,7 @@
 >
   <div class="tooltip-header">
     <span class="tooltip-dot" [style.background]="getColor(tooltip.task.estado)"></span>
-    <span class="tooltip-title">{{ tooltip.task.labor }}</span>
+    <span class="tooltip-title">{{ tooltip.task.estado_equipo }}</span>
   </div>
   <div class="tooltip-body">
     <div class="tooltip-row">
@@ -30,11 +30,15 @@
       <span class="tooltip-key">Tipo</span>
       <span class="tooltip-val">{{ tooltip.task.tipo_estado }}</span>
     </div>
+    <div class="tooltip-row" *ngIf="tooltip.task.labor">
+  <span class="tooltip-key">Labor</span>
+  <span class="tooltip-val">{{ tooltip.task.labor }}</span>
+</div>
   </div>
 </div>
 
 <!-- Tabla Gantt -->
-<div class="scheduler-outer">
+<div class="scheduler-outer" [style.max-height]="maxHeight">
   <table class="scheduler-table">
 
     <colgroup>
@@ -97,7 +101,7 @@
                 (mousemove)="moveTooltip($event)"
                 (mouseleave)="hideTooltip()"
               >
-                <span class="task-label">{{ task.labor?.slice(0, 4) }}</span>
+                <span class="task-label">{{ task.estado_equipo?.slice(0, 4) }}</span>
               </div>
             </div>
           </td>

@@ -27,14 +27,24 @@
     <!-- Tabs de proceso -->
     <div class="flex flex-wrap gap-x-0.5 border-b border-border px-3 pt-2">
       <button
+        (click)="seleccionarTodosProcesos()"
+        [class.tab-active]="todosProcesosActivo"
+        class="tab-btn"
+      >
+        <span class="icon-xs">dashboard</span>
+        <span>Todos</span>
+      </button>
+      <!--
+      <button
         *ngFor="let proc of procesos"
         (click)="seleccionarProceso(proc)"
-        [class.tab-active]="procesoActivo.id === proc.id"
+        [class.tab-active]="!todosProcesosActivo && procesoActivo.id === proc.id"
         class="tab-btn"
       >
         <span class="icon-xs">{{ proc.icon }}</span>
         <span>{{ proc.label }}</span>
       </button>
+      -->
     </div>
 
     <!-- Filtros -->
@@ -93,7 +103,7 @@
 
     <!-- Estado vacío -->
     <div
-      *ngIf="ganttActivo.length === 0"
+      *ngIf="!hayDatosVisibles"
       class="flex flex-col items-center justify-center gap-2 rounded-2xl border border-border bg-surface py-16 text-ink-50"
     >
       <span class="material-icons text-5xl opacity-25">inbox</span>
@@ -101,17 +111,22 @@
       <p class="text-xs">Cambia el rango de fechas o el turno</p>
     </div>
 
-    <!-- Gantt card -->
-    <div *ngIf="ganttActivo.length > 0" class="overflow-hidden rounded-2xl border border-border bg-surface shadow-sm">
-      <div class="flex items-center gap-2 border-b border-border px-3 py-1.5">
-        <div [ngClass]="procesoActivo.color" class="chip-icon">
-          <span class="icon-xs">{{ procesoActivo.icon }}</span>
+    <!-- Gantt por proceso -->
+    <ng-container *ngFor="let gantt of ganttsVisibles">
+      <div
+        *ngIf="gantt.filas > 0"
+        class="overflow-hidden rounded-2xl border border-border bg-surface shadow-sm"
+      >
+        <div class="flex items-center gap-2 border-b border-border px-3 py-1.5">
+          <div [ngClass]="gantt.proceso.color" class="chip-icon">
+            <span class="icon-xs">{{ gantt.proceso.icon }}</span>
+          </div>
+          <span class="text-xs font-semibold text-ink">{{ gantt.proceso.label }}</span>
+          <span class="text-xs text-ink-50">— {{ gantt.filas }} filas</span>
         </div>
-        <span class="text-xs font-semibold text-ink">{{ procesoActivo.label }}</span>
-        <span class="text-xs text-ink-50">— {{ ganttActivo.length }} grupos · {{ totalEquipos }} equipos</span>
+        <app-scheduler [data]="gantt.data" maxHeight="16.25rem"></app-scheduler>
       </div>
-      <app-scheduler [data]="ganttActivo"></app-scheduler>
-    </div>
+    </ng-container>
 
   </ng-container>
 
