@@ -107,24 +107,23 @@
 
 /* Barra de horas */
 .hours-bar {
-  display: flex;
+  position: relative;
   height: var(--header-height);
-  align-items: center;
+  overflow: hidden;
 }
 
 .hour-cell {
-  flex: 1;
-  text-align: center;
-  font-size: 11px;
-  font-weight: 600;
-  color: #94A3B8;
-  border-left: 1px solid var(--border);
-  white-space: nowrap;
-  overflow: hidden;
+  position: absolute;
+  top: 0;
   height: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
+  padding-left: 6px;
+  border-left: 1px solid var(--border);
+  font-size: 10px;
+  font-weight: 600;
+  color: #94A3B8;
+  white-space: nowrap;
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -231,22 +230,29 @@
   overflow: visible;
 }
 
+.hour-cell:last-child {
+  transform: translateX(-100%);
+  padding: 0 6px 0 0;
+  border-left: none;
+  border-right: 1px solid var(--border);
+}
+
 /* Grid visual de horas */
 .timeline-grid {
   position: absolute;
   inset: 0;
-  display: flex;
   pointer-events: none;
   z-index: 0;
 }
 
 .grid-line {
-  flex: 1;
+  position: absolute;
+  top: 0;
+  bottom: 0;
   border-left: 1px solid #F1F5F9;
 }
-.grid-line:first-child {
-  border-left: none;
-}
+.grid-line:first-child { border-left: none; }
+.grid-line:last-child  { transform: translateX(-1px); }
 
 /* ══════════════════════════════════════════════════════════════
    BLOQUES DE TAREA

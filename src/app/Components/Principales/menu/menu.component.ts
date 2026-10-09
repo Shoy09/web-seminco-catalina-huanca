@@ -34,10 +34,10 @@ export class MenuComponent implements OnInit {
         { label: 'Perforación Horizontal', routerLink: ['/Dashboard/grafico-horizontal'] },
         { label: 'Empernador',             routerLink: ['/Dashboard/grafico-sostenimiento'] },
         { label: 'Scooptram',              routerLink: ['/Dashboard/grafico-scoops'] },
+        { label: 'Scalamin',               routerLink: ['/Dashboard/grafico-scalamin'] },
         { label: 'Acarreo',                routerLink: ['/Dashboard/grafico-acarreo'] },
-        { label: 'Explosivos',             routerLink: ['/Dashboard/explosivos-graficos'] },
         { label: 'Línea de tiempo',        routerLink: ['/Dashboard/linea-de-tiempo'] },
-        { label: 'Scalamin', routerLink: ['/Dashboard/grafico-scalamin'] },
+        { label: 'Explosivos',             routerLink: ['/Dashboard/explosivos-graficos'] },
       ],
     },
     {

@@ -45,7 +45,6 @@ export class PernosLaborComponent implements OnChanges {
         itemsMap.set(key, {
           labor: item.labor,
           seccion: item.seccion,
-          seccionLabor: item.seccionLabor,
           totalPernos: 0
         });
       }
@@ -69,7 +68,7 @@ export class PernosLaborComponent implements OnChanges {
     const tooltipMap: Map<number, any> = new Map();
 
     itemsArray.forEach((item, idx) => {
-      const label = `${item.seccionLabor}\n${item.labor}\n(${item.seccion})`;
+      const label = `${item.labor}\n(${item.seccion})`;
       xAxisData.push(label);
       tooltipMap.set(idx, item);
     });
@@ -90,8 +89,7 @@ export class PernosLaborComponent implements OnChanges {
           if (!item) return '';
 
           return `<strong>Labor: ${item.labor}</strong><br/>
-                  Sección: ${item.seccion || 'N/A'}<br/>
-                  Sección Labor: ${item.seccionLabor || 'N/A'}<br/><br/>
+                  Sección: ${item.seccion || 'N/A'}<br/><br/>
                   <strong>Total Pernos: ${item.totalPernos}</strong>`;
         }
       },

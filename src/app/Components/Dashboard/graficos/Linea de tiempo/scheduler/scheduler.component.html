@@ -22,10 +22,10 @@
       <span class="tooltip-key">Duración</span>
       <span class="tooltip-val">{{ getDuration(tooltip.task) }}</span>
     </div>
-    <div class="tooltip-row" *ngIf="tooltip.task.description">
-      <span class="tooltip-key">Código</span>
-      <span class="tooltip-val">{{ tooltip.task.description }}</span>
-    </div>
+   <div class="tooltip-row" *ngIf="tooltip.task.description">
+  <span class="tooltip-key">Descripción</span>   <!-- 👈 antes decía "Código" -->
+  <span class="tooltip-val">{{ tooltip.task.description }}</span>
+</div>
     <div class="tooltip-row" *ngIf="tooltip.task.tipo_estado">
       <span class="tooltip-key">Tipo</span>
       <span class="tooltip-val">{{ tooltip.task.tipo_estado }}</span>
@@ -50,8 +50,8 @@
         <th class="th-equipo">Equipo</th>
         <th class="th-timeline">
           <div class="hours-bar">
-            <span class="hour-cell" *ngFor="let h of hours">{{ h }}</span>
-          </div>
+  <span class="hour-cell" *ngFor="let h of hours" [style.left.%]="h.left">{{ h.label }}</span>
+</div>
         </th>
       </tr>
     </thead>
@@ -87,8 +87,8 @@
           <td class="td-timeline">
             <div class="timeline-row">
               <div class="timeline-grid">
-                <div class="grid-line" *ngFor="let h of hours"></div>
-              </div>
+  <div class="grid-line" *ngFor="let h of hours" [style.left.%]="h.left"></div>
+</div>
               <div
                 class="task"
                 *ngFor="let task of equipo.tasks; trackBy: trackByTask"

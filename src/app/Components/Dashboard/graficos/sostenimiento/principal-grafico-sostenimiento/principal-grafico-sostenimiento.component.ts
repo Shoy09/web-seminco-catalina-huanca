@@ -66,7 +66,6 @@ import { MatDialog } from '@angular/material/dialog';
     TotalHorometrosComponent,
     ScatterTurnosComponent,
     ScatterTurnosNocheComponent,
-    PernosMinadoTipoComponent,
     HorasPrimeraPerforacionComponent,
     DetalleEquipoComponent,
     DetalleSostenimientoComponent,

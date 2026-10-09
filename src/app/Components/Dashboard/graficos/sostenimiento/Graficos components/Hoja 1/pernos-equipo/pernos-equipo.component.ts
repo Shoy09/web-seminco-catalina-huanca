@@ -45,14 +45,13 @@ export class PernosEquipoComponent implements OnChanges {
       return;
     }
 
-    // Agrupar por seccionLabor, modeloEquipo y seccion
+    // Agrupar por modeloEquipo y seccion (sin seccionLabor)
     const itemsMap = new Map<string, any>();
     
     this.data.forEach(item => {
-      const key = `${item.seccionLabor}|${item.modeloEquipo}|${item.seccion}`;
+      const key = `${item.modeloEquipo}|${item.seccion}`;
       if (!itemsMap.has(key)) {
         itemsMap.set(key, {
-          seccionLabor: item.seccionLabor,
           modeloEquipo: item.modeloEquipo,
           seccion: item.seccion,
           tipos: {}
@@ -65,21 +64,16 @@ export class PernosEquipoComponent implements OnChanges {
     // Convertir mapa a array
     const itemsArray = Array.from(itemsMap.values());
     
-    // Ordenar por seccionLabor y luego por modeloEquipo
-    itemsArray.sort((a, b) => {
-      if (a.seccionLabor !== b.seccionLabor) {
-        return a.seccionLabor.localeCompare(b.seccionLabor);
-      }
-      return a.modeloEquipo.localeCompare(b.modeloEquipo);
-    });
+    // Ordenar por modeloEquipo
+    itemsArray.sort((a, b) => a.modeloEquipo.localeCompare(b.modeloEquipo));
 
-    // Preparar eje X con: seccionLabor - modeloEquipo (seccion)
+    // Preparar eje X con: modeloEquipo (seccion)
     const xAxisData: string[] = [];
     const tooltipMap: Map<number, any> = new Map();
 
     itemsArray.forEach((item, idx) => {
-      // Formato: SECCION_LABOR - modeloEquipo (seccion)
-      const label = `${item.seccionLabor}\n${item.modeloEquipo}\n(${item.seccion})`;
+      // Formato: modeloEquipo (seccion)
+      const label = `${item.modeloEquipo}\n(${item.seccion})`;
       xAxisData.push(label);
       tooltipMap.set(idx, item);
     });
@@ -140,8 +134,7 @@ export class PernosEquipoComponent implements OnChanges {
           });
 
           return `<strong>${item.modeloEquipo}</strong><br/>
-                  Sección: ${item.seccion || 'N/A'}<br/>
-                  Sección Labor: ${item.seccionLabor || 'N/A'}<br/><br/>
+                  Sección: ${item.seccion || 'N/A'}<br/><br/>
                   ${detalle}
                   <strong>Total: ${total}</strong>`;
         }
@@ -150,7 +143,7 @@ export class PernosEquipoComponent implements OnChanges {
         bottom: 0,
         left: 'center'
       },
-      graphic: [], // ← Vacío, sin separadores
+      graphic: [],
       grid: {
         left: '10%',
         right: '5%',
@@ -166,10 +159,7 @@ export class PernosEquipoComponent implements OnChanges {
           fontWeight: 'bold',
           interval: 0,
           rotate: 0,
-          formatter: (value: string) => {
-            // Si el texto es muy largo, se puede rotar o truncar
-            return value;
-          }
+          formatter: (value: string) => value
         },
         axisLine: {
           lineStyle: { color: '#333' }

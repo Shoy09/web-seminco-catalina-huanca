@@ -43,7 +43,6 @@ export class DetalleSostenimientoComponent implements OnChanges {
       registros: Number(item.registros) || 1,  // Por defecto 1 si no viene
       modelo_equipo: item.modelo_equipo || 'N/A',
       labor_sos: item.labor_sos || 'N/A',
-      seccion_labor: item.seccion_labor || 'N/A',
       tipo_pernos: item.tipo_pernos || 'N/A',
       n_pernos: Number(item.n_pernos) || 0,
       log_pernos: Number(item.log_pernos) || 0,
