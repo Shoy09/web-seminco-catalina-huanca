@@ -362,6 +362,7 @@ export class CrearDataComponent implements OnInit, AfterViewInit {
       datos: [],
       campos: [
         { nombre: 'nombre', label: 'Nombre', tipo: 'text' },
+        { nombre: 'nombre_excel', label: 'Nombre Excel', tipo: 'text' },
         { 
       nombre: 'proceso',
       label: 'Proceso',
@@ -562,7 +563,7 @@ export class CrearDataComponent implements OnInit, AfterViewInit {
 // Función para actualizar un registro
 actualizarDatos() {
   if (Object.values(this.nuevoDato).some(val => val !== '')) {
-    const datosActualizados = { ...this.nuevoDato };
+    const datosActualizados = this.limpiarPayload({ ...this.nuevoDato });
     const id = this.categoriaActiva.datos[this.indiceEditando].id;
 
     const onSuccess = (data: any) => {
@@ -698,6 +699,7 @@ private buscarHojaExcel(workbook: any, nombresPosibles: string[]): string {
   
       const equipos = excelData.map(row => ({
         nombre: row["EQUIPO"] || null,
+        nombre_excel: row["NOMBRE EXCEL"] || row["EQUIPO EXCEL"] || null,
         proceso: row["PROCESO"] || null,
         codigo: row["CODIGO"] || null,
         marca: row["MARCA"] || null,
@@ -730,6 +732,36 @@ private buscarHojaExcel(workbook: any, nombresPosibles: string[]): string {
   
     reader.readAsArrayBuffer(file);
   }
+
+  private limpiarPayload(datos: any): any {
+  const limpio = { ...datos };
+
+  // 1) Numéricos: "" → null
+  const numericos = [
+    'capacidadYd3',
+    'capacidadM3',
+    'capacidad_tonelada',
+    'capacidad_tonelada_desmonte',
+    'anioFabricacion'
+  ];
+  numericos.forEach(campo => {
+    if (limpio[campo] === '' || limpio[campo] === undefined) {
+      limpio[campo] = null;
+    } else if (limpio[campo] !== null) {
+      limpio[campo] = Number(limpio[campo]);
+    }
+  });
+
+  // 2) fechaIngreso vacío → eliminar la clave (NOT NULL en BD)
+  if (!limpio.fechaIngreso || limpio.fechaIngreso === '') {
+    delete limpio.fechaIngreso;
+  }
+
+  // 3) Textos opcionales: "" → null
+  if (limpio.nombre_excel === '') limpio.nombre_excel = null;
+
+  return limpio;
+}
   
   convertirFechaExcel(valor: any): string | null {
     if (!valor) return null;
@@ -925,7 +957,7 @@ else if (button.tipo === 'Mallas') {
 
   guardarDatos() {
     if (Object.values(this.nuevoDato).some(val => val !== '')) {
-      const nuevoRegistro = { ...this.nuevoDato };
+      const nuevoRegistro = this.limpiarPayload({ ...this.nuevoDato });
 
       // Después de crear, recargamos desde el servidor para garantizar datos correctos
       const onSuccess = () => {

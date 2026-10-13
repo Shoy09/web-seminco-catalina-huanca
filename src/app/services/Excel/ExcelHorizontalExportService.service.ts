@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Equipo } from 'app/models/equipo.model';
 import { OperacionBaseJumbo } from 'app/models/OperacionBase.models';
 import * as XLSX from 'xlsx';
 
@@ -7,14 +8,16 @@ import * as XLSX from 'xlsx';
 })
 export class ExcelHorizontalExportService {
   
-  exportOperacionesToExcel(operacionesOriginal: OperacionBaseJumbo[], fileName: string) {
+  exportOperacionesToExcel(operacionesOriginal: OperacionBaseJumbo[], fileName: string, equipos: Equipo[] = []) {
     // Filtrar solo operaciones con estado "cerrado"
     const operacionesCerradas = operacionesOriginal.filter(op => 
       op.estado?.toLowerCase() === 'cerrado'
     );
 
+    const mapaEquipos = this.construirMapaEquipos(equipos);
+
     // Preparar datos para el formato solicitado
-    const excelData = this.prepareExcelData(operacionesCerradas);
+    const excelData = this.prepareExcelData(operacionesCerradas, mapaEquipos);
 
     // Crear libro de trabajo
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
@@ -29,7 +32,34 @@ export class ExcelHorizontalExportService {
     XLSX.writeFile(wb, `${fileName}_Horizontal_${new Date().toISOString().slice(0,10)}.xlsx`);
   }
 
-  private prepareExcelData(operaciones: OperacionBaseJumbo[]): any[] {
+  private construirMapaEquipos(equipos: Equipo[]): Map<string, string> {
+    const mapa = new Map<string, string>();
+
+    equipos.forEach(eq => {
+      if (!eq.codigo) {
+        console.warn('Equipo sin código, no se puede mapear:', eq);
+        return;
+      }
+
+      const codigo = this.normalizar(eq.codigo);
+      const nombreExcel = eq.nombre_excel ?? eq.nombre ?? '';
+
+      if (!mapa.has(codigo)) {
+        mapa.set(codigo, nombreExcel);
+      }
+    });
+
+    return mapa;
+  }
+
+  private normalizar(valor: string | null | undefined): string {
+    return String(valor ?? '').trim().toUpperCase();
+  }
+
+  private prepareExcelData(
+    operaciones: OperacionBaseJumbo[],
+    mapaEquipos: Map<string, string>
+  ): any[] {
     const data: any[] = [];
 
     operaciones.forEach(op => {
@@ -44,9 +74,11 @@ export class ExcelHorizontalExportService {
           
           // Obtener datos de perforación
           const perforacionData = this.getPerforacionData(registro);
+          const codigoEquipo = this.normalizar(op.n_equipo);
+          const nombreExcel = mapaEquipos.get(codigoEquipo) ?? op.n_equipo ?? '';
 
           const row = {
-            'EQUIPO': op.n_equipo || '',
+            'EQUIPO': nombreExcel,
             'N° ITEM': registro.numero || '', // ✅ Usamos el número del registro
             'FECHA': this.formatearFecha(op.fecha),
              'TURNO': this.formatearTurno(op.turno), 

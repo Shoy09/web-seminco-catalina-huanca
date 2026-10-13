@@ -1,6 +1,7 @@
 export interface Equipo {
   id?: number;
   nombre: string | null;   // Permite valores nulos
+  nombre_excel: string | null;
   proceso: string | null;
   codigo: string | null;
   marca: string | null;

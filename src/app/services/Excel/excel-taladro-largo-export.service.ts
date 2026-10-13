@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Equipo } from 'app/models/equipo.model';
 import { OperacionBaseJumbo } from 'app/models/OperacionBase.models';
 import * as XLSX from 'xlsx';
 
@@ -7,12 +8,19 @@ import * as XLSX from 'xlsx';
 })
 export class ExcelTaladroLargoExportService {
 
-  exportOperacionesToExcel(operacionesOriginal: OperacionBaseJumbo[], fileName: string) {
+  exportOperacionesToExcel(
+    operacionesOriginal: OperacionBaseJumbo[],
+    fileName: string,
+    equipos: Equipo[] = []
+  ) {
     const operacionesCerradas = operacionesOriginal.filter(op =>
       op.estado?.toLowerCase() === 'cerrado'
     );
 
-    const excelData = this.prepareExcelData(operacionesCerradas);
+    // 👇 Construir mapa: código (normalizado) → nombre_excel
+    const mapaEquipos = this.construirMapaEquipos(equipos);
+
+    const excelData = this.prepareExcelData(operacionesCerradas, mapaEquipos);
 
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(excelData);
@@ -24,7 +32,39 @@ export class ExcelTaladroLargoExportService {
     XLSX.writeFile(wb, `${fileName}_${new Date().toISOString().slice(0, 10)}.xlsx`);
   }
 
-  private prepareExcelData(operaciones: OperacionBaseJumbo[]): any[] {
+  /**
+   * Construye un mapa código → nombre_excel a partir del catálogo de equipos.
+   * Normaliza el código (trim + uppercase) para que el cruce sea robusto.
+   */
+  private construirMapaEquipos(equipos: Equipo[]): Map<string, string> {
+    const mapa = new Map<string, string>();
+
+    equipos.forEach(eq => {
+      if (!eq.codigo) {
+        console.warn('⚠️ Equipo sin código, no se puede mapear:', eq);
+        return;
+      }
+
+      const codigo = this.normalizar(eq.codigo);
+      const nombreExcel = eq.nombre_excel ?? eq.nombre ?? '';
+
+      if (!mapa.has(codigo)) {
+        mapa.set(codigo, nombreExcel);
+      }
+    });
+
+    return mapa;
+  }
+
+  /** Normaliza un texto para comparaciones: trim + uppercase */
+  private normalizar(valor: string | null | undefined): string {
+    return String(valor ?? '').trim().toUpperCase();
+  }
+
+  private prepareExcelData(
+    operaciones: OperacionBaseJumbo[],
+    mapaEquipos: Map<string, string>
+  ): any[] {
     const data: any[] = [];
 
     operaciones.forEach(op => {
@@ -52,7 +92,8 @@ export class ExcelTaladroLargoExportService {
                 barra,
                 intervalos[indexBarra].horaInicio,
                 intervalos[indexBarra].horaFinal,
-                mostrarHorometros
+                mostrarHorometros,
+                mapaEquipos
               );
               data.push(row);
 
@@ -69,7 +110,8 @@ export class ExcelTaladroLargoExportService {
               null,
               registro.hora_inicio || '',
               registro.hora_final || '',
-              mostrarHorometros
+              mostrarHorometros,
+              mapaEquipos
             );
             data.push(row);
 
@@ -173,13 +215,18 @@ export class ExcelTaladroLargoExportService {
     barra: any | null,
     horaInicio: string,
     horaFinal: string,
-    mostrarHorometros: boolean
+    mostrarHorometros: boolean,
+    mapaEquipos: Map<string, string>
   ): any {
     const operacionData = registro.operacion || {};
     const horometros = this.getHorometros(op, registro);
 
+    // 👇 Resolver el nombre_excel cruzando op.n_equipo (código) con el mapa
+    const codigoEquipo = this.normalizar(op.n_equipo);
+    const nombreExcel = mapaEquipos.get(codigoEquipo) ?? op.n_equipo ?? '';
+
     return {
-      'EQUIPO': op.n_equipo || '',
+      'EQUIPO': nombreExcel,
       'N° ITEM': registro.numero || '',
       'FECHA': this.formatearFecha(op.fecha),
       'TURNO': this.formatearTurno(op.turno),

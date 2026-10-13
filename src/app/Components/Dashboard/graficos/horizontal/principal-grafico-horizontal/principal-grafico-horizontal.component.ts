@@ -59,6 +59,8 @@ import { PresentacionHorizontalDialogComponent } from '../presentacion-dialog/pr
 import { MatDialog } from '@angular/material/dialog';
 import { ExcelHorizontalExportService } from 'app/services/Excel/ExcelHorizontalExportService.service';
 import { PresentacionJefeGuardiaHzComponent } from '../presentacion-jefe-guardia-hz/presentacion-jefe-guardia-hz.component';
+import { EquipoService } from 'app/services/equipo.service';
+import { Equipo } from 'app/models/equipo.model';
 @Component({
   selector: 'app-principal-grafico-horizontal',
   imports: [
@@ -211,17 +213,21 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
   DataMTBFPorMes: any[] = [];
   DataMTBFPorAnio: any[] = [];
 
+  equipos: Equipo[] = [];
+
   constructor(
     private planMensualService: PlanMensualService,
     private fechasPlanMensualService: FechasPlanMensualService,
     private operacionesService: OperacionesService,
     private estadoService: EstadoService,
     private dialog: MatDialog,
+    private equipoService: EquipoService,
     private excelExportService: ExcelHorizontalExportService
   ) {}
 
   ngOnInit(): void {
     this.obtenerUltimaFecha();
+    this.cargarEquipos();
 
     // 🔥 SETEO AUTOMÁTICO
     const hoy = this.getFechaHoy();
@@ -235,6 +241,19 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
   toggleVista() {
     this.vistaPrincipal = !this.vistaPrincipal;
   }
+
+  private readonly PROCESO = 'PERFORACIÓN HORIZONTAL';
+
+  cargarEquipos() {
+    this.equipoService.getEquiposByProceso(this.PROCESO)
+      .subscribe({
+        next: (equipos: Equipo[]) => {
+          this.equipos = equipos;         // 👈 guardar
+        },
+        error: err => console.error('Error equipos:', err)
+      });
+  }
+
   toggleDataZoom(): void {
     this.showZoom = !this.showZoom;
   }
@@ -2672,7 +2691,8 @@ export class PrincipalGraficoHorizontalComponent implements OnInit {
 exportarExcel() {
     this.excelExportService.exportOperacionesToExcel(
       this.operacionesFiltradas, 
-      'Operaciones_Horizontales'
+      'Operaciones_Horizontales',
+      this.equipos
     );
   }
 

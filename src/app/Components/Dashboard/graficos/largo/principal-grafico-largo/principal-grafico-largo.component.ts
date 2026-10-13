@@ -84,6 +84,7 @@ import { Equipo } from '../../../../../models/equipo.model';
 import { PresentacionTlargosDialogComponent } from '../presentacion-tlargos-dialog/presentacion-tlargos-dialog.component';
 import { ExcelTaladroLargoExportService } from 'app/services/Excel/excel-taladro-largo-export.service';
 import { PresentacionGefeGuardiaTlComponent } from '../presentacion-gefe-guardia-tl/presentacion-gefe-guardia-tl.component';
+import { EquipoService } from 'app/services/equipo.service';
 
 @Component({
   selector: 'app-principal-grafico-largo',
@@ -150,6 +151,8 @@ export class PrincipalGraficoLargoComponent implements OnInit {
   anio!: number;
   mes!: string;
   showZoom: boolean = false;
+
+  private readonly PROCESO = 'PERFORACIÓN TALADROS LARGOS';
 
   // DATA ORIGINAL (sin filtrar)
   operacionesOriginal: OperacionBaseTLargos[] = [];
@@ -310,17 +313,21 @@ export class PrincipalGraficoLargoComponent implements OnInit {
   DataUtilizacionPorGuardia: any[] = [];
   DataParetoUtilizacion: any[] = [];
 
+  equipos: Equipo[] = [];
+
   constructor(
     private planMensualService: PlanProduccionService,
     private fechasPlanMensualService: FechasPlanMensualService,
     private operacionesService: OperacionesService,
     private estadoService: EstadoService,
     private dialog: MatDialog,
-    private excelExportService: ExcelTaladroLargoExportService
+    private excelExportService: ExcelTaladroLargoExportService,
+    private equipoService: EquipoService,
   ) {}
 
   ngOnInit(): void {
     this.obtenerUltimaFecha();
+    this.cargarEquipos();
 
     // 🔥 SETEO AUTOMÁTICO
     const hoy = this.getFechaHoy();
@@ -331,6 +338,17 @@ export class PrincipalGraficoLargoComponent implements OnInit {
     this.cargarOperaciones();
     this.obtenerEstadosPorProceso('PERFORACIÓN TALADROS LARGOS');
   }
+
+  cargarEquipos() {
+  this.equipoService.getEquiposByProceso(this.PROCESO)
+    .subscribe({
+      next: (equipos: Equipo[]) => {
+        this.equipos = equipos;         // 👈 guardar
+      },
+      error: err => console.error('Error equipos:', err)
+    });
+}
+
   toggleDataZoom(): void {
     this.showZoom = !this.showZoom;
   }
@@ -4539,9 +4557,10 @@ export class PrincipalGraficoLargoComponent implements OnInit {
   }
 
   exportarExcel() {
-    this.excelExportService.exportOperacionesToExcel(
-      this.operacionesFiltradas, 
-      'Operaciones_Simba'
-    );
-  }
+  this.excelExportService.exportOperacionesToExcel(
+    this.operacionesFiltradas,
+    'Operaciones_Simba',
+    this.equipos                // 👈 pasar el catálogo de equipos
+  );
+}
 }
