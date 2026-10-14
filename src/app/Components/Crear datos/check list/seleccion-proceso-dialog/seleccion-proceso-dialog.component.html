@@ -1,24 +1,6 @@
-<h2 mat-dialog-title>Selecciona un Proceso</h2>
 
-<mat-dialog-content>
-  <mat-divider></mat-divider>
-
-  <div class="contenedor-botones">
-    <button
-      mat-raised-button
-      color="primary"
-      *ngFor="let proceso of procesos"
-      (click)="seleccionarProceso(proceso)"
-      class="boton-proceso"
-    >
-      {{ proceso.nombre }}
-    </button>
-  </div>
-
-</mat-dialog-content>
-
-<mat-dialog-actions align="center">
-  <button mat-flat-button color="warn" (click)="cerrarDialogo()" class="boton-cerrar">
-    Cerrar
-  </button>
-</mat-dialog-actions>
+<div class="max-h-[90dvh] overflow-y-auto bg-surface text-ink">
+  <header class="border-b border-border bg-gradient-to-r from-secondary via-secondary-75 to-primary p-5 text-white sm:p-6"><div><h2 class="text-xl font-black">Seleccionar proceso</h2><p class="mt-2 text-sm text-white/80">Elige el proceso al que pertenece el checklist.</p></div></header>
+  <div class="space-y-5 p-5 sm:p-6"><div class="grid grid-cols-1 gap-3 sm:grid-cols-2"><button type="button" *ngFor="let proceso of procesos" class="inline-flex min-h-14 items-center justify-between gap-3 rounded-2xl border border-border bg-surface-soft px-4 py-3 text-left text-xs font-bold leading-relaxed text-secondary transition hover:border-primary hover:bg-primary/10 focus-visible:outline-2 focus-visible:outline-primary" (click)="seleccionarProceso(proceso)"><span>{{ proceso.nombre }}</span><i class="pi pi-angle-right shrink-0 text-ink-50" aria-hidden="true"></i></button></div></div>
+  <footer class="flex flex-wrap justify-end gap-3 border-t border-border bg-surface-soft px-5 py-4 sm:px-6"><button type="button" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border bg-surface px-4 py-2 text-sm font-semibold text-ink transition hover:bg-surface-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary" (click)="cerrarDialogo()">Cancelar</button></footer>
+</div>

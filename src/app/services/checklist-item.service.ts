@@ -12,18 +12,26 @@ export class CheckListItemService {
 
   constructor(private apiService: ApiService) {}
 
-  getCheckListItems(): Observable<CheckListItem[]> {
-    return this.apiService.getDatos(this.baseUrl);
+  getCheckListItems(filtros: { proceso?: string; categoria?: string; equipo_id?: number } = {}): Observable<CheckListItem[]> {
+    const params = new URLSearchParams();
+    Object.entries(filtros).forEach(([key, value]) => {
+      if (value !== undefined && value !== '') params.set(key, String(value));
+    });
+    return this.apiService.getDatos(`${this.baseUrl}${params.size ? '?' + params.toString() : ''}`);
+  }
+
+  getCheckListItemsByEquipo(equipoId: number): Observable<CheckListItem[]> {
+    return this.apiService.getDatos(`${this.baseUrl}/equipo/${equipoId}`);
   }
 
   getCheckListItemById(id: number): Observable<CheckListItem> {
     return this.apiService.getDatos(`${this.baseUrl}/${id}`);
   }
 
-  createCheckListItem(item: CheckListItem): Observable<CheckListItem> {
+  createCheckListItem(item: CheckListItem, notificar = true): Observable<CheckListItem> {
     return this.apiService.postDatos(`${this.baseUrl}/`, item).pipe(
       tap(() => {
-        this.itemsActualizados.next(true); // Notificar que se creó un nuevo item
+        if (notificar) this.notificarActualizacion();
       })
     );
   }
@@ -46,5 +54,9 @@ export class CheckListItemService {
 
   getItemsActualizados(): Observable<boolean> {
     return this.itemsActualizados.asObservable();
+  }
+
+  notificarActualizacion(): void {
+    this.itemsActualizados.next(true);
   }
 }

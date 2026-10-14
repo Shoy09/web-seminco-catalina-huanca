@@ -63,6 +63,7 @@ export class SeleccionProcesoDialogComponent {
 
 abrirDialogo(proceso: any) {
   const dialogRef = this.dialog.open(OpcionesDialogComponent, {
+    width: '560px', maxWidth: 'calc(100vw - 24px)', maxHeight: '90dvh',
     data: { 
       proceso: proceso.nombre,
       categorias: proceso.categorias

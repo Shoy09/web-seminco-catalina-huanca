@@ -1,40 +1,101 @@
-<div class="container">
-  <h2>Crear Nuevo Checklist</h2>
+
+<div class="max-h-[90dvh] overflow-y-auto bg-surface text-ink">
+  <header class="border-b border-border bg-gradient-to-r from-secondary via-secondary-75 to-primary p-5 text-white sm:p-6">
+    <h2 class="text-xl font-black">{{ editando ? 'Editar ítem de checklist' : 'Agregar ítems de checklist' }}</h2>
+    <p class="mt-2 text-sm text-white/80">Selecciona el proceso y los equipos a los que aplican las verificaciones.</p>
+  </header>
 
   <form [formGroup]="checkListForm" (ngSubmit)="onSubmit()">
+    <fieldset [disabled]="guardando || leyendoArchivo" class="min-w-0 space-y-6 p-5 disabled:opacity-70 sm:p-6">
+      <section class="space-y-3">
+        <label for="checklist-proceso" class="block text-sm font-bold text-secondary">1. Proceso</label>
+        <select id="checklist-proceso" formControlName="proceso" (change)="cambiarProceso()" required class="min-h-11 w-full rounded-2xl border border-border bg-surface-soft px-4 py-2 text-base outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
+          <option value="" disabled>Seleccionar proceso</option>
+          @for (proceso of procesos; track proceso) { <option [value]="proceso">{{ proceso }}</option> }
+        </select>
+      </section>
 
-    <!-- Proceso (solo lectura) -->
-    <div class="form-group">
-      <label for="proceso">Proceso</label>
-      <input id="proceso" formControlName="proceso" readonly />
-    </div>
+      <section class="space-y-3" aria-labelledby="equipos-title">
+        <h3 id="equipos-title" class="text-sm font-bold text-secondary">2. Equipos</h3>
+        <label class="flex min-h-11 cursor-pointer items-start gap-3 rounded-2xl border border-border bg-surface-soft p-4">
+          <input type="checkbox" formControlName="todos" class="mt-1 h-4 w-4 shrink-0 accent-secondary" />
+          <span class="text-sm"><strong class="block">Todos los equipos del proceso</strong><span class="mt-1 block text-xs text-ink-75">Incluye también los equipos que se registren en este proceso más adelante.</span></span>
+        </label>
+        @if (!todos) {
+          @if (!proceso) {
+            <p class="text-sm text-ink-50">Selecciona primero un proceso para ver sus equipos.</p>
+          } @else if (cargandoEquipos) {
+            <p class="text-sm text-ink-75" role="status">Cargando equipos…</p>
+          } @else if (errorEquipos) {
+            <div class="rounded-xl border border-danger/20 bg-danger/5 p-3 text-sm text-danger" role="alert">{{ errorEquipos }} <button type="button" (click)="cargarEquipos()" class="ml-2 min-h-11 font-bold underline">Reintentar</button></div>
+          } @else {
+            <label for="checklist-equipo-search" class="sr-only">Buscar equipo por nombre, código o modelo</label>
+            <input id="checklist-equipo-search" type="search" [value]="busquedaEquipo" (input)="busquedaEquipo = $any($event.target).value" placeholder="Buscar equipo por código o nombre..." class="min-h-11 w-full rounded-xl border border-border bg-surface-soft px-3 text-base outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" />
+            <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
+              <span class="font-semibold text-secondary" role="status">{{ equipoIds.size }} seleccionados de {{ equiposProceso.length }}</span>
+              <div class="flex gap-3"><button type="button" (click)="seleccionarVisibles()" [disabled]="!equiposVisibles.length" class="min-h-11 font-semibold text-secondary disabled:opacity-40">Seleccionar visibles</button><button type="button" (click)="equipoIds.clear()" class="min-h-11 text-ink-75">Limpiar</button></div>
+            </div>
+            <div class="grid max-h-56 grid-cols-1 gap-2 overflow-y-auto rounded-xl border border-border p-2 sm:grid-cols-2">
+              @for (equipo of equiposVisibles; track equipo.id) {
+                <label class="flex cursor-pointer items-start gap-3 rounded-lg border border-border p-3 transition hover:bg-primary/5" [ngClass]="{ 'bg-primary/10': equipoIds.has(equipo.id!) }">
+                  <input type="checkbox" [checked]="equipoIds.has(equipo.id!)" (change)="marcarEquipo(equipo.id, $any($event.target).checked)" class="mt-1 h-4 w-4 shrink-0 accent-secondary" />
+                  <span class="min-w-0 break-words text-sm"><strong class="block text-secondary">{{ equipo.codigo || 'Sin código' }} · {{ equipo.nombre }}</strong>@if (equipo.modelo) { <small class="mt-1 block text-xs text-ink-50">{{ equipo.modelo }}</small> }</span>
+                </label>
+              } @empty { <p class="p-3 text-sm text-ink-50 sm:col-span-2">{{ equiposProceso.length ? 'No hay equipos que coincidan con la búsqueda.' : 'Este proceso no tiene equipos registrados.' }}</p> }
+            </div>
+            @if (equipoIds.size && !seleccionValida) { <p class="text-xs text-danger" role="alert">Hay asignaciones que ya no corresponden a los equipos disponibles. Limpia la selección y vuelve a elegir.</p> }
+          }
+        }
+      </section>
 
-    <!-- Categoría -->
-<div class="form-group">
-  <label for="categoria">Categoría</label>
-  <select id="categoria" formControlName="categoria" required>
-  <option value="" disabled>Seleccionar categoría</option>
+      <section class="space-y-4" aria-labelledby="items-title">
+        <h3 id="items-title" class="text-sm font-bold text-secondary">3. Ítems del checklist</h3>
+        @if (!editando) {
+          <div class="flex flex-wrap gap-2" role="group" aria-label="Forma de ingreso">
+            <button type="button" (click)="cambiarModo('manual')" [attr.aria-pressed]="modo === 'manual'" [class.bg-secondary]="modo === 'manual'" [class.text-white]="modo === 'manual'" class="min-h-11 rounded-xl border border-border px-4 py-2 text-sm font-semibold"><i class="pi pi-pencil mr-2" aria-hidden="true"></i>Ingreso manual</button>
+            <button type="button" (click)="cambiarModo('excel')" [attr.aria-pressed]="modo === 'excel'" [class.bg-secondary]="modo === 'excel'" [class.text-white]="modo === 'excel'" class="min-h-11 rounded-xl border border-border px-4 py-2 text-sm font-semibold"><i class="pi pi-upload mr-2" aria-hidden="true"></i>Desde Excel</button>
+          </div>
+        }
+        @if (modo === 'manual') {
+          <div class="flex flex-col gap-2">
+            <label for="checklist-categoria" class="text-sm font-bold">Categoría</label>
+            <select id="checklist-categoria" formControlName="categoria" class="min-h-11 w-full rounded-2xl border border-border bg-surface-soft px-4 py-2 text-base outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
+              <option value="" disabled>Seleccionar categoría</option>
+              @for (cat of categorias; track cat) { <option [value]="cat">{{ cat }}</option> }
+            </select>
+          </div>
+          <div class="flex flex-col gap-2">
+            <label for="checklist-nombres" class="text-sm font-bold">{{ editando ? 'Nombre del ítem' : 'Nombres de los ítems' }}</label>
+            <textarea id="checklist-nombres" formControlName="nombre" [rows]="editando ? 2 : 5" aria-describedby="nombres-ayuda" placeholder="Verificar nivel de aceite" class="w-full resize-y rounded-2xl border border-border bg-surface-soft px-4 py-3 text-base outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"></textarea>
+            <p id="nombres-ayuda" class="text-xs text-ink-50">{{ editando ? 'Actualiza el nombre y la asignación de este ítem.' : 'Escribe un ítem por línea. Todos compartirán la categoría y los equipos seleccionados.' }}</p>
+            @if (errorNombres) { <p class="text-xs text-danger" role="alert">{{ errorNombres }}</p> }
+          </div>
+        } @else {
+          <div class="space-y-3 rounded-2xl border border-border bg-surface-soft p-4">
+            <p class="text-sm text-ink-75">Usa las columnas <strong>Categoría</strong> y <strong>Nombre</strong> en la primera hoja. Los ítems se asignarán al proceso y los equipos elegidos arriba.</p>
+            <p class="text-xs text-ink-50">Categorías disponibles: {{ categorias.join(', ') }}</p>
+            <button type="button" (click)="descargarPlantilla()" class="min-h-11 text-sm font-bold text-secondary underline">Descargar plantilla</button>
+            <label for="checklist-archivo" class="block text-sm font-bold">Archivo Excel</label>
+            <input id="checklist-archivo" type="file" accept=".xls,.xlsx" (change)="cargarArchivo($event)" [disabled]="!proceso || leyendoArchivo" class="block w-full min-w-0 text-sm file:mr-3 file:rounded-xl file:border file:border-border file:bg-surface file:px-4 file:py-3 file:text-secondary" />
+            @if (archivoNombre) { <p class="break-words text-xs text-ink-50">{{ archivoNombre }}</p> }
+            @if (leyendoArchivo) { <p role="status" class="text-sm text-ink-75">Leyendo archivo…</p> }
+            @if (erroresArchivo.length) { <ul class="max-h-40 list-disc space-y-1 overflow-auto pl-5 text-xs text-danger" role="alert">@for (error of erroresArchivo; track $index) { <li>{{ error }}</li> }</ul> }
+            @if (filasExcel.length) {
+              <div class="max-h-56 overflow-auto rounded-xl border border-border bg-surface">
+                <table class="w-full text-left text-xs"><thead class="bg-surface-soft"><tr><th class="px-3 py-2">Categoría</th><th class="px-3 py-2">Nombre</th></tr></thead><tbody>@for (fila of filasExcel; track $index) { <tr class="border-t border-border/50"><td class="px-3 py-2">{{ fila.categoria }}</td><td class="break-words px-3 py-2">{{ fila.nombre }}</td></tr> }</tbody></table>
+              </div>
+            }
+          </div>
+        }
+      </section>
+      <div class="rounded-xl border border-primary/20 bg-primary/5 p-3 text-sm text-secondary" role="status">{{ filas.length }} ítems · {{ todos ? 'Todos los equipos del proceso' : equipoIds.size + ' equipos seleccionados' }}</div>
+    </fieldset>
 
-  <option *ngFor="let cat of categorias" [value]="cat">
-    {{cat}}
-  </option>
-
-</select>
-</div>
-
-
-    <!-- Nombre -->
-    <div class="form-group">
-      <label for="nombre">Nombre</label>
-      <input id="nombre" formControlName="nombre" required />
-    </div>
-
-    <!-- Botones -->
-    <div class="button-container">
-      <button type="submit" [disabled]="checkListForm.invalid">Crear</button>
-      <button type="button" class="cancel-btn" (click)="onCancel()">Cancelar</button>
-    </div>
+    @if (mensaje) { <p class="mx-5 mb-4 rounded-xl border border-danger/20 bg-danger/5 p-3 text-sm text-danger" role="alert">{{ mensaje }}</p> }
+    @if (guardando) { <p class="px-5 pb-4 text-sm text-secondary" role="status">Guardando {{ progreso }} de {{ totalGuardar }}…</p> }
+    <footer class="sticky bottom-0 flex flex-wrap justify-end gap-3 border-t border-border bg-surface-soft px-5 py-4 sm:px-6">
+      <button type="button" (click)="onCancel()" [disabled]="guardando" class="min-h-11 rounded-xl border border-border bg-surface px-4 py-2 text-sm font-semibold transition hover:bg-surface-soft disabled:opacity-50">Cancelar</button>
+      <button type="submit" [disabled]="!puedeGuardar" class="min-h-11 rounded-xl bg-secondary px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-secondary/90 disabled:cursor-not-allowed disabled:opacity-50">{{ guardando ? 'Guardando…' : editando ? 'Guardar cambios' : 'Guardar ' + filas.length + ' ítems' }}</button>
+    </footer>
   </form>
-
-  <p *ngIf="mensaje" class="mensaje">{{ mensaje }}</p>
 </div>
