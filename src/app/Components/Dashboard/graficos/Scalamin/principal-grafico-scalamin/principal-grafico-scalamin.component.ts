@@ -39,6 +39,8 @@ export class PrincipalGraficoScalaminComponent implements OnInit {
   fechaFin: string = '';
   turnoSeleccionado: string = '';
   turnoAplicado: string = '';
+equipos: Equipo[] = [];
+  private readonly PROCESO = 'SCALAMIN';
 
 constructor(
     private planMensualService: PlanProduccionService,
@@ -46,6 +48,7 @@ constructor(
     private operacionesService: OperacionesService,
     private estadoService: EstadoService,
     private dialog: MatDialog,
+    private equipoService: EquipoService,
     private excelExportService: ExcelScalaminExportService
   ) {}
 
@@ -57,6 +60,7 @@ constructor(
     this.turnoSeleccionado = this.getTurnoActual();
 
     this.cargarOperaciones();
+    this.cargarEquipos();
   }
   toggleDataZoom(): void {
     this.showZoom = !this.showZoom;
@@ -132,11 +136,23 @@ constructor(
       this.turnoSeleccionado = '';
   
     }
+
+    cargarEquipos() {
+  this.equipoService.getEquiposByProceso(this.PROCESO)
+    .subscribe({
+      next: (equipos: Equipo[]) => {
+        this.equipos = equipos;         // 👈 guardar
+      },
+      error: err => console.error('Error equipos:', err)
+    });
+}
+
   
     exportarExcel() {
     this.excelExportService.exportOperacionesToExcel(
       this.operacionesFiltradas, 
-      'Operaciones'
+      'Operaciones',
+      this.equipos  
     );
   }
 
@@ -148,7 +164,9 @@ constructor(
     
       const dialogRef = this.dialog.open(PresentacionGefeGuardiaScalaminComponent, {
         width: '1800px',
-        maxHeight: '90vh',
+      maxWidth: 'calc(100vw - 16px)',
+      maxHeight: '100dvh',
+      panelClass: 'guardia-presentation-dialog',
         data: {
           operaciones: this.operacionesFiltradas,
           turnoAplicado: this.turnoAplicado,

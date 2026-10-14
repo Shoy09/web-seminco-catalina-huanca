@@ -46,6 +46,8 @@ import { OperacionSostenimiento } from '../../../../../models/OperacionSostenimi
 import { ExcelEmpernadorExportService } from 'app/services/Excel/excel-empernador-export.service';
 import { PresentacionGefeGuardiaEmpernadorComponent } from '../presentacion-gefe-guardia-empernador/presentacion-gefe-guardia-empernador.component';
 import { MatDialog } from '@angular/material/dialog';
+import { Equipo } from 'app/models/equipo.model';
+import { EquipoService } from 'app/services/equipo.service';
 
 @Component({
   selector: 'app-principal-grafico-sostenimiento',
@@ -132,6 +134,9 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
   dataFrPorOperadorTurno: any[] = [];
   dataLaborFRDetallado: any[] = [];
 
+  equipos: Equipo[] = [];
+    private readonly PROCESO = 'EMPERNADOR';
+
   resumen = {
     conteoEquipos: 0,
     totalLaboresSostenidas: 0,
@@ -149,6 +154,7 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
     private estadoService: EstadoService,
     private excelExportService: ExcelEmpernadorExportService,
     private dialog: MatDialog,
+    private equipoService: EquipoService,
   ) {}
 
   ngOnInit(): void {
@@ -162,7 +168,18 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
 
     this.cargarOperaciones();
     this.obtenerEstadosPorProceso('EMPERNADOR');
+    this.cargarEquipos();
   }
+
+      cargarEquipos() {
+  this.equipoService.getEquiposByProceso(this.PROCESO)
+    .subscribe({
+      next: (equipos: Equipo[]) => {
+        this.equipos = equipos;         // 👈 guardar
+      },
+      error: err => console.error('Error equipos:', err)
+    });
+}
 
   obtenerEstadosPorProceso(proceso: string) {
     this.estadoService.getEstadosByProceso(proceso)
@@ -1832,7 +1849,8 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
   exportarExcel() {
     this.excelExportService.exportOperacionesToExcel(
       this.operacionesFiltradas,
-      'Operaciones'
+      'Operaciones',
+      this.equipos  
     );
   }
 
@@ -1844,7 +1862,9 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
   
     const dialogRef = this.dialog.open(PresentacionGefeGuardiaEmpernadorComponent, {
       width: '1800px',
-      maxHeight: '90vh',
+      maxWidth: 'calc(100vw - 16px)',
+      maxHeight: '100dvh',
+      panelClass: 'guardia-presentation-dialog',
       data: {
         operaciones: this.operacionesFiltradas,
         turnoAplicado: this.turnoAplicado,

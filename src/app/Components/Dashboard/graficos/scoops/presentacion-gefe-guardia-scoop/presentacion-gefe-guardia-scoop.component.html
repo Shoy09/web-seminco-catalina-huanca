@@ -76,7 +76,7 @@
 
       @if (resumenLabores.length > 0) {
         <div class="w-full overflow-x-auto rounded-lg border border-border/70">
-          <table class="w-full min-w-[560px] table-fixed border-collapse text-left text-sm sm:min-w-[820px]">
+          <table class="guardia-table w-full min-w-[560px] table-fixed border-collapse text-left text-sm sm:min-w-[820px]">
             <colgroup>
               <col class="w-[12%] sm:w-[10%]">  <!-- Equipo -->
               <col class="w-[20%] sm:w-[18%]">  <!-- Labor inicio -->
@@ -102,11 +102,11 @@
             <tbody class="divide-y divide-border/70">
               @for (fila of resumenLabores; track $index) {
                 <tr class="transition-colors odd:bg-surface even:bg-surface-soft/60 hover:bg-primary/10">
-                  <td class="px-2 py-2.5 align-middle font-semibold text-secondary sm:px-3">{{ fila.equipo }}</td>
-                  <td class="px-2 py-2.5 align-middle text-ink sm:px-3">{{ fila.laborInicio }}</td>
-                  <td class="px-2 py-2.5 align-middle text-ink-75 sm:px-3">{{ fila.ubicacionDestino }}</td>
-                  <td class="px-2 py-2.5 align-middle text-ink-75 sm:px-3">{{ fila.material }}</td>
-                  <td class="px-2 py-2.5 align-middle text-right font-semibold tabular-nums text-secondary sm:px-3">
+                  <td data-label="Equipo" class="px-2 py-2.5 align-middle font-semibold text-secondary sm:px-3">{{ fila.equipo }}</td>
+                  <td data-label="Labor inicio" class="px-2 py-2.5 align-middle text-ink sm:px-3">{{ fila.laborInicio }}</td>
+                  <td data-label="Ubic. destino" class="px-2 py-2.5 align-middle text-ink-75 sm:px-3">{{ fila.ubicacionDestino }}</td>
+                  <td data-label="Material" class="px-2 py-2.5 align-middle text-ink-75 sm:px-3">{{ fila.material }}</td>
+                  <td data-label="N° cucharas" class="px-2 py-2.5 align-middle text-right font-semibold tabular-nums text-secondary sm:px-3">
                     {{ fila.nCucharas }}
                   </td>
                 </tr>

@@ -61,7 +61,7 @@ interface ResumenLabor {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './presentacion-gefe-guardia-tl.component.html',
-  styleUrl: './presentacion-gefe-guardia-tl.component.css',
+  styleUrls: ['./presentacion-gefe-guardia-tl.component.css', '../../shared/presentacion-guardia-responsive.css'],
 })
 export class PresentacionGefeGuardiaTlComponent implements OnInit, OnDestroy {
 

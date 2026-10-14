@@ -314,7 +314,7 @@
 
   @if (resumenLabores.length > 0) {
     <div class="w-full overflow-x-auto rounded-lg border border-border/70">
-      <table class="w-full min-w-[560px] table-fixed border-collapse text-left text-sm sm:min-w-[820px]">
+      <table class="guardia-table w-full min-w-[560px] table-fixed border-collapse text-left text-sm sm:min-w-[820px]">
         <colgroup>
           <col class="w-[11%] sm:w-[10%]">  <!-- Equipo -->
           <col class="w-[18%] sm:w-[16%]">  <!-- Labor -->
@@ -348,14 +348,14 @@
         <tbody class="divide-y divide-border/70">
           @for (fila of resumenLabores; track $index) {
             <tr class="transition-colors odd:bg-surface even:bg-surface-soft/60 hover:bg-primary/10">
-              <td class="px-2 py-2.5 align-middle font-semibold text-secondary sm:px-3">{{ fila.equipo }}</td>
-              <td class="px-2 py-2.5 align-middle text-ink sm:px-3">{{ fila.labor }}</td>
-              <td class="px-2 py-2.5 align-middle text-center tabular-nums text-ink-75 sm:px-3">{{ fila.nFila }}</td>
-              <td class="px-2 py-2.5 align-middle text-ink-75 sm:px-3">{{ fila.tipoPerforacion }}</td>
-              <td class="px-2 py-2.5 align-middle text-right tabular-nums text-ink sm:px-3">{{ fila.nBarras }}</td>
-              <td class="px-2 py-2.5 align-middle text-right tabular-nums text-ink sm:px-3">{{ fila.nTaladros }}</td>
-              <td class="px-2 py-2.5 align-middle text-right tabular-nums text-ink sm:px-3">{{ fila.longBarra | number:'1.1-2' }}</td>
-              <td class="px-2 py-2.5 align-middle text-right font-semibold tabular-nums text-secondary sm:px-3">{{ fila.metraje | number:'1.2-2' }}</td>
+              <td data-label="Equipo" class="px-2 py-2.5 align-middle font-semibold text-secondary sm:px-3">{{ fila.equipo }}</td>
+              <td data-label="Labor" class="px-2 py-2.5 align-middle text-ink sm:px-3">{{ fila.labor }}</td>
+              <td data-label="Fila" class="px-2 py-2.5 align-middle text-center tabular-nums text-ink-75 sm:px-3">{{ fila.nFila }}</td>
+              <td data-label="Tipo perf." class="px-2 py-2.5 align-middle text-ink-75 sm:px-3">{{ fila.tipoPerforacion }}</td>
+              <td data-label="N° barras" class="px-2 py-2.5 align-middle text-right tabular-nums text-ink sm:px-3">{{ fila.nBarras }}</td>
+              <td data-label="N° taladros" class="px-2 py-2.5 align-middle text-right tabular-nums text-ink sm:px-3">{{ fila.nTaladros }}</td>
+              <td data-label="Long. barra (m)" class="px-2 py-2.5 align-middle text-right tabular-nums text-ink sm:px-3">{{ fila.longBarra | number:'1.1-2' }}</td>
+              <td data-label="Metraje (m)" class="px-2 py-2.5 align-middle text-right font-semibold tabular-nums text-secondary sm:px-3">{{ fila.metraje | number:'1.2-2' }}</td>
             </tr>
           }
         </tbody>

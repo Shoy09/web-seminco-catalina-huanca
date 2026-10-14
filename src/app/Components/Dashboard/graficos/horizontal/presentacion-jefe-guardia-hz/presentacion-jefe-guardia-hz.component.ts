@@ -56,7 +56,7 @@ interface ResumenLabor {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './presentacion-jefe-guardia-hz.component.html',
-  styleUrl: './presentacion-jefe-guardia-hz.component.css',
+  styleUrls: ['./presentacion-jefe-guardia-hz.component.css', '../../shared/presentacion-guardia-responsive.css'],
 })
 export class PresentacionJefeGuardiaHzComponent implements OnInit, OnDestroy {
 

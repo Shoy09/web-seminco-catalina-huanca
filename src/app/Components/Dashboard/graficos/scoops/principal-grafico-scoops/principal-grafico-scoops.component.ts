@@ -217,7 +217,8 @@ dataHorasOperativasSemana: any[] = [];
 dataHorasOperativasMes: any[] = [];
 
 toneladasScoops: any[] = [];
-
+private readonly PROCESO = 'SCOOPTRAM';
+equipos: Equipo[] = [];
 constructor(
     private planMensualService: PlanMensualService,
     private fechasPlanMensualService: FechasPlanMensualService,
@@ -245,6 +246,16 @@ private excelExportService: ExcelScoopExportService
 
     this.cargarToneladasScoops();
   }
+
+  cargarEquipos() {
+  this.equipoService.getEquiposByProceso(this.PROCESO)
+    .subscribe({
+      next: (equipos: Equipo[]) => {
+        this.equipos = equipos;         // 👈 guardar
+      },
+      error: err => console.error('Error equipos:', err)
+    });
+}
 
   cargarToneladasScoops(): void {
   this.toneladasScoopService.getToneladasScoops().subscribe({
@@ -3994,7 +4005,8 @@ private calcularHorasOperativasBasePorDia() {
 exportarExcel() {
     this.excelExportService.exportOperacionesToExcel(
       this.operacionesFiltradas, 
-      'Operaciones_Scoops'
+      'Operaciones_Scoops',
+      this.equipos  
     );
   }
 JefeGuardia() {
@@ -4005,7 +4017,9 @@ JefeGuardia() {
 
   const dialogRef = this.dialog.open(PresentacionGefeGuardiaScoopComponent, {
     width: '1800px',
-    maxHeight: '90vh',
+      maxWidth: 'calc(100vw - 16px)',
+      maxHeight: '100dvh',
+      panelClass: 'guardia-presentation-dialog',
     data: {
       operaciones: this.operacionesFiltradas,
       turnoAplicado: this.turnoAplicado,

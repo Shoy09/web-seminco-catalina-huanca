@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Equipo } from 'app/models/equipo.model';
 import { OperacionBaseJumbo } from 'app/models/OperacionBase.models';
 import * as XLSX from 'xlsx';
 
@@ -7,14 +8,21 @@ import * as XLSX from 'xlsx';
 })
 export class ExcelScoopExportService {
 
-  exportOperacionesToExcel(operacionesOriginal: OperacionBaseJumbo[], fileName: string) {
+  exportOperacionesToExcel(
+    operacionesOriginal: OperacionBaseJumbo[],
+    fileName: string,
+    equipos: Equipo[] = []
+  ) {
     // Filtrar solo operaciones con estado "cerrado"
     const operacionesCerradas = operacionesOriginal.filter(op =>
       op.estado?.toLowerCase() === 'cerrado'
     );
 
+    // 👇 Construir mapa: código (normalizado) → nombre_excel
+    const mapaEquipos = this.construirMapaEquipos(equipos);
+
     // Preparar datos
-    const excelData = this.prepareExcelData(operacionesCerradas);
+    const excelData = this.prepareExcelData(operacionesCerradas, mapaEquipos);
 
     // Crear libro
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
@@ -27,7 +35,39 @@ export class ExcelScoopExportService {
     XLSX.writeFile(wb, `${fileName}_${new Date().toISOString().slice(0, 10)}.xlsx`);
   }
 
-  private prepareExcelData(operaciones: OperacionBaseJumbo[]): any[] {
+  /**
+   * Construye un mapa código → nombre_excel a partir del catálogo de equipos.
+   * Normaliza el código (trim + uppercase) para que el cruce sea robusto.
+   */
+  private construirMapaEquipos(equipos: Equipo[]): Map<string, string> {
+    const mapa = new Map<string, string>();
+
+    equipos.forEach(eq => {
+      if (!eq.codigo) {
+        console.warn('⚠️ Equipo sin código, no se puede mapear:', eq);
+        return;
+      }
+
+      const codigo = this.normalizar(eq.codigo);
+      const nombreExcel = eq.nombre_excel ?? eq.nombre ?? '';
+
+      if (!mapa.has(codigo)) {
+        mapa.set(codigo, nombreExcel);
+      }
+    });
+
+    return mapa;
+  }
+
+  /** Normaliza un texto para comparaciones: trim + uppercase */
+  private normalizar(valor: string | null | undefined): string {
+    return String(valor ?? '').trim().toUpperCase();
+  }
+
+  private prepareExcelData(
+    operaciones: OperacionBaseJumbo[],
+    mapaEquipos: Map<string, string>
+  ): any[] {
     const data: any[] = [];
 
     operaciones.forEach(op => {
@@ -42,11 +82,15 @@ export class ExcelScoopExportService {
           // Datos de la operación del registro
           const operacionData = registro.operacion || {};
 
+          // 👇 Resolver el nombre_excel cruzando op.n_equipo (código) con el mapa
+          const codigoEquipo = this.normalizar(op.n_equipo);
+          const nombreExcel = mapaEquipos.get(codigoEquipo) ?? op.n_equipo ?? '';
+
           const row = {
-            'EQUIPO': op.n_equipo || '',
+            'EQUIPO': nombreExcel,
             'N° ITEM': registro.numero || '',
             'FECHA': this.formatearFecha(op.fecha),
-            'TURNO': this.formatearTurno(op.turno), 
+            'TURNO': this.formatearTurno(op.turno),
             'GUARDIA': this.obtenerGuardia(op),
             'OPERADOR': this.formatearOperador(op.operador),
             'JEFE DE GUARDIA': op.jefe_guardia || '',
@@ -58,13 +102,13 @@ export class ExcelScoopExportService {
             'HOROMETRO M INICIAL': horometros.motor?.inicio ?? '',
             'HOROMETRO M FINAL': horometros.motor?.final ?? '',
             // 'HORAS MOTOR': horometros.motor?.diferencia ?? '',
-            'LABOR': operacionData.labor_inicio || '',                    // ⚠️ REVISAR: en tu data es `labor_inicio`
-            'DESTINO': operacionData.ubicacion_destino || '',             // ⚠️ REVISAR: en tu data es `ubicacion_destino`
+            'LABOR': operacionData.labor_inicio || '',
+            'DESTINO': operacionData.ubicacion_destino || '',
             'MINERAL': operacionData.mineral ?? '',
             'DESMONTE': operacionData.desmonte ?? '',
             'RELLENO': operacionData.relleno ?? '',
             'Nº DE VOLQUETE': operacionData.numero_volquete || '',
-            'TIPO DE LABOR': operacionData.tipo_labor || '',              // ⚠️ REVISAR: no vi este campo en la data
+            'TIPO DE LABOR': operacionData.tipo_labor || '',
             'RELAVE': operacionData.relave ?? '',
             'OBSERVACIÓN': operacionData.observaciones || ''
           };
@@ -100,7 +144,7 @@ export class ExcelScoopExportService {
       return result;
     }
 
-    // Formato: { horometro: { inicio, final } }  ← tu data actual
+    // Formato: { horometro: { inicio, final } }
     if (horometros.horometro) {
       const h = horometros.horometro;
       result.motor = {
@@ -233,19 +277,18 @@ export class ExcelScoopExportService {
     worksheet['!cols'] = columnWidths;
   }
 
-    private formatearTurno(turno: string | undefined | null): string {
-  if (!turno) return '';
+  private formatearTurno(turno: string | undefined | null): string {
+    if (!turno) return '';
 
-  return turno
-    .toString()
-    .toUpperCase()
-    .normalize('NFD')                    // Descompone letras con tilde
-    .replace(/[\u0300-\u036f]/g, '');    // Elimina los diacríticos
-}
+    return turno
+      .toString()
+      .toUpperCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+  }
 
-private formatearOperador(operador: string | undefined | null): string {
-  if (!operador) return '';
-  return operador.toString().toUpperCase();
-}
-
+  private formatearOperador(operador: string | undefined | null): string {
+    if (!operador) return '';
+    return operador.toString().toUpperCase();
+  }
 }

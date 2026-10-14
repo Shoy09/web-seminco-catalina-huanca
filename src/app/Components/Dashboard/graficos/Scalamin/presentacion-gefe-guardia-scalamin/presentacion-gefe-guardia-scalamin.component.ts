@@ -46,7 +46,7 @@ interface ResumenLabor {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './presentacion-gefe-guardia-scalamin.component.html',
-  styleUrl: './presentacion-gefe-guardia-scalamin.component.css',
+  styleUrls: ['./presentacion-gefe-guardia-scalamin.component.css', '../../shared/presentacion-guardia-responsive.css'],
 })
 export class PresentacionGefeGuardiaScalaminComponent implements OnInit, OnDestroy {
 

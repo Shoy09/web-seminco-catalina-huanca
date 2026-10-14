@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Equipo } from 'app/models/equipo.model';
 import { OperacionBaseJumbo } from 'app/models/OperacionBase.models';
 import * as XLSX from 'xlsx';
 
@@ -7,14 +8,21 @@ import * as XLSX from 'xlsx';
 })
 export class ExcelScalaminExportService {
 
-  exportOperacionesToExcel(operacionesOriginal: OperacionBaseJumbo[], fileName: string) {
+  exportOperacionesToExcel(
+    operacionesOriginal: OperacionBaseJumbo[],
+    fileName: string,
+    equipos: Equipo[] = []
+  ) {
     // Filtrar solo operaciones con estado "cerrado"
     const operacionesCerradas = operacionesOriginal.filter(op =>
       op.estado?.toLowerCase() === 'cerrado'
     );
 
+    // 👇 Construir mapa: código (normalizado) → nombre_excel
+    const mapaEquipos = this.construirMapaEquipos(equipos);
+
     // Preparar datos
-    const excelData = this.prepareExcelData(operacionesCerradas);
+    const excelData = this.prepareExcelData(operacionesCerradas, mapaEquipos);
 
     // Crear libro
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
@@ -29,7 +37,39 @@ export class ExcelScalaminExportService {
     XLSX.writeFile(wb, `${fileName}_Scalamin_${new Date().toISOString().slice(0, 10)}.xlsx`);
   }
 
-  private prepareExcelData(operaciones: OperacionBaseJumbo[]): any[] {
+  /**
+   * Construye un mapa código → nombre_excel a partir del catálogo de equipos.
+   * Normaliza el código (trim + uppercase) para que el cruce sea robusto.
+   */
+  private construirMapaEquipos(equipos: Equipo[]): Map<string, string> {
+    const mapa = new Map<string, string>();
+
+    equipos.forEach(eq => {
+      if (!eq.codigo) {
+        console.warn('⚠️ Equipo sin código, no se puede mapear:', eq);
+        return;
+      }
+
+      const codigo = this.normalizar(eq.codigo);
+      const nombreExcel = eq.nombre_excel ?? eq.nombre ?? '';
+
+      if (!mapa.has(codigo)) {
+        mapa.set(codigo, nombreExcel);
+      }
+    });
+
+    return mapa;
+  }
+
+  /** Normaliza un texto para comparaciones: trim + uppercase */
+  private normalizar(valor: string | null | undefined): string {
+    return String(valor ?? '').trim().toUpperCase();
+  }
+
+  private prepareExcelData(
+    operaciones: OperacionBaseJumbo[],
+    mapaEquipos: Map<string, string>
+  ): any[] {
     const data: any[] = [];
 
     operaciones.forEach(op => {
@@ -74,7 +114,8 @@ export class ExcelScalaminExportService {
                 horas / barras.length, // horas proporcionales
                 horometros,
                 laborData,
-                mostrarHorometros
+                mostrarHorometros,
+                mapaEquipos
               );
               data.push(row);
 
@@ -92,7 +133,8 @@ export class ExcelScalaminExportService {
               horas,
               horometros,
               laborData,
-              mostrarHorometros
+              mostrarHorometros,
+              mapaEquipos
             );
             data.push(row);
 
@@ -117,7 +159,8 @@ export class ExcelScalaminExportService {
     horas: number,
     horometros: any,
     laborData: any,
-    mostrarHorometros: boolean
+    mostrarHorometros: boolean,
+    mapaEquipos: Map<string, string>
   ): any {
     // Cálculos de horómetros
     const hpi = horometros.percusion?.inicio ?? '';
@@ -132,8 +175,12 @@ export class ExcelScalaminExportService {
       ? Math.round((hmf - hmi) * 100) / 100
       : '';
 
+    // 👇 Resolver el nombre_excel cruzando op.n_equipo (código) con el mapa
+    const codigoEquipo = this.normalizar(op.n_equipo);
+    const nombreExcel = mapaEquipos.get(codigoEquipo) ?? op.n_equipo ?? '';
+
     return {
-      'EQUIPO': op.n_equipo || '',
+      'EQUIPO': nombreExcel,
       'N° ITEM': registro.numero || '',
       'FECHA': this.formatearFecha(op.fecha),
       'TURNO': this.formatearTurno(op.turno),

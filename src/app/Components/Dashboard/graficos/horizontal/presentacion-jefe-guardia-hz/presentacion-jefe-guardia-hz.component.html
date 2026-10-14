@@ -319,7 +319,7 @@
 
       @if (resumenLabores.length > 0) {
         <div class="w-full overflow-x-auto rounded-lg border border-border/70">
-          <table class="w-full min-w-[900px] table-fixed border-collapse text-left text-sm">
+          <table class="guardia-table w-full min-w-[900px] table-fixed border-collapse text-left text-sm">
             <colgroup>
   <col class="w-[9%]">   <!-- Equipo -->
   <col class="w-[14%]">  <!-- Labor -->
@@ -347,23 +347,23 @@
             <tbody class="divide-y divide-border/70">
               @for (fila of resumenLabores; track $index) {
                 <tr class="transition-colors odd:bg-surface even:bg-surface-soft/60 hover:bg-primary/10">
-                  <td class="break-words px-3 py-3 font-semibold text-secondary sm:px-4">{{ fila.equipo }}</td>
-                  <td class="break-words px-3 py-3 text-ink sm:px-4">{{ fila.labor }}</td>
-                  <td class="break-words px-3 py-3 text-ink-75 sm:px-4">{{ fila.tipoPerforacion }}</td>
-                  <td class="break-words px-3 py-3 text-ink-75 sm:px-4">{{ fila.material || '—' }}</td>
-                  <td class="whitespace-nowrap px-3 py-3 text-right tabular-nums text-ink sm:px-4">
+                  <td data-label="Equipo" class="break-words px-3 py-3 font-semibold text-secondary sm:px-4">{{ fila.equipo }}</td>
+                  <td data-label="Labor" class="break-words px-3 py-3 text-ink sm:px-4">{{ fila.labor }}</td>
+                  <td data-label="Tipo perforación" class="break-words px-3 py-3 text-ink-75 sm:px-4">{{ fila.tipoPerforacion }}</td>
+                  <td data-label="Material" class="break-words px-3 py-3 text-ink-75 sm:px-4">{{ fila.material || '—' }}</td>
+                  <td data-label="Long. barras (ft)" class="whitespace-nowrap px-3 py-3 text-right tabular-nums text-ink sm:px-4">
                     {{ fila.longBarras | number:'1.1-2' }}
                   </td>
-                  <td class="whitespace-nowrap px-3 py-3 text-right tabular-nums text-ink sm:px-4">
+                  <td data-label="Tal. producción" class="whitespace-nowrap px-3 py-3 text-right tabular-nums text-ink sm:px-4">
                     {{ fila.talProduccion | number:'1.0-2' }}
                   </td>
-                  <td class="whitespace-nowrap px-3 py-3 text-right tabular-nums text-ink sm:px-4">
+                  <td data-label="Tal. rimados" class="whitespace-nowrap px-3 py-3 text-right tabular-nums text-ink sm:px-4">
                     {{ fila.talRimados | number:'1.0-2' }}
                   </td>
-                  <td class="whitespace-nowrap px-3 py-3 text-right tabular-nums text-ink sm:px-4">
+                  <td data-label="Tal. alivio" class="whitespace-nowrap px-3 py-3 text-right tabular-nums text-ink sm:px-4">
                     {{ fila.talAlivio | number:'1.0-2' }}
                   </td>
-                  <td class="whitespace-nowrap px-3 py-3 text-right font-semibold tabular-nums text-secondary sm:px-4">
+                  <td data-label="Metraje (m)" class="whitespace-nowrap px-3 py-3 text-right font-semibold tabular-nums text-secondary sm:px-4">
                     {{ fila.metraje | number:'1.2-2' }}
                   </td>
                 </tr>

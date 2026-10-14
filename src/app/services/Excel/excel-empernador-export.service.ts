@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Equipo } from 'app/models/equipo.model';
 import { OperacionBaseJumbo } from 'app/models/OperacionBase.models';
 import * as XLSX from 'xlsx';
 
@@ -7,12 +8,19 @@ import * as XLSX from 'xlsx';
 })
 export class ExcelEmpernadorExportService {
 
-  exportOperacionesToExcel(operacionesOriginal: OperacionBaseJumbo[], fileName: string) {
+  exportOperacionesToExcel(
+    operacionesOriginal: OperacionBaseJumbo[],
+    fileName: string,
+    equipos: Equipo[] = []
+  ) {
     const operacionesCerradas = operacionesOriginal.filter(op =>
       op.estado?.toLowerCase() === 'cerrado'
     );
 
-    const excelData = this.prepareExcelData(operacionesCerradas);
+    // 👇 Construir mapa: código (normalizado) → nombre_excel
+    const mapaEquipos = this.construirMapaEquipos(equipos);
+
+    const excelData = this.prepareExcelData(operacionesCerradas, mapaEquipos);
 
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(excelData);
@@ -24,7 +32,39 @@ export class ExcelEmpernadorExportService {
     XLSX.writeFile(wb, `${fileName}_Empernador_${new Date().toISOString().slice(0, 10)}.xlsx`);
   }
 
-  private prepareExcelData(operaciones: OperacionBaseJumbo[]): any[] {
+  /**
+   * Construye un mapa código → nombre_excel a partir del catálogo de equipos.
+   * Normaliza el código (trim + uppercase) para que el cruce sea robusto.
+   */
+  private construirMapaEquipos(equipos: Equipo[]): Map<string, string> {
+    const mapa = new Map<string, string>();
+
+    equipos.forEach(eq => {
+      if (!eq.codigo) {
+        console.warn('⚠️ Equipo sin código, no se puede mapear:', eq);
+        return;
+      }
+
+      const codigo = this.normalizar(eq.codigo);
+      const nombreExcel = eq.nombre_excel ?? eq.nombre ?? '';
+
+      if (!mapa.has(codigo)) {
+        mapa.set(codigo, nombreExcel);
+      }
+    });
+
+    return mapa;
+  }
+
+  /** Normaliza un texto para comparaciones: trim + uppercase */
+  private normalizar(valor: string | null | undefined): string {
+    return String(valor ?? '').trim().toUpperCase();
+  }
+
+  private prepareExcelData(
+    operaciones: OperacionBaseJumbo[],
+    mapaEquipos: Map<string, string>
+  ): any[] {
     const data: any[] = [];
 
     operaciones.forEach(op => {
@@ -35,7 +75,7 @@ export class ExcelEmpernadorExportService {
         op.registros.forEach((registro: any) => {
           const mostrarHorometros = !horometrosYaColocados;
 
-          const row = this.buildRow(op, registro, mostrarHorometros);
+          const row = this.buildRow(op, registro, mostrarHorometros, mapaEquipos);
           data.push(row);
 
           if (mostrarHorometros) {
@@ -54,7 +94,8 @@ export class ExcelEmpernadorExportService {
   private buildRow(
     op: OperacionBaseJumbo,
     registro: any,
-    mostrarHorometros: boolean
+    mostrarHorometros: boolean,
+    mapaEquipos: Map<string, string>
   ): any {
     const operacionData = registro.operacion || {};
     const horometros = this.getHorometros(op, registro);
@@ -84,12 +125,12 @@ export class ExcelEmpernadorExportService {
       ? Math.round((hmf - hmi) * 100) / 100
       : '';
 
-       // 🆕 Horómetro de empernador
-  const hoi = horometros.empernador?.inicio ?? '';
-  const hof = horometros.empernador?.final ?? '';
-  const dho = (typeof hoi === 'number' && typeof hof === 'number')
-    ? Math.round((hof - hoi) * 100) / 100
-    : '';
+    // 🆕 Horómetro de empernador
+    const hoi = horometros.empernador?.inicio ?? '';
+    const hof = horometros.empernador?.final ?? '';
+    const dho = (typeof hoi === 'number' && typeof hof === 'number')
+      ? Math.round((hof - hoi) * 100) / 100
+      : '';
 
     // 🔥 Procesar mallas
     const mallas = this.procesarMallas(operacionData.malla || []);
@@ -100,8 +141,12 @@ export class ExcelEmpernadorExportService {
     // 🔥 Procesar perforación
     const perforacion = this.procesarPerforacion(operacionData.perforacion || []);
 
+    // 👇 Resolver el nombre_excel cruzando op.n_equipo (código) con el mapa
+    const codigoEquipo = this.normalizar(op.n_equipo);
+    const nombreExcel = mapaEquipos.get(codigoEquipo) ?? op.n_equipo ?? '';
+
     return {
-      'EQUIPO': op.n_equipo || '',
+      'EQUIPO': nombreExcel,
       'N° ITEM': registro.numero || '',
       'FECHA': this.formatearFecha(op.fecha),
       'TURNO': this.formatearTurno(op.turno),
@@ -112,7 +157,7 @@ export class ExcelEmpernadorExportService {
       'CÓDIGO DE ACTIVIDAD': registro.codigo || '',
       'HORA INICIAL': registro.hora_inicio || '',
       'HORA FINAL': registro.hora_final || '',
-    //   'HORAS': this.formatearNumero(horas),
+      // 'HORAS': this.formatearNumero(horas),
 
       // Horómetros eléctrico
       'Horo. Elec. Inicial': mostrarHorometros ? this.formatearNumero(hei) : '',
@@ -130,8 +175,8 @@ export class ExcelEmpernadorExportService {
       //'Horas Horo. Motor': mostrarHorometros ? this.formatearNumero(dhm) : '',
 
       // 🆕 Horómetros empernador (al costado derecho del motor)
-    'Horo. Emper. Inicial': mostrarHorometros ? this.formatearNumero(hoi) : '',
-    'Horo. Emper. Final': mostrarHorometros ? this.formatearNumero(hof) : '',
+      'Horo. Emper. Inicial': mostrarHorometros ? this.formatearNumero(hoi) : '',
+      'Horo. Emper. Final': mostrarHorometros ? this.formatearNumero(hof) : '',
 
       // Datos de labor
       'LABOR': operacionData.labor || '',
@@ -152,10 +197,6 @@ export class ExcelEmpernadorExportService {
       'LONG. PERF.': perforacion.longitudPerforacion,
       'TIPO DE LABOR': perforacion.tipoPerforacion,
 
-      // Campos adicionales (del formato solicitado)
-      // 'Cant. TAL': perforacion.nTaladros,
-      // 'LONG.PERFOR Pies': perforacion.longitudPerforacion,
-
       // Horómetros repetidos al final (formato solicitado)
       'HEI': mostrarHorometros ? this.formatearNumero(hei) : '',
       'HEF': mostrarHorometros ? this.formatearNumero(hef) : '',
@@ -168,8 +209,8 @@ export class ExcelEmpernadorExportService {
       //'DHM': mostrarHorometros ? this.formatearNumero(dhm) : '',
 
       // 🆕 Horómetros empernador al final (al costado derecho del HMF)
-    'HOI': mostrarHorometros ? this.formatearNumero(hoi) : '',
-    'HOF': mostrarHorometros ? this.formatearNumero(hof) : '',
+      'HOI': mostrarHorometros ? this.formatearNumero(hoi) : '',
+      'HOF': mostrarHorometros ? this.formatearNumero(hof) : '',
 
       'Observacion': operacionData.observaciones || ''
     };
@@ -284,74 +325,72 @@ export class ExcelEmpernadorExportService {
     return this.procesarHorometros(horometrosData);
   }
 
-private procesarHorometros(horometros: any): any {
-  const defaultHorometro = { inicio: '', final: '' };
+  private procesarHorometros(horometros: any): any {
+    const defaultHorometro = { inicio: '', final: '' };
 
-  const result = {
-    electrico: { ...defaultHorometro },
-    percusion: { ...defaultHorometro },
-    motor: { ...defaultHorometro },
-    empernador: { ...defaultHorometro }  // 🆕 Agregado
-  };
+    const result = {
+      electrico: { ...defaultHorometro },
+      percusion: { ...defaultHorometro },
+      motor: { ...defaultHorometro },
+      empernador: { ...defaultHorometro }  // 🆕 Agregado
+    };
 
-  if (!horometros) return result;
+    if (!horometros) return result;
 
-  if (typeof horometros === 'object' && !Array.isArray(horometros)) {
-    if (horometros.electrico) {
-      result.electrico = {
-        inicio: horometros.electrico.inicio ?? '',
-        final: horometros.electrico.final ?? ''
-      };
-    }
-    if (horometros.percusion) {
-      result.percusion = {
-        inicio: horometros.percusion.inicio ?? '',
-        final: horometros.percusion.final ?? ''
-      };
-    }
-    if (horometros.diesel) {
-      result.motor = {
-        inicio: horometros.diesel.inicio ?? '',
-        final: horometros.diesel.final ?? ''
-      };
-    }
-    if (horometros.motor) {
-      result.motor = {
-        inicio: horometros.motor.inicio ?? '',
-        final: horometros.motor.final ?? ''
-      };
-    }
-    // 🆕 Horómetro de empernador
-    if (horometros.empernador) {
-      result.empernador = {
-        inicio: horometros.empernador.inicio ?? '',
-        final: horometros.empernador.final ?? ''
-      };
-    }
-  }
-
-  if (Array.isArray(horometros)) {
-    horometros.forEach((h: any) => {
-      const nombre = h.nombre?.toLowerCase() || '';
-      const inicio = h.inicio || h.inicial || '';
-      const final = h.final || '';
-
-      if (nombre.includes('electrico') || nombre.includes('eléctrico')) {
-        result.electrico = { inicio, final };
-      } else if (nombre.includes('percusion')) {
-        result.percusion = { inicio, final };
-      } else if (nombre.includes('motor') || nombre.includes('diesel')) {
-        result.motor = { inicio, final };
-      } else if (nombre.includes('empernador')) {  // 🆕
-        result.empernador = { inicio, final };
+    if (typeof horometros === 'object' && !Array.isArray(horometros)) {
+      if (horometros.electrico) {
+        result.electrico = {
+          inicio: horometros.electrico.inicio ?? '',
+          final: horometros.electrico.final ?? ''
+        };
       }
-    });
+      if (horometros.percusion) {
+        result.percusion = {
+          inicio: horometros.percusion.inicio ?? '',
+          final: horometros.percusion.final ?? ''
+        };
+      }
+      if (horometros.diesel) {
+        result.motor = {
+          inicio: horometros.diesel.inicio ?? '',
+          final: horometros.diesel.final ?? ''
+        };
+      }
+      if (horometros.motor) {
+        result.motor = {
+          inicio: horometros.motor.inicio ?? '',
+          final: horometros.motor.final ?? ''
+        };
+      }
+      // 🆕 Horómetro de empernador
+      if (horometros.empernador) {
+        result.empernador = {
+          inicio: horometros.empernador.inicio ?? '',
+          final: horometros.empernador.final ?? ''
+        };
+      }
+    }
+
+    if (Array.isArray(horometros)) {
+      horometros.forEach((h: any) => {
+        const nombre = h.nombre?.toLowerCase() || '';
+        const inicio = h.inicio || h.inicial || '';
+        const final = h.final || '';
+
+        if (nombre.includes('electrico') || nombre.includes('eléctrico')) {
+          result.electrico = { inicio, final };
+        } else if (nombre.includes('percusion')) {
+          result.percusion = { inicio, final };
+        } else if (nombre.includes('motor') || nombre.includes('diesel')) {
+          result.motor = { inicio, final };
+        } else if (nombre.includes('empernador')) {  // 🆕
+          result.empernador = { inicio, final };
+        }
+      });
+    }
+
+    return result;
   }
-
-  return result;
-}
-
-
 
   private calcularHoras(horaInicio: string, horaFinal: string): number {
     if (!horaInicio || !horaFinal) return 0;

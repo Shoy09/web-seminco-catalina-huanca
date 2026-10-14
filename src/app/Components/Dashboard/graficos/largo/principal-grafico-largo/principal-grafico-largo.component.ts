@@ -405,7 +405,9 @@ export class PrincipalGraficoLargoComponent implements OnInit {
 
   const dialogRef = this.dialog.open(PresentacionGefeGuardiaTlComponent, {
     width: '1800px',
-    maxHeight: '90vh',
+      maxWidth: 'calc(100vw - 16px)',
+      maxHeight: '100dvh',
+      panelClass: 'guardia-presentation-dialog',
     data: {
       operaciones: this.operacionesFiltradas,
       turnoAplicado: this.turnoAplicado,

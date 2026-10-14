@@ -55,7 +55,7 @@ interface ResumenLabor {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './presentacion-gefe-guardia-empernador.component.html',
-  styleUrl: './presentacion-gefe-guardia-empernador.component.css',
+  styleUrls: ['./presentacion-gefe-guardia-empernador.component.css', '../../shared/presentacion-guardia-responsive.css'],
 })
 export class PresentacionGefeGuardiaEmpernadorComponent implements OnInit, OnDestroy {
 
