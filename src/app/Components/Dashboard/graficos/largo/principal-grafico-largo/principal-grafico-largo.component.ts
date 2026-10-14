@@ -1,3 +1,4 @@
+import { PresentacionMmtoTlComponent } from '../presentacion-mmto-tl/presentacion-mmto-tl.component';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FechasPlanMensualService } from '../../../../../services/fechas-plan-mensual.service';
 import { OperacionesService } from '../../../../../services/operaciones.service';
@@ -394,6 +395,22 @@ export class PrincipalGraficoLargoComponent implements OnInit {
       // Opcional: Escuchar cuando se cierre el diálogo
       dialogRef.afterClosed().subscribe((result) => {
         console.log('Diálogo cerrado', result);
+      });
+    }
+
+    presentarMmto(): void {
+      this.dialog.open(PresentacionMmtoTlComponent, {
+        width: '1400px',
+        maxWidth: 'calc(100vw - 16px)',
+        maxHeight: '100dvh',
+        panelClass: 'guardia-presentation-dialog',
+        data: {
+          operaciones: this.operacionesFiltradas,
+          turnoAplicado: this.turnoAplicado,
+          fechaInicio: this.fechaInicio,
+          fechaFin: this.fechaFin,
+        },
+        autoFocus: 'dialog',
       });
     }
 

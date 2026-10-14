@@ -1,3 +1,4 @@
+import { PresentacionMmtoEmpernadorComponent } from '../presentacion-mmto-empernador/presentacion-mmto-empernador.component';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { OperacionBaseSostenimiento } from '../../../../../models/OperacionBase.models';
 import { PlanProduccion } from '../../../../../models/plan_produccion.model';
@@ -1852,6 +1853,23 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
       'Operaciones',
       this.equipos  
     );
+  }
+
+  presentarMmto(): void {
+    this.dialog.open(PresentacionMmtoEmpernadorComponent, {
+      width: '1400px',
+      maxWidth: 'calc(100vw - 16px)',
+      maxHeight: '100dvh',
+      panelClass: 'guardia-presentation-dialog',
+      data: {
+        operaciones: this.operacionesFiltradas,
+        proceso: 'Empernador',
+        turnoAplicado: this.turnoAplicado,
+        fechaInicio: this.fechaInicio,
+        fechaFin: this.fechaFin,
+      },
+      autoFocus: 'dialog',
+    });
   }
 
   JefeGuardia() {

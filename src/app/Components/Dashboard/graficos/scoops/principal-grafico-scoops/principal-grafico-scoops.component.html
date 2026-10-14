@@ -3,16 +3,20 @@
   <!-- ══ BARRA DE CONTROL ════════════════════════════════════════ -->
   <section class="overflow-hidden rounded-2xl border border-border bg-surface shadow-sm">
 
-    <div class="flex items-center justify-between bg-gradient-to-r from-secondary via-secondary-75 to-primary px-4 py-2.5 text-white">
+    <div class="flex flex-wrap items-center justify-between gap-2 bg-gradient-to-r from-secondary via-secondary-75 to-primary px-4 py-2.5 text-white">
       <div class="flex items-center gap-2">
         <span class="material-icons ic-header">local_shipping</span>
         <span class="text-sm font-bold tracking-tight">Scooptram — Carguío</span>
         <span class="hidden text-xs text-white/50 sm:inline">— Dashboard de Indicadores</span>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex flex-wrap items-center gap-2">
         <button class="btn-header" (click)="Presentacion()">
           <span class="material-icons ic-sm">slideshow</span>
           Presentación
+        </button>
+        <button type="button" class="btn-header" (click)="presentarMmto()">
+          <span class="material-icons ic-sm" aria-hidden="true">build</span>
+          MMTO
         </button>
         <button class="btn-header" (click)="JefeGuardia()">
           <span class="material-icons ic-sm">slideshow</span>
@@ -22,10 +26,10 @@
           <span class="material-icons ic-sm">picture_as_pdf</span>
           PDF
         </button>
-        <button class="btn-header" (click)="ImportarExcel()">
+        <!-- <button class="btn-header" (click)="ImportarExcel()">
           <span class="material-icons ic-sm">upload_file</span>
           Masivos
-        </button>
+        </button> -->
         <button class="btn-header" (click)="toggleDataZoom()">
           <span class="material-icons ic-sm">zoom_in</span>
           {{ showZoom ? 'Ocultar zoom' : 'Zoom' }}

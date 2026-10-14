@@ -3,7 +3,7 @@
   class="dialog-container flex min-h-0 flex-col overflow-hidden rounded-2xl border border-border bg-surface-soft text-ink shadow-xl"
   [class.fullscreen]="isFullscreen">
 
-  <header class="dialog-header flex shrink-0 items-center justify-between gap-4 bg-gradient-to-r from-secondary via-secondary-75 to-primary px-5 py-4 text-white sm:px-6">
+  <header class="dialog-header flex shrink-0 items-center justify-between gap-4  px-5 py-4 text-white sm:px-6">
     <div class="flex min-w-0 items-center gap-3">
       <span class="dialog-icon hidden text-2xl text-white/80 sm:inline-flex" aria-hidden="true">analytics</span>
       <div class="min-w-0">
@@ -29,7 +29,7 @@
       <button
         type="button"
         aria-label="Cerrar diálogo"
-        class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-xl text-white transition-colors hover:bg-red-500/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+        class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-xl text-white transition-colors hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
         (click)="cerrar()">
         <span class="dialog-icon" aria-hidden="true">close</span>
       </button>

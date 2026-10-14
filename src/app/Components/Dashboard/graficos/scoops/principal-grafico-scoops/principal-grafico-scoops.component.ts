@@ -1,3 +1,4 @@
+import { PresentacionMmtoScoopComponent } from '../presentacion-mmto-scoop/presentacion-mmto-scoop.component';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { OperacionBaseScoop } from '../../../../../models/OperacionBase.models';
 import { PlanProduccion } from '../../../../../models/plan_produccion.model';
@@ -4009,7 +4010,24 @@ exportarExcel() {
       this.equipos  
     );
   }
-JefeGuardia() {
+presentarMmto(): void {
+    this.dialog.open(PresentacionMmtoScoopComponent, {
+      width: '1400px',
+      maxWidth: 'calc(100vw - 16px)',
+      maxHeight: '100dvh',
+      panelClass: 'guardia-presentation-dialog',
+      data: {
+        operaciones: this.operacionesFiltradas,
+        proceso: 'Scooptram',
+        turnoAplicado: this.turnoAplicado,
+        fechaInicio: this.fechaInicio,
+        fechaFin: this.fechaFin,
+      },
+      autoFocus: 'dialog',
+    });
+  }
+
+  JefeGuardia() {
   if (!this.operacionesFiltradas || this.operacionesFiltradas.length === 0) {
     console.warn('No hay datos filtrados para mostrar');
     return;

@@ -1,3 +1,4 @@
+import { PresentacionMmtoScalaminComponent } from '../presentacion-mmto-scalamin/presentacion-mmto-scalamin.component';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -156,7 +157,24 @@ constructor(
     );
   }
 
-    JefeGuardia() {
+    presentarMmto(): void {
+    this.dialog.open(PresentacionMmtoScalaminComponent, {
+      width: '1400px',
+      maxWidth: 'calc(100vw - 16px)',
+      maxHeight: '100dvh',
+      panelClass: 'guardia-presentation-dialog',
+      data: {
+        operaciones: this.operacionesFiltradas,
+        proceso: 'Scalamin',
+        turnoAplicado: this.turnoAplicado,
+        fechaInicio: this.fechaInicio,
+        fechaFin: this.fechaFin,
+      },
+      autoFocus: 'dialog',
+    });
+  }
+
+  JefeGuardia() {
       if (!this.operacionesFiltradas || this.operacionesFiltradas.length === 0) {
         console.warn('No hay datos filtrados para mostrar');
         return;

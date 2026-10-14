@@ -1,0 +1,73 @@
+<div #dialogContainer class="dialog-container flex min-h-0 flex-col overflow-hidden border" [class.fullscreen]="isFullscreen">
+  <header class="dialog-header flex shrink-0 items-start justify-between gap-4 px-5 py-4 text-white">
+    <div class="min-w-0">
+      <h2 class="m-0 text-base sm:text-lg">Presentación MMTO</h2>
+      <p class="mt-1 text-sm text-white/75">{{ data.proceso || 'Taladros Largos' }} · Disponibilidad mecánica</p>
+      <p class="mt-2 text-xs text-white/75">{{ data.fechaInicio || 'Sin fecha inicial' }} — {{ data.fechaFin || 'Sin fecha final' }} · {{ data.turnoAplicado || 'Todos los turnos' }}</p>
+    </div>
+    <div class="flex shrink-0 gap-2">
+      <button type="button" class="action-button" (click)="toggleFullscreen()" [attr.aria-label]="isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'">
+        <span class="dialog-icon" aria-hidden="true">{{ isFullscreen ? 'fullscreen_exit' : 'fullscreen' }}</span>
+      </button>
+      <button type="button" class="action-button" aria-label="Cerrar presentación" (click)="cerrar()"><span class="dialog-icon" aria-hidden="true">close</span></button>
+    </div>
+  </header>
+
+  <div class="dialog-filters flex shrink-0 flex-wrap items-center gap-3 border-b px-5 py-3">
+    <label for="mmto-equipo" class="text-xs font-semibold">Equipo</label>
+    <select id="mmto-equipo" [(ngModel)]="equipoSeleccionado" (ngModelChange)="aplicarFiltro()" class="h-11 min-w-44 border px-3 text-sm">
+      <option value="">Todos los equipos</option>
+      @for (equipo of equipos; track equipo) { <option [value]="equipo">{{ equipo }}</option> }
+    </select>
+    <button type="button" class="h-11 border px-3 text-xs font-semibold" (click)="limpiarFiltro()">Limpiar filtro</button>
+    <span class="ml-auto text-xs" role="status">{{ cantidadRegistros }} registros · Códigos 200–299</span>
+  </div>
+
+  <div class="dialog-body min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-4 sm:p-6">
+    @if (grupos.length > 0) {
+      <section class="border p-4 sm:p-5">
+        <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 class="m-0 text-sm">Resumen de mantenimiento por equipo</h3>
+            <p class="mt-1 text-xs text-slate-500">Detalle de eventos de mantenimiento</p>
+          </div>
+          <span class="px-2 py-1 text-xs">{{ cantidadRegistros }} registros</span>
+        </div>
+        <div class="overflow-x-auto rounded-md border border-slate-200">
+          <table class="guardia-table w-full min-w-[900px] table-fixed border-collapse text-left text-sm">
+            <colgroup>
+              <col class="w-[16%]"><col class="w-[18%]"><col class="w-[11%]">
+              <col class="w-[11%]"><col class="w-[14%]"><col class="w-[30%]">
+            </colgroup>
+            <thead><tr>
+              <th scope="col">Equipo</th><th scope="col">Estado</th><th scope="col">Hora inicio</th>
+              <th scope="col">Hora final</th><th scope="col">Tiempo</th><th scope="col">Observaciones</th>
+            </tr></thead>
+            <tbody>
+              @for (grupo of grupos; track $index) {
+              @for (fila of grupo.filas; track $index) {
+                <tr>
+                  <td data-label="Equipo" class="font-semibold"><div>{{ fila.equipo }}<span class="registro-contexto">{{ grupo.fecha }} · {{ grupo.turno }}</span></div></td>
+                  <td data-label="Estado">{{ fila.codigo }}</td>
+                  <td data-label="Hora inicio" class="tabular-nums">{{ fila.inicio || 'Sin registrar' }}</td>
+                  <td data-label="Hora final" class="tabular-nums">{{ fila.final || 'Sin registrar' }}</td>
+                  <td data-label="Tiempo" class="tabular-nums font-semibold">{{ fila.segundos === null ? 'Pendiente' : formatearTiempo(fila.segundos) }}</td>
+                  <td data-label="Observaciones" class="observaciones">{{ fila.observaciones }}</td>
+                </tr>
+              }
+              }
+            </tbody>
+            <tfoot><tr><td colspan="6">
+              <div class="flex flex-wrap items-center justify-end gap-3 text-xs font-semibold">
+                <span>Total MMTO registrado: {{ formatearTiempo(totalSegundos) }}</span>
+                @if (totalPendientes) { <span>{{ totalPendientes }} registros sin tiempo calculable</span> }
+              </div>
+            </td></tr></tfoot>
+          </table>
+        </div>
+      </section>
+    } @else {
+      <p class="vacio" role="status">No hay registros con códigos 200–299 para los filtros seleccionados.</p>
+    }
+  </div>
+</div>

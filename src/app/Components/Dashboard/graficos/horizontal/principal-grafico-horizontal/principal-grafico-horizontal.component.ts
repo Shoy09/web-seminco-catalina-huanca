@@ -1,3 +1,4 @@
+import { PresentacionMmtoHzComponent } from '../presentacion-mmto-hz/presentacion-mmto-hz.component';
 import { Component, OnInit, ViewChild } from '@angular/core';
 
 import { PlanMensualService } from '../../../../../services/plan-mensual.service';
@@ -2694,6 +2695,23 @@ exportarExcel() {
       'Operaciones_Horizontales',
       this.equipos
     );
+  }
+
+  presentarMmto(): void {
+    this.dialog.open(PresentacionMmtoHzComponent, {
+      width: '1400px',
+      maxWidth: 'calc(100vw - 16px)',
+      maxHeight: '100dvh',
+      panelClass: 'guardia-presentation-dialog',
+      data: {
+        operaciones: this.operacionesFiltradas,
+        proceso: 'Jumbo Horizontal',
+        turnoAplicado: this.turnoAplicado,
+        fechaInicio: this.fechaInicio,
+        fechaFin: this.fechaFin,
+      },
+      autoFocus: 'dialog',
+    });
   }
 
   JefeGuardia() {

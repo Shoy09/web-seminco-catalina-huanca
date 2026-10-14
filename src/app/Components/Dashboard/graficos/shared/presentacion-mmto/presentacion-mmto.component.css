@@ -1,0 +1,76 @@
+.dialog-icon {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 22px;
+  line-height: 1;
+  font-feature-settings: 'liga';
+}
+
+.action-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid;
+  color: inherit;
+}
+
+.action-button:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+
+.guardia-table th,
+.guardia-table td {
+  padding: 0.75rem;
+  vertical-align: top;
+}
+
+.guardia-table tbody tr + tr {
+  border-top: 1px solid #e1e6ec;
+}
+
+.observaciones {
+  white-space: pre-wrap;
+}
+
+.registro-contexto {
+  display: block;
+  margin-top: 0.25rem;
+  color: #617083;
+  font-size: 0.7rem;
+  font-weight: 400;
+}
+
+@media (min-width: 768px) {
+  .guardia-table { display: table; }
+  .guardia-table thead { display: table-header-group; }
+  .guardia-table tbody { display: table-row-group; }
+  .guardia-table tfoot { display: table-footer-group; }
+  .guardia-table tr { display: table-row; }
+  .guardia-table th,
+  .guardia-table td { display: table-cell; }
+}
+
+.dialog-container:fullscreen,
+.dialog-container.fullscreen {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  border-radius: 0;
+}
+
+@media (max-width: 767px) {
+  .guardia-table tbody td {
+    padding: 0.5rem 0;
+  }
+
+  .guardia-table .observaciones {
+    min-width: 0;
+    white-space: pre-wrap;
+  }
+}
