@@ -3,30 +3,36 @@ import { Component, DestroyRef, inject, Inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatAutocompleteModule, MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { firstValueFrom } from 'rxjs';
 import * as XLSX from 'xlsx';
 import { CheckListItemService } from '../../../../services/checklist-item.service';
 import { EquipoService } from '../../../../services/equipo.service';
 import { CheckListItem } from '../../../../models/checklist-item.model';
 import { Equipo } from '../../../../models/equipo.model';
-import { categoriasChecklist, FilaIngresoChecklist, leerFilasChecklist, normalizarChecklist, PROCESOS_CHECKLIST } from '../checklist-utils';
+import { FilaIngresoChecklist, leerFilasChecklist, normalizarChecklist, PROCESOS_CHECKLIST, reutilizarValorChecklist, sugerenciasChecklist } from '../checklist-utils';
 
 export interface CheckListFormData {
   proceso?: string;
   categorias?: string[];
   item?: CheckListItem;
   modo?: 'manual' | 'excel';
+  items?: CheckListItem[];
 }
 
 @Component({
   selector: 'app-check-list-from',
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, MatAutocompleteModule],
   templateUrl: './check-list-from.component.html',
   styleUrl: './check-list-from.component.css',
 })
 export class CheckListFromComponent implements OnInit {
   checkListForm: FormGroup;
-  procesos = [...PROCESOS_CHECKLIST];
+  items: CheckListItem[] = [];
+  cargandoSugerencias = false;
+  errorSugerencias = '';
+  mostrarTodasCategorias = false;
+  private ultimoProceso = '';
   equipos: Equipo[] = [];
   equipoIds = new Set<number>();
   busquedaEquipo = '';
@@ -55,23 +61,40 @@ export class CheckListFromComponent implements OnInit {
     this.modo = item ? 'manual' : data.modo ?? 'manual';
     this.checkListForm = fb.group({
       proceso: [item?.proceso ?? data.proceso ?? '', [Validators.required, Validators.maxLength(255)]],
-      categoria: [item?.categoria ?? '', Validators.required],
+      categoria: [item?.categoria ?? '', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(255)]],
       nombre: [item?.nombre ?? '', Validators.required],
       todos: [item ? item.aplica_todos_equipos !== false : false],
     });
     this.equipoIds = new Set(item?.equipo_ids ?? item?.equipos?.map(e => e.id) ?? []);
-    const proceso = this.checkListForm.value.proceso;
-    if (proceso && !this.procesos.includes(proceso)) this.procesos.push(proceso);
+    this.items = data.items ?? [];
+    this.ultimoProceso = normalizarChecklist(this.checkListForm.value.proceso);
   }
 
-  ngOnInit(): void { this.cargarEquipos(); }
+  ngOnInit(): void { this.cargarEquipos(); this.cargarSugerencias(); }
   get editando(): boolean { return this.data.item?.id !== undefined; }
-  get proceso(): string { return this.checkListForm.get('proceso')?.value ?? ''; }
+  get proceso(): string { return reutilizarValorChecklist(this.checkListForm.get('proceso')?.value, this.procesos); }
   get todos(): boolean { return this.checkListForm.get('todos')?.value === true; }
+  get procesos(): string[] {
+    return sugerenciasChecklist([...PROCESOS_CHECKLIST, this.data.item?.proceso, this.data.proceso]);
+  }
   get categorias(): string[] {
-    const categorias = categoriasChecklist(this.proceso);
-    const actual = this.data.item?.categoria;
-    return actual && !categorias.includes(actual) ? [...categorias, actual] : categorias;
+    return sugerenciasChecklist([
+      ...this.items.map(item => item.categoria),
+      this.data.item?.categoria,
+      ...(this.data.categorias ?? []),
+    ]);
+  }
+  get textoCategoria(): string { return String(this.checkListForm.get('categoria')?.value ?? '').trim(); }
+  get categoriasFiltradas(): string[] {
+    const busqueda = normalizarChecklist(this.textoCategoria);
+    return this.categorias.filter(cat => this.mostrarTodasCategorias || normalizarChecklist(cat).includes(busqueda));
+  }
+  get categoriaNueva(): boolean {
+    return !!this.textoCategoria && !this.categorias.some(cat => normalizarChecklist(cat) === normalizarChecklist(this.textoCategoria));
+  }
+  abrirCategorias(trigger: MatAutocompleteTrigger): void {
+    if (trigger.panelOpen) trigger.closePanel();
+    else { this.mostrarTodasCategorias = true; trigger.openPanel(); }
   }
   get equiposProceso(): Equipo[] {
     return this.equipos.filter(e => e.id !== undefined && normalizarChecklist(e.proceso) === normalizarChecklist(this.proceso));
@@ -82,7 +105,7 @@ export class CheckListFromComponent implements OnInit {
   }
   get filasManuales(): FilaIngresoChecklist[] {
     const nombres = String(this.checkListForm.get('nombre')?.value ?? '').split(/\r?\n/).map(s => s.trim()).filter(Boolean);
-    return nombres.map(nombre => ({ categoria: this.checkListForm.get('categoria')?.value ?? '', nombre }));
+    return nombres.map(nombre => ({ categoria: reutilizarValorChecklist(this.checkListForm.get('categoria')?.value, this.categorias), nombre }));
   }
   get filas(): FilaIngresoChecklist[] { return this.modo === 'excel' ? this.filasExcel : this.filasManuales; }
   get errorNombres(): string {
@@ -93,7 +116,7 @@ export class CheckListFromComponent implements OnInit {
     return '';
   }
   get seleccionValida(): boolean {
-    return !!this.proceso && (this.todos || (!this.cargandoEquipos && !this.errorEquipos && this.equipoIds.size > 0
+    return !!this.proceso && this.procesos.includes(this.proceso) && this.proceso.length <= 255 && (this.todos || (!this.cargandoEquipos && !this.errorEquipos && this.equipoIds.size > 0
       && [...this.equipoIds].every(id => this.equiposProceso.some(e => e.id === id))));
   }
   get puedeGuardar(): boolean {
@@ -107,9 +130,6 @@ export class CheckListFromComponent implements OnInit {
     this.equipoService.getEquipos().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: equipos => {
         this.equipos = equipos;
-        for (const equipo of equipos) {
-          if (equipo.proceso && !this.procesos.some(p => normalizarChecklist(p) === normalizarChecklist(equipo.proceso))) this.procesos.push(equipo.proceso);
-        }
         this.cargandoEquipos = false;
       },
       error: () => { this.cargandoEquipos = false; this.errorEquipos = 'No se pudieron cargar los equipos. Intenta nuevamente.'; },
@@ -117,6 +137,9 @@ export class CheckListFromComponent implements OnInit {
   }
 
   cambiarProceso(): void {
+    const actual = normalizarChecklist(this.proceso);
+    if (actual === this.ultimoProceso) return;
+    this.ultimoProceso = actual;
     this.equipoIds.clear();
     this.busquedaEquipo = '';
     this.checkListForm.patchValue({ categoria: '', todos: false });
@@ -124,6 +147,23 @@ export class CheckListFromComponent implements OnInit {
     this.erroresArchivo = [];
     this.archivoNombre = '';
     this.mensaje = '';
+  }
+
+  cargarSugerencias(): void {
+    this.cargandoSugerencias = true; this.errorSugerencias = '';
+    this.checkListService.getCheckListItems().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: items => { this.items = items; this.cargandoSugerencias = false; },
+      error: () => {
+        this.cargandoSugerencias = false;
+        this.errorSugerencias = 'No se pudieron cargar las sugerencias. Puedes escribir los valores o reintentar.';
+      },
+    });
+  }
+
+  normalizarEntrada(campo: 'proceso' | 'categoria'): void {
+    const opciones = campo === 'proceso' ? this.procesos : this.categorias;
+    this.checkListForm.get(campo)?.setValue(reutilizarValorChecklist(this.checkListForm.get(campo)?.value, opciones));
+    if (campo === 'proceso') this.cambiarProceso();
   }
   cambiarModo(modo: 'manual' | 'excel'): void {
     if (!this.guardando && !this.editando) { this.modo = modo; this.mensaje = ''; }
@@ -155,12 +195,14 @@ export class CheckListFromComponent implements OnInit {
   descargarPlantilla(): void {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet([
-      ['Categoria', 'Nombre'], [this.categorias[0], 'Verificar nivel de aceite'],
+      ['Categoria', 'Nombre'],
     ]), 'Checklist');
     XLSX.writeFile(workbook, 'plantilla-checklist.xlsx');
   }
 
   async onSubmit(): Promise<void> {
+    if (this.guardando) return;
+    this.normalizarEntrada('proceso'); this.normalizarEntrada('categoria');
     if (!this.puedeGuardar) { this.checkListForm.markAllAsTouched(); return; }
     this.guardando = true; this.dialogRef.disableClose = true; this.mensaje = '';
     const filas = this.filas.map(f => ({ ...f }));

@@ -20,7 +20,11 @@ describe('Checklist por equipos: formulario', () => {
   ] as Equipo[];
 
   async function configurar(data: CheckListFormData = {}): Promise<void> {
-    api = jasmine.createSpyObj('Checklist', ['createCheckListItem', 'updateCheckListItem', 'notificarActualizacion']);
+    api = jasmine.createSpyObj('Checklist', ['getCheckListItems', 'createCheckListItem', 'updateCheckListItem', 'notificarActualizacion']);
+    api.getCheckListItems.and.returnValue(of([
+      { proceso: 'PERFORACIÓN HORIZONTAL', categoria: 'ANTES', nombre: 'Aceite' },
+      { proceso: 'SCALAMIN', categoria: 'OTRA CATEGORÍA', nombre: 'Frenos' },
+    ]));
     api.createCheckListItem.and.returnValue(of({ proceso: 'PERFORACIÓN HORIZONTAL', categoria: 'ANTES', nombre: 'Aceite' }));
     api.updateCheckListItem.and.returnValue(of({ proceso: 'PERFORACIÓN HORIZONTAL', categoria: 'ANTES', nombre: 'Aceite' }));
     equipoApi = jasmine.createSpyObj('Equipos', ['getEquipos']);
@@ -38,7 +42,9 @@ describe('Checklist por equipos: formulario', () => {
   }
 
   function completar(): void {
-    component.checkListForm.patchValue({ proceso: 'PERFORACIÓN HORIZONTAL', categoria: 'ANTES', nombre: 'Aceite\nFrenos' });
+    component.checkListForm.patchValue({ proceso: 'PERFORACIÓN HORIZONTAL' });
+    component.cambiarProceso();
+    component.checkListForm.patchValue({ categoria: 'ANTES', nombre: 'Aceite\nFrenos' });
     component.marcarEquipo(1, true); component.marcarEquipo(2, true);
   }
 
@@ -104,5 +110,43 @@ describe('Checklist por equipos: formulario', () => {
     await configurar(); completar(); component.checkListForm.patchValue({ nombre: 'Aceite\n aceite ' });
     expect(component.puedeGuardar).toBeFalse(); component.checkListForm.patchValue({ nombre: '   \n  ' });
     expect(component.puedeGuardar).toBeFalse();
+  });
+
+  it('mantiene los procesos fijos y muestra las categorías de todo el catálogo', async () => {
+    await configurar(); completar();
+    expect(component.procesos).toContain('PERFORACIÓN HORIZONTAL');
+    expect(component.procesos).toContain('DUMPER');
+    expect(component.procesos.length).toBe(9);
+    expect(component.categorias).toEqual(['ANTES', 'OTRA CATEGORÍA']);
+    component.checkListForm.patchValue({ proceso: 'SCALAMIN' }); component.cambiarProceso();
+    expect(component.categorias).toEqual(['ANTES', 'OTRA CATEGORÍA']);
+  });
+
+  it('reconoce una categoría existente de otro proceso y no la ofrece como nueva', async () => {
+    await configurar(); completar();
+    component.items.push({ proceso: 'SCALAMIN', categoria: 'PENSANDO', nombre: 'Inspección' });
+    component.checkListForm.patchValue({ categoria: ' pensando ' });
+    component.mostrarTodasCategorias = false;
+    expect(component.categoriasFiltradas).toEqual(['PENSANDO']);
+    expect(component.categoriaNueva).toBeFalse();
+    component.normalizarEntrada('categoria');
+    expect(component.checkListForm.value.categoria).toBe('PENSANDO');
+    component.checkListForm.patchValue({ categoria: 'Categoría nueva' });
+    expect(component.categoriaNueva).toBeTrue();
+  });
+
+  it('permite categorías nuevas para un proceso seleccionado y rechaza procesos nuevos', async () => {
+    await configurar();
+    component.checkListForm.patchValue({ proceso: 'NUEVO PROCESO' }); component.cambiarProceso();
+    component.checkListForm.patchValue({ categoria: 'Inspección mensual', nombre: 'Verificar motor', todos: true });
+    expect(component.puedeGuardar).toBeFalse();
+    component.checkListForm.patchValue({ proceso: 'PERFORACIÓN HORIZONTAL' }); component.cambiarProceso();
+    component.checkListForm.patchValue({ categoria: 'Inspección mensual', nombre: 'Verificar motor', todos: true });
+    expect(component.puedeGuardar).toBeTrue();
+    await component.onSubmit();
+    expect(api.createCheckListItem.calls.argsFor(0)[0].categoria).toBe('Inspección mensual');
+    expect(api.createCheckListItem.calls.argsFor(0)[0].proceso).toBe('PERFORACIÓN HORIZONTAL');
+    component.checkListForm.patchValue({ proceso: ' perforacion horizontal ' }); component.normalizarEntrada('proceso');
+    expect(component.checkListForm.value.proceso).toBe('PERFORACIÓN HORIZONTAL');
   });
 });

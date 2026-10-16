@@ -13,7 +13,7 @@ import { CheckListItemService } from '../../../../services/checklist-item.servic
 import { EquipoService } from '../../../../services/equipo.service';
 import { ConfirmDialogComponent } from '../../../Estado/confirm-dialog/confirm-dialog.component';
 import { CheckListFromComponent } from '../check-list-from/check-list-from.component';
-import { normalizarChecklist, PROCESOS_CHECKLIST } from '../checklist-utils';
+import { normalizarChecklist, PROCESOS_CHECKLIST, sugerenciasChecklist } from '../checklist-utils';
 
 @Component({
   selector: 'app-check-list-lista',
@@ -54,10 +54,7 @@ export class CheckListListaComponent implements OnInit {
   }
 
   get procesos(): string[] {
-    const unicos = new Map<string, string>();
-    [...PROCESOS_CHECKLIST, ...this.dataSource.data.map(i => i.proceso), ...this.equipos.map(e => e.proceso ?? '')]
-      .filter(Boolean).forEach(p => unicos.set(normalizarChecklist(p), p));
-    return [...unicos.values()].sort();
+    return sugerenciasChecklist([...PROCESOS_CHECKLIST, ...this.dataSource.data.map(item => item.proceso)]);
   }
   get equiposDisponibles(): Equipo[] {
     return this.equipos.filter(e => e.id !== undefined && (!this.procesoSeleccionado || normalizarChecklist(e.proceso) === normalizarChecklist(this.procesoSeleccionado)));
@@ -95,7 +92,7 @@ export class CheckListListaComponent implements OnInit {
   abrirFormulario(modo: 'manual' | 'excel' = 'manual'): void {
     this.dialog.open(CheckListFromComponent, {
       width: '800px', maxWidth: 'calc(100vw - 24px)', maxHeight: '90dvh', autoFocus: 'dialog',
-      data: { proceso: this.procesoSeleccionado, modo },
+      data: { proceso: this.procesoSeleccionado, modo, items: this.dataSource.data },
     });
   }
   abrirSeleccionProcesoDialogo(): void { this.abrirFormulario(); }
@@ -107,7 +104,7 @@ export class CheckListListaComponent implements OnInit {
       next: actual => {
         this.editandoId = undefined;
         this.dialog.open(CheckListFromComponent, {
-          width: '800px', maxWidth: 'calc(100vw - 24px)', maxHeight: '90dvh', autoFocus: 'dialog', data: { item: actual },
+          width: '800px', maxWidth: 'calc(100vw - 24px)', maxHeight: '90dvh', autoFocus: 'dialog', data: { item: actual, items: this.dataSource.data },
         });
       },
       error: () => { this.editandoId = undefined; this.mensaje = 'No se pudo cargar el ítem para editarlo.'; },
