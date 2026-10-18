@@ -1,4 +1,31 @@
 /* ── Iconos ──────────────────────────────────────────────────── */
+.resumen-tarjetas {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.resumen-tarjetas article {
+  display: grid;
+  gap: 8px;
+  align-content: center;
+  min-height: 100px;
+  border: 1px solid #DCE4EA;
+  border-top: 3px solid #00A064;
+  border-radius: 12px;
+  background: #F5F8FA;
+  padding: 14px;
+}
+.resumen-tarjetas span {
+  color: #145A52;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.resumen-tarjetas strong { color: #145A52; font-size: 1.45rem; }
+@media (max-width: 768px) { .resumen-tarjetas { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 380px) { .resumen-tarjetas { grid-template-columns: 1fr; } }
+
 .ic-header, .ic-sm, .ic-seccion {
   font-family: 'Material Icons';
   line-height: 1;
@@ -71,6 +98,93 @@
 
 @media (max-width: 1200px) { .graficos-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 768px)  { .graficos-grid { grid-template-columns: 1fr; } }
+@media (max-width: 1200px) { .reporte-graficos { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 768px)  { .reporte-graficos { grid-template-columns: 1fr; } }
+
+.reporte-tabs {
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  padding: 0.25rem 0 0.4rem;
+  border-bottom: 1px solid #DCE4EA;
+}
+
+.reporte-tabs button {
+  flex: 0 0 auto;
+  border: 1px solid #DCE4EA;
+  border-radius: 0.6rem;
+  background: #fff;
+  color: #526477;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.reporte-tabs button:hover,
+.reporte-tabs button.active {
+  border-color: #38BDF8;
+  background: #EAF8FE;
+  color: #155E83;
+}
+
+.reporte-pagina {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.reporte-titulo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-left: 3px solid #38BDF8;
+  padding: 0.15rem 0 0.15rem 0.75rem;
+}
+
+.reporte-titulo h1 {
+  margin: 0;
+  color: #344963;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.reporte-titulo p {
+  margin: 0.25rem 0 0;
+  color: #738394;
+  font-size: 0.72rem;
+}
+
+.formula-aviso {
+  border-radius: 999px;
+  background: #FFF7E6;
+  color: #8A5A00;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.reporte-graficos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.grafico-ancho-completo {
+  grid-column: 1 / -1;
+}
+
+.reporte-graficos.reporte-ranking { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 768px) {
+  .reporte-graficos, .reporte-graficos.reporte-ranking { grid-template-columns: 1fr; }
+}
+@media (min-width: 769px) and (max-width: 1200px) {
+  .reporte-graficos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 
 /* ── Overlay PDF ─────────────────────────────────────────────── */
 .overlay {

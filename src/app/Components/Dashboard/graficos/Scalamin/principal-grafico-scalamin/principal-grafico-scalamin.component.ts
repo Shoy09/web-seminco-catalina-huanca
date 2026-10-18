@@ -18,14 +18,23 @@ import { ExcelImportService } from 'app/services/subir data/excel-operacion-mapp
 import { SchedulerComponent } from '../../Linea de tiempo/scheduler/scheduler.component';
 import { ExcelScalaminExportService } from 'app/services/export/excel-export-scalamin.service';
 import { PresentacionGefeGuardiaScalaminComponent } from '../presentacion-gefe-guardia-scalamin/presentacion-gefe-guardia-scalamin.component';
+import { DashboardScalaminComponent } from './dashboard-scalamin.component';
+import { Estado } from 'app/models/Estado';
+import { DashboardLoadingComponent } from '../../shared/dashboard-loading/dashboard-loading.component';
 
 @Component({
   selector: 'app-principal-grafico-scalamin',
-  imports: [CommonModule, FormsModule ],
+  imports: [CommonModule, FormsModule, DashboardScalaminComponent, DashboardLoadingComponent ],
   templateUrl: './principal-grafico-scalamin.component.html',
   styleUrl: './principal-grafico-scalamin.component.css'
 })
 export class PrincipalGraficoScalaminComponent implements OnInit {
+  estadosProceso: Estado[] = [];
+  equipoSeleccionado = '';
+  equipoAplicado = '';
+  cargando = false;
+  errorCarga = '';
+  errorFiltro = '';
   anio!: number;
   mes!: string;
   showZoom: boolean = false;
@@ -62,6 +71,10 @@ constructor(
 
     this.cargarOperaciones();
     this.cargarEquipos();
+    this.estadoService.getEstadosByProceso(this.PROCESO).subscribe({
+      next: estados => this.estadosProceso = estados,
+      error: () => this.estadosProceso = [],
+    });
   }
   toggleDataZoom(): void {
     this.showZoom = !this.showZoom;
@@ -95,10 +108,13 @@ constructor(
     // =========================================
     cargarOperaciones() {
       const tipo = 'scalamin';
+      this.cargando = true;
+      this.errorCarga = '';
   
       this.operacionesService.getAllAprobados<OperacionScalamin>(tipo).subscribe({
         next: (resp) => {
           this.operacionesOriginal = resp.data;
+          this.cargando = false;
   
           console.log('🔥 DATA OPERACIONES:', this.operacionesOriginal);
   
@@ -106,6 +122,8 @@ constructor(
           this.aplicarFiltro();
         },
         error: (err) => {
+          this.cargando = false;
+          this.errorCarga = 'No se pudieron cargar las operaciones de Scalamin.';
           //console.error('❌ Error al obtener operaciones:', err);
         },
       });
@@ -115,11 +133,19 @@ constructor(
     // 🔥 FILTRO POR FECHA
     // =========================================
     aplicarFiltro() {
+      this.errorFiltro = '';
+      if (this.fechaInicio && this.fechaFin && this.fechaInicio > this.fechaFin) {
+        this.errorFiltro = 'La fecha inicial debe ser anterior o igual a la fecha final.';
+        return;
+      }
+      this.equipoAplicado = this.equipoSeleccionado;
       this.turnoAplicado = this.turnoSeleccionado; // 🔥 CLAVE
   
       this.operacionesFiltradas = this.operacionesOriginal.filter((op) => {
-        if (this.fechaInicio && op.fecha < this.fechaInicio) return false;
-        if (this.fechaFin && op.fecha > this.fechaFin) return false;
+        const fecha = String(op.fecha || '').slice(0, 10);
+        if (this.fechaInicio && fecha < this.fechaInicio) return false;
+        if (this.fechaFin && fecha > this.fechaFin) return false;
+        if (this.equipoAplicado && op.n_equipo !== this.equipoAplicado) return false;
   
         if (this.turnoAplicado && op.turno !== this.turnoAplicado) return false;
   
@@ -130,12 +156,22 @@ constructor(
     }
   
     quitarFiltro() {
+      this.equipoSeleccionado = '';
+      this.equipoAplicado = '';
+      this.errorFiltro = '';
       this.operacionesFiltradas = [...this.operacionesOriginal];
       this.fechaInicio = '';
       this.fechaFin = '';
       this.turnoAplicado = '';
       this.turnoSeleccionado = '';
   
+    }
+
+    get equiposDisponibles(): string[] {
+      return [...new Set(this.equipos
+        .filter(equipo => equipo.proceso?.trim().toUpperCase() === this.PROCESO)
+        .map(equipo => equipo.codigo?.trim() || '')
+        .filter(Boolean))].sort();
     }
 
     cargarEquipos() {

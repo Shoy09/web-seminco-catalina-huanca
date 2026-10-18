@@ -5,6 +5,7 @@ import { BarChart } from 'echarts/charts';
 import { TitleComponent, TooltipComponent, GridComponent, LegendComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { exportarImagenChart, PdfExportOptions } from 'src/app/config/config-pdf';
+import { SOSTENIMIENTO_CHART_COLORS } from 'src/app/config/sostenimiento-chart-colors';
 
 echarts.use([BarChart, TitleComponent, TooltipComponent, GridComponent, LegendComponent, CanvasRenderer]);
 
@@ -58,6 +59,7 @@ export class TotalHorometrosComponent implements OnChanges {
     const yAxisMax = Math.ceil(maxValor * 1.2);
 
     this.chartOptions = {
+      color: SOSTENIMIENTO_CHART_COLORS,
       tooltip: {
         trigger: 'axis',
         axisPointer: {
@@ -130,7 +132,7 @@ export class TotalHorometrosComponent implements OnChanges {
           data: dieselData,
           itemStyle: {
             borderRadius: [5, 5, 0, 0],
-            color: '#e74c3c',
+            color: SOSTENIMIENTO_CHART_COLORS[0],
             shadowColor: 'rgba(0, 0, 0, 0.2)',
             shadowBlur: 5
           },
@@ -140,7 +142,7 @@ export class TotalHorometrosComponent implements OnChanges {
             formatter: (params: any) => `${params.value.toFixed(1)} h`,
             fontWeight: 'bold',
             fontSize: 12,
-            color: '#e74c3c'
+            color: SOSTENIMIENTO_CHART_COLORS[0]
           },
           barWidth: '25%',
           barGap: '0.2',
@@ -151,7 +153,7 @@ export class TotalHorometrosComponent implements OnChanges {
           data: electricoData,
           itemStyle: {
             borderRadius: [5, 5, 0, 0],
-            color: '#3498db',
+            color: SOSTENIMIENTO_CHART_COLORS[1],
             shadowColor: 'rgba(0, 0, 0, 0.2)',
             shadowBlur: 5
           },
@@ -161,7 +163,7 @@ export class TotalHorometrosComponent implements OnChanges {
             formatter: (params: any) => `${params.value.toFixed(1)} h`,
             fontWeight: 'bold',
             fontSize: 12,
-            color: '#3498db'
+            color: SOSTENIMIENTO_CHART_COLORS[1]
           },
           barWidth: '25%',
           barGap: '0.2',
@@ -172,7 +174,7 @@ export class TotalHorometrosComponent implements OnChanges {
           data: percusionData,
           itemStyle: {
             borderRadius: [5, 5, 0, 0],
-            color: '#2ecc71',
+            color: SOSTENIMIENTO_CHART_COLORS[2],
             shadowColor: 'rgba(0, 0, 0, 0.2)',
             shadowBlur: 5
           },
@@ -182,7 +184,7 @@ export class TotalHorometrosComponent implements OnChanges {
             formatter: (params: any) => `${params.value.toFixed(1)} h`,
             fontWeight: 'bold',
             fontSize: 12,
-            color: '#2ecc71'
+            color: SOSTENIMIENTO_CHART_COLORS[2]
           },
           barWidth: '25%',
           barGap: '0.2',

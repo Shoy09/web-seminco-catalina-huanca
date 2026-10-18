@@ -34,6 +34,20 @@ export interface PdfTableConfig {
   fontSize?: number;
 }
 
+const formatoCantidadPDF = new Intl.NumberFormat('es-PE', {
+  maximumFractionDigits: 2,
+  useGrouping: false,
+});
+
+function formatearFilasPDF(filas: Record<string, any>[]): Record<string, any>[] {
+  return filas.map(fila => Object.fromEntries(Object.entries(fila).map(([campo, valor]) => [
+    campo,
+    typeof valor === 'number' && Number.isFinite(valor)
+      ? formatoCantidadPDF.format(valor)
+      : valor,
+  ])));
+}
+
 // ─── Estado interno del módulo ────────────────────────────────────────────────
 
 let _headerContext: PdfHeaderContext = {};
@@ -55,10 +69,10 @@ export function exportarImagenChart(
     pixelRatio = 2,
     exportWidth = 900,
     exportHeight = 500,
-    gridTop = '10%',
-    gridBottom = '8%',
-    gridLeft = '6%',
-    gridRight = '6%',
+    gridTop,
+    gridBottom,
+    gridLeft,
+    gridRight,
   } = options;
 
   try {
@@ -71,29 +85,31 @@ export function exportarImagenChart(
     const currentOption = chartInstance.getOption();
     const originalGrid = currentOption?.grid ?? null;
 
-    // Redimensionar temporalmente
-    chartInstance.resize({ width: exportWidth, height: exportHeight });
+    try {
+      chartInstance.resize({ width: exportWidth, height: exportHeight });
+      if ([gridTop, gridBottom, gridLeft, gridRight].some((value) => value !== undefined)) {
+        chartInstance.setOption({
+          grid: {
+            ...(gridTop !== undefined ? { top: gridTop } : {}),
+            ...(gridBottom !== undefined ? { bottom: gridBottom } : {}),
+            ...(gridLeft !== undefined ? { left: gridLeft } : {}),
+            ...(gridRight !== undefined ? { right: gridRight } : {}),
+          },
+        });
+      }
 
-    // Ajustar márgenes del grid
-    chartInstance.setOption({
-      grid: { top: gridTop, bottom: gridBottom, left: gridLeft, right: gridRight },
-    });
-
-    // Capturar imagen
-    const imgData: string = chartInstance.getDataURL({
-      type: 'jpeg',
-      pixelRatio,
-      backgroundColor: '#FFFFFF',
-      excludeComponents: ['toolbox', 'dataZoom'],
-    });
-
-    // Restaurar tamaño y grid originales
-    chartInstance.resize({ width: originalWidth, height: originalHeight });
-    if (originalGrid !== null) {
-      chartInstance.setOption({ grid: originalGrid });
+      return chartInstance.getDataURL({
+        type: 'jpeg',
+        pixelRatio,
+        backgroundColor: '#FFFFFF',
+        excludeComponents: ['toolbox', 'dataZoom'],
+      });
+    } finally {
+      chartInstance.resize({ width: originalWidth, height: originalHeight });
+      if (originalGrid !== null) {
+        chartInstance.setOption({ grid: originalGrid });
+      }
     }
-
-    return imgData;
   } catch (e) {
     console.warn('[config-pdf] Error capturando gráfico ECharts:', e);
     return null;
@@ -245,21 +261,6 @@ export function agregarGraficoEchartsPDFProporcional(
   const maxW   = w - padding * 2;
   const maxH   = h - tituloH - padding * 2;
 
-  // Calcular dimensiones proporcionales
-  // La imagen viene en JPEG; estimamos aspecto desde la cadena base64
-  // (Para ECharts con exportWidth/Height conocidos, calculamos directamente)
-  let drawW = maxW * zoom;
-  let drawH = maxH * zoom;
-
-  if (modoAjuste === 'fit') {
-    // Escalar para que quepa dentro de maxW × maxH
-    const scaleW = maxW / drawW;
-    const scaleH = maxH / drawH;
-    const scale  = Math.min(scaleW, scaleH, 1) * zoom;
-    drawW = maxW * scale;
-    drawH = maxH * scale;
-  }
-
   // Título del gráfico
   if (titulo) {
     pdf.setFontSize(7);
@@ -268,7 +269,17 @@ export function agregarGraficoEchartsPDFProporcional(
     pdf.text(titulo, x + w / 2, y + 3.5, { align: 'center' });
   }
 
-  pdf.addImage(img, 'JPEG', innerX, innerY, maxW, maxH, undefined, 'MEDIUM');
+  const image = pdf.getImageProperties(img);
+  let drawW = maxW * zoom;
+  let drawH = maxH * zoom;
+  if (modoAjuste === 'fit') {
+    const scale = Math.min(maxW / image.width, maxH / image.height) * zoom;
+    drawW = image.width * scale;
+    drawH = image.height * scale;
+  }
+  const drawX = innerX + (maxW - drawW) / 2;
+  const drawY = innerY + (maxH - drawH) / 2;
+  pdf.addImage(img, 'JPEG', drawX, drawY, drawW, drawH, undefined, 'MEDIUM');
 }
 
 // ─── Layouts de páginas de gráficos ──────────────────────────────────────────
@@ -430,19 +441,26 @@ export function agregarTablaContinuaPDF(
 ): void {
   const { columnas, filas, startY, titulo, fontSize = 7.5 } = config;
   const margin = 8;
-
-  if (titulo) {
+  // AutoTable usa margin.top en las páginas siguientes, no startY.
+  const margenSuperior = tituloCabecera ? 33 : margin;
+  const inicioTabla = Math.max(startY ?? 30, margenSuperior);
+  const dibujarTitulo = (y: number): void => {
+    if (!titulo) return;
     pdf.setFontSize(9);
     pdf.setFont('helvetica', 'bold');
     pdf.setTextColor(11, 31, 58);
-    pdf.text(titulo, margin, (startY ?? 30) - 3);
-  }
+    pdf.text(titulo, margin, y - 3);
+  };
+
+  dibujarTitulo(inicioTabla);
 
   autoTable(pdf, {
     columns: columnas,
-    body: filas,
-    startY: startY ?? 30,
-    margin: { left: margin, right: margin },
+    body: formatearFilasPDF(filas),
+    startY: inicioTabla,
+    margin: { top: margenSuperior, bottom: margin, left: margin, right: margin },
+    showHead: 'everyPage',
+    rowPageBreak: 'avoid',
     styles: {
       fontSize,
       cellPadding: 2,
@@ -459,10 +477,11 @@ export function agregarTablaContinuaPDF(
     alternateRowStyles: {
       fillColor: [245, 248, 252],
     },
-    didDrawPage: (data) => {
-      // Redibujar cabecera corporativa en cada página nueva
+    willDrawPage: (data) => {
+      // Dibujar la cabecera antes del contenido y reservar su espacio.
       if (data.pageNumber > 1 && tituloCabecera) {
         agregarCabeceraPDF(pdf, tituloCabecera);
+        dibujarTitulo(margenSuperior);
       }
     },
   });
@@ -506,7 +525,7 @@ export function agregarTablaEnCeldaPDF(
 
   autoTable(pdf, {
     columns: columnas,
-    body: filas,
+    body: formatearFilasPDF(filas),
     startY: tableY,
     margin: { left: x, right: pdf.internal.pageSize.getWidth() - x - w },
     tableWidth: w,

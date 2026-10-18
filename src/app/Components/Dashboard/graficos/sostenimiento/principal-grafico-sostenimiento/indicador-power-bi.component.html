@@ -1,0 +1,42 @@
+<article class="indicator-card">
+  <h2>{{ grafico.titulo }}</h2>
+
+  <ng-container [ngSwitch]="grafico.tipo">
+    <div *ngSwitchCase="'table'" class="table-wrap">
+      <table *ngIf="(grafico.filas?.length || 0) > 0">
+        <thead>
+          <tr>
+            <th *ngFor="let columna of grafico.columnas">{{ columna }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let fila of grafico.filas">
+            <td *ngFor="let columna of grafico.columnas">{{ formatear(fila[columna]) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngSwitchCase="'gauge'" class="gauge-wrap">
+      <div echarts [options]="opciones" (chartInit)="onChartInit($event)" class="chart gauge"></div>
+      <p class="gauge-caption">Valor calculado con los datos disponibles</p>
+    </div>
+
+    <div *ngSwitchCase="'summary'" class="summary-wrap">
+      <div *ngFor="let item of grafico.resumen" class="summary-item">
+        <span>{{ item.nombre }}</span>
+        <strong>{{ formatear(item.valor) }} {{ item.unidad || '' }}</strong>
+      </div>
+    </div>
+
+    <div *ngSwitchDefault class="chart-wrap" [class.ranking-wrap]="esRanking">
+      <div
+        *ngIf="(grafico.categorias?.length || 0) > 0"
+        echarts
+        [options]="opciones"
+        (chartInit)="onChartInit($event)"
+        class="chart" [style.height.px]="altoGrafico">
+      </div>
+    </div>
+  </ng-container>
+</article>

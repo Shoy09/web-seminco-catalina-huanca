@@ -1,5 +1,11 @@
 import { PresentacionMmtoEmpernadorComponent } from '../presentacion-mmto-empernador/presentacion-mmto-empernador.component';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  QueryList,
+  ViewChildren,
+} from '@angular/core';
 import { OperacionBaseSostenimiento } from '../../../../../models/OperacionBase.models';
 import { PlanProduccion } from '../../../../../models/plan_produccion.model';
 import { PlanProduccionService } from '../../../../../services/plan-produccion.service';
@@ -9,38 +15,18 @@ import jsPDF from 'jspdf';
 import {
   configurarCabeceraPDF,
   agregarCabeceraPDF,
-  agregarPaginaGraficos2x3,
   agregarPaginaGraficos2x2,
-  agregarPaginaGraficoCompleto,
-  agregarPaginaGraficos1x2,
-  agregarPaginaTablaPDF,
-  PdfExportOptions,
+  agregarGraficoEchartsPDFProporcional,
+  agregarTablaContinuaPDF,
 } from 'src/app/config/config-pdf';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ResumenComponent } from '../Graficos components/Hoja 1/resumen/resumen.component';
-import { PernosEquipoComponent } from '../Graficos components/Hoja 1/pernos-equipo/pernos-equipo.component';
-import { PernosLaborComponent } from '../Graficos components/Hoja 1/pernos-labor/pernos-labor.component';
-import { RendimientoEquipoComponent } from '../Graficos components/Hoja 1/rendimiento-equipo/rendimiento-equipo.component';
-import { DemorasOperativasComponent } from '../Graficos components/Hoja 1/demoras-operativas/demoras-operativas.component';
-import { DemorasInoperativasComponent } from '../Graficos components/Hoja 1/demoras-inoperativas/demoras-inoperativas.component';
-import { HorasMantenimientoComponent } from '../Graficos components/Hoja 1/horas-mantenimiento/horas-mantenimiento.component';
-import { PernosInstaladosTipoComponent } from '../Graficos components/Hoja 1/pernos-instalados-tipo/pernos-instalados-tipo.component';
-import { MhrEquipoComponent } from '../Graficos components/Hoja 1/mhr-equipo/mhr-equipo.component';
-import { MetrosEquipoComponent } from '../Graficos components/Hoja 1/metros-equipo/metros-equipo.component';
-import { HorometroEmpernadorComponent } from '../Graficos components/Hoja 1/horometro-empernador/horometro-empernador.component';
-import { TotalHorometrosComponent } from '../Graficos components/Hoja 1/total-horometros/total-horometros.component';
-import { ScatterTurnosNocheComponent } from '../Graficos components/Hoja 2/scatter-turnos-noche/scatter-turnos-noche.component';
-import { ScatterTurnosComponent } from '../Graficos components/Hoja 2/scatter-turnos/scatter-turnos.component';
 import { PlanMensualService } from '../../../../../services/plan-mensual.service';
-import { PernosMinadoTipoComponent } from '../Graficos components/Hoja 2/pernos-minado-tipo/pernos-minado-tipo.component';
 import { HorasPrimeraPerforacionComponent } from '../Graficos components/Hoja 2/horas-primera-perforacion/horas-primera-perforacion.component';
 import { DetalleEquipoComponent } from '../Graficos components/Hoja 2/detalle-equipo/detalle-equipo.component';
 import { DetalleSostenimientoComponent } from '../Graficos components/Hoja 2/detalle-sostenimiento/detalle-sostenimiento.component';
 import { MejoresOperadoresComponent } from '../Graficos components/Hoja 2/mejores-operadores/mejores-operadores.component';
-import { RankingOperadorComponent } from '../Graficos components/Hoja 2/ranking-operador/ranking-operador.component';
 import { ObservacionesComponent } from '../Graficos components/Hoja 2/observaciones/observaciones.component';
-import { PernosDiaComponent } from '../Graficos components/Hoja 1/pernos-dia/pernos-dia.component';
 import { SchedulerComponent } from '../../Linea de tiempo/scheduler/scheduler.component';
 import { EstadoService } from '../../../../../services/estado.service';
 import { OperacionSostenimiento } from '../../../../../models/OperacionSostenimiento';
@@ -49,34 +35,24 @@ import { PresentacionGefeGuardiaEmpernadorComponent } from '../presentacion-gefe
 import { MatDialog } from '@angular/material/dialog';
 import { Equipo } from 'app/models/equipo.model';
 import { EquipoService } from 'app/services/equipo.service';
+import { IndicadorPowerBiComponent } from './indicador-power-bi.component';
+import { construirIndicadoresSostenimiento, construirRankingOperadoresSostenimiento, obtenerHorasHorometroSostenimiento } from './sostenimiento-indicadores.builder';
+import { IndicadorPagina, IndicadorGrafico } from './sostenimiento-indicadores.model';
+import { DashboardLoadingComponent } from '../../shared/dashboard-loading/dashboard-loading.component';
 
 @Component({
   selector: 'app-principal-grafico-sostenimiento',
   imports: [
     CommonModule,
     FormsModule,
-    ResumenComponent,
-    PernosEquipoComponent,
-    PernosLaborComponent,
-    RendimientoEquipoComponent,
-    DemorasOperativasComponent,
-    DemorasInoperativasComponent,
-    HorasMantenimientoComponent,
-    PernosInstaladosTipoComponent,
-    MhrEquipoComponent,
-    MetrosEquipoComponent,
-    HorometroEmpernadorComponent,
-    TotalHorometrosComponent,
-    ScatterTurnosComponent,
-    ScatterTurnosNocheComponent,
     HorasPrimeraPerforacionComponent,
     DetalleEquipoComponent,
     DetalleSostenimientoComponent,
     MejoresOperadoresComponent,
-    RankingOperadorComponent,
     ObservacionesComponent,
-    PernosDiaComponent,
     SchedulerComponent,
+    IndicadorPowerBiComponent,
+    DashboardLoadingComponent,
   ],
   templateUrl: './principal-grafico-sostenimiento.component.html',
   styleUrl: './principal-grafico-sostenimiento.component.css',
@@ -94,41 +70,19 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
   fechaFin: string = '';
   turnoSeleccionado: string = '';
   turnoAplicado: string = '';
+  equipoSeleccionado = '';
+  seccionSeleccionada = '';
+  equiposFiltro: string[] = [];
+  seccionesFiltro: string[] = [];
   cargandoPDF = false;
+  errorPDF = '';
+  cargando = false;
+  errorCarga = '';
 
-  // ViewChild para exportación PDF
-  @ViewChild(PernosEquipoComponent)          chartPernosEquipo!: PernosEquipoComponent;
-  @ViewChild(PernosDiaComponent)             chartPernosDia!: PernosDiaComponent;
-  @ViewChild(PernosLaborComponent)           chartPernosLabor!: PernosLaborComponent;
-  @ViewChild(PernosInstaladosTipoComponent)  chartPernosInstalados!: PernosInstaladosTipoComponent;
-  @ViewChild(MhrEquipoComponent)             chartMhrEquipo!: MhrEquipoComponent;
-  @ViewChild(MetrosEquipoComponent)          chartMetrosEquipo!: MetrosEquipoComponent;
-  @ViewChild(RendimientoEquipoComponent)     chartRendimiento!: RendimientoEquipoComponent;
-  @ViewChild(DemorasOperativasComponent)     chartDemorasOp!: DemorasOperativasComponent;
-  @ViewChild(DemorasInoperativasComponent)   chartDemorasInop!: DemorasInoperativasComponent;
-  @ViewChild(HorasMantenimientoComponent)    chartHorasMant!: HorasMantenimientoComponent;
-  @ViewChild(HorometroEmpernadorComponent)   chartHorometro!: HorometroEmpernadorComponent;
-  @ViewChild(TotalHorometrosComponent)       chartTotalHorometros!: TotalHorometrosComponent;
-  @ViewChild(PernosMinadoTipoComponent)      chartPernosMinado!: PernosMinadoTipoComponent;
-  @ViewChild(RankingOperadorComponent)       chartRanking!: RankingOperadorComponent;
-  @ViewChild(ScatterTurnosComponent)         chartScatterDia!: ScatterTurnosComponent;
-  @ViewChild(ScatterTurnosNocheComponent)    chartScatterNoche!: ScatterTurnosNocheComponent;
-  DataPernosPorEquipo: any[] = [];
-  dataPernoDia: any[] = [];
-  DataPernosPorLabor: any[] = [];
-  DataDMyUTI: any[] = [];
-  DataEstadosSOS: any[] = [];
-  dataDemoraIno: any[] = [];
-  dataHoraMantenimiento: any[] = [];
-  dataPernosInstalados: any[] = [];
-  dataMHREquipo: any[] = [];
-  dataMetrosEquipo: any[] = [];
-  dataHorometrosEquipo: any[] = [];
-  dataHorometroGeneral: any[] = [];
+  @ViewChildren(IndicadorPowerBiComponent)
+  indicadoresGraficos!: QueryList<IndicadorPowerBiComponent>;
 
   //HOJA 2
-  dataHorasNumericas: any[] = [];
-  dataPernosMinadoTipo: any[] = [];
   dataProcesoLaborFR: any[] = [];
   dataIndicadores: any[] = [];
   dataIndicadoresLabor: any[] = [];
@@ -138,15 +92,12 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
   equipos: Equipo[] = [];
     private readonly PROCESO = 'EMPERNADOR';
 
-  resumen = {
-    conteoEquipos: 0,
-    totalLaboresSostenidas: 0,
-    nPernoDia: 0,
-    totalMetros: 0,
-  };
   estadosProceso: any[] = [];
   ganttData: any[] = [];
   vistaPrincipal: boolean = true;
+  paginaSeleccionada = 'Disponibilidad';
+  indicadoresPowerBi: IndicadorPagina[] = [];
+  resumenTarjetas: NonNullable<IndicadorGrafico['resumen']> = [];
 
   constructor(
     private planMensualService: PlanMensualService,
@@ -156,6 +107,7 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
     private excelExportService: ExcelEmpernadorExportService,
     private dialog: MatDialog,
     private equipoService: EquipoService,
+    private changeDetector: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -176,7 +128,8 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
   this.equipoService.getEquiposByProceso(this.PROCESO)
     .subscribe({
       next: (equipos: Equipo[]) => {
-        this.equipos = equipos;         // 👈 guardar
+        this.equipos = equipos;
+        this.actualizarOpcionesFiltro();
       },
       error: err => console.error('Error equipos:', err)
     });
@@ -188,6 +141,7 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
         next: (data) => {
           this.estadosProceso = data;
           this.construirMapaEstados();
+          this.procesarTodo();
         },
         error: (err) => {
           console.error('Error al traer estados por proceso', err);
@@ -212,17 +166,33 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
 
   cargarOperaciones() {
     const tipo = 'empernador';
+    this.cargando = true;
+    this.errorCarga = '';
 
     this.operacionesService.getAllAprobados<OperacionSostenimiento>(tipo).subscribe({
       next: (resp) => {
         this.operacionesOriginal = resp.data;
+        this.actualizarOpcionesFiltro();
         console.log('🔥 DATA OPERACIONES:', this.operacionesOriginal);
         this.aplicarFiltro();
+        this.cargando = false;
       },
       error: (err) => {
+        this.cargando = false;
+        this.errorCarga = 'No se pudieron cargar las operaciones de sostenimiento.';
         //console.error('❌ Error al obtener operaciones:', err);
       },
     });
+  }
+
+  private actualizarOpcionesFiltro(): void {
+    this.equiposFiltro = Array.from(new Set(this.equipos
+      .filter(equipo => equipo.proceso?.trim().toUpperCase() === this.PROCESO)
+      .map(equipo => equipo.codigo?.trim() || '')
+      .filter(Boolean))).sort();
+    this.seccionesFiltro = Array.from(new Set(
+      this.operacionesOriginal.map((op) => op.seccion || 'SIN_SECCION'),
+    )).sort();
   }
 
   // =========================================
@@ -262,25 +232,14 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
   }
 
   procesarTodo() {
-    if (!this.operacionesFiltradas.length || !this.planesMensuales.length)
-      return;
-
-    this.procesarResumen();
-    this.DataPernosPorEquipo = this.PernosPorEquipo();
-    this.dataPernoDia = this.procesarPernosPorDia();
-    this.DataPernosPorLabor = this.PernosPorLabor();
-    this.DataDMyUTI = this.ProcesarDMyUTI();
-    this.DataEstadosSOS = this.procesarDemorasOperativas();
-    this.dataDemoraIno = this.procesarDemorasInoperativas();
-    this.dataHoraMantenimiento = this.procesarHorasMantenimiento();
-    this.dataPernosInstalados = this.ProcesarPernosInstalados();
-    this.dataMHREquipo = this.ProcesarMHrEquipo();
-    this.dataMetrosEquipo = this.ProcesarMetrosPerforadosEquipo();
-    this.dataHorometrosEquipo = this.ProcesarHorometrosEquipo();
-    this.dataHorometroGeneral = this.ProcesarHorometrosGlobal();
-    // HOJA 2
-    this.dataHorasNumericas = this.procesarHorasNumericas();
-    this.dataPernosMinadoTipo = this.ProcesarPernosPorMinadoTipo();
+    this.indicadoresPowerBi = construirIndicadoresSostenimiento(
+      this.operacionesFiltradas,
+      this.planesMensuales,
+      this.estadosProceso,
+    );
+    this.resumenTarjetas = this.indicadoresPowerBi
+      .flatMap(pagina => pagina.graficos)
+      .find(grafico => grafico.tipo === 'summary')?.resumen || [];
     this.dataProcesoLaborFR = this.procesarLaborFR();
     this.dataIndicadores = this.procesarIndicadores();
     this.dataIndicadoresLabor = this.procesarIndicadoresPorLabor();
@@ -288,6 +247,32 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
     this.dataLaborFRDetallado = this.procesarLaborFRDetallado();
 
     this.construirGanttDataNuevo();
+  }
+
+  seleccionarPagina(nombre: string): void {
+    this.paginaSeleccionada = nombre;
+  }
+
+  get paginaActualPowerBi(): IndicadorPagina | undefined {
+    return this.indicadoresPowerBi.find(
+      (pagina) => pagina.nombre === this.paginaSeleccionada,
+    );
+  }
+
+  get graficosPaginaActual(): IndicadorPagina['graficos'] {
+    const pagina = this.paginaActualPowerBi;
+    if (!pagina) return [];
+    return this.graficosVisibles(pagina).filter(grafico => grafico.tipo !== 'summary');
+  }
+
+  private graficosVisibles(pagina: IndicadorPagina): IndicadorPagina['graficos'] {
+    if (pagina.nombre !== 'Utilización' || !this.turnoAplicado) {
+      return pagina.graficos;
+    }
+    const turno = this.turnoAplicado === 'DÍA' ? 'día' : 'noche';
+    return pagina.graficos.filter(
+      (grafico) => grafico.tipo !== 'scatter' || grafico.unidad === turno,
+    );
   }
 
   // =========================================
@@ -301,6 +286,10 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
       if (this.fechaFin && op.fecha > this.fechaFin) return false;
 
       if (this.turnoAplicado && op.turno !== this.turnoAplicado) return false;
+      const equipo = String(op.n_equipo || '').trim();
+      if (this.equipoSeleccionado && equipo !== this.equipoSeleccionado) return false;
+      const seccion = op.seccion || 'SIN_SECCION';
+      if (this.seccionSeleccionada && seccion !== this.seccionSeleccionada) return false;
 
       return true;
     });
@@ -314,6 +303,8 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
     this.fechaFin = '';
     this.turnoAplicado = '';
     this.turnoSeleccionado = '';
+    this.equipoSeleccionado = '';
+    this.seccionSeleccionada = '';
 
     this.procesarTodo();
   }
@@ -338,64 +329,281 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
   // =========================================
   // 🔥 HELPERS NUEVO FORMATO (perno/malla/perforacion son ARRAYS)
   // =========================================
-  private getPerno(opReg: any): any {
-    if (!opReg?.perno) return {};
-    return Array.isArray(opReg.perno) ? (opReg.perno[0] || {}) : opReg.perno;
+  private getPernos(opReg: any): any[] {
+    const pernos = opReg?.perno
+      ? (Array.isArray(opReg.perno) ? opReg.perno : [opReg.perno])
+      : [];
+    const validos = pernos.filter((perno: any) =>
+      perno && (
+        String(perno.tipo_pernos ?? '').trim() !== '' ||
+        this.toNumber(perno.log_pernos) > 0 ||
+        this.toNumber(perno.n_pernos_instalados) > 0
+      )
+    );
+
+    if (validos.length) return validos;
+    if (!opReg || !(
+      opReg.tipo_pernos || opReg.log_pernos || opReg.n_pernos_instalados
+    )) return [];
+
+    return [{
+      tipo_pernos: opReg.tipo_pernos,
+      log_pernos: opReg.log_pernos,
+      n_pernos_instalados: opReg.n_pernos_instalados,
+      sistematico_puntual: opReg.sistematico_puntual,
+    }];
   }
 
-  private getMalla(opReg: any): any {
-    if (!opReg?.malla) return {};
-    return Array.isArray(opReg.malla) ? (opReg.malla[0] || {}) : opReg.malla;
+  private getMallas(opReg: any): any[] {
+    const mallas = opReg?.malla
+      ? (Array.isArray(opReg.malla) ? opReg.malla : [opReg.malla])
+      : [];
+    const validas = mallas.filter((malla: any) =>
+      malla && (
+        String(malla.tipo_malla ?? '').trim() !== '' ||
+        this.toNumber(malla.mt52_malla) > 0
+      )
+    );
+
+    if (validas.length) return validas;
+    if (!opReg || !(opReg.tipo_malla || opReg.mt52_malla)) return [];
+    return [{ tipo_malla: opReg.tipo_malla, mt52_malla: opReg.mt52_malla }];
   }
 
-  private getPerforacion(opReg: any): any {
-    if (!opReg?.perforacion) return {};
-    return Array.isArray(opReg.perforacion) ? (opReg.perforacion[0] || {}) : opReg.perforacion;
+  private getPerforaciones(opReg: any): any[] {
+    const perforaciones = opReg?.perforacion
+      ? (Array.isArray(opReg.perforacion) ? opReg.perforacion : [opReg.perforacion])
+      : [];
+    return perforaciones.filter((perforacion: any) =>
+      perforacion && (
+        String(perforacion.tipo_perforacion ?? '').trim() !== '' ||
+        this.toNumber(perforacion.n_taladros) > 0 ||
+        this.toNumber(perforacion.longitud_perforacion) > 0
+      )
+    );
+  }
+
+  private toNumber(value: unknown): number {
+    const number = Number(value);
+    return Number.isFinite(number) ? number : 0;
+  }
+
+  private nombreEquipoGrafico(op: OperacionBaseSostenimiento): string {
+    return String(op.n_equipo || 'SIN_EQUIPO').trim();
   }
 
   private getNPernos(opReg: any): number {
-    return Number(this.getPerno(opReg).n_pernos_instalados) || 0;
+    return this.getPernos(opReg).reduce(
+      (total, perno) => total + this.toNumber(perno.n_pernos_instalados),
+      0,
+    );
   }
 
   private getLogPernos(opReg: any): number {
-    return Number(this.getPerno(opReg).log_pernos) || 0;
-  }
-
-  private getTipoPernos(opReg: any): string {
-    return this.getPerno(opReg).tipo_pernos || 'SIN_TIPO';
-  }
-
-  private getMt52Malla(opReg: any): number {
-    return Number(this.getMalla(opReg).mt52_malla) || 0;
-  }
-
-  private getNTaladros(opReg: any): number {
-    return Number(this.getPerforacion(opReg).n_taladros) || 0;
-  }
-
-  private getLongitudPerforacion(opReg: any): number {
-    return Number(this.getPerforacion(opReg).longitud_perforacion) || 0;
+    const pernos = this.getPernos(opReg)
+      .map((perno) => this.toNumber(perno.log_pernos))
+      .filter((longitud) => longitud > 0);
+    return pernos.length
+      ? pernos.reduce((total, longitud) => total + longitud, 0) / pernos.length
+      : 0;
   }
 
   async generarPDF(): Promise<void> {
+    if (this.cargando || this.cargandoPDF) return;
+    this.errorPDF = '';
     this.cargandoPDF = true;
-    await this.delay(400);
+    const paginaInicial = this.paginaSeleccionada;
+    const vistaInicial = this.vistaPrincipal;
 
     try {
+      this.vistaPrincipal = true;
       configurarCabeceraPDF({
         fechaInicio: this.fechaInicio,
         fechaFin: this.fechaFin,
-        turno: this.turnoSeleccionado || null,
+        turno: this.turnoAplicado || null,
         tipoOperacion: 'Sostenimiento — Empernador',
       });
 
-      const opts: PdfExportOptions = {
+      const opts = {
         pixelRatio: 2,
         exportWidth: 900,
-        exportHeight: 480,
-        gridLeft: '6%', gridRight: '6%',
-        gridTop: '14%', gridBottom: '8%',
+        exportHeight: 520,
       };
+
+      type ElementoPdf =
+        | { tipo: 'grafico'; titulo: string; imagen: string }
+        | {
+            tipo: 'tabla';
+            titulo: string;
+            columnas: string[];
+            filas: Record<string, string | number>[];
+          };
+      const paginasCapturadas: {
+        nombre: string;
+        elementos: ElementoPdf[];
+      }[] = [];
+      const agregarTabla = (
+        elementos: ElementoPdf[],
+        titulo: string,
+        columnas: string[],
+        filas: Record<string, string | number>[],
+      ): void => {
+        elementos.push({
+          tipo: 'tabla',
+          titulo,
+          columnas,
+          filas: filas.length ? filas : [{ [columnas[0] || 'Estado']: 'Sin datos para los filtros seleccionados.' }],
+        });
+      };
+      for (const pagina of this.indicadoresPowerBi) {
+        this.paginaSeleccionada = pagina.nombre;
+        this.changeDetector.detectChanges();
+        await this.delay(400);
+        const componentes = this.indicadoresGraficos?.toArray() || [];
+        const graficosVisibles = this.graficosVisibles(pagina);
+        const elementos = graficosVisibles.flatMap((grafico): ElementoPdf[] => {
+          if (grafico.tipo === 'table') {
+            return [{
+              tipo: 'tabla',
+              titulo: grafico.titulo,
+              columnas: grafico.columnas || [],
+              filas: grafico.filas || [],
+            }];
+          }
+          if (grafico.tipo === 'summary') {
+            return [{
+              tipo: 'tabla',
+              titulo: grafico.titulo,
+              columnas: ['Indicador', 'Valor', 'Unidad'],
+              filas: (grafico.resumen || []).map((item) => ({
+                Indicador: item.nombre,
+                Valor: item.valor,
+                Unidad: item.unidad || '',
+              })),
+            }];
+          }
+          const tieneDatos = grafico.tipo === 'gauge' ||
+            (grafico.categorias?.length || 0) > 0 ||
+            (grafico.puntos?.length || 0) > 0;
+          if (!tieneDatos) {
+            return [{
+              tipo: 'tabla',
+              titulo: grafico.titulo,
+              columnas: ['Estado'],
+              filas: [{ Estado: 'No hay datos para los filtros seleccionados.' }],
+            }];
+          }
+          const componente = componentes.find(item => item.grafico === grafico);
+          const imagen = componente?.getChartImage(opts);
+          if (!imagen) {
+            throw new Error(`No se pudo capturar el gráfico "${grafico.titulo}" para el PDF.`);
+          }
+          return [{ tipo: 'grafico', titulo: grafico.titulo, imagen }];
+        });
+
+        if (pagina.nombre === 'Producción') {
+          const primeraPerforacion = this.dataProcesoLaborFR.map((item) => {
+            const hora = String(item.hora_inicio || item.hora || '');
+            const partes = hora.split(':');
+            const horaFormateada = hora
+              ? `${(partes[0] || '0').padStart(2, '0')}:${(partes[1] || '0').padStart(2, '0')}`
+              : '--:--';
+            return {
+              Equipo: item.modelo_equipo || 'N/A',
+              Labor: item.labor_fr || item.seccion_labor || item.seccion || 'N/A',
+              Hora: horaFormateada,
+            };
+          });
+          agregarTabla(elementos, 'Hora de Primera Perforación por Equipo',
+            ['Equipo', 'Labor', 'Hora'], primeraPerforacion);
+
+          const detalleEquipo: Record<string, string | number>[] = this.dataIndicadores.map((item) => ({
+            Equipo: item.modelo_equipo || 'N/A',
+            'Hs. Percutadas': Number(item.diferencia_percusion) || 0,
+            'N° Pernos': Number(item.n_pernos) || 0,
+            'Long Pernos': Number(item.log_pernos) || 0,
+            'N° Labores': Number(item.n_labores_sostenidas) || 0,
+            'Pernos/Labor': Number(item.n_pernos_por_labor) || 0,
+            'M/Hr': Number(item.sos_m_hr_hp) || 0,
+            'Metros Perf.': Number(item.metros_perforados) || 0,
+          }));
+          const cantidadEquipos = detalleEquipo.length || 1;
+          const totalCampo = (campo: string) =>
+            detalleEquipo.reduce((total, fila) => total + Number(fila[campo] || 0), 0);
+          if (detalleEquipo.length) {
+            detalleEquipo.push({
+              Equipo: 'Total/Promedio',
+              'Hs. Percutadas': totalCampo('Hs. Percutadas'),
+              'N° Pernos': totalCampo('N° Pernos'),
+              'Long Pernos': totalCampo('Long Pernos') / cantidadEquipos,
+              'N° Labores': totalCampo('N° Labores'),
+              'Pernos/Labor': totalCampo('Pernos/Labor') / cantidadEquipos,
+              'M/Hr': totalCampo('M/Hr') / cantidadEquipos,
+              'Metros Perf.': totalCampo('Metros Perf.'),
+            });
+          }
+          agregarTabla(elementos, 'Detalle por Equipo',
+            ['Equipo', 'Hs. Percutadas', 'N° Pernos', 'Long Pernos', 'N° Labores', 'Pernos/Labor', 'M/Hr', 'Metros Perf.'],
+            detalleEquipo);
+
+          const detalleSostenimiento: Record<string, string | number>[] = this.dataIndicadoresLabor.map((item) => ({
+            Registros: Number(item.registros) || 1,
+            Equipo: item.modelo_equipo || 'N/A',
+            Labor: item.labor_sos || 'N/A',
+            'Tipo Pernos': item.tipo_pernos || 'N/A',
+            'N° Pernos': Number(item.n_pernos) || 0,
+            'Long Pernos': Number(item.log_pernos) || 0,
+            Malla: Number(item.mt52_malla) || 0,
+            'Metros Perf.': Number(item.metros_perforados) || 0,
+          }));
+          const filasSostenimiento = detalleSostenimiento.length || 1;
+          const totalSostenimiento = (campo: string) =>
+            detalleSostenimiento.reduce((total, fila) => total + Number(fila[campo] || 0), 0);
+          if (detalleSostenimiento.length) {
+            detalleSostenimiento.push({
+              Registros: 'Total',
+              Equipo: '',
+              Labor: '',
+              'Tipo Pernos': '',
+              'N° Pernos': totalSostenimiento('N° Pernos'),
+              'Long Pernos': totalSostenimiento('Long Pernos') / filasSostenimiento,
+              Malla: totalSostenimiento('Malla'),
+              'Metros Perf.': totalSostenimiento('Metros Perf.'),
+            });
+          }
+          agregarTabla(elementos, 'Detalle de Sostenimiento',
+            ['Registros', 'Equipo', 'Labor', 'Tipo Pernos', 'N° Pernos', 'Long Pernos', 'Malla', 'Metros Perf.'],
+            detalleSostenimiento);
+        }
+
+        if (pagina.nombre === 'Ranking') {
+          const mejoresOperadores = [...this.dataFrPorOperadorTurno]
+            .sort((a, b) => Number(b.rendimiento || 0) - Number(a.rendimiento || 0))
+            .map((item, index) => ({
+              '#': index + 1,
+              Operador: item.operador || item.nombre_operador || 'N/A',
+              Turno: item.turno || 'DÍA',
+              'Pernos/h': Number(item.rendimiento) || 0,
+              'Pernos': Number(item.pernos_instalados) || 0,
+            }));
+          agregarTabla(elementos, 'Mejores Operadores',
+            ['#', 'Operador', 'Turno', 'Pernos/h', 'Pernos'], mejoresOperadores);
+
+          const observaciones = this.dataLaborFRDetallado.map((item) => ({
+            Operador: item.operador || item.nombre_operador || 'N/A',
+            Equipo: item.equipo || item.modelo_equipo || 'N/A',
+            Labor: item.labor || item.labor_fr || item.seccion_labor || '',
+            Observación: item.observacion || item.observaciones || item.descripcion || '',
+          }));
+          agregarTabla(elementos, 'Observaciones',
+            ['Operador', 'Equipo', 'Labor', 'Observación'], observaciones);
+        }
+
+        paginasCapturadas.push({
+          nombre: pagina.nombre,
+          elementos,
+        });
+      }
 
       const pdf = new jsPDF({
         orientation: 'landscape',
@@ -403,79 +611,51 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
         format: 'a4',
         compress: true,
       });
+      pdf.deletePage(1);
 
-      // ── PÁGINA 1: Producción (6 gráficos 2×3) ──────────────────────────
-      agregarCabeceraPDF(pdf, 'SOSTENIMIENTO — PRODUCCIÓN');
-      const W = pdf.internal.pageSize.getWidth();
-      const H = pdf.internal.pageSize.getHeight();
-      const startY1 = 28;
-      const margin = 6; const gap = 4;
-      const cw3 = (W - margin * 2 - gap * 2) / 3;
-      const rh2 = (H - startY1 - margin - gap) / 2;
+      for (const pagina of paginasCapturadas) {
+        const tituloCabecera = `SOSTENIMIENTO — ${pagina.nombre.toUpperCase()}`;
+        let bloqueGraficos: { img: string; titulo: string }[] = [];
+        const exportarBloqueGraficos = (): void => {
+          if (!bloqueGraficos.length) return;
+          agregarPaginaGraficos2x2(pdf, tituloCabecera, bloqueGraficos);
+          bloqueGraficos = [];
+        };
 
-      const grafProd = [
-        { img: this.chartPernosEquipo?.getChartImage(opts),       titulo: 'Pernos por Equipo' },
-        { img: this.chartPernosDia?.getChartImage(opts),          titulo: 'Pernos por Día' },
-        { img: this.chartPernosLabor?.getChartImage(opts),        titulo: 'Pernos por Labor' },
-        { img: this.chartPernosInstalados?.getChartImage(opts),   titulo: 'Pernos por Tipo' },
-        { img: this.chartMhrEquipo?.getChartImage(opts),          titulo: 'M/Hr Equipo' },
-        { img: this.chartMetrosEquipo?.getChartImage(opts),       titulo: 'Metros Equipo' },
-      ];
+        for (const elemento of pagina.elementos) {
+          if (elemento.tipo === 'grafico') {
+            bloqueGraficos.push({ img: elemento.imagen, titulo: elemento.titulo });
+            if (bloqueGraficos.length === 4) exportarBloqueGraficos();
+            continue;
+          }
 
-      grafProd.forEach((g, i) => {
-        const col = i % 3;
-        const row = Math.floor(i / 3);
-        const x = margin + col * (cw3 + gap);
-        const y = startY1 + row * (rh2 + gap);
-        if (g.img) {
-          pdf.setFontSize(7); pdf.setFont('helvetica','bold'); pdf.setTextColor(40,60,90);
-          pdf.text(g.titulo, x + cw3/2, y + 3.5, { align: 'center' });
-          pdf.addImage(g.img, 'JPEG', x, y + 5, cw3, rh2 - 5, undefined, 'MEDIUM');
+          exportarBloqueGraficos();
+          pdf.addPage([297, 210], 'landscape');
+          const startY = agregarCabeceraPDF(pdf, tituloCabecera);
+          agregarTablaContinuaPDF(pdf, {
+            titulo: elemento.titulo,
+            columnas: elemento.columnas.map((columna) => ({
+              header: columna,
+              dataKey: columna,
+            })),
+            filas: elemento.filas,
+            startY: startY + 7,
+          }, tituloCabecera);
         }
-      });
-
-      // ── PÁGINA 2: Rendimiento + Mantenimiento (4 gráficos 2×2) ─────────
-      agregarPaginaGraficos2x2(pdf, 'SOSTENIMIENTO — RENDIMIENTO Y MANTENIMIENTO', [
-        { img: this.chartRendimiento?.getChartImage(opts),   titulo: 'DM% y UTI%' },
-        { img: this.chartDemorasOp?.getChartImage(opts),     titulo: 'Demoras Operativas' },
-        { img: this.chartDemorasInop?.getChartImage(opts),   titulo: 'Demoras Inoperativas' },
-        { img: this.chartHorasMant?.getChartImage(opts),     titulo: 'Horas Mantenimiento' },
-      ]);
-
-      // ── PÁGINA 3: Horómetros (2 gráficos 1×2) ──────────────────────────
-      agregarPaginaGraficos1x2(pdf, 'SOSTENIMIENTO — HORÓMETROS', [
-        { img: this.chartHorometro?.getChartImage(opts),         titulo: 'Horómetro Empernador' },
-        { img: this.chartTotalHorometros?.getChartImage(opts),   titulo: 'Total Horómetros' },
-      ]);
-
-      // ── PÁGINA 4: Detalle (pernos minado tipo + ranking) ────────────────
-      agregarPaginaGraficos1x2(pdf, 'SOSTENIMIENTO — DETALLE', [
-        { img: this.chartPernosMinado?.getChartImage(opts),   titulo: 'Pernos por Minado/Tipo' },
-        { img: this.chartRanking?.getChartImage(opts),        titulo: 'Ranking Operador' },
-      ]);
-
-      // ── PÁGINA 5: Scatter turnos ─────────────────────────────────────────
-      const scatterOpts: PdfExportOptions = { ...opts, exportHeight: 600 };
-      if (this.turnoAplicado === '' || this.turnoAplicado === 'DÍA') {
-        agregarPaginaGraficoCompleto(
-          pdf, 'SOSTENIMIENTO — ANÁLISIS TURNO DÍA',
-          this.chartScatterDia?.getChartImage(scatterOpts),
-          'Scatter Turnos — Día'
-        );
-      }
-      if (this.turnoAplicado === '' || this.turnoAplicado === 'NOCHE') {
-        agregarPaginaGraficoCompleto(
-          pdf, 'SOSTENIMIENTO — ANÁLISIS TURNO NOCHE',
-          this.chartScatterNoche?.getChartImage(scatterOpts),
-          'Scatter Turnos — Noche'
-        );
+        exportarBloqueGraficos();
       }
 
       const fecha = new Date().toISOString().slice(0, 10);
       pdf.save(`sostenimiento-empernador-${fecha}.pdf`);
 
+    } catch (error) {
+      console.error('Error al exportar el PDF de sostenimiento:', error);
+      this.errorPDF = 'No se pudo generar el PDF. Intenta exportarlo nuevamente.';
     } finally {
+      this.paginaSeleccionada = paginaInicial;
+      this.vistaPrincipal = vistaInicial;
       this.cargandoPDF = false;
+      this.changeDetector.detectChanges();
     }
   }
 
@@ -495,81 +675,17 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
     for (const registro of registrosArray) {
       if (registro.estado !== 'OPERATIVO') continue;
 
-      try {
-        const op = registro.operacion || registro;
-
-        // 🔥 CAMBIO NUEVO FORMATO: acceder a op.perno[0]
-        const nPernos = this.getNPernos(op);
-        const longPerno = this.getLogPernos(op);
-
-        const metrosRegistro = nPernos * longPerno * 0.3048;
-
-        if (nPernos > 0 && longPerno > 0) {
-          totalMetros += metrosRegistro;
+      const op = registro.operacion || registro;
+      for (const perno of this.getPernos(op)) {
+        const nPernos = this.toNumber(perno.n_pernos_instalados);
+        const longitud = this.toNumber(perno.log_pernos);
+        if (nPernos > 0 && longitud > 0) {
+          totalMetros += nPernos * longitud * 0.3048;
         }
-      } catch (error) {}
+      }
     }
 
     return totalMetros;
-  }
-
-  //GRAFICO 1
-  // 🔥 CAMBIO NUEVO FORMATO
-  procesarResumen() {
-    let totalMetros = 0;
-    let totalLaboresSostenidas = 0;
-    let totalPernos = 0;
-
-    const fechasSet = new Set<string>();
-    const equiposSet = new Set<string>();
-
-    this.operacionesFiltradas.forEach((op) => {
-      const modeloEquipo = `${op.equipo}-${op.n_equipo}`;
-      equiposSet.add(modeloEquipo);
-
-      try {
-        const registrosArray = op.registros;
-
-        if (Array.isArray(registrosArray)) {
-          for (const registro of registrosArray) {
-            if (registro.estado !== 'OPERATIVO') continue;
-
-            const opReg = registro.operacion || registro;
-
-            // 🔥 CAMBIO NUEVO FORMATO
-            const nPernos = this.getNPernos(opReg);
-            const longPerno = this.getLogPernos(opReg);
-
-            const metrosRegistro = nPernos * longPerno * 0.3048;
-
-            const laborSOS =
-              `${opReg.tipo_labor || ''}${opReg.labor || ''}${opReg.ala || ''}`.trim();
-
-            if (laborSOS !== '' && metrosRegistro > 0) {
-              totalLaboresSostenidas++;
-            }
-
-            totalPernos += nPernos;
-          }
-
-          if (op.fecha) {
-            fechasSet.add(op.fecha);
-          }
-
-          totalMetros += this.calcularMetrosPerforados(registrosArray);
-        }
-      } catch (error) {}
-    });
-
-    const nDias = fechasSet.size;
-    const nPernoDia = nDias > 0 ? totalPernos / nDias : 0;
-
-    this.resumen = {
-      conteoEquipos: equiposSet.size,
-      totalLaboresSostenidas,
-      nPernoDia: Number(nPernoDia.toFixed(2)),
-      totalMetros: Number(totalMetros.toFixed(0)),
-    };
   }
 
   //GRAFICO 2
@@ -621,7 +737,8 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
     const mapaPlanes = this.crearMapaPlanes();
 
     this.operacionesFiltradas.forEach((op) => {
-      const modeloEquipo = `${op.equipo}-${op.n_equipo}`;
+      const equipoKey = `${op.equipo}-${op.n_equipo}`;
+      const modeloEquipo = this.nombreEquipoGrafico(op);
       const seccion = op.seccion || 'SIN_SECCION';
 
       const registrosArray = op.registros;
@@ -633,25 +750,24 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
         const opReg = registro.operacion || registro;
 
         // 🔥 CAMBIO NUEVO FORMATO
-        const tipoPernos = this.getTipoPernos(opReg);
-        const nPernos = this.getNPernos(opReg);
-
-        if (nPernos <= 0) continue;
-
         const seccionLabor = this.obtenerSeccionLabor(opReg, mapaPlanes);
-        const key = `${seccion}|${modeloEquipo}|${tipoPernos}|${seccionLabor}`;
+        for (const perno of this.getPernos(opReg)) {
+          const tipoPernos = perno.tipo_pernos || 'SIN_TIPO';
+          const nPernos = this.toNumber(perno.n_pernos_instalados);
+          if (nPernos <= 0) continue;
 
-        if (!resultadoMap.has(key)) {
-          resultadoMap.set(key, {
-            seccion,
-            modeloEquipo,
-            tipoPernos,
-            seccionLabor,
-            totalPernos: 0,
-          });
+          const key = `${seccion}|${equipoKey}|${tipoPernos}|${seccionLabor}`;
+          if (!resultadoMap.has(key)) {
+            resultadoMap.set(key, {
+              seccion,
+              modeloEquipo,
+              tipoPernos,
+              seccionLabor,
+              totalPernos: 0,
+            });
+          }
+          resultadoMap.get(key).totalPernos += nPernos;
         }
-
-        resultadoMap.get(key).totalPernos += nPernos;
       }
     });
 
@@ -717,7 +833,6 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
     const mapaPlanes = this.crearMapaPlanes();
 
     this.operacionesFiltradas.forEach((op) => {
-      const modeloEquipo = `${op.equipo}-${op.n_equipo}`;
       const seccion = op.seccion || 'SIN_SECCION';
 
       const registrosArray = op.registros;
@@ -729,30 +844,29 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
         const opReg = registro.operacion || registro;
 
         // 🔥 CAMBIO NUEVO FORMATO
-        const tipoPernos = this.getTipoPernos(opReg);
-        const nPernos = this.getNPernos(opReg);
-
-        if (nPernos <= 0) continue;
-
         const tipo = (opReg.tipo_labor || '').trim();
         const labor = (opReg.labor || '').trim();
         const ala = (opReg.ala || '').trim();
 
         const laborCompleta = `${tipo}${labor}${ala}`;
         const seccionLabor = this.obtenerSeccionLabor(opReg, mapaPlanes);
-        const key = `${seccion}|${laborCompleta}|${tipoPernos}|${seccionLabor}`;
+        for (const perno of this.getPernos(opReg)) {
+          const tipoPernos = perno.tipo_pernos || 'SIN_TIPO';
+          const nPernos = this.toNumber(perno.n_pernos_instalados);
+          if (nPernos <= 0) continue;
 
-        if (!resultadoMap.has(key)) {
-          resultadoMap.set(key, {
-            seccion,
-            labor: laborCompleta,
-            tipoPernos,
-            seccionLabor,
-            totalPernos: 0,
-          });
+          const key = `${seccion}|${laborCompleta}|${tipoPernos}|${seccionLabor}`;
+          if (!resultadoMap.has(key)) {
+            resultadoMap.set(key, {
+              seccion,
+              labor: laborCompleta,
+              tipoPernos,
+              seccionLabor,
+              totalPernos: 0,
+            });
+          }
+          resultadoMap.get(key).totalPernos += nPernos;
         }
-
-        resultadoMap.get(key).totalPernos += nPernos;
       }
     });
 
@@ -764,13 +878,14 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
     const mapa = new Map<string, any>();
 
     this.operacionesFiltradas.forEach((op) => {
-      const modeloEquipo = `${op.equipo}-${op.n_equipo}`;
+      const equipoKey = `${op.equipo}-${op.n_equipo}`;
+      const modeloEquipo = this.nombreEquipoGrafico(op);
       const seccion = op.seccion || 'SIN_SECCION';
 
       const registros = op.registros;
       if (!Array.isArray(registros)) return;
 
-      const key = `${modeloEquipo}|${seccion}`;
+      const key = `${equipoKey}|${seccion}`;
 
       if (!mapa.has(key)) {
         mapa.set(key, {
@@ -1151,15 +1266,16 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
         const opReg = registro.operacion || registro;
 
         // 🔥 CAMBIO NUEVO FORMATO
-        const tipoPernos = this.getTipoPernos(opReg);
-        const nPernos = this.getNPernos(opReg);
+        for (const perno of this.getPernos(opReg)) {
+          const tipoPernos = perno.tipo_pernos || 'SIN_TIPO';
+          const nPernos = this.toNumber(perno.n_pernos_instalados);
+          if (nPernos <= 0) continue;
 
-        if (nPernos <= 0) return;
-
-        if (mapa.has(tipoPernos)) {
-          mapa.get(tipoPernos).total += nPernos;
-        } else {
-          mapa.set(tipoPernos, { tipoPernos, total: nPernos });
+          if (mapa.has(tipoPernos)) {
+            mapa.get(tipoPernos).total += nPernos;
+          } else {
+            mapa.set(tipoPernos, { tipoPernos, total: nPernos });
+          }
         }
       });
     });
@@ -1172,13 +1288,14 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
     const mapa = new Map<string, any>();
 
     this.operacionesFiltradas.forEach((op) => {
-      const modeloEquipo = `${op.equipo}-${op.n_equipo}`;
+      const equipoKey = `${op.equipo}-${op.n_equipo}`;
+      const modeloEquipo = this.nombreEquipoGrafico(op);
       const seccion = op.seccion || 'SIN_SECCION';
 
       const registros = op.registros;
       if (!Array.isArray(registros)) return;
 
-      const key = `${seccion}|${modeloEquipo}`;
+      const key = `${seccion}|${equipoKey}`;
 
       if (!mapa.has(key)) {
         mapa.set(key, {
@@ -1219,29 +1336,28 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
 
   //Grafico 10
   ProcesarMetrosPerforadosEquipo() {
-    const mapa = new Map<string, number>();
+    const mapa = new Map<string, { modeloEquipo: string; metros: number }>();
 
     this.operacionesFiltradas.forEach((op) => {
-      const modeloEquipo = `${op.equipo}-${op.n_equipo}`;
+      const equipoKey = `${op.equipo}-${op.n_equipo}`;
+      const modeloEquipo = this.nombreEquipoGrafico(op);
 
       const registros = op.registros;
       if (!Array.isArray(registros)) return;
 
       const metros = this.calcularMetrosPerforados(registros);
 
-      if (mapa.has(modeloEquipo)) {
-        mapa.set(modeloEquipo, mapa.get(modeloEquipo)! + metros);
+      if (mapa.has(equipoKey)) {
+        mapa.get(equipoKey)!.metros += metros;
       } else {
-        mapa.set(modeloEquipo, metros);
+        mapa.set(equipoKey, { modeloEquipo, metros });
       }
     });
 
-    const resultado = Array.from(mapa.entries()).map(
-      ([modeloEquipo, metros]) => ({
-        modeloEquipo,
-        metros: Math.round(metros),
-      }),
-    );
+    const resultado = Array.from(mapa.values()).map(({ modeloEquipo, metros }) => ({
+      modeloEquipo,
+      metros: Math.round(metros),
+    }));
 
     return resultado;
   }
@@ -1251,12 +1367,13 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
     const mapa = new Map<string, any>();
 
     this.operacionesFiltradas.forEach((op) => {
-      const modeloEquipo = `${op.equipo}-${op.n_equipo}`;
+      const equipoKey = `${op.equipo}-${op.n_equipo}`;
+      const modeloEquipo = this.nombreEquipoGrafico(op);
 
       const horometros = op.horometros as any;
 
-      if (!mapa.has(modeloEquipo)) {
-        mapa.set(modeloEquipo, {
+      if (!mapa.has(equipoKey)) {
+        mapa.set(equipoKey, {
           modeloEquipo,
           diesel: 0,
           electrico: 0,
@@ -1264,7 +1381,7 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
         });
       }
 
-      const grupo = mapa.get(modeloEquipo);
+      const grupo = mapa.get(equipoKey);
 
       if (horometros?.diesel) {
         const diffDiesel =
@@ -1349,7 +1466,7 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
     const result: any[] = [];
 
     this.operacionesFiltradas.forEach((op, i) => {
-      const modeloEquipo = `${op.equipo}-${op.n_equipo}`;
+      const modeloEquipo = this.nombreEquipoGrafico(op);
       const fecha = op.fecha || 'SIN_FECHA';
 
       const registrosArray = op.registros;
@@ -1438,8 +1555,10 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
       const registrosArray = op.registros;
       if (!Array.isArray(registrosArray)) return;
 
-      const modelo =
-        op.equipo && op.n_equipo ? `${op.equipo}-${op.n_equipo}` : 'SIN_EQUIPO';
+      const equipoKey = op.equipo && op.n_equipo
+        ? `${op.equipo}-${op.n_equipo}`
+        : 'SIN_EQUIPO';
+      const modelo = this.nombreEquipoGrafico(op);
 
       const fecha = op.fecha || 'SIN_FECHA';
 
@@ -1471,7 +1590,7 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
 
       const labor_fr = `${tipoLabor}${labor}${ala}`;
 
-      const key = modelo;
+      const key = equipoKey;
 
       if (!mapa.has(key)) {
         mapa.set(key, new Map());
@@ -1504,30 +1623,20 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
     const mapa = new Map<string, any>();
 
     this.operacionesFiltradas.forEach((op) => {
-      const modelo =
-        op.equipo && op.n_equipo ? `${op.equipo}-${op.n_equipo}` : 'SIN_EQUIPO';
+      const equipoKey = op.equipo && op.n_equipo
+        ? `${op.equipo}-${op.n_equipo}`
+        : 'SIN_EQUIPO';
+      const modelo = this.nombreEquipoGrafico(op);
 
       const registros = op.registros;
       if (!Array.isArray(registros)) return;
 
-      const horometros =
-        typeof op.horometros === 'object' && op.horometros !== null
-          ? (op.horometros as {
-              percusion?: { inicio?: number; final?: number };
-            })
-          : {};
-
-      const percusionInicio = Number(horometros.percusion?.inicio) || 0;
-      const percusionFinal = Number(horometros.percusion?.final) || 0;
-
-      const diferenciaPercusion = Number(
-        (percusionFinal - percusionInicio).toFixed(2),
-      );
+      const diferenciaPercusion = obtenerHorasHorometroSostenimiento(op, 'percusion');
 
       const metrosPerforadosTotal = this.calcularMetrosPerforados(registros);
 
-      if (!mapa.has(modelo)) {
-        mapa.set(modelo, {
+      if (!mapa.has(equipoKey)) {
+        mapa.set(equipoKey, {
           modelo_equipo: modelo,
           diferencia_percusion: 0,
           n_pernos: 0,
@@ -1538,7 +1647,7 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
         });
       }
 
-      const data = mapa.get(modelo);
+      const data = mapa.get(equipoKey);
 
       data.diferencia_percusion += diferenciaPercusion;
       data.metros_perforados += metrosPerforadosTotal;
@@ -1556,7 +1665,6 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
         data.n_pernos += pernos;
 
         const logPernos = this.getLogPernos(opData);
-
         if (logPernos > 0) {
           data.log_pernos += logPernos;
           data.log_pernos_count += 1;
@@ -1606,25 +1714,12 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
     const mapaPlanes = this.crearMapaPlanes();
 
     this.operacionesFiltradas.forEach((op) => {
-      const modelo =
-        op.equipo && op.n_equipo ? `${op.equipo}-${op.n_equipo}` : 'SIN_EQUIPO';
+      const modelo = this.nombreEquipoGrafico(op);
 
       const registros = op.registros;
       if (!Array.isArray(registros)) return;
 
-      const horometros =
-        typeof op.horometros === 'object' && op.horometros !== null
-          ? (op.horometros as {
-              percusion?: { inicio?: number; final?: number };
-            })
-          : {};
-
-      const percusionInicio = Number(horometros.percusion?.inicio) || 0;
-      const percusionFinal = Number(horometros.percusion?.final) || 0;
-
-      const diferenciaPercusion = Number(
-        (percusionFinal - percusionInicio).toFixed(2),
-      );
+      const diferenciaPercusion = obtenerHorasHorometroSostenimiento(op, 'percusion');
 
       const totalRegistros = registros.length || 1;
       const percusionPorRegistro = diferenciaPercusion / totalRegistros;
@@ -1644,35 +1739,35 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
 
         const laborRaw = `${tipoLabor}${labor}${ala}`.trim();
         const laborSOS = laborRaw || 'SIN_LABOR';
-
         const seccionLabor = this.obtenerSeccionLabor(opData, mapaPlanes);
+        const pernos = this.getPernos(opData);
+        const mallas = this.getMallas(opData);
+        const totalFilas = Math.max(pernos.length, mallas.length);
 
-        // 🔥 CAMBIO NUEVO FORMATO
-        const pernos = this.getNPernos(opData);
-        const logPernos = this.getLogPernos(opData);
-        const mt52 = this.getMt52Malla(opData);
-        const tipoPernos = this.getTipoPernos(opData);
+        for (let index = 0; index < totalFilas; index++) {
+          const perno = pernos[index];
+          const malla = mallas[index];
+          const nPernos = this.toNumber(perno?.n_pernos_instalados);
+          const longitud = this.toNumber(perno?.log_pernos);
+          const metros = nPernos > 0 && longitud > 0
+            ? nPernos * longitud * 0.3048
+            : 0;
+          const sos_m_hr_hp =
+            percusionPorRegistro > 0 ? metros / percusionPorRegistro : 0;
 
-        const metros = this.calcularMetrosPerforados([r]);
-
-        const sos_m_hr_hp =
-          percusionPorRegistro > 0 ? metros / percusionPorRegistro : 0;
-
-        resultado.push({
-          modelo_equipo: modelo,
-          labor_sos: laborSOS,
-          seccion_labor: seccionLabor,
-
-          n_pernos: pernos,
-          log_pernos: Number(logPernos.toFixed(2)),
-          mt52_malla: mt52,
-          tipo_pernos: tipoPernos,
-
-          metros_perforados: metros,
-          diferencia_percusion: Number(percusionPorRegistro.toFixed(2)),
-
-          sos_m_hr_hp: Number(sos_m_hr_hp.toFixed(2)),
-        });
+          resultado.push({
+            modelo_equipo: modelo,
+            labor_sos: laborSOS,
+            seccion_labor: seccionLabor,
+            n_pernos: nPernos,
+            log_pernos: Number(longitud.toFixed(2)),
+            mt52_malla: this.toNumber(malla?.mt52_malla),
+            tipo_pernos: perno?.tipo_pernos || 'SIN_TIPO',
+            metros_perforados: Number(metros.toFixed(2)),
+            diferencia_percusion: Number(percusionPorRegistro.toFixed(2)),
+            sos_m_hr_hp: Number(sos_m_hr_hp.toFixed(2)),
+          });
+        }
       });
     });
 
@@ -1683,51 +1778,7 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
 
   // Grafico 18
   procesarFrPorOperadorTurno() {
-    const mapa = new Map<string, any>();
-
-    this.operacionesFiltradas.forEach((op) => {
-      const registrosArray = op.registros;
-      if (!Array.isArray(registrosArray)) return;
-
-      const operador = op.operador || 'SIN_OPERADOR';
-      const turno = op.turno || 'SIN_TURNO';
-
-      const key = `${operador}-${turno}`;
-
-      const metros = this.calcularMetrosPerforados(registrosArray);
-
-      const horo = (op as any)?.horometros;
-      const percusion = horo?.percusion;
-
-      const difPercusion =
-        !isNaN(Number(percusion?.inicio)) && !isNaN(Number(percusion?.final))
-          ? Number(percusion.final) - Number(percusion.inicio)
-          : 0;
-
-      if (!mapa.has(key)) {
-        mapa.set(key, {
-          operador,
-          turno,
-          metros_perforados: 0,
-          dif_percusion: 0,
-          fr_mhr_hp: 0,
-        });
-      }
-
-      const item = mapa.get(key)!;
-
-      item.metros_perforados += metros;
-      item.dif_percusion += difPercusion;
-    });
-
-    for (const item of mapa.values()) {
-      item.fr_mhr_hp =
-        item.dif_percusion > 0
-          ? item.metros_perforados / item.dif_percusion
-          : 0;
-    }
-
-    return Array.from(mapa.values());
+    return construirRankingOperadoresSostenimiento(this.operacionesFiltradas, this.estadosProceso);
   }
 
   //Grafico 19
@@ -1738,8 +1789,10 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
       const registrosArray = op.registros;
       if (!Array.isArray(registrosArray)) return;
 
-      const modelo =
-        op.equipo && op.n_equipo ? `${op.equipo}-${op.n_equipo}` : 'SIN_EQUIPO';
+      const equipoKey = op.equipo && op.n_equipo
+        ? `${op.equipo}-${op.n_equipo}`
+        : 'SIN_EQUIPO';
+      const modelo = this.nombreEquipoGrafico(op);
 
       const operador = op.operador || 'SIN_OPERADOR';
 
@@ -1756,7 +1809,7 @@ export class PrincipalGraficoSostenimientoComponent implements OnInit {
 
         const labor_fr = `${tipo_labor}${labor}${ala}`.trim();
 
-        const key = `${modelo}-${operador}-${labor_fr}`;
+        const key = `${equipoKey}-${operador}-${labor_fr}`;
 
         if (!mapa.has(key)) {
           mapa.set(key, {

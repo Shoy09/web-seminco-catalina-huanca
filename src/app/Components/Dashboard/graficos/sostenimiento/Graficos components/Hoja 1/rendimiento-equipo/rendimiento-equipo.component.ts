@@ -5,6 +5,7 @@ import { BarChart } from 'echarts/charts';
 import { TitleComponent, TooltipComponent, GridComponent, LegendComponent, ToolboxComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { exportarImagenChart, PdfExportOptions } from 'src/app/config/config-pdf';
+import { SOSTENIMIENTO_CHART_COLORS } from 'src/app/config/sostenimiento-chart-colors';
 
 echarts.use([
   BarChart,
@@ -40,6 +41,7 @@ export class RendimientoEquipoComponent implements OnChanges {
   // 🔥 BASE DEL GRAFICO (ESTÁTICO)
   getBaseOptions() {
     return {
+      color: SOSTENIMIENTO_CHART_COLORS,
       tooltip: {
         trigger: 'axis',
         axisPointer: { type: 'shadow' },
@@ -135,7 +137,7 @@ export class RendimientoEquipoComponent implements OnChanges {
           barGap: '20%',
           itemStyle: {
             borderRadius: [5, 5, 0, 0],
-            color: '#3498db'
+            color: SOSTENIMIENTO_CHART_COLORS[0]
           },
           label: {
             show: true,
@@ -150,7 +152,7 @@ export class RendimientoEquipoComponent implements OnChanges {
           data: utiData,
           itemStyle: {
             borderRadius: [5, 5, 0, 0],
-            color: '#2ecc71'
+            color: SOSTENIMIENTO_CHART_COLORS[1]
           },
           label: {
             show: true,

@@ -1,14 +1,13 @@
-﻿<div class="card-wrapper">
+<div class="card-wrapper">
   <div class="card-header"><span class="card-accent"></span><span class="card-title">Hora de Primera Perforación por Equipo</span></div>
   @if (!displayedData || displayedData.length === 0) {
-    <div class="empty-state"><span class="material-icons empty-icon">table_chart</span><span class="empty-text">Sin datos para el período seleccionado</span></div>
+    <div class="empty-state"></div>
   } @else {
     <div class="table-responsive">
       <table class="data-table">
         <thead><tr><th>Equipo</th><th>Labor</th><th>Hora</th></tr></thead>
         <tbody>
           <tr *ngFor="let item of paginatedData"><td class="equipo-cell">{{ item.equipo }}</td><td>{{ item.labor }}</td><td class="mhr-cell">{{ item.hora }}</td></tr>
-          <tr *ngIf="paginatedData.length === 0"><td colspan="3" class="no-data">Sin datos disponibles</td></tr>
         </tbody>
       </table>
     </div>

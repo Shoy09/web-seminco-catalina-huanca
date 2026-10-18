@@ -1,7 +1,7 @@
-﻿<div class="card-wrapper">
+<div class="card-wrapper">
   <div class="card-header"><span class="card-accent"></span><span class="card-title">Detalle por Equipo</span></div>
   @if (!displayedData || displayedData.length === 0) {
-    <div class="empty-state"><span class="material-icons empty-icon">table_chart</span><span class="empty-text">Sin datos para el período seleccionado</span></div>
+    <div class="empty-state"></div>
   } @else {
     <div class="table-responsive">
       <table class="data-table">
@@ -17,7 +17,6 @@
             <td class="mhr-cell">{{ item.sos_m_hr_hp | number:'1.0-1' }}</td>
             <td class="metros-cell">{{ item.metros_perforados | number:'1.0-1' }}</td>
           </tr>
-          <tr *ngIf="paginatedData.length === 0"><td colspan="8" class="no-data">Sin datos disponibles</td></tr>
         </tbody>
         <tfoot *ngIf="displayedData.length > 0">
           <tr class="total-row">

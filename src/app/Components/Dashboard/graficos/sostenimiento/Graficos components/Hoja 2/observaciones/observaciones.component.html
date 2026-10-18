@@ -1,7 +1,7 @@
 ﻿<div class="card-wrapper">
   <div class="card-header"><span class="card-accent"></span><span class="card-title">Observaciones</span></div>
   @if (!displayedData || displayedData.length === 0) {
-    <div class="empty-state"><span class="material-icons empty-icon">notes</span><span class="empty-text">Sin observaciones registradas</span></div>
+    <div class="empty-state"></div>
   } @else {
     <div class="table-responsive">
       <table class="data-table">
@@ -13,7 +13,6 @@
             <td>{{ item.labor }}</td>
             <td>{{ item.observacion }}</td>
           </tr>
-          <tr *ngIf="paginatedData.length === 0"><td colspan="4" class="no-data">Sin observaciones registradas</td></tr>
         </tbody>
       </table>
     </div>

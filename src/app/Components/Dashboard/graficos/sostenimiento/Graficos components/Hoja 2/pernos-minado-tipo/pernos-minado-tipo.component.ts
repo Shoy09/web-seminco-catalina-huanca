@@ -5,6 +5,7 @@ import { TitleComponent, TooltipComponent, LegendComponent } from 'echarts/compo
 import { PieChart } from 'echarts/charts';
 import { CanvasRenderer } from 'echarts/renderers';
 import { exportarImagenChart, PdfExportOptions } from 'src/app/config/config-pdf';
+import { SOSTENIMIENTO_CHART_COLORS } from 'src/app/config/sostenimiento-chart-colors';
 
 echarts.use([TitleComponent, TooltipComponent, LegendComponent, PieChart, CanvasRenderer]);
 
@@ -22,20 +23,6 @@ export class PernosMinadoTipoComponent implements OnChanges {
   @Input() data: any[] = [];
 
   chartOptions: any = {};
-
-  // Paleta de colores azules
-  private readonly paletaAzules: string[] = [
-    '#1E88E5', // Azul intenso
-    '#42A5F5', // Azul medio
-    '#64B5F6', // Azul claro
-    '#1565C0', // Azul oscuro
-    '#1976D2', // Azul principal
-    '#2196F3', // Azul estándar
-    '#0D47A1', // Azul muy oscuro
-    '#90CAF9', // Azul muy claro
-    '#2C3E50', // Azul grisáceo
-    '#2980B9'  // Azul petróleo
-  ];
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['data']) {
@@ -80,12 +67,13 @@ export class PernosMinadoTipoComponent implements OnChanges {
     // Asignar color de la paleta de azules a cada dato
     const datosConColor = data.map((item, index) => ({
       ...item,
-      itemStyle: { 
-        color: this.paletaAzules[index % this.paletaAzules.length] 
+      itemStyle: {
+        color: SOSTENIMIENTO_CHART_COLORS[index % SOSTENIMIENTO_CHART_COLORS.length],
       }
     }));
 
     return {
+      color: SOSTENIMIENTO_CHART_COLORS,
       tooltip: {
         trigger: 'item',
         formatter: '{b}: {c} pernos ({d}%)'

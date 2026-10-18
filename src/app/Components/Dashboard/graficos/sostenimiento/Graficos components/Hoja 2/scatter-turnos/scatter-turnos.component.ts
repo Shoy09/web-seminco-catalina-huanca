@@ -15,6 +15,7 @@ import {
 } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { exportarImagenChart, PdfExportOptions } from 'src/app/config/config-pdf';
+import { SOSTENIMIENTO_CHART_COLORS } from 'src/app/config/sostenimiento-chart-colors';
 
 // 👇 REGISTRAR
 echarts.use([
@@ -154,6 +155,7 @@ export class ScatterTurnosComponent implements OnInit, OnChanges {
     }));
 
     return {
+      color: SOSTENIMIENTO_CHART_COLORS,
 
       tooltip: {
         trigger: 'item',

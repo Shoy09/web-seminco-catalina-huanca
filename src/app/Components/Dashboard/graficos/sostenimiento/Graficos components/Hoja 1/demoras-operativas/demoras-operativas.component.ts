@@ -11,6 +11,7 @@ import {
 } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { exportarImagenChart, PdfExportOptions } from 'src/app/config/config-pdf';
+import { SOSTENIMIENTO_CHART_COLORS } from 'src/app/config/sostenimiento-chart-colors';
 
 echarts.use([
   BarChart,
@@ -63,6 +64,7 @@ export class DemorasOperativasComponent implements OnChanges {
     const porcentajesEscalados = porcentajes.map((p) => (p / 100) * maxHoras);
 
     this.chartOptions = {
+      color: SOSTENIMIENTO_CHART_COLORS,
       tooltip: {
         trigger: 'axis',
         axisPointer: { type: 'shadow' },
@@ -135,7 +137,7 @@ export class DemorasOperativasComponent implements OnChanges {
           data: horas,
           itemStyle: {
             borderRadius: [5, 5, 0, 0],
-            color: '#3498db',
+            color: SOSTENIMIENTO_CHART_COLORS[0],
           },
           label: {
             show: true,
@@ -152,11 +154,11 @@ export class DemorasOperativasComponent implements OnChanges {
           symbol: 'circle',
           symbolSize: 8,
           lineStyle: {
-            color: '#e74c3c',
+            color: SOSTENIMIENTO_CHART_COLORS[1],
             width: 3,
           },
           itemStyle: {
-            color: '#e74c3c',
+            color: SOSTENIMIENTO_CHART_COLORS[1],
             borderColor: '#ffffff',
             borderWidth: 2,
           },

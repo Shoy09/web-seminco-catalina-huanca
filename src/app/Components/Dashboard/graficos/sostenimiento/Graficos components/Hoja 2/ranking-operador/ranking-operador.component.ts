@@ -5,6 +5,7 @@ import { BarChart, LineChart } from 'echarts/charts';
 import { TitleComponent, TooltipComponent, GridComponent, LegendComponent, ToolboxComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { exportarImagenChart, PdfExportOptions } from 'src/app/config/config-pdf';
+import { SOSTENIMIENTO_CHART_COLORS } from 'src/app/config/sostenimiento-chart-colors';
 
 echarts.use([
   BarChart,
@@ -62,6 +63,7 @@ export class RankingOperadorComponent implements OnChanges {
     });
 
     this.chartOptions = {
+      color: SOSTENIMIENTO_CHART_COLORS,
 
       tooltip: {
         trigger: 'axis',
@@ -120,7 +122,7 @@ export class RankingOperadorComponent implements OnChanges {
           z: 1,
           itemStyle: {
             borderRadius: [6, 6, 0, 0],
-            color: '#4A90E2'
+            color: SOSTENIMIENTO_CHART_COLORS[0]
           },
           label: {
             show: true,
@@ -139,10 +141,10 @@ export class RankingOperadorComponent implements OnChanges {
           z: 3, // 🔥 SIEMPRE ENCIMA
           lineStyle: {
             width: 2,
-            color: '#E74C3C'
+            color: SOSTENIMIENTO_CHART_COLORS[1]
           },
           itemStyle: {
-            color: '#E74C3C'
+            color: SOSTENIMIENTO_CHART_COLORS[1]
           },
           label: {
             show: true,

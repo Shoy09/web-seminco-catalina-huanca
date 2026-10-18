@@ -5,6 +5,7 @@ import { BarChart } from 'echarts/charts';
 import { TitleComponent, TooltipComponent, GridComponent, LegendComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { exportarImagenChart, PdfExportOptions } from 'src/app/config/config-pdf';
+import { SOSTENIMIENTO_CHART_COLORS } from 'src/app/config/sostenimiento-chart-colors';
 
 echarts.use([BarChart, TitleComponent, TooltipComponent, GridComponent, LegendComponent, CanvasRenderer]);
 
@@ -21,20 +22,6 @@ export class MhrEquipoComponent implements OnChanges {
   @Input() data: any[] = [];
 
   chartOptions: any = {};
-
-  // Paleta de colores azules
-  private readonly paletaAzules: string[] = [
-    '#1E88E5', // Azul intenso
-    '#42A5F5', // Azul medio
-    '#64B5F6', // Azul claro
-    '#1565C0', // Azul oscuro
-    '#1976D2', // Azul principal
-    '#2196F3', // Azul estándar
-    '#0D47A1', // Azul muy oscuro
-    '#90CAF9', // Azul muy claro
-    '#2C3E50', // Azul grisáceo
-    '#2980B9'  // Azul petróleo
-  ];
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['data']) {
@@ -61,10 +48,11 @@ export class MhrEquipoComponent implements OnChanges {
 
     // Asignar colores azules a cada barra
     const coloresBarras = seriesData.map((_, index) => 
-      this.paletaAzules[index % this.paletaAzules.length]
+      SOSTENIMIENTO_CHART_COLORS[index % SOSTENIMIENTO_CHART_COLORS.length]
     );
 
     this.chartOptions = {
+      color: SOSTENIMIENTO_CHART_COLORS,
       tooltip: {
         trigger: 'axis',
         axisPointer: {
@@ -76,7 +64,7 @@ export class MhrEquipoComponent implements OnChanges {
                   Sección: ${item.seccion}<br/>
                   Metros perforados: ${item.metros?.toFixed(2) || 0} m<br/>
                   Horas percusión: ${item.horasPercusion?.toFixed(2) || 0}<br/>
-                  <strong style="color: ${this.paletaAzules[params[0].dataIndex % this.paletaAzules.length]};">Rendimiento: ${params[0].value.toFixed(2)} m/hr</strong>`;
+                  <strong style="color: ${SOSTENIMIENTO_CHART_COLORS[params[0].dataIndex % SOSTENIMIENTO_CHART_COLORS.length]};">Rendimiento: ${params[0].value.toFixed(2)} m/hr</strong>`;
         }
       },
       grid: {

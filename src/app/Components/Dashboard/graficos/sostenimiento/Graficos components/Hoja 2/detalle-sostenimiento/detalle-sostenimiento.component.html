@@ -1,7 +1,7 @@
-﻿<div class="card-wrapper">
+<div class="card-wrapper">
   <div class="card-header"><span class="card-accent"></span><span class="card-title">Detalle de Sostenimiento</span></div>
   @if (!displayedData || displayedData.length === 0) {
-    <div class="empty-state"><span class="material-icons empty-icon">table_chart</span><span class="empty-text">Sin datos para el período seleccionado</span></div>
+    <div class="empty-state"></div>
   } @else {
     <div class="table-responsive">
       <table class="data-table">
@@ -17,7 +17,6 @@
             <td>{{ item.mt52_malla | number:'1.0-0' }}</td>
             <td class="metros-cell">{{ item.metros_perforados | number:'1.0-1' }}</td>
           </tr>
-          <tr *ngIf="paginatedData.length === 0"><td colspan="9" class="no-data">Sin datos disponibles</td></tr>
         </tbody>
         <tfoot *ngIf="displayedData.length > 0">
           <tr class="total-row">

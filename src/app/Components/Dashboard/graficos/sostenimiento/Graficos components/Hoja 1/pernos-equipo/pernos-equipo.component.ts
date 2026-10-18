@@ -5,6 +5,7 @@ import { BarChart } from 'echarts/charts';
 import { TitleComponent, TooltipComponent, GridComponent, LegendComponent, GraphicComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { exportarImagenChart, PdfExportOptions } from 'src/app/config/config-pdf';
+import { SOSTENIMIENTO_CHART_COLORS } from 'src/app/config/sostenimiento-chart-colors';
 
 echarts.use([BarChart, TitleComponent, TooltipComponent, GridComponent, LegendComponent, GraphicComponent, CanvasRenderer]);
 
@@ -21,17 +22,6 @@ export class PernosEquipoComponent implements OnChanges {
   @Input() data: any[] = [];
 
   chartOptions: any = {};
-
-  readonly PALETA_AZULES = [
-    '#85c1e9',
-    '#5dade2',
-    '#3498db',
-    '#2e86c1',
-    '#2874a6',
-    '#21618c',
-    '#1b4f72',
-    '#154360'
-  ];
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['data']) {
@@ -95,7 +85,7 @@ export class PernosEquipoComponent implements OnChanges {
       barWidth: '50%',
       data: itemsArray.map(item => item.tipos[tipo] || 0),
       itemStyle: {
-        color: this.PALETA_AZULES[tipoIndex % this.PALETA_AZULES.length],
+        color: SOSTENIMIENTO_CHART_COLORS[tipoIndex % SOSTENIMIENTO_CHART_COLORS.length],
         borderRadius: tipoIndex === tiposArray.length - 1 ? [5, 5, 0, 0] : [0, 0, 0, 0],
         shadowColor: 'rgba(0, 0, 0, 0.2)',
         shadowBlur: 5
@@ -117,6 +107,7 @@ export class PernosEquipoComponent implements OnChanges {
     const yAxisMax = Math.ceil(maxValor * 1.2);
 
     this.chartOptions = {
+      color: SOSTENIMIENTO_CHART_COLORS,
       tooltip: {
         trigger: 'axis',
         axisPointer: { type: 'shadow' },

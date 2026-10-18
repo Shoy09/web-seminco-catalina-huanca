@@ -1,20 +1,19 @@
-﻿<div class="card-wrapper">
+<div class="card-wrapper">
   <div class="card-header"><span class="card-accent"></span><span class="card-title">Mejores Operadores</span></div>
   @if (!displayedData || displayedData.length === 0) {
-    <div class="empty-state"><span class="material-icons empty-icon">people</span><span class="empty-text">Sin datos para el período seleccionado</span></div>
+    <div class="empty-state"></div>
   } @else {
     <div class="table-responsive">
       <table class="data-table">
-        <thead><tr><th>#</th><th>Operador</th><th>Turno</th><th>M/Hr</th><th>Metros Perf.</th></tr></thead>
+        <thead><tr><th>#</th><th>Operador</th><th>Turno</th><th>Pernos/h</th><th>Pernos</th></tr></thead>
         <tbody>
           <tr *ngFor="let item of paginatedData; let i = index" [class.top-row]="(currentPage-1)*rowsPerPage+i===0">
             <td>{{ (currentPage-1)*rowsPerPage+i+1 }}</td>
             <td class="operador-cell">{{ item.operador }}</td>
             <td>{{ item.turno }}</td>
-            <td class="mhr-cell">{{ formatearNumero(item.m_hr, 2) }}</td>
-            <td class="metros-cell">{{ formatearNumero(item.metros_perforados, 2) }}</td>
+            <td class="mhr-cell">{{ formatearNumero(item.rendimiento, 2) }}</td>
+            <td class="metros-cell">{{ formatearNumero(item.pernos_instalados, 0) }}</td>
           </tr>
-          <tr *ngIf="paginatedData.length === 0"><td colspan="5" class="no-data">Sin datos disponibles</td></tr>
         </tbody>
       </table>
     </div>

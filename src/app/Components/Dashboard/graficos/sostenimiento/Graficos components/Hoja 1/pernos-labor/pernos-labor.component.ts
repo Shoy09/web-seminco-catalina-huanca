@@ -5,6 +5,7 @@ import { BarChart } from 'echarts/charts';
 import { TitleComponent, TooltipComponent, GridComponent, GraphicComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { exportarImagenChart, PdfExportOptions } from 'src/app/config/config-pdf';
+import { SOSTENIMIENTO_CHART_COLORS } from 'src/app/config/sostenimiento-chart-colors';
 
 echarts.use([BarChart, TitleComponent, TooltipComponent, GridComponent, GraphicComponent, CanvasRenderer]);
 
@@ -22,7 +23,7 @@ export class PernosLaborComponent implements OnChanges {
 
   chartOptions: any = {};
 
-  readonly COLOR_BARRA = '#3498db'; // Azul medio para las barras
+  readonly COLOR_BARRA = SOSTENIMIENTO_CHART_COLORS[0];
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['data']) {
@@ -81,6 +82,7 @@ export class PernosLaborComponent implements OnChanges {
     const yAxisMax = Math.ceil(maxValor * 1.2);
 
     this.chartOptions = {
+      color: SOSTENIMIENTO_CHART_COLORS,
       tooltip: {
         trigger: 'axis',
         axisPointer: { type: 'shadow' },

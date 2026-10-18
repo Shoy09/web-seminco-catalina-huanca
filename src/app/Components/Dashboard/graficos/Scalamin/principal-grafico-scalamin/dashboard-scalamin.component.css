@@ -1,0 +1,62 @@
+:host {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.kpis article {
+  display: grid;
+  gap: 8px;
+  align-content: center;
+  min-height: 100px;
+  border: 1px solid #DCE4EA;
+  border-top: 3px solid #00A064;
+  border-radius: 12px;
+  background: #F5F8FA;
+  padding: 14px;
+}
+
+.kpis span {
+  color: #145A52;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.kpis strong {
+  color: #145A52;
+  font-size: 1.45rem;
+}
+
+.aviso, .nota {
+  margin: 0;
+  padding: 12px;
+  color: #738394;
+  font-size: 0.75rem;
+}
+
+.reporte-tabs button:focus-visible {
+  outline: 2px solid #1D73A8;
+  outline-offset: 2px;
+}
+
+/* Después de la regla base de sostenimiento para respetar los puntos de corte. */
+@media (max-width: 1200px) {
+  .reporte-graficos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 768px) {
+  .reporte-graficos { grid-template-columns: 1fr; }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 380px) {
+  .kpis { grid-template-columns: 1fr; }
+}

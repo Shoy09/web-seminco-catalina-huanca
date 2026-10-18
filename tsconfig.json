@@ -20,7 +20,7 @@
     "module": "ES2022",
     "baseUrl": "./src",
     "paths": {
-      "src/app/config/config-pdf": ["./app/config/config-pdf.ts"]
+      "src/app/config/*": ["./app/config/*"]
     }
   },
   "angularCompilerOptions": {

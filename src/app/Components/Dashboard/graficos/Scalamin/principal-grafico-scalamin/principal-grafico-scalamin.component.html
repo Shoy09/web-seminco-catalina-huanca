@@ -9,7 +9,7 @@
     <div class="flex flex-wrap items-center justify-between gap-2 bg-gradient-to-r from-secondary via-secondary-75 to-primary px-4 py-2.5 text-white">
       <div class="flex items-center gap-2">
         <span class="material-icons ic-header">analytics</span>
-        <span class="text-sm font-bold tracking-tight">Taladro Largo</span>
+        <span class="text-sm font-bold tracking-tight">Scalamin</span>
         <span class="hidden text-xs text-white/50 sm:inline">— Dashboard de Indicadores</span>
       </div>
       <div class="flex flex-wrap items-center gap-2">
@@ -57,6 +57,13 @@
         </select>
       </div>
 
+      <div class="flex items-center gap-1.5">
+        <label for="equipo-scalamin" class="label-filtro">Equipo</label>
+        <select id="equipo-scalamin" [(ngModel)]="equipoSeleccionado" class="input-filtro">
+          <option value="">Todos</option>
+          <option *ngFor="let equipo of equiposDisponibles" [value]="equipo">{{ equipo }}</option>
+        </select>
+      </div>
       <button (click)="aplicarFiltro()" class="btn-primary">
         <span class="material-icons ic-sm">filter_alt</span>
         Aplicar
@@ -72,3 +79,8 @@
 
     </div>
   </section>
+  <app-dashboard-loading *ngIf="cargando" nombre="Scalamin" />
+  <p *ngIf="errorCarga" role="alert">{{ errorCarga }} <button type="button" class="btn-ghost" (click)="cargarOperaciones()">Reintentar</button></p>
+  <p *ngIf="errorFiltro" role="alert">{{ errorFiltro }}</p>
+  <app-dashboard-scalamin *ngIf="!cargando && !errorCarga" [operaciones]="operacionesFiltradas" [estados]="estadosProceso" [showZoom]="showZoom" [turnoAplicado]="turnoAplicado" />
+</div>

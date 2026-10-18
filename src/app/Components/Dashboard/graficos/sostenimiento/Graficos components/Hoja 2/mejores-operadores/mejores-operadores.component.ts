@@ -35,10 +35,10 @@ export class MejoresOperadoresComponent implements OnChanges {
       return;
     }
 
-    // Ordenar por M/Hr de mayor a menor
+    // Razón de pernos y horas operativas ya consolidada por el constructor.
     const sortedData = [...this.data].sort((a, b) => {
-      const mhrA = a.m_hr || a.fr_mhr_hp || 0;
-      const mhrB = b.m_hr || b.fr_mhr_hp || 0;
+      const mhrA = a.rendimiento || 0;
+      const mhrB = b.rendimiento || 0;
       return mhrB - mhrA;
     });
 
@@ -46,8 +46,8 @@ export class MejoresOperadoresComponent implements OnChanges {
     this.displayedData = sortedData.map(item => ({
       operador: item.operador || item.nombre_operador || 'N/A',
       turno: item.turno || 'DÍA',
-      m_hr: item.m_hr || item.fr_mhr_hp || 0,
-      metros_perforados: item.metros_perforados || 0
+      rendimiento: item.rendimiento || 0,
+      pernos_instalados: item.pernos_instalados || 0
     }));
 
     // Configurar paginación

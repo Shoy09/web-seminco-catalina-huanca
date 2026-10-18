@@ -1,0 +1,23 @@
+  <section class="dashboard-loading" aria-busy="true" [attr.aria-label]="'Preparando dashboard de ' + nombre">
+    <div class="loading-heading" role="status">
+      <span class="loading-symbol material-icons" aria-hidden="true">analytics</span>
+      <div>
+        <span class="loading-eyebrow">{{ nombre }} · Indicadores operativos</span>
+        <h2>Preparando tu dashboard</h2>
+        <p>Consultando la información de operaciones.</p>
+      </div>
+      <span class="loading-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+    </div>
+    <div class="loading-progress" aria-hidden="true"><span></span></div>
+    <div class="loading-kpis" aria-hidden="true">
+      <div class="loading-kpi" *ngFor="let item of [1, 2, 3, 4]">
+        <span class="skeleton skeleton-caption"></span><span class="skeleton skeleton-value"></span>
+      </div>
+    </div>
+    <div class="loading-charts" aria-hidden="true">
+      <div class="loading-chart" *ngFor="let item of [1, 2, 3]">
+        <span class="skeleton skeleton-title"></span>
+        <div class="loading-bars"><span *ngFor="let altura of [42, 68, 52, 86, 63, 75]" class="skeleton" [style.height.%]="altura"></span></div>
+      </div>
+    </div>
+  </section>

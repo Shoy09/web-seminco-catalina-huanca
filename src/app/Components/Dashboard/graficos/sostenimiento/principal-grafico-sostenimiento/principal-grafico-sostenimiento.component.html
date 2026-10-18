@@ -18,7 +18,7 @@
           <span class="material-icons ic-sm">slideshow</span>
           Jefe Guardia
         </button>
-        <button class="btn-header" (click)="generarPDF()">
+        <button class="btn-header" [disabled]="cargando || cargandoPDF" (click)="generarPDF()">
           <span class="material-icons ic-sm">picture_as_pdf</span>
           PDF
         </button>
@@ -45,6 +45,20 @@
           <option value="NOCHE">Noche</option>
         </select>
       </div>
+      <div class="flex items-center gap-1.5">
+        <label class="label-filtro">Equipo</label>
+        <select [(ngModel)]="equipoSeleccionado" class="input-filtro cursor-pointer">
+          <option value="">Todos</option>
+          <option *ngFor="let equipo of equiposFiltro" [value]="equipo">{{ equipo }}</option>
+        </select>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <label class="label-filtro">Sección</label>
+        <select [(ngModel)]="seccionSeleccionada" class="input-filtro cursor-pointer">
+          <option value="">Todas</option>
+          <option *ngFor="let seccion of seccionesFiltro" [value]="seccion">{{ seccion }}</option>
+        </select>
+      </div>
       <button (click)="aplicarFiltro()" class="btn-primary">
         <span class="material-icons ic-sm">filter_alt</span>
         Aplicar
@@ -56,88 +70,66 @@
     </div>
   </section>
 
-  <ng-container *ngIf="vistaPrincipal">
+  <app-dashboard-loading *ngIf="cargando" nombre="Sostenimiento" />
+  <p *ngIf="errorPDF" role="alert">{{ errorPDF }}</p>
+  <p *ngIf="errorCarga" role="alert">{{ errorCarga }} <button type="button" class="btn-ghost" (click)="cargarOperaciones()">Reintentar</button></p>
 
-    <!-- ══ RESUMEN KPI ══════════════════════════════════════════ -->
-    <app-resumen [data]="resumen" data-page="1"></app-resumen>
+  <ng-container *ngIf="!cargando && !errorCarga">
+  <nav class="reporte-tabs" aria-label="Páginas de indicadores">
+    <button
+      type="button"
+      *ngFor="let pagina of indicadoresPowerBi"
+      [class.active]="paginaSeleccionada === pagina.nombre"
+      (click)="seleccionarPagina(pagina.nombre)">
+      {{ pagina.nombre }}
+    </button>
+  </nav>
 
-    <!-- ══ PRODUCCIÓN ══════════════════════════════════════════ -->
-    <div class="seccion-header">
-      <span class="material-icons ic-seccion">construction</span>
-      <span>Producción</span>
+  <section
+    *ngIf="vistaPrincipal && paginaActualPowerBi as pagina"
+    class="reporte-pagina">
+    <header class="reporte-titulo">
+      <div>
+        <h1>{{ pagina.nombre }}</h1>
+        <p>{{ pagina.descripcion }}</p>
+      </div>
+    </header>
+    <section class="resumen-tarjetas" aria-label="Resumen de sostenimiento">
+      <article *ngFor="let item of resumenTarjetas">
+        <span>{{ item.nombre }}</span>
+        <strong>{{ item.valor | number:'1.0-2' }} {{ item.unidad || '' }}</strong>
+      </article>
+    </section>
+    <div class="reporte-graficos" [class.reporte-ranking]="pagina.nombre === 'Ranking'">
+      <app-indicador-power-bi
+        *ngFor="let grafico of graficosPaginaActual"
+        [grafico]="grafico"
+        [class.grafico-ancho-completo]="pagina.nombre.startsWith('Pareto') || grafico.titulo.startsWith('Análisis de turnos')">
+      </app-indicador-power-bi>
     </div>
-    <div class="graficos-grid">
-      <app-pernos-equipo          [data]="DataPernosPorEquipo"      data-page="1" />
-      <app-pernos-dia             [data]="dataPernoDia"             data-page="1" />
-      <app-pernos-labor           [data]="DataPernosPorLabor"       data-page="1" />
-      <app-pernos-instalados-tipo [data]="dataPernosInstalados"     data-page="1" />
-      <app-mhr-equipo             [data]="dataMHREquipo"            data-page="1" />
-      <app-metros-equipo          [data]="dataMetrosEquipo"         data-page="1" />
-    </div>
+  </section>
 
-    <!-- ══ RENDIMIENTO ═════════════════════════════════════════ -->
-    <div class="seccion-header">
-      <span class="material-icons ic-seccion">trending_up</span>
-      <span>Rendimiento</span>
-    </div>
-    <div class="graficos-grid">
-      <app-rendimiento-equipo [data]="DataDMyUTI" data-page="1" />
-    </div>
-
-    <!-- ══ MANTENIMIENTO Y TIEMPOS ════════════════════════════ -->
-    <div class="seccion-header">
-      <span class="material-icons ic-seccion">build</span>
-      <span>Mantenimiento y Tiempos</span>
-    </div>
-    <div class="graficos-grid">
-      <app-demoras-operativas   [data]="DataEstadosSOS"       data-page="1" />
-      <app-demoras-inoperativas [data]="dataDemoraIno"        data-page="1" />
-      <app-horas-mantenimiento  [data]="dataHoraMantenimiento" data-page="1" />
-      <app-horometro-empernador [data]="dataHorometrosEquipo" data-page="1" />
-      <app-total-horometros     [data]="dataHorometroGeneral" data-page="1" />
-    </div>
-
-    <!-- ══ DETALLE ════════════════════════════════════════════ -->
-    <div class="seccion-header">
-      <span class="material-icons ic-seccion">table_chart</span>
-      <span>Detalle</span>
-    </div>
-    <div class="graficos-grid">
-      <!-- <app-pernos-minado-tipo       [data]="dataPernosMinadoTipo"  data-page="2" /> -->
-      <app-horas-primera-perforacion [data]="dataProcesoLaborFR"   data-page="3" />
-      <app-detalle-equipo           [data]="dataIndicadores"       data-page="4" class="col-span-full" />
-      <app-detalle-sostenimiento    [data]="dataIndicadoresLabor"  data-page="5" class="col-span-full" />
-    </div>
-
-    <!-- ══ OPERADORES ══════════════════════════════════════════ -->
+  <ng-container *ngIf="vistaPrincipal && paginaSeleccionada === 'Ranking'">
     <div class="seccion-header">
       <span class="material-icons ic-seccion">people</span>
-      <span>Operadores</span>
+      <span>Detalle y observaciones de operadores</span>
     </div>
     <div class="graficos-grid">
       <app-mejores-operadores [data]="dataFrPorOperadorTurno" data-page="5" />
-      <app-ranking-operador   [data]="dataFrPorOperadorTurno" data-page="5" />
-      <app-observaciones      [data]="dataLaborFRDetallado"   data-page="5" class="col-span-full" />
+      <app-observaciones [data]="dataLaborFRDetallado" data-page="5" class="col-span-full" />
     </div>
+  </ng-container>
 
-    <!-- ══ ANÁLISIS DE TURNOS ══════════════════════════════════ -->
+  <ng-container *ngIf="vistaPrincipal && paginaSeleccionada === 'Producción'">
     <div class="seccion-header">
-      <span class="material-icons ic-seccion">scatter_plot</span>
-      <span>Análisis de Turnos</span>
+      <span class="material-icons ic-seccion">construction</span>
+      <span>Tablas de producción y detalle de sostenimiento</span>
     </div>
     <div class="graficos-grid">
-      <app-scatter-turnos
-        *ngIf="turnoAplicado === '' || turnoAplicado === 'DÍA'"
-        [data]="dataHorasNumericas" data-page="6"
-        class="col-span-full">
-      </app-scatter-turnos>
-      <app-scatter-turnos-noche
-        *ngIf="turnoAplicado === '' || turnoAplicado === 'NOCHE'"
-        [data]="dataHorasNumericas" data-page="6"
-        class="col-span-full">
-      </app-scatter-turnos-noche>
+      <app-horas-primera-perforacion [data]="dataProcesoLaborFR" data-page="3" />
+      <app-detalle-equipo [data]="dataIndicadores" data-page="4" class="col-span-full" />
+      <app-detalle-sostenimiento [data]="dataIndicadoresLabor" data-page="5" class="col-span-full" />
     </div>
-
   </ng-container>
 
   <!-- Vista Gantt -->
@@ -145,6 +137,7 @@
     <app-scheduler [data]="ganttData" data-page="6" class="col-span-full"></app-scheduler>
   </div>
 
+  </ng-container>
 </div>
 
 <!-- Overlay PDF -->

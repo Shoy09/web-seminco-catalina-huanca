@@ -5,6 +5,7 @@ import { BarChart } from 'echarts/charts';
 import { TitleComponent, TooltipComponent, GridComponent, LegendComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { exportarImagenChart, PdfExportOptions } from 'src/app/config/config-pdf';
+import { SOSTENIMIENTO_CHART_COLORS } from 'src/app/config/sostenimiento-chart-colors';
 
 echarts.use([BarChart, TitleComponent, TooltipComponent, GridComponent, LegendComponent, CanvasRenderer]);
 
@@ -23,10 +24,9 @@ export class PernosDiaComponent implements OnChanges {
 
   chartOptions: any = {};
 
-  // Paleta de colores para los turnos
   private readonly coloresTurnos: { [key: string]: string } = {
-    'DÍA': '#3498db',    // Azul
-    'NOCHE': '#5dade2'   // Azul oscuro / gris azulado
+    'DÍA': SOSTENIMIENTO_CHART_COLORS[0],
+    'NOCHE': SOSTENIMIENTO_CHART_COLORS[1],
   };
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -102,6 +102,7 @@ export class PernosDiaComponent implements OnChanges {
     const yAxisMax = Math.ceil(maxValor * 1.2);
 
     this.chartOptions = {
+      color: SOSTENIMIENTO_CHART_COLORS,
       tooltip: {
         trigger: 'axis',
         axisPointer: { type: 'shadow' },

@@ -5,6 +5,7 @@ import { BarChart } from 'echarts/charts';
 import { TitleComponent, TooltipComponent, GridComponent, LegendComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { exportarImagenChart, PdfExportOptions } from 'src/app/config/config-pdf';
+import { SOSTENIMIENTO_CHART_COLORS } from 'src/app/config/sostenimiento-chart-colors';
 
 echarts.use([BarChart, TitleComponent, TooltipComponent, GridComponent, LegendComponent, CanvasRenderer]);
 
@@ -21,20 +22,6 @@ export class MetrosEquipoComponent implements OnChanges {
   @Input() data: any[] = [];
 
   chartOptions: any = {};
-
-  // Paleta de colores azules
-  private readonly paletaAzules: string[] = [
-    '#1E88E5', // Azul intenso
-    '#42A5F5', // Azul medio
-    '#64B5F6', // Azul claro
-    '#1565C0', // Azul oscuro
-    '#1976D2', // Azul principal
-    '#2196F3', // Azul estándar
-    '#0D47A1', // Azul muy oscuro
-    '#90CAF9', // Azul muy claro
-    '#2C3E50', // Azul grisáceo
-    '#2980B9'  // Azul petróleo
-  ];
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['data']) {
@@ -61,10 +48,11 @@ export class MetrosEquipoComponent implements OnChanges {
 
     // Asignar colores azules a cada barra
     const coloresBarras = seriesData.map((_, index) => 
-      this.paletaAzules[index % this.paletaAzules.length]
+      SOSTENIMIENTO_CHART_COLORS[index % SOSTENIMIENTO_CHART_COLORS.length]
     );
 
     this.chartOptions = {
+      color: SOSTENIMIENTO_CHART_COLORS,
       tooltip: {
         trigger: 'axis',
         axisPointer: {
@@ -73,7 +61,7 @@ export class MetrosEquipoComponent implements OnChanges {
         formatter: (params: any) => {
           const item = this.data[params[0].dataIndex];
           return `<strong>${item.modeloEquipo}</strong><br/>
-                  Metros perforados: <strong style="color: ${this.paletaAzules[params[0].dataIndex % this.paletaAzules.length]};">${params[0].value.toFixed(2)} m</strong>`;
+                  Metros perforados: <strong style="color: ${SOSTENIMIENTO_CHART_COLORS[params[0].dataIndex % SOSTENIMIENTO_CHART_COLORS.length]};">${params[0].value.toFixed(2)} m</strong>`;
         }
       },
       grid: {
