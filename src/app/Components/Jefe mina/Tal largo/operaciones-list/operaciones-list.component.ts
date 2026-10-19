@@ -21,6 +21,7 @@ export class OperacionesListComponent implements OnInit {
   operacionesOriginal: OperacionBase[] = [];
   operacionesFiltradas: OperacionBase[] = [];
   loading = false;
+  errorCarga = '';
 
   // Variables para el filtro de fechas
   fechaInicio: string = '';
@@ -118,6 +119,7 @@ export class OperacionesListComponent implements OnInit {
   // Cargar datos por tipo (todos)
   cargarDatos() {
     this.loading = true;
+    this.errorCarga = '';
 
     this.operacionesService
       .getAll(this.tipo)
@@ -133,6 +135,7 @@ export class OperacionesListComponent implements OnInit {
         error: (err) => {
           console.error(err);
           this.loading = false;
+          this.errorCarga = 'Intenta nuevamente en unos momentos.';
         }
       });
   }

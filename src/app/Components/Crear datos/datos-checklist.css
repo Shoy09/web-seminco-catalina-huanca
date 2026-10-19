@@ -1,0 +1,18 @@
+@import './datos-dialog.css';
+.dialog-fieldset { display: grid; gap: 20px; min-width: 0; margin: 0; padding: 0; border: 0; }
+.dialog-fieldset:disabled { opacity: .7; }
+.checklist-editor .dialog-body { padding: 18px 20px; }
+.checklist-editor section { display: grid; gap: 12px; }
+.checklist-editor section > * { margin-block: 0; }
+.checklist-editor h3, .checklist-editor section > label:first-child { margin: 0; color: #344963; font-size: 12px; font-weight: 700; }
+.checklist-editor section + section { padding-top: 18px; border-top: 1px solid #EDF1F5; }
+.checklist-editor p { margin: 0; font-size: 11px; line-height: 1.6; }
+.checklist-editor input:not([type=checkbox]):not([type=file]), .checklist-editor select, .checklist-editor textarea { width: 100%; min-width: 0; min-height: 42px; border: 1px solid #DCE4EA; border-radius: 8px; background: #FBFCFD; color: #344963; font-size: 13px; }
+.checklist-editor input:not([type=checkbox]):not([type=file]):focus, .checklist-editor select:focus, .checklist-editor textarea:focus { border-color: #38BDF8; outline: none; box-shadow: 0 0 0 3px #38BDF814; }
+.checklist-editor input[type=checkbox] { accent-color: #0B1F3A; }
+.checklist-editor label { font-size: 12px; }
+.checklist-editor .dialog-fieldset > [role=status] { font-size: 11px; }
+.checklist-editor .dialog-fieldset .text-sm { font-size: 12px; }
+.checklist-editor .dialog-fieldset .text-xs { font-size: 11px; }
+.checklist-editor .dialog-body > [role=alert], .checklist-editor .dialog-body > [role=status] { margin: 14px 0 0; padding: 12px; }
+@media (max-width: 540px) { .checklist-editor .dialog-body { padding: 16px; } }

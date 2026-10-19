@@ -1,0 +1,5 @@
+@import '../documentos-dialog.css';
+.pdf-viewer .viewer-body { min-height:0; max-height:none; padding:0; overflow:hidden; }
+.viewer-body iframe { display:block; width:100%; height:min(65dvh,720px); border:0; background:#F0F4F8; }
+.viewer-hint { margin-right:auto; color:#7D8CA0; font-size:10px; }
+@media(max-width:540px) { .viewer-body iframe { height:55dvh; } .viewer-hint { width:100%; } }

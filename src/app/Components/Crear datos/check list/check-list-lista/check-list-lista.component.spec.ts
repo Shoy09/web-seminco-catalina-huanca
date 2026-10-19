@@ -1,5 +1,6 @@
 
 import { TestBed } from '@angular/core/testing';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { MatDialog } from '@angular/material/dialog';
 import { of } from 'rxjs';
 import { CheckListListaComponent } from './check-list-lista.component';
@@ -11,6 +12,7 @@ describe('Checklist por equipos: listado', () => {
     await TestBed.configureTestingModule({
       imports: [CheckListListaComponent],
       providers: [
+        provideNoopAnimations(),
         { provide: MatDialog, useValue: { open: jasmine.createSpy('open') } },
         { provide: EquipoService, useValue: { getEquipos: () => of([
           { id: 1, nombre: 'Jumbo', codigo: 'J-01', proceso: 'PERFORACIÓN HORIZONTAL' },

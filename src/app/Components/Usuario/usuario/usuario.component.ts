@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { A11yModule } from '@angular/cdk/a11y';
+import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -16,6 +18,7 @@ import { PerfilEditarDialogComponent } from '../perfil-editar-dialog/perfil-edit
   styleUrls: ['./usuario.component.css'],
   imports: [
     CommonModule,
+    A11yModule,
     ReactiveFormsModule,
     MatButtonModule,
     MatIconModule,
@@ -37,11 +40,11 @@ export class UsuarioComponent implements OnInit {
   };
 
   mostrarFirmaGrande = false;
-  mensajeExito       = false;
 
   constructor(
     private usuarioService: UsuarioService,
     private dialog: MatDialog,
+    private toastr: ToastrService,
   ) {}
 
   ngOnInit(): void {
@@ -109,7 +112,6 @@ export class UsuarioComponent implements OnInit {
   }
 
   private mostrarExito(): void {
-    this.mensajeExito = true;
-    setTimeout(() => (this.mensajeExito = false), 3000);
+    this.toastr.success('Cambios guardados correctamente', 'Perfil actualizado');
   }
 }

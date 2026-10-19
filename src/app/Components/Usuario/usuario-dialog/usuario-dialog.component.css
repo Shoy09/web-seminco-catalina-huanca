@@ -1,14 +1,7 @@
-/* Reduce el espacio inferior reservado para mensajes de error en los campos */
-:host ::ng-deep .compact-field .mat-mdc-form-field-subscript-wrapper {
-  display: none;
-}
-
-:host ::ng-deep .compact-field.mat-mdc-form-field-has-icon-prefix .mat-mdc-text-field-wrapper {
-  padding-left: 8px;
-}
-
-:host ::ng-deep .compact-field .mat-mdc-form-field-infix {
-  padding-top: 10px;
-  padding-bottom: 10px;
-  min-height: unset;
-}
+@import '../usuario-ui.css';
+:host ::ng-deep .compact-field { width: 100%; font-size: 13px; --mdc-outlined-text-field-outline-color: #DCE4EA; --mdc-outlined-text-field-focus-outline-color: #38BDF8; --mdc-outlined-text-field-container-shape: 8px; --mat-select-enabled-trigger-text-color: #333; --mat-select-placeholder-text-color: #8B98A7; --mat-form-field-container-text-size: 13px; --mat-form-field-container-text-line-height: 20px; }
+:host ::ng-deep .compact-field .mat-mdc-select { font-size: 13px; line-height: 20px; }
+:host ::ng-deep .compact-field .mat-mdc-text-field-wrapper { border-radius: 8px; background: #FBFCFD; }
+:host ::ng-deep .compact-field .mat-mdc-form-field-infix { padding-top: 10px; padding-bottom: 10px; min-height: 42px; }
+.password-toggle { justify-content: flex-start; }
+.password-toggle i:last-child { margin-left: auto; font-size: 10px; }

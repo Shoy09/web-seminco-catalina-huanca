@@ -27,6 +27,7 @@ import { CarpetaService } from '../../../services/carpeta-pdf.service';
 export class CarpetaFormDialogComponent {
   carpetaForm: FormGroup;
   loading = false;
+  errorMensaje = '';
 
   constructor(
     private fb: FormBuilder,
@@ -40,9 +41,10 @@ export class CarpetaFormDialogComponent {
   }
 
   crearCarpeta(): void {
-    if (this.carpetaForm.invalid) return;
+    if (this.carpetaForm.invalid || this.loading) return;
     
     this.loading = true;
+    this.errorMensaje = '';
     const nombre = this.carpetaForm.get('nombre')?.value;
     
     this.carpetaService.createCarpeta(nombre).subscribe({
@@ -53,6 +55,7 @@ export class CarpetaFormDialogComponent {
       error: (error) => {
         console.error('Error al crear carpeta', error);
         this.loading = false;
+        this.errorMensaje = 'No se pudo crear la carpeta. Inténtalo nuevamente.';
       }
     });
   }

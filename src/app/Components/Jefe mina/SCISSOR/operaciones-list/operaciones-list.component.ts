@@ -20,6 +20,7 @@ export class OperacionesLisScissorComponent implements OnInit {
   operacionesOriginal: OperacionBase[] = [];
   operacionesFiltradas: OperacionBase[] = [];
   loading = false;
+  errorCarga = '';
 
   fechaInicio: string = '';
   fechaFin: string = '';
@@ -60,6 +61,7 @@ export class OperacionesLisScissorComponent implements OnInit {
 
   cargarDatos() {
     this.loading = true;
+    this.errorCarga = '';
     this.operacionesService.getAll(this.tipo).subscribe({
       next: (resp: any) => {
         this.operacionesOriginal = resp.data;
@@ -67,7 +69,7 @@ export class OperacionesLisScissorComponent implements OnInit {
           .sort((a, b) => (a.fecha < b.fecha ? 1 : a.fecha > b.fecha ? -1 : (b.id ?? 0) - (a.id ?? 0)));
         this.loading = false;
       },
-      error: (err) => { console.error(err); this.loading = false; }
+      error: (err) => { console.error(err); this.errorCarga = 'Intenta nuevamente en unos momentos.'; this.loading = false; }
     });
   }
 

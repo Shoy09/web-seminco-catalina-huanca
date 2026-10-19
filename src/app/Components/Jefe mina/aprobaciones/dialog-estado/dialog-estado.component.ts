@@ -8,7 +8,7 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-dialog-estado',
   imports: [MatDialogContent, MatDialogModule, MatButtonModule, MatRadioModule, FormsModule],
   templateUrl: './dialog-estado.component.html',
-  styleUrl: './dialog-estado.component.css'
+  styleUrls: ['../aprobacion-dialog.css', './dialog-estado.component.css']
 })
 export class DialogEstadoComponent {
 
@@ -17,7 +17,7 @@ export class DialogEstadoComponent {
   constructor(private dialogRef: MatDialogRef<DialogEstadoComponent>) {}
 
   confirmar() {
-    if (this.estado === null) return;
+    if (this.estado !== 1 && this.estado !== 2) return;
     this.dialogRef.close(this.estado);
   }
 

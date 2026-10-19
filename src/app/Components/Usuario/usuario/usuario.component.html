@@ -1,212 +1,24 @@
-<div class="space-y-5">
-
-  <!-- Tarjeta de perfil (hero) -->
-  <section class="overflow-hidden rounded-3xl border border-border bg-surface shadow-sm">
-
-    <!-- Banner con gradiente -->
-    <div class="h-28 bg-gradient-to-r from-secondary via-secondary-75 to-primary"></div>
-
-    <!-- Info principal -->
-    <div class="relative px-6 pb-6">
-
-      <!-- Avatar + firma flotando sobre el banner -->
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between -mt-10">
-
-        <div class="flex items-end gap-4">
-          <!-- Avatar -->
-          <div class="relative">
-            <img
-              src="usuario/user1.png"
-              alt="Foto de perfil"
-              class="h-20 w-20 rounded-2xl border-4 border-surface object-cover shadow-md"
-            />
-          </div>
-
-          <!-- Firma -->
-          <div
-            class="flex cursor-pointer flex-col items-center gap-1"
-            (click)="mostrarFirmaGrande = true"
-            matTooltip="Ver / cambiar firma"
-          >
-            <img
-              [src]="datosUsuario.firma || 'usuario/firma.png'"
-              alt="Firma"
-              class="h-12 w-36 rounded-xl border border-border bg-white object-contain p-1 shadow-sm transition hover:border-primary"
-            />
-            <span class="text-[10px] font-bold uppercase tracking-wide text-ink-25">Firma</span>
-          </div>
-        </div>
-
-        <!-- Botón editar -->
-        <button
-          mat-raised-button
-          color="primary"
-          (click)="abrirEdicion()"
-          class="!rounded-xl self-start sm:self-auto"
-        >
-          <mat-icon class="!h-4 !w-4 !text-sm">edit</mat-icon>
-          Editar perfil
-        </button>
-
-      </div>
-
-      <!-- Nombre y cargo -->
-      <div class="mt-4">
-        <h2 class="text-xl font-black text-ink">
-          {{ datosUsuario.nombre }} {{ datosUsuario.apellidos }}
-        </h2>
-        <div class="mt-1 flex flex-wrap items-center gap-2">
-          <span class="inline-flex rounded-full bg-secondary-25 px-3 py-1 text-xs font-semibold text-secondary">
-            {{ datosUsuario.cargo || '—' }}
-          </span>
-          <span class="inline-flex rounded-full bg-surface-soft border border-border px-3 py-1 text-xs font-medium text-ink-50">
-            {{ datosUsuario.empresa || '—' }}
-          </span>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- Detalles del perfil -->
-  <section class="rounded-3xl border border-border bg-surface shadow-sm overflow-hidden">
-    <div class="border-b border-border bg-surface-soft px-5 py-3">
-      <p class="text-xs font-bold uppercase tracking-wide text-ink-50">Información personal</p>
-    </div>
-
-    <div class="grid grid-cols-1 divide-y divide-border sm:grid-cols-2 sm:divide-y-0 sm:divide-x">
-
-      <!-- Columna izquierda -->
-      <div class="divide-y divide-border">
-        <div class="flex items-center gap-3 px-5 py-3.5">
-          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-soft">
-            <mat-icon class="!text-base text-ink-50">person</mat-icon>
-          </div>
-          <div>
-            <p class="text-[10px] font-bold uppercase tracking-wide text-ink-25">Nombres</p>
-            <p class="text-sm font-semibold text-ink">{{ datosUsuario.nombre || '—' }}</p>
-          </div>
-        </div>
-        <div class="flex items-center gap-3 px-5 py-3.5">
-          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-soft">
-            <mat-icon class="!text-base text-ink-50">person_outline</mat-icon>
-          </div>
-          <div>
-            <p class="text-[10px] font-bold uppercase tracking-wide text-ink-25">Apellidos</p>
-            <p class="text-sm font-semibold text-ink">{{ datosUsuario.apellidos || '—' }}</p>
-          </div>
-        </div>
-        <div class="flex items-center gap-3 px-5 py-3.5">
-          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-soft">
-            <mat-icon class="!text-base text-ink-50">mail</mat-icon>
-          </div>
-          <div>
-            <p class="text-[10px] font-bold uppercase tracking-wide text-ink-25">Correo</p>
-            <p class="text-sm font-semibold text-ink">{{ datosUsuario.correo || '—' }}</p>
-          </div>
-        </div>
-        <div class="flex items-center gap-3 px-5 py-3.5">
-          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-soft">
-            <mat-icon class="!text-base text-ink-50">work</mat-icon>
-          </div>
-          <div>
-            <p class="text-[10px] font-bold uppercase tracking-wide text-ink-25">Cargo</p>
-            <p class="text-sm font-semibold text-ink">{{ datosUsuario.cargo || '—' }}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Columna derecha -->
-      <div class="divide-y divide-border">
-        <div class="flex items-center gap-3 px-5 py-3.5">
-          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-soft">
-            <mat-icon class="!text-base text-ink-50">business</mat-icon>
-          </div>
-          <div>
-            <p class="text-[10px] font-bold uppercase tracking-wide text-ink-25">Empresa</p>
-            <p class="text-sm font-semibold text-ink">{{ datosUsuario.empresa || '—' }}</p>
-          </div>
-        </div>
-        <div class="flex items-center gap-3 px-5 py-3.5">
-          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-soft">
-            <mat-icon class="!text-base text-ink-50">security</mat-icon>
-          </div>
-          <div>
-            <p class="text-[10px] font-bold uppercase tracking-wide text-ink-25">Guardia</p>
-            <p class="text-sm font-semibold text-ink">{{ datosUsuario.guardia || '—' }}</p>
-          </div>
-        </div>
-        <div class="flex items-center gap-3 px-5 py-3.5">
-          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-soft">
-            <mat-icon class="!text-base text-ink-50">construction</mat-icon>
-          </div>
-          <div>
-            <p class="text-[10px] font-bold uppercase tracking-wide text-ink-25">Equipo Autorizado</p>
-            <p class="text-sm font-semibold text-ink">{{ datosUsuario.equipoAutorizado || '—' }}</p>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- Toast éxito -->
-  <div
-    *ngIf="mensajeExito"
-    class="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-2xl border border-green-200 bg-white px-4 py-3 shadow-lg"
-  >
-    <div class="flex h-8 w-8 items-center justify-center rounded-xl bg-green-100">
-      <mat-icon class="!text-base text-green-600">check_circle</mat-icon>
-    </div>
-    <p class="text-sm font-semibold text-ink">Cambios guardados correctamente</p>
+<div class="user-page profile-page">
+  <header class="page-heading"><span class="heading-icon"><i class="pi pi-user" aria-hidden="true"></i></span><div><h1>Mi perfil</h1><p>Consulta tu información personal y de operación.</p></div><div class="heading-actions"><button type="button" class="ui-button primary" (click)="abrirEdicion()"><i class="pi pi-pencil" aria-hidden="true"></i>Editar perfil</button></div></header>
+  <div class="profile-layout">
+    <section class="panel profile-details" aria-labelledby="profile-details-title">
+      <div class="profile-identity"><img src="usuario/user1.png" alt="" /><div><h2>{{ datosUsuario.nombre }} {{ datosUsuario.apellidos }}</h2><div class="identity-tags"><span class="badge blue">{{ datosUsuario.cargo || 'Sin cargo asignado' }}</span><span class="muted">{{ datosUsuario.empresa || 'Sin empresa asignada' }}</span></div></div></div>
+      <div class="panel-heading"><h2 id="profile-details-title"><i class="pi pi-id-card" aria-hidden="true"></i>Información personal</h2></div>
+      <dl class="profile-grid"><div class="profile-data"><dt><i class="pi pi-user" aria-hidden="true"></i>Nombres</dt><dd>{{ datosUsuario.nombre || '—' }}</dd></div>
+<div class="profile-data"><dt><i class="pi pi-user" aria-hidden="true"></i>Apellidos</dt><dd>{{ datosUsuario.apellidos || '—' }}</dd></div>
+<div class="profile-data"><dt><i class="pi pi-envelope" aria-hidden="true"></i>Correo electrónico</dt><dd>{{ datosUsuario.correo || '—' }}</dd></div>
+<div class="profile-data"><dt><i class="pi pi-briefcase" aria-hidden="true"></i>Cargo</dt><dd>{{ datosUsuario.cargo || '—' }}</dd></div>
+<div class="profile-data"><dt><i class="pi pi-building" aria-hidden="true"></i>Empresa</dt><dd>{{ datosUsuario.empresa || '—' }}</dd></div>
+<div class="profile-data"><dt><i class="pi pi-shield" aria-hidden="true"></i>Guardia</dt><dd>{{ datosUsuario.guardia || '—' }}</dd></div>
+<div class="profile-data"><dt><i class="pi pi-wrench" aria-hidden="true"></i>Equipo autorizado</dt><dd>{{ datosUsuario.equipoAutorizado || '—' }}</dd></div></dl>
+    </section>
+    <section class="panel signature-panel" aria-labelledby="signature-title"><div class="panel-heading"><h2 id="signature-title"><i class="pi pi-pencil" aria-hidden="true"></i>Firma digital</h2></div><div class="signature-body"><p>Firma asociada a tu perfil.</p><button type="button" class="signature-preview" (click)="mostrarFirmaGrande = true" aria-label="Ver y administrar firma"><img [src]="datosUsuario.firma || 'usuario/firma.png'" alt="Firma del usuario" /><span><i class="pi pi-search-plus" aria-hidden="true"></i>Ver firma</span></button><button type="button" class="ui-button" (click)="cambiarFirma()"><i class="pi pi-upload" aria-hidden="true"></i>Cambiar firma</button></div></section>
   </div>
-
 </div>
-
-<!-- Modal firma -->
-<div
-  *ngIf="mostrarFirmaGrande"
-  class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-  (click)="mostrarFirmaGrande = false"
->
-  <div
-    class="rounded-3xl border border-border bg-surface p-6 shadow-2xl max-w-sm w-full mx-4"
-    (click)="$event.stopPropagation()"
-  >
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="font-black text-ink">Firma</h3>
-      <button
-        (click)="mostrarFirmaGrande = false"
-        class="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-ink-50 hover:bg-red-50 hover:text-danger hover:border-danger transition"
-      >
-        <mat-icon class="!text-base">close</mat-icon>
-      </button>
-    </div>
-
-    <div class="flex items-center justify-center rounded-2xl border border-border bg-surface-soft p-4 mb-4">
-      <img
-        [src]="datosUsuario.firma || 'usuario/firma.png'"
-        alt="Firma"
-        class="max-h-32 object-contain"
-      />
-    </div>
-
-    <div class="flex gap-2">
-      <button
-        mat-stroked-button
-        (click)="cambiarFirma()"
-        class="!rounded-xl flex-1"
-      >
-        <mat-icon class="!h-4 !w-4 !text-sm">upload</mat-icon>
-        Cambiar firma
-      </button>
-      <button
-        mat-stroked-button
-        (click)="eliminarFirma()"
-        class="!rounded-xl !text-danger !border-danger hover:!bg-red-50"
-      >
-        <mat-icon class="!h-4 !w-4 !text-sm">delete</mat-icon>
-      </button>
-    </div>
-  </div>
+<div *ngIf="mostrarFirmaGrande" class="app-content-overlay signature-backdrop" (click)="mostrarFirmaGrande = false" (keydown.escape)="mostrarFirmaGrande = false">
+  <section class="user-dialog signature-dialog" role="dialog" aria-modal="true" aria-labelledby="signature-dialog-title" cdkTrapFocus [cdkTrapFocusAutoCapture]="true" (click)="$event.stopPropagation()">
+    <div class="dialog-heading"><span class="heading-icon"><i class="pi pi-pencil" aria-hidden="true"></i></span><div><h2 id="signature-dialog-title">Firma digital</h2><p>Administra la firma de tu perfil.</p></div><button type="button" class="icon-button" (click)="mostrarFirmaGrande = false" aria-label="Cerrar firma"><i class="pi pi-times" aria-hidden="true"></i></button></div>
+    <div class="signature-image"><img [src]="datosUsuario.firma || 'usuario/firma.png'" alt="Firma del usuario" /></div>
+    <div class="dialog-actions"><button type="button" class="ui-button danger" (click)="eliminarFirma()"><i class="pi pi-trash" aria-hidden="true"></i>Quitar firma</button><button type="button" class="ui-button primary" (click)="cambiarFirma()"><i class="pi pi-upload" aria-hidden="true"></i>Cambiar firma</button></div>
+  </section>
 </div>

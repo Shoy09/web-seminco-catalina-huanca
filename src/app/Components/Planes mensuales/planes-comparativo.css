@@ -1,0 +1,12 @@
+@import './planes-ui.css';
+.info-section { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.info-section p { display: flex; flex-direction: column; align-items: start; gap: 8px; margin: 0; padding: 16px; border: 1px solid #E1E8EF; border-radius: 8px; background: #FBFCFD; color: #0B1F3A; font-size: 18px; font-weight: 650; overflow-wrap: anywhere; }
+.info-section p:first-child { grid-column: 1 / -1; font-size: 14px; }
+.info-section strong { color: #7D8CA0; font-size: 10px; font-weight: 550; }
+.progress-section { margin-top: 20px; padding-top: 16px; border-top: 1px solid #EDF1F5; }
+.progress-section p { margin: 0 0 10px; color: #52647A; font-size: 11px; }
+.progress-section .progress-text { margin: 10px 0 0; text-align: right; color: #155C88; }
+.progress-section mat-progress-bar { border-radius: 4px; --mdc-linear-progress-active-indicator-color: #38BDF8; --mdc-linear-progress-track-color: #E0F2FE; }
+.faltante { color: #A3322A; }
+.completo { color: #287C43; }
+@media (max-width: 420px) { .info-section { grid-template-columns: minmax(0,1fr); } }

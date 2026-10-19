@@ -1,3 +1,5 @@
+import { inject as injectNotificacionesUi } from '@angular/core';
+import { NotificacionesUiService } from 'app/services/notificaciones-ui.service';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CardOperacionesComponent } from '../card-operaciones/card-operaciones.component';
@@ -23,10 +25,13 @@ import { DialogEstadoComponent } from '../../dialog-estado/dialog-estado.compone
   styleUrls: ['./principal.component.css'],
 })
 export class PrincipalScissorComponent implements OnInit {
+  private readonly notificacionesUi = injectNotificacionesUi(NotificacionesUiService);
+
   tipo: string = 'scissor';
   operacion!: OperacionBase;
   operacionOriginal!: OperacionBase;
   loading = false;
+  errorCarga = '';
 
   // 🔥 DATA MAPEADA PARA CADA COMPONENTE
   cardData: any;
@@ -86,11 +91,13 @@ onTablaChange(data: any[]) {
     const id = this.route.snapshot.paramMap.get('id');
 
     if (!id) {
+      this.errorCarga = 'No se encontró el identificador de la operación.';
       console.error('No se recibió ID');
       return;
     }
 
     this.loading = true;
+    this.errorCarga = '';
 
     this.operacionesService.getById(this.tipo, +id).subscribe({
       next: (resp) => {
@@ -106,6 +113,7 @@ onTablaChange(data: any[]) {
         this.loading = false;
       },
       error: (err) => {
+          this.errorCarga = 'No se pudo cargar la operación. Inténtalo nuevamente.';
         console.error(err);
         this.loading = false;
       },
@@ -128,13 +136,13 @@ validarCambios() {
   const revisionActual = this.operacion.revisado ?? 0;
 
   if (revisionActual >= 3) {
-    alert('🚫 Máximo de revisiones alcanzado');
+    this.notificacionesUi.warning('Máximo de revisiones alcanzado');
     return;
   }
 
   // 🔥 ABRIR DIALOG
   const dialogRef = this.dialog.open(DialogEstadoComponent, {
-    width: '350px'
+    width: '440px', maxWidth: 'calc(100vw - 32px)'
   });
 
   dialogRef.afterClosed().subscribe((estadoSeleccionado: number | null) => {
@@ -171,12 +179,12 @@ validarCambios() {
       .subscribe({
         next: () => {
           this.obtenerOperacion();
-          alert(`✅ Actualizado (Rev ${revisionActual + 1})`);
+          this.notificacionesUi.success(`Actualizado (Rev ${revisionActual + 1})`);
         },
         error: (err) => {
           console.error(err);
           this.loading = false;
-          alert('❌ Error');
+          this.notificacionesUi.error('No se pudo actualizar la operación. Inténtalo nuevamente.');
         }
       });
 

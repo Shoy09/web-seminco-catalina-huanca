@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Equipo } from 'app/models/equipo.model';
 import { OperacionBaseJumbo } from 'app/models/OperacionBase.models';
 import * as XLSX from 'xlsx';
+import { normalizarLaborExcel } from '../../utils/normalizar-labor-excel';
 
 @Injectable({
   providedIn: 'root'
@@ -179,7 +180,7 @@ export class ExcelEmpernadorExportService {
       'Horo. Emper. Final': mostrarHorometros ? this.formatearNumero(hof) : '',
 
       // Datos de labor
-      'LABOR': operacionData.labor || '',
+      'LABOR': normalizarLaborExcel(operacionData.labor),
 
       // 🔥 Pernos por tipo
       'SPLIT 3 PIES': pernos.split3Pies,

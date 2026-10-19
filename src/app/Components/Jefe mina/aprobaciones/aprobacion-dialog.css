@@ -1,0 +1,23 @@
+:host { display: block; min-width: 0; }
+.approval-dialog { background: #fff; padding: 24px; border-top: 4px solid #38BDF8; color: #344963; }
+.dialog-header { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+.dialog-icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 11px; background: #EAF8FE; color: #1D73A8; font-size: 21px; flex-shrink: 0; }
+.dialog-eyebrow { display: block; margin-bottom: 5px; color: #64748B; font-size: 9px; font-weight: 650; letter-spacing: .1em; text-transform: uppercase; }
+h2[mat-dialog-title] { padding: 0; margin: 0; color: #0B1F3A; font-size: 18px; line-height: 1.4; font-weight: 700; letter-spacing: -.02em; }
+h2[mat-dialog-title]::before { display: none; }
+.icon-button { display: grid; place-items: center; width: 28px; height: 28px; margin-left: auto; align-self: flex-start; border: 0; border-radius: 6px; background: transparent; color: #7D8CA0; cursor: pointer; flex-shrink: 0; }
+.icon-button:hover { background: #EDF5FA; color: #0B1F3A; }
+.approval-dialog .dialog-content { padding: 0; color: #526477; font-size: 13px; line-height: 1.6; }
+.dialog-description { margin: 0; }
+.approval-dialog .dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; padding: 18px 0 0; border-top: 1px solid #E8EEF3; min-height: 0; }
+.dialog-button { display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 10px 16px; border-radius: 8px; font-size: 12px; font-weight: 650; cursor: pointer; min-height: 40px; }
+.dialog-button i { font-size: 12px; }
+.secondary { border: 1px solid #DCE4EA; background: #fff; color: #344963; }
+.secondary:hover { background: #F5F8FA; }
+.primary { border: 1px solid #0B1F3A; background: #0B1F3A; color: #fff; }
+.primary:hover:not(:disabled) { background: #344963; }
+.danger { border: 1px solid #BD3636; background: #BD3636; color: #fff; }
+.danger:hover { background: #A62C2C; }
+.dialog-button:disabled { opacity: .4; cursor: not-allowed; }
+button:focus-visible { outline: 2px solid #38BDF8; outline-offset: 3px; }
+@media (max-width: 380px) { .approval-dialog { padding: 20px 16px; } h2[mat-dialog-title] { font-size: 16px; } .dialog-button { padding: 10px 12px; } }

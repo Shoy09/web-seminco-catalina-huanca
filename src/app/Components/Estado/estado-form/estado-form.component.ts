@@ -1,3 +1,4 @@
+import { MatDialogTitle } from '@angular/material/dialog';
 import { Component, Inject } from '@angular/core';
 
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -8,7 +9,7 @@ import { EstadoService } from '../../../services/estado.service';
 
 @Component({
   selector: 'app-estado-form',
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [MatDialogTitle,ReactiveFormsModule, CommonModule],
   templateUrl: './estado-form.component.html',
   styleUrl: './estado-form.component.css'
 })

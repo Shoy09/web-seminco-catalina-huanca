@@ -1,3 +1,4 @@
+import { MatDialogModule } from '@angular/material/dialog';
 import { Component, Inject } from '@angular/core';
 import { PlanMetraje } from '../../../../models/plan_metraje.model';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -7,7 +8,7 @@ import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-edit-plan-metraje',
-  imports: [FormsModule],
+  imports: [FormsModule, MatDialogModule],
   templateUrl: './edit-plan-metraje.component.html',
   styleUrl: './edit-plan-metraje.component.css'
 })

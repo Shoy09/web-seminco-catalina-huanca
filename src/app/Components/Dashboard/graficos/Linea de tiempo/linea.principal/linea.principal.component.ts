@@ -32,6 +32,8 @@ export class LineaPrincipalComponent {
 
   // ── Estado de carga ───────────────────────────────────────────
   cargando: boolean = false;
+  errorCarga = '';
+  private procesosFallidos: string[] = [];
 
   // ── Catálogo de procesos ──────────────────────────────────────
   procesos: ProcesoConfig[] = [
@@ -117,6 +119,8 @@ export class LineaPrincipalComponent {
   // ── Carga de estados ──────────────────────────────────────────
   obtenerTodosLosEstados(): void {
     this.cargando = true;
+    this.errorCarga = '';
+    this.procesosFallidos = [];
     this.estadoService.getEstados().subscribe({
       next: (data) => {
         this.estadosProceso = data;
@@ -125,6 +129,7 @@ export class LineaPrincipalComponent {
       },
       error: (err) => {
         console.error('Error al traer estados', err);
+        this.errorCarga = 'No se pudo consultar el catálogo de estados. Intenta nuevamente.';
         this.cargando = false;
       }
     });
@@ -159,6 +164,9 @@ export class LineaPrincipalComponent {
           }
         },
         error: () => {
+          this.datosOriginales[proc.id] = [];
+          this.procesosFallidos.push(proc.label);
+          this.errorCarga = `No se pudieron consultar estos procesos: ${this.procesosFallidos.join(', ')}.`;
           pendientes--;
           if (pendientes === 0) {
             this.cargando = false;

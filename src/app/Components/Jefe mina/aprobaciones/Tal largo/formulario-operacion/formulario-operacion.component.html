@@ -1,12 +1,12 @@
 <div *ngIf="visible"
-     class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 overflow-hidden">
-  <div class="bg-[#f0eff5] w-[90%] max-w-[480px] rounded-xl shadow-2xl text-center px-8 py-7
+     class="app-content-overlay fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 overflow-hidden">
+  <div class="bg-[#FFFFFF] w-[90%] max-w-[480px] rounded-xl shadow-2xl text-center px-8 py-7
               animate-[modalIn_0.3s_ease-out]">
 
     <h2 class="text-xl font-extrabold uppercase text-ink m-0 mb-1 tracking-tight">
       Registrar Operación
     </h2>
-    <p class="text-xs text-ink-50 mb-5">Última hora: 07:00</p>
+    <p class="text-xs text-ink-50 mb-5">Edita el estado y el horario de la actividad.</p>
 
     <!-- Estado info -->
     <div class="flex items-center justify-center gap-2 bg-blue-50 border border-blue-200
@@ -31,7 +31,7 @@
 
       <!-- Hora Inicio -->
       <div class="relative">
-        <label class="absolute -top-2.5 left-3.5 bg-[#f0eff5] px-1.5 text-xs font-semibold text-slate-500">
+        <label class="absolute -top-2.5 left-3.5 bg-[#FFFFFF] px-1.5 text-xs font-semibold text-slate-500">
           Hora Inicio (*)
         </label>
         <select name="horaInicio" [(ngModel)]="formData.horaInicio"
@@ -46,7 +46,7 @@
 
       <!-- Hora Fin -->
       <div class="relative">
-        <label class="absolute -top-2.5 left-3.5 bg-[#f0eff5] px-1.5 text-xs font-semibold text-slate-500">
+        <label class="absolute -top-2.5 left-3.5 bg-[#FFFFFF] px-1.5 text-xs font-semibold text-slate-500">
           Hora Fin
         </label>
         <select name="horaFin" [(ngModel)]="formData.horaFin"
@@ -62,12 +62,12 @@
       <!-- Botones -->
       <div class="flex gap-4 mt-1">
         <button type="button" (click)="cerrarFormOperacion()"
-          class="flex-1 py-3 border-2 border-primary text-primary bg-transparent rounded-full
+          class="flex-1 py-3 border-2 border-primary text-primary bg-transparent rounded-lg
                  font-bold cursor-pointer hover:bg-primary/10 active:scale-95 transition-all">
           Cancelar
         </button>
         <button type="button" [disabled]="!formData.codigo" (click)="confirmarOperacion()"
-          class="flex-1 py-3 border-0 bg-success text-white rounded-full font-bold cursor-pointer
+          class="flex-1 py-3 border-0 bg-secondary text-white rounded-lg font-bold cursor-pointer
                  hover:brightness-110 active:scale-95 transition-all
                  disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed">
           Guardar

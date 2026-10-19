@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Equipo } from 'app/models/equipo.model';
 import { OperacionBaseJumbo } from 'app/models/OperacionBase.models';
 import * as XLSX from 'xlsx';
+import { normalizarLaborExcel } from '../../utils/normalizar-labor-excel';
 
 @Injectable({
   providedIn: 'root'
@@ -238,7 +239,7 @@ export class ExcelTaladroLargoExportService {
       'HORA INICIAL': horaInicio,
       'HORA FINAL': horaFinal,
       // 'HORAS': horas,
-      'LABOR': operacionData.labor || '',
+      'LABOR': normalizarLaborExcel(operacionData.labor),
       'Nº DE FILA': barra?.n_fila ?? '',
       'Nº DE TALADRO': barra?.n_taladro ?? '',
       'Nº DE BARRAS': barra?.n_barras ?? '',

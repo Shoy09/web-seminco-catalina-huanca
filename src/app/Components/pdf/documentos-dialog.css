@@ -1,0 +1,28 @@
+@import './documentos-ui.css';
+.dialog-form { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+.dialog-form .dialog-body { min-height: 0; overflow: auto; }
+.field select:disabled, .field input:disabled { background: #F0F4F8; color: #7D8CA0; }
+.status-message { display: flex; align-items: center; gap: 8px; padding-top: 16px; color: #7D8CA0; font-size: 11px; }
+.choice-hint { margin: 0 0 16px; color: #7D8CA0; font-size: 12px; }
+.entry-options { display: grid; gap: 10px; }
+.entry-option { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 12px; border: 1px solid #DCE4EA; border-radius: 8px; background: #FBFCFD; color: #344963; text-align: left; cursor: pointer; }
+.entry-option:hover { background: #F0F8FD; border-color: #9BDBFC; }
+.entry-option > .heading-icon { width: 34px; height: 34px; border-radius: 8px; font-size: 14px; }
+.entry-option > span:nth-child(2) { display: grid; gap: 4px; min-width: 0; }
+.entry-option strong { font-size: 12px; font-weight: 650; }
+.entry-option small { color: #7D8CA0; font-size: 10px; }
+.entry-option > i { margin-left: auto; color: #7D8CA0; font-size: 12px; }
+.upload-fields { display:grid; gap:18px; min-width:0; padding:0; margin:0; border:0; }
+.upload-fields:disabled { opacity:.65; }
+.upload-area { display:grid; place-items:center; gap:10px; width:100%; padding:24px 16px; border:1px dashed #B8CADA; border-radius:8px; background:#FBFCFD; color:#344963; cursor:pointer; text-align:center; }
+.upload-area:hover { background:#F0F8FD; border-color:#38BDF8; }
+.upload-icon { display:grid; place-items:center; width:38px; height:38px; margin-bottom:2px; border-radius:10px; background:#E0F2FE; color:#155C88; font-size:17px; }
+.upload-area strong { font-size:12px; font-weight:650; }
+.upload-area > span:last-child { color:#7D8CA0; font-size:10px; line-height:1.6; }
+.selected-file { display:flex; align-items:center; gap:10px; padding:12px; border:1px solid #DCE4EA; border-radius:8px; background:#FBFCFD; }
+.pdf-icon { display:grid; place-items:center; width:34px; height:38px; flex-shrink:0; border-radius:7px; background:#FFF2F0; color:#B8433A; }
+.file-info { display:grid; gap:4px; min-width:0; flex:1; }
+.file-info strong { font-size:11px; font-weight:650; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.file-info span { font-size:10px; color:#7D8CA0; }
+.text-action { display:inline-flex; align-items:center; gap:6px; padding:5px 0; border:0; background:transparent; color:#155C88; font-size:11px; cursor:pointer; }
+.documents-dialog .field-error.status-message { color:#A3322A; }

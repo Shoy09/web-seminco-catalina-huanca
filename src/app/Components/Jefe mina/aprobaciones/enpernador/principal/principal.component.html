@@ -1,29 +1,12 @@
-﻿<div class="flex flex-col h-screen">
-
-  <app-card-operaciones
-    *ngIf="cardData"
-    [data]="cardData"
-    (dataChange)="onCardChange($event)">
-  </app-card-operaciones>
-
-  <div class="flex-1 overflow-auto mb-2.5">
-    <app-tabla
-      *ngIf="!loading"
-      [data]="tablaData"
-      [turno]="cardData?.turno"
-      (dataChange)="onTablaChange($event)">
-    </app-tabla>
-  </div>
-
-  <div class="shrink-0">
-    <app-menuAcciones
-      [horometrosData]="horometrosData"
-      [condicionesData]="condicionesData"
-      [checkListData]="checkListData"
-      [llantasData]="llantasData"
-      (dataChange)="onMenuChange($event)"
-      (actualizarClick)="validarCambios()">
-    </app-menuAcciones>
-  </div>
-
+<div class="approval-page">
+  <section *ngIf="loading" class="loading-panel" role="status"><span class="loading-ring" aria-hidden="true"></span><span>Cargando operación…</span></section>
+  <section *ngIf="errorCarga && !loading" class="error-panel" role="alert"><i class="pi pi-exclamation-circle" aria-hidden="true"></i><p>{{ errorCarga }}</p><button type="button" (click)="obtenerOperacion()">Reintentar</button></section>
+  <ng-container *ngIf="cardData && !loading && !errorCarga">
+    <section class="review-panel" aria-label="Datos de la operación"><app-card-operaciones [data]="cardData" (dataChange)="onCardChange($event)" /></section>
+    <section class="review-panel activities-panel" aria-labelledby="activities-title">
+      <header class="panel-heading"><h2 id="activities-title">Actividades <span class="count-badge">{{ tablaData.length }}</span></h2><span class="table-hint">Estado, horario y detalle de perforación</span></header>
+      <app-tabla [data]="tablaData" [turno]="cardData.turno" (dataChange)="onTablaChange($event)" />
+    </section>
+    <div class="actions-dock"><app-menuAcciones [horometrosData]="horometrosData" [condicionesData]="condicionesData" [checkListData]="checkListData" [llantasData]="llantasData" (dataChange)="onMenuChange($event)" (actualizarClick)="validarCambios()" /></div>
+  </ng-container>
 </div>

@@ -63,13 +63,18 @@ export class SchedulerComponent implements OnChanges, OnDestroy {
     if (this.tooltip.visible) this.positionTooltip(event);
   }
 
+  showTooltipAtTask(event: Event, task: any): void {
+    const bounds = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    this.showTooltip({ clientX: bounds.left + bounds.width / 2, clientY: bounds.bottom } as MouseEvent, task);
+  }
+
   hideTooltip(): void {
     this.tooltip.visible = false;
   }
 
   private positionTooltip(event: MouseEvent): void {
-    const TW = 220; // ancho estimado del tooltip
-    const TH = 130; // alto estimado
+    const TW = 240; // ancho estimado del tooltip
+    const TH = 260; // alto estimado
     const MARGIN = 12;
 
     let x = event.clientX + MARGIN;
@@ -82,6 +87,7 @@ export class SchedulerComponent implements OnChanges, OnDestroy {
     // No salirse por arriba
     if (y < MARGIN) y = MARGIN;
 
+    x = Math.max(12, Math.min(x, window.innerWidth - TW - MARGIN));
     this.tooltip = { ...this.tooltip, x, y };
   }
 
@@ -199,13 +205,13 @@ export class SchedulerComponent implements OnChanges, OnDestroy {
 
   getColor(estado: string): string {
     const colors: Record<string, string> = {
-      'OPERATIVO':      '#2ECC71',
-      'DEMORA':         '#F1C40F',
-      'MANTENIMIENTO':  '#E74C3C',
-      'RESERVA':        '#E67E22',
-      'FUERA DE PLAN':  '#3498DB'
+      'OPERATIVO':      '#00A064',
+      'DEMORA':         '#D1A514',
+      'MANTENIMIENTO':  '#D45454',
+      'RESERVA':        '#AD6C36',
+      'FUERA DE PLAN':  '#2686B9'
     };
-    return colors[estado] ?? '#95a5a6';
+    return colors[estado] ?? '#7D8CA0';
   }
 
   // ── Utilidades ───────────────────────────────────────────────

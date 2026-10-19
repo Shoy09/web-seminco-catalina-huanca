@@ -80,10 +80,10 @@ mapearDatos() {
 
   getColorEstado(estado: string): string {
     const e = estado?.toUpperCase();
-    if (e === 'OPERATIVO') return '#28a745';
-    if (e === 'DEMORA') return '#ffc107';
-    if (e === 'MANTENIMIENTO') return '#dc3545';
-    return '#6c757d';
+    if (e === 'OPERATIVO') return '#008557';
+    if (e === 'DEMORA') return '#99660F';
+    if (e === 'MANTENIMIENTO') return '#BD3636';
+    return '#64748B';
   }
 
   onEdit(item: Registro) {

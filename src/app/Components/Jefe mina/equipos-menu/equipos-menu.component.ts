@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 interface EquipoJEFE {
   nombre: string;
@@ -11,7 +11,8 @@ interface EquipoJEFE {
 
 @Component({
   selector: 'app-equipos-menu',
-  imports: [CommonModule ],
+  standalone: true,
+  imports: [CommonModule, RouterModule],
   templateUrl: './equipos-menu.component.html',
   styleUrl: './equipos-menu.component.css'
 })
@@ -20,31 +21,31 @@ export class EquiposMenuComponent {
     { 
       nombre: 'PERFORACIÓN TALADROS LARGOS', 
       ruta: '/Dashboard/jefe-mina/tal-largo',
-      icono: 'fas fa-hard-hat',
+      icono: 'pi pi-sliders-v',
       color: '#3498db'
     },
     { 
       nombre: 'PERFORACIÓN HORIZONTAL', 
       ruta: '/Dashboard/jefe-mina/tal-horizontal',
-      icono: 'fas fa-tachometer-alt',
+      icono: 'pi pi-arrows-h',
       color: '#2ecc71'
     },
     { 
       nombre: 'EMPERNADOR', 
       ruta: '/Dashboard/jefe-mina/empernador',
-      icono: 'fas fa-wrench',
+      icono: 'pi pi-wrench',
       color: '#e74c3c'
     },
     { 
       nombre: 'SCISSOR', 
       ruta: '/Dashboard/jefe-mina/scissor',
-      icono: 'fas fa-cut',
+      icono: 'pi pi-sort-alt',
       color: '#f39c12'
     },
     { 
       nombre: 'SCALAMIN', 
       ruta: '/Dashboard/jefe-mina/scalamin',
-      icono: 'fas fa-chart-line',
+      icono: 'pi pi-cog',
       color: '#9b59b6'
     },
     // { 
@@ -62,7 +63,7 @@ export class EquiposMenuComponent {
     { 
       nombre: 'SCOOPTRAM', 
       ruta: '/Dashboard/jefe-mina/scooptram',
-      icono: 'fas fa-tractor',
+      icono: 'pi pi-truck',
       color: '#34495e'
     },
     // { 

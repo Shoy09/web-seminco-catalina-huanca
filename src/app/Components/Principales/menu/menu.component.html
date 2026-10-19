@@ -1,112 +1,46 @@
-<div class="min-h-screen bg-surface-soft text-ink">
-  <!-- OVERLAY MOBILE -->
-  <div *ngIf="menuMovilAbierto"
-    class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden"
-    (click)="cerrarMenuMovil()"></div>
+<div class="layout-shell min-h-screen bg-surface-soft text-ink"
+  [class.layout-sidebar-collapsed]="menuColapsado"
+  [class.sidebar-mobile-open]="menuMovilAbierto"
+  [style.--app-sidebar-width]="menuColapsado ? '84px' : '280px'">
+  <div *ngIf="menuMovilAbierto" class="sidebar-backdrop" (click)="cerrarMenuMovil()" aria-hidden="true"></div>
 
-  <!-- SIDEBAR -->
-  <aside
-    class="fixed left-0 top-0 z-50 flex h-screen flex-col border-r border-white/10 bg-menu-bg text-menu-text shadow-2xl transition-all duration-300"
-    [ngClass]="{
-      'md:w-[84px]': menuColapsado,
-      'md:w-[280px]': !menuColapsado,
-      'translate-x-0': menuMovilAbierto,
-      '-translate-x-full md:translate-x-0': !menuMovilAbierto
-    }">
-
-    <!-- LOGO -->
-    <div class="flex h-20 items-center justify-center border-b-2 border-white/10 px-4 bg-white rounded-b-2xl">
-      <img src="login/logo1.png" alt="Logo de la empresa"
-        class="object-contain transition-all duration-300"
-        [ngClass]="menuColapsado ? 'h-10 max-w-10' : 'h-15 max-w-[180px]'" />
+  <aside id="app-sidebar" class="app-sidebar" [class.is-compact]="sidebarCompacto"
+    [class.is-mobile-open]="menuMovilAbierto" [cdkTrapFocus]="menuMovilAbierto" [cdkTrapFocusAutoCapture]="menuMovilAbierto"
+    aria-label="Menú principal" (keydown.escape)="cerrarMenuMovil()">
+    <div class="sidebar-brand">
+      <img src="login/logo1.png" alt="Seminco" />
+      <div *ngIf="!sidebarCompacto" class="sidebar-brand-copy"><strong>SEMINCO</strong><span>Portal de operaciones</span></div>
+      <button type="button" class="sidebar-close" (click)="cerrarMenuMovil()" aria-label="Cerrar menú"><i class="pi pi-times" aria-hidden="true"></i></button>
     </div>
 
-    <!-- USER INFO -->
-    <div *ngIf="!menuColapsado" class="mx-3 mt-4">
-      <div class="rounded-2xl border border-border bg-surface-soft px-4 py-3">
-        <div class="flex items-center gap-3">
-
-          <!-- Avatar con iniciales -->
-          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-secondary text-sm font-black text-white shadow-md">
-            {{ nombreUsuario | slice:0:2 | uppercase }}
-          </div>
-
-          <!-- Nombre y rol -->
-          <div class="min-w-0 flex-1">
-            <p class="truncate text-sm font-bold leading-tight text-ink uppercase">
-              {{ nombreUsuario }}
-            </p>
-            <p class="text-[10px] font-bold uppercase tracking-widest text-ink-50 mt-0.5">
-              {{ rolUsuario || 'ADMIN' }}
-            </p>
-          </div>
-
-        </div>
-      </div>
+    <div class="sidebar-user" [class.compact-user]="sidebarCompacto">
+      <span class="user-avatar" [title]="nombreUsuario">{{ nombreUsuario | slice:0:2 | uppercase }}</span>
+      <div *ngIf="!sidebarCompacto" class="user-details"><strong [title]="nombreUsuario">{{ nombreUsuario }}</strong><span>{{ rolUsuario || 'Usuario' }}</span></div>
     </div>
 
-    <!-- USER INFO colapsado -->
-    <div *ngIf="menuColapsado" class="mx-3 mt-4 flex justify-center">
-      <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-secondary text-sm font-black text-white shadow-md"
-           [title]="nombreUsuario">
-        {{ nombreUsuario | slice:0:2 | uppercase }}
-      </div>
-    </div>
-
-    <!-- MENU -->
-    <nav class="mt-4 flex-1 overflow-y-auto px-3 pb-4">
-      <ul class="space-y-1">
+    <nav class="sidebar-nav" aria-label="Secciones">
+      <span *ngIf="!sidebarCompacto" class="nav-caption">Espacio de trabajo</span>
+      <ul class="nav-list">
         <li *ngFor="let menu of menus; let i = index">
-          <!-- ITEM PRINCIPAL -->
-          <button type="button" pRipple (click)="onMenuPrincipalClick(i, menu)"
-            class="group flex w-full items-center rounded-xl px-3 py-3 text-left transition-all duration-200"
-            [ngClass]="{
-              'justify-center': menuColapsado,
-              'justify-between': !menuColapsado,
-              'bg-secondary text-white shadow-lg': menuOpenIndex === i || isMenuPadreActivo(menu),
-              'text-menu-text/80 hover:bg-secondary hover:text-white': menuOpenIndex !== i && !isMenuPadreActivo(menu)
-            }"
-            [title]="menu.label || ''">
-            <div class="flex min-w-0 items-center gap-3">
-              <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition"
-                [ngClass]="menuOpenIndex === i ? 'bg-white/20' : 'bg-white/10 group-hover:bg-white/15'">
-                <i [class]="menu.icon"></i>
-              </span>
-              <span *ngIf="!menuColapsado" class="truncate text-sm font-semibold">{{ menu.label }}</span>
-            </div>
-            <i *ngIf="!menuColapsado" class="pi text-xs transition-transform duration-200"
-              [ngClass]="menuOpenIndex === i ? 'pi-chevron-up' : 'pi-chevron-down'"></i>
+          <button type="button" pRipple class="nav-parent" [class.is-active]="isMenuPadreActivo(menu)" [class.is-open]="menuOpenIndex === i"
+            (click)="onMenuPrincipalClick(i, menu)" [title]="menu.label || ''" [attr.aria-label]="menu.label"
+            [attr.aria-expanded]="sidebarCompacto ? null : menuOpenIndex === i" [attr.aria-controls]="sidebarCompacto ? null : 'sidebar-group-' + i">
+            <span class="nav-icon"><i [class]="menu.icon" aria-hidden="true"></i></span>
+            <span *ngIf="!sidebarCompacto" class="nav-label">{{ menu.label }}</span>
+            <i *ngIf="!sidebarCompacto" class="pi pi-chevron-down nav-chevron" [class.rotated]="menuOpenIndex === i" aria-hidden="true"></i>
           </button>
-
-          <!-- SUBMENU -->
-          <div *ngIf="!menuColapsado" class="overflow-hidden transition-all duration-300"
-            [ngClass]="menuOpenIndex === i ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'">
-            <ul class="ml-12 mt-1 space-y-1 border-l border-white/10 pl-3">
-              <li *ngFor="let subItem of menu.items">
-                <a [routerLink]="subItem.routerLink"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  routerLinkActive="bg-primary/25 text-secondary shadow-sm font-bold border-l-4 border-primary"
-                  class="block rounded-lg px-3 py-2 text-sm font-medium text-menu-text/70 transition hover:bg-secondary/30 hover:text-menu-text"
-                  (click)="cerrarMenuMovil()">
-                  {{ subItem.label }}
-                </a>
-              </li>
-            </ul>
-          </div>
+          <ul *ngIf="!sidebarCompacto && menuOpenIndex === i" [id]="'sidebar-group-' + i" class="nav-children">
+            <li *ngFor="let subItem of menu.items">
+              <a [routerLink]="subItem.routerLink" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="is-current" ariaCurrentWhenActive="page" (click)="cerrarMenuMovil()">{{ subItem.label }}</a>
+            </li>
+          </ul>
         </li>
       </ul>
     </nav>
 
-    <!-- CERRAR SESIÓN SIDEBAR -->
-    <div class="border-t border-white/10 p-3">
-      <button type="button" pRipple
-        class="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold text-menu-text/80 transition hover:bg-white/10 hover:text-menu-text"
-        [ngClass]="menuColapsado ? 'justify-center' : ''"
-        (click)="cerrarSesion()"
-        [title]="menuColapsado ? 'Cerrar sesión' : ''">
-        <i class="pi pi-sign-out text-lg"></i>
-        <span *ngIf="!menuColapsado">Cerrar sesión</span>
-      </button>
+    <div class="sidebar-footer">
+      <button type="button" pRipple class="logout-button" (click)="cerrarSesion()" title="Cerrar sesión" aria-label="Cerrar sesión"><i class="pi pi-sign-out" aria-hidden="true"></i><span *ngIf="!sidebarCompacto">Cerrar sesión</span></button>
+      <span *ngIf="!sidebarCompacto" class="sidebar-operation">Operación: Catalina Huanca</span>
     </div>
   </aside>
 
@@ -121,14 +55,14 @@
         <!-- HAMBURGUESA MOBILE -->
         <button type="button" pRipple
           class="flex h-10 w-10 items-center justify-center rounded-xl text-secondary transition hover:bg-primary-25 md:hidden"
-          (click)="toggleMenuMovil()">
+          (click)="toggleMenuMovil()" aria-label="Abrir menú" aria-controls="app-sidebar" [attr.aria-expanded]="menuMovilAbierto">
           <i class="pi pi-bars text-xl"></i>
         </button>
         <!-- BOTÓN COLAPSAR DESKTOP -->
         <button type="button" pRipple
           class="hidden h-10 w-10 items-center justify-center rounded-xl text-secondary transition hover:bg-primary-25 md:flex"
           (click)="colapsarMenu()"
-          title="Contraer / expandir menú">
+          title="Contraer / expandir menú" [attr.aria-label]="menuColapsado ? 'Expandir menú' : 'Contraer menú'" aria-controls="app-sidebar" [attr.aria-expanded]="!menuColapsado">
           <i class="pi text-lg" [ngClass]="menuColapsado ? 'pi-bars' : 'pi-angle-left'"></i>
         </button>
       </div>

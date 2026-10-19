@@ -1,0 +1,14 @@
+@import './datos-ui.css';
+.dialog-form { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+.dialog-form .dialog-body { min-height: 0; overflow: auto; }
+.field select:disabled, .field input:disabled { background: #F0F4F8; color: #7D8CA0; }
+.status-message { display: flex; align-items: center; gap: 8px; padding-top: 16px; color: #7D8CA0; font-size: 11px; }
+.choice-hint { margin: 0 0 16px; color: #7D8CA0; font-size: 12px; }
+.entry-options { display: grid; gap: 10px; }
+.entry-option { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 12px; border: 1px solid #DCE4EA; border-radius: 8px; background: #FBFCFD; color: #344963; text-align: left; cursor: pointer; }
+.entry-option:hover { background: #F0F8FD; border-color: #9BDBFC; }
+.entry-option > .heading-icon { width: 34px; height: 34px; border-radius: 8px; font-size: 14px; }
+.entry-option > span:nth-child(2) { display: grid; gap: 4px; min-width: 0; }
+.entry-option strong { font-size: 12px; font-weight: 650; }
+.entry-option small { color: #7D8CA0; font-size: 10px; }
+.entry-option > i { margin-left: auto; color: #7D8CA0; font-size: 12px; }

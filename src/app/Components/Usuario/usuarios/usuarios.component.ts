@@ -1,3 +1,5 @@
+import { inject as injectNotificacionesUi } from '@angular/core';
+import { NotificacionesUiService } from 'app/services/notificaciones-ui.service';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
@@ -45,6 +47,8 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './usuarios.component.css',
 })
 export class UsuariosComponent implements OnInit {
+  private readonly notificacionesUi = injectNotificacionesUi(NotificacionesUiService);
+
   displayedColumns: string[] = [
     'codigo_dni',
     'nombre',
@@ -57,6 +61,8 @@ export class UsuariosComponent implements OnInit {
   dataSource = new MatTableDataSource<Usuario>([]);
   filtroRol: string = '';
   filtroTexto: string = '';
+  cargando = false;
+  errorCarga = false;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
@@ -118,10 +124,19 @@ export class UsuariosComponent implements OnInit {
   }
 
   obtenerUsuarios() {
-    this.usuarioService.obtenerUsuarios().subscribe((data) => {
-      this.dataSource.data = data;
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
+    this.cargando = true;
+    this.errorCarga = false;
+    this.usuarioService.obtenerUsuarios().subscribe({
+      next: (data) => {
+        this.dataSource.data = data;
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
+        this.cargando = false;
+      },
+      error: () => {
+        this.cargando = false;
+        this.errorCarga = true;
+      },
     });
   }
 
@@ -148,6 +163,10 @@ export class UsuariosComponent implements OnInit {
       .slice(0, 2);
   }
 
+  contarOperaciones(operaciones?: { [clave: string]: boolean }): number {
+    return Object.values(operaciones || {}).filter(Boolean).length;
+  }
+
   abrirDialogoOperaciones(operaciones: { [clave: string]: boolean }) {
     this.dialog.open(OperacionesDialogComponent, {
       width: '400px',
@@ -170,8 +189,8 @@ export class UsuariosComponent implements OnInit {
     });
   }
 
-  eliminarUsuario(id: number) {
-    if (confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
+  async eliminarUsuario(id: number) {
+    if (await this.notificacionesUi.confirmar('¿Estás seguro de que deseas eliminar este usuario?')) {
       this.usuarioService.eliminarUsuario(id).subscribe(() => {
         this.obtenerUsuarios();
       });
@@ -203,7 +222,7 @@ export class UsuariosComponent implements OnInit {
         const sheet = workbook.Sheets[sheetName];
 
         if (!sheet) {
-          alert("No se encontró la hoja 'Usuarios' en el archivo.");
+          this.notificacionesUi.warning("No se encontró la hoja 'Usuarios' en el archivo.");
           return;
         }
 
@@ -282,7 +301,7 @@ export class UsuariosComponent implements OnInit {
         if (usuariosValidos.length > 0) {
           this.enviarUsuariosBulk(usuariosValidos, usuariosInvalidos);
         } else {
-          alert('No hay usuarios válidos para enviar.');
+          this.notificacionesUi.warning('No hay usuarios válidos para enviar.');
         }
       };
     }
@@ -310,13 +329,13 @@ enviarUsuariosBulk(
         this.mostrarErrores(usuariosInvalidos);
       }
 
-      alert(`✅ ${usuarios.length} usuarios procesados correctamente`);
+      this.notificacionesUi.success(`${usuarios.length} usuarios procesados correctamente`);
       this.obtenerUsuarios();
     },
     error: (error) => {
       dialogRef.close();
       console.error(error);
-      alert('❌ Error en carga masiva');
+      this.notificacionesUi.error('Error en carga masiva');
     }
   });
 }
@@ -350,7 +369,7 @@ private verificarCompletado(
           usuario.motivo || 'Datos incompletos'
         }\n`;
       });
-      alert(mensaje);
+      this.notificacionesUi.error(mensaje, 'Errores de importación', { disableTimeOut: true });
     }
   }
 

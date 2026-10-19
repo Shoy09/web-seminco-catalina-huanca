@@ -1,30 +1,4 @@
-<div class="container">
-    <h2>Editar Estado</h2>
-  
-    <form [formGroup]="estadoForm" (ngSubmit)="guardarCambios()">
-      <div class="form-group">
-        <label for="estado_principal">Estado Principal</label>
-        <input id="estado_principal" formControlName="estado_principal" required />
-      </div>
-  
-      <div class="form-group">
-        <label for="codigo">Código</label>
-        <input id="codigo" formControlName="codigo" required />
-      </div>
-  
-      <div class="form-group">
-        <label for="tipo_estado">Tipo de Estado</label>
-        <input id="tipo_estado" formControlName="tipo_estado" required />
-      </div>
-  
-      <div class="form-group">
-        <label for="categoria">Categoría</label>
-        <input id="categoria" formControlName="categoria" required />
-      </div>
-  
-      <div class="button-container">
-        <button type="submit" [disabled]="!estadoForm.valid">Guardar</button>
-        <button type="button" class="cancel-btn" (click)="cerrar()">Cancelar</button>
-      </div>
-    </form>
-</div>
+<div class="states-dialog"><div class="dialog-heading"><span class="heading-icon"><i class="pi pi-flag" aria-hidden="true"></i></span><div><h2 mat-dialog-title>Editar estado</h2><p>Define la clasificación y el código del estado.</p></div><button type="button" class="icon-button" (click)="cerrar()" aria-label="Cerrar diálogo"><i class="pi pi-times" aria-hidden="true"></i></button></div><form [formGroup]="estadoForm" (ngSubmit)="guardarCambios()" class="dialog-form"><div class="dialog-body"><p class="required-note">Los campos con <span class="required">*</span> son obligatorios.</p><div class="process-context"><i class="pi pi-sitemap" aria-hidden="true"></i><span>{{ data.proceso || 'Sin proceso asignado' }}</span></div><div class="form-grid"><div class="field"><label for="state-estado_principal">Estado principal <span class="required">*</span></label><input id="state-estado_principal" formControlName="estado_principal" required aria-describedby="state-estado_principal-error" />@if (estadoForm.get('estado_principal')?.invalid && estadoForm.get('estado_principal')?.touched) { <p id="state-estado_principal-error" class="field-error">Este campo es obligatorio.</p> }</div>
+<div class="field"><label for="state-codigo">Código <span class="required">*</span></label><input id="state-codigo" formControlName="codigo" required aria-describedby="state-codigo-error" />@if (estadoForm.get('codigo')?.invalid && estadoForm.get('codigo')?.touched) { <p id="state-codigo-error" class="field-error">Este campo es obligatorio.</p> }</div>
+<div class="field"><label for="state-tipo_estado">Tipo de estado <span class="required">*</span></label><input id="state-tipo_estado" formControlName="tipo_estado" required aria-describedby="state-tipo_estado-error" />@if (estadoForm.get('tipo_estado')?.invalid && estadoForm.get('tipo_estado')?.touched) { <p id="state-tipo_estado-error" class="field-error">Este campo es obligatorio.</p> }</div>
+<div class="field"><label for="state-categoria">Categoría <span class="required">*</span></label><input id="state-categoria" formControlName="categoria" required aria-describedby="state-categoria-error" />@if (estadoForm.get('categoria')?.invalid && estadoForm.get('categoria')?.touched) { <p id="state-categoria-error" class="field-error">Este campo es obligatorio.</p> }</div></div></div><footer class="dialog-actions"><button type="button" class="ui-button" (click)="cerrar()">Cancelar</button><button type="submit" class="ui-button primary" [disabled]="estadoForm.invalid"><i class="pi pi-check" aria-hidden="true"></i>Guardar cambios</button></footer></form></div>

@@ -19,6 +19,8 @@ export class LoginComponent implements OnInit {
   codigo_dni    = '';
   password      = '';
   cargandoSSO   = false;  // spinner mientras redirige a Microsoft
+  cargando = false;
+  errorLogin = '';
 
   constructor(
     private readonly router: Router,
@@ -32,6 +34,7 @@ export class LoginComponent implements OnInit {
     const tokenEnUrl = this.authService.procesarTokenDeUrl();
 
     if (tokenEnUrl) {
+      this.cargando = true;
       // Venimos del callback OIDC — el token ya está guardado
       this._toastr.info('Verificando sesión...', 'Microsoft SSO');
       this.cargarPerfilYNavegar();
@@ -44,6 +47,8 @@ export class LoginComponent implements OnInit {
 
   // ── Login Microsoft (OIDC) ────────────────────────────────────────────────
   loginMicrosoft(): void {
+    if (this.cargando || this.cargandoSSO) return;
+    this.errorLogin = '';
     this.cargandoSSO = true;
     this._toastr.info('Redirigiendo a Microsoft...', 'SSO');
     // Pequeña pausa para que el toastr se muestre antes del redirect
@@ -54,12 +59,19 @@ export class LoginComponent implements OnInit {
 
   // ── Login clásico (mantener durante transición) ───────────────────────────
   login(): void {
+    if (this.cargando || this.cargandoSSO) return;
+    this.errorLogin = '';
+    this.codigo_dni = this.codigo_dni.trim();
     if (!this.codigo_dni || !this.password) {
-      this._toastr.warning('Por favor, ingresa todos los campos.', 'Advertencia');
+      this.errorLogin = 'Ingresa tu usuario y contraseña para continuar.';
+      return;
+    }
+    if (!/^\d+$/.test(this.codigo_dni)) {
+      this.errorLogin = 'El usuario debe contener solo números.';
       return;
     }
 
-    this._toastr.info('Iniciando sesión...', 'Por favor espera');
+    this.cargando = true;
 
     this.authService.login(this.codigo_dni, this.password).subscribe(
       (response) => {
@@ -67,11 +79,15 @@ export class LoginComponent implements OnInit {
           this.authService.setToken(response.token);
           this.cargarPerfilYNavegar();
         } else {
-          this._toastr.error('Token no recibido', 'Error');
+          this.cargando = false;
+          this.errorLogin = 'No se pudo completar el acceso. Inténtalo nuevamente.';
         }
       },
-      () => {
-        this._toastr.error('Credenciales incorrectas', 'Error');
+      (error) => {
+        this.cargando = false;
+        this.errorLogin = error.status === 400 || error.status === 401 || error.status === 403
+          ? 'El usuario o la contraseña son incorrectos. Revisa tus datos.'
+          : 'No pudimos conectar con el servicio. Inténtalo nuevamente.';
       }
     );
   }
@@ -85,9 +101,17 @@ export class LoginComponent implements OnInit {
         localStorage.setItem('nombre_completo', nombreCompleto);
 
         this._toastr.success('Sesión iniciada con éxito', 'Bienvenido');
-        this.router.navigate(['/Dashboard/grafico-horizontal']);
+        this.router.navigate(['/Dashboard/grafico-horizontal']).then((navegado) => {
+          this.cargando = false;
+          if (!navegado) this.errorLogin = 'No se pudo abrir el sistema. Inténtalo nuevamente.';
+        }).catch(() => {
+          this.cargando = false;
+          this.errorLogin = 'No se pudo abrir el sistema. Inténtalo nuevamente.';
+        });
       },
       error: (err) => {
+        this.cargando = false;
+        this.errorLogin = 'No se pudo cargar tu perfil. Inténtalo nuevamente.';
         console.error('Error obteniendo perfil', err);
         this._toastr.error('Error al cargar perfil de usuario', 'Error');
       }

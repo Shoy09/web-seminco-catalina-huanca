@@ -1,0 +1,15 @@
+.review-options { display: grid; gap: 12px; margin: 20px 0 0; padding: 0; border: 0; min-width: 0; }
+.review-option { display: flex; align-items: center; gap: 12px; padding: 16px 14px; border: 1px solid #DCE4EA; border-radius: 10px; background: #fff; cursor: pointer; transition: background .15s, border-color .15s; }
+.review-option:hover { background: #F7FAFC; border-color: #9BDBFC; }
+.review-option.selected { background: #F0F9FE; border-color: #38BDF8; box-shadow: 0 0 0 1px #38BDF8; }
+.review-option:focus-within { outline: 2px solid #38BDF8; outline-offset: 3px; }
+.review-option input { accent-color: #1D73A8; height: 18px; width: 18px; margin: 0; flex-shrink: 0; cursor: pointer; }
+.option-icon { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px; font-size: 18px; flex-shrink: 0; }
+.accepted { background: #E8F6EF; color: #008557; }
+.rejected { background: #FDEEEE; color: #C33D3D; }
+.option-copy { display: grid; gap: 4px; }
+.option-copy strong { color: #0B1F3A; font-size: 13px; font-weight: 650; }
+.option-copy > span { color: #64748B; font-size: 11px; line-height: 1.5; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (max-width: 380px) { .review-option { gap: 8px; padding: 12px; } .option-icon { width: 28px; height: 28px; } }
+@media (prefers-reduced-motion: reduce) { .review-option { transition: none; } }

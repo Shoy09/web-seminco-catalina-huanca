@@ -1,10 +1,1 @@
-<h2 mat-dialog-title>Editar Operaciones Autorizadas</h2>
-<mat-dialog-content>
-  <mat-checkbox *ngFor="let op of operacionesDisponibles" [(ngModel)]="operacionesSeleccionadas[op]">
-    {{ op }}
-  </mat-checkbox>
-</mat-dialog-content>
-<mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close>Cancelar</button>
-  <button mat-raised-button color="primary" (click)="guardar()">Guardar</button>
-</mat-dialog-actions>
+<div class="user-dialog"><div class="dialog-heading"><span class="heading-icon"><i class="pi pi-sliders-h" aria-hidden="true"></i></span><div><h2 mat-dialog-title>Operaciones autorizadas</h2><p>Selecciona las operaciones a las que tendrá acceso.</p></div><button type="button" class="icon-button" mat-dialog-close aria-label="Cerrar operaciones"><i class="pi pi-times" aria-hidden="true"></i></button></div><mat-dialog-content class="dialog-body"><div class="operations-list"><label class="operation-option" *ngFor="let op of operacionesDisponibles"><input type="checkbox" [(ngModel)]="operacionesSeleccionadas[op]" /><span>{{ op }}</span></label></div></mat-dialog-content><div class="dialog-actions"><button type="button" class="ui-button" mat-dialog-close>Cancelar</button><button type="button" class="ui-button primary" (click)="guardar()"><i class="pi pi-check" aria-hidden="true"></i>Guardar cambios</button></div></div>

@@ -1,56 +1,21 @@
-﻿<div class="h-full flex flex-col overflow-hidden">
-  <div class="flex-1 overflow-x-auto overflow-y-auto mx-4 my-1 rounded-xl bg-black/5 relative">
-    <table class="w-full border-collapse text-xs">
-
-      <thead class="sticky top-0 z-10">
-        <tr class="bg-white">
-          <th class="text-left text-slate-400 font-medium px-4 py-2.5 border-b border-slate-100">N°</th>
-          <th class="text-left text-slate-400 font-medium px-4 py-2.5 border-b border-slate-100">Estado</th>
-          <th class="text-left text-slate-400 font-medium px-4 py-2.5 border-b border-slate-100">Código</th>
-          <th class="text-left text-slate-400 font-medium px-4 py-2.5 border-b border-slate-100">Hora Inicio</th>
-          <th class="text-left text-slate-400 font-medium px-4 py-2.5 border-b border-slate-100">Hora Fin</th>
-          <th class="text-center text-slate-400 font-medium px-4 py-2.5 border-b border-slate-100">Acciones</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        <tr *ngFor="let item of datos" class="bg-white border-b border-slate-50 hover:bg-slate-50 transition-colors">
-          <td class="px-4 py-2.5 text-slate-500">{{ item.nro }}</td>
-          <td class="px-4 py-2.5">
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
-                  [style.color]="item.color"
-                  [style.background-color]="item.color + '20'">
-              <i class="fas fa-check-circle text-[10px]"></i>
-              {{ item.estado }}
-            </span>
-          </td>
-          <td class="px-4 py-2.5 font-bold text-slate-700">{{ item.codigo }}</td>
-          <td class="px-4 py-2.5 text-slate-500">{{ item.horaInicio }}</td>
-          <td class="px-4 py-2.5 text-slate-500">{{ item.horaFin }}</td>
-          <td class="px-4 py-2.5">
-            <div class="flex items-center justify-center gap-2">
-              <button (click)="onEdit(item)"
-                class="w-7 h-7 rounded-lg flex items-center justify-center border-0
-                       bg-amber-50 text-amber-500 hover:scale-110 transition-all cursor-pointer">
-                <i class="fas fa-pencil-alt text-[11px]"></i>
-              </button>
-              <button (click)="onExecute(item)"
-                class="w-7 h-7 rounded-lg flex items-center justify-center border-0
-                       bg-green-50 text-green-500 hover:scale-110 transition-all cursor-pointer">
-                <i class="fas fa-check text-[11px]"></i>
-              </button>
-              <button (click)="onDelete(item)"
-                class="w-7 h-7 rounded-lg flex items-center justify-center border-0
-                       bg-red-50 text-red-500 hover:scale-110 transition-all cursor-pointer">
-                <i class="fas fa-trash-alt text-[11px]"></i>
-              </button>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-
-    </table>
-  </div>
+<div class="activities-scroll" tabindex="0" aria-label="Actividades del turno, tabla con desplazamiento horizontal">
+  <table class="activities-table">
+    <thead><tr><th scope="col">N°</th><th scope="col">Estado de actividad</th><th scope="col">Código</th><th scope="col">Hora de inicio</th><th scope="col">Hora de fin</th><th scope="col" class="actions-column">Acciones</th></tr></thead>
+    <tbody>
+      <tr *ngFor="let item of datos">
+        <td class="row-number">{{ item.nro }}</td>
+        <td><span class="activity-status" [style.color]="item.color" [style.background-color]="item.color + '12'"><span></span>{{ item.estado }}</span></td>
+        <td><span class="activity-code">{{ item.codigo }}</span></td>
+        <td class="time-cell"><i class="pi pi-clock" aria-hidden="true"></i>{{ item.horaInicio }}</td>
+        <td class="time-cell">{{ item.horaFin }}</td>
+        <td><div class="row-actions">
+          <button type="button" class="row-action" (click)="onEdit(item)" title="Editar estado y horario" [attr.aria-label]="'Editar estado y horario del registro ' + item.nro"><i class="pi pi-pencil" aria-hidden="true"></i></button>
+          <button type="button" class="row-action detail-action" (click)="onExecute(item)" title="Detalle de perforación" [attr.aria-label]="'Abrir detalle de perforación del registro ' + item.nro"><i class="pi pi-file-edit" aria-hidden="true"></i><span>Detalle</span></button>
+          <button type="button" class="row-action delete-action" (click)="onDelete(item)" title="Eliminar registro" [attr.aria-label]="'Eliminar registro ' + item.nro"><i class="pi pi-trash" aria-hidden="true"></i></button>
+        </div></td>
+      </tr>
+    </tbody>
+  </table>
 </div>
 
 <app-formulario-operacion

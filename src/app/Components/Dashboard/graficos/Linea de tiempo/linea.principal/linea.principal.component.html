@@ -1,133 +1,35 @@
-<div class="space-y-3">
+﻿<div class="timeline-page">
+  <header class="page-heading">
+    <span class="heading-icon"><i class="pi pi-chart-bar" aria-hidden="true"></i></span>
+    <div class="heading-copy"><h1>Línea de tiempo</h1></div>
+    <div class="heading-counts" aria-live="polite"><span><strong>{{ totalRegistros }}</strong> registros</span><span><strong>{{ totalEquipos }}</strong> equipos</span></div>
+  </header>
 
-  <!-- ══════════════════════════════════════════════════════════
-       BARRA DE CONTROL — header + tabs + filtros todo junto
-  ══════════════════════════════════════════════════════════════ -->
-  <section class="overflow-hidden rounded-2xl border border-border bg-surface shadow-sm">
-
-    <!-- Franja de título -->
-    <div class="flex items-center justify-between bg-gradient-to-r from-secondary via-secondary-75 to-primary px-4 py-2.5 text-white">
-      <div class="flex items-center gap-2">
-        <span class="icon-inline opacity-80">timeline</span>
-        <span class="text-sm font-bold tracking-tight">Línea de Tiempo</span>
-        <span class="hidden text-xs text-white/50 sm:inline">— Diagrama Gantt</span>
-      </div>
-      <div class="flex items-center gap-2">
-        <span class="badge-pill">
-          <span class="icon-xs">schedule</span>
-          {{ totalRegistros }} reg.
-        </span>
-        <span class="badge-pill">
-          <span class="icon-xs">precision_manufacturing</span>
-          {{ totalEquipos }} equipos
-        </span>
-      </div>
-    </div>
-
-    <!-- Tabs de proceso -->
-    <div class="flex flex-wrap gap-x-0.5 border-b border-border px-3 pt-2">
-      <button
-        (click)="seleccionarTodosProcesos()"
-        [class.tab-active]="todosProcesosActivo"
-        class="tab-btn"
-      >
-        <span class="icon-xs">dashboard</span>
-        <span>Todos</span>
-      </button>
-      <!--
-      <button
-        *ngFor="let proc of procesos"
-        (click)="seleccionarProceso(proc)"
-        [class.tab-active]="!todosProcesosActivo && procesoActivo.id === proc.id"
-        class="tab-btn"
-      >
-        <span class="icon-xs">{{ proc.icon }}</span>
-        <span>{{ proc.label }}</span>
-      </button>
-      -->
-    </div>
-
-    <!-- Filtros -->
-    <div class="flex flex-wrap items-center gap-3 px-3 py-2">
-
-      <div class="flex items-center gap-1.5">
-        <label class="label-filtro">Desde</label>
-        <input type="date" [(ngModel)]="fechaInicio" class="input-filtro" />
-      </div>
-
-      <div class="flex items-center gap-1.5">
-        <label class="label-filtro">Hasta</label>
-        <input type="date" [(ngModel)]="fechaFin" class="input-filtro" />
-      </div>
-
-      <div class="flex items-center gap-1.5">
-        <label class="label-filtro">Turno</label>
-        <select [(ngModel)]="turnoSeleccionado" class="input-filtro cursor-pointer">
-          <option value="">Todos</option>
-          <option value="DÍA">Día</option>
-          <option value="NOCHE">Noche</option>
-        </select>
-      </div>
-
-      <button (click)="aplicarFiltro()" class="btn-primary">
-        <span class="icon-xs">filter_alt</span>
-        Aplicar
-      </button>
-
-      <button (click)="quitarFiltro()" class="btn-ghost">
-        <span class="icon-xs">close</span>
-        Limpiar
-      </button>
-
-      <!-- Leyenda -->
-      <div class="ml-auto hidden items-center gap-3 sm:flex">
-        <span class="leyenda-item"><span class="leyenda-dot" style="background:#2ECC71"></span>Operativo</span>
-        <span class="leyenda-item"><span class="leyenda-dot" style="background:#F1C40F"></span>Demora</span>
-        <span class="leyenda-item"><span class="leyenda-dot" style="background:#E74C3C"></span>Mantenim.</span>
-        <span class="leyenda-item"><span class="leyenda-dot" style="background:#E67E22"></span>Reserva</span>
-        <span class="leyenda-item"><span class="leyenda-dot" style="background:#3498DB"></span>Fuera plan</span>
-        <span class="leyenda-item"><span class="leyenda-dot" style="background:#95a5a6"></span>Otro</span>
-      </div>
-
-    </div>
+  <section class="controls-panel" aria-label="Filtros de la línea de tiempo">
+    <nav class="process-tabs" aria-label="Procesos">
+      <button type="button" [class.active]="todosProcesosActivo" [attr.aria-pressed]="todosProcesosActivo" (click)="seleccionarTodosProcesos()">Todos los procesos</button>
+      <button type="button" *ngFor="let proc of procesos" [class.active]="!todosProcesosActivo && procesoActivo.id === proc.id" [attr.aria-pressed]="!todosProcesosActivo && procesoActivo.id === proc.id" (click)="seleccionarProceso(proc)">{{ proc.label }}</button>
+    </nav>
+    <form class="filter-panel" (ngSubmit)="aplicarFiltro()">
+      <div class="field"><label for="timeline-from">Desde</label><input id="timeline-from" name="desde" type="date" [(ngModel)]="fechaInicio" [max]="fechaFin || '9999-12-31'" /></div>
+      <div class="field"><label for="timeline-to">Hasta</label><input id="timeline-to" name="hasta" type="date" [(ngModel)]="fechaFin" [min]="fechaInicio || '0001-01-01'" /></div>
+      <div class="field"><label for="timeline-shift">Turno</label><select id="timeline-shift" name="turno" [(ngModel)]="turnoSeleccionado"><option value="">Todos los turnos</option><option value="DÍA">Día</option><option value="NOCHE">Noche</option></select></div>
+      <div class="filter-actions"><button type="button" class="ui-button" (click)="quitarFiltro()">Limpiar</button><button type="submit" class="ui-button primary" [disabled]="cargando"><i class="pi pi-filter" aria-hidden="true"></i>Aplicar filtros</button></div>
+    </form>
   </section>
 
-  <!-- Spinner -->
-  <div *ngIf="cargando" class="flex items-center justify-center gap-3 rounded-2xl border border-border bg-surface py-12 text-ink-50">
-    <div class="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
-    <span class="text-sm font-medium">Cargando operaciones...</span>
-  </div>
+  <div class="timeline-legend" aria-label="Leyenda de estados"><span><i style="background:#00A064"></i>Operativo</span><span><i style="background:#D1A514"></i>Demora</span><span><i style="background:#D45454"></i>Mantenimiento</span><span><i style="background:#AD6C36"></i>Reserva</span><span><i style="background:#2686B9"></i>Fuera de plan</span><span><i style="background:#7D8CA0"></i>Otro</span><small><i class="pi pi-info-circle" aria-hidden="true"></i>Selecciona un tramo para ver su detalle</small></div>
 
-  <!-- Gantt -->
+  <div *ngIf="errorCarga && !cargando" class="error-state" role="alert"><i class="pi pi-exclamation-circle" aria-hidden="true"></i><div><strong>No se pudo completar la carga</strong><p>{{ errorCarga }}</p></div><button type="button" class="ui-button" (click)="obtenerTodosLosEstados()"><i class="pi pi-refresh" aria-hidden="true"></i>Reintentar</button></div>
+  <div *ngIf="cargando" class="loading-state" role="status"><div class="loading-caption"><i class="pi pi-spin pi-spinner" aria-hidden="true"></i>Preparando la actividad de los equipos…</div><div class="skeleton-row" *ngFor="let row of [1,2,3,4]" aria-hidden="true"><span></span><span></span><span></span></div></div>
+
   <ng-container *ngIf="!cargando">
-
-    <!-- Estado vacío -->
-    <div
-      *ngIf="!hayDatosVisibles"
-      class="flex flex-col items-center justify-center gap-2 rounded-2xl border border-border bg-surface py-16 text-ink-50"
-    >
-      <span class="material-icons text-5xl opacity-25">inbox</span>
-      <p class="text-sm font-medium">Sin datos para los filtros aplicados</p>
-      <p class="text-xs">Cambia el rango de fechas o el turno</p>
-    </div>
-
-    <!-- Gantt por proceso -->
+    <div *ngIf="!hayDatosVisibles && !errorCarga" class="empty-state"><span><i class="pi pi-calendar" aria-hidden="true"></i></span><strong>No hay actividad para mostrar</strong><p>Prueba con otro período, turno o proceso.</p></div>
     <ng-container *ngFor="let gantt of ganttsVisibles">
-      <div
-        *ngIf="gantt.filas > 0"
-        class="overflow-hidden rounded-2xl border border-border bg-surface shadow-sm"
-      >
-        <div class="flex items-center gap-2 border-b border-border px-3 py-1.5">
-          <div [ngClass]="gantt.proceso.color" class="chip-icon">
-            <span class="icon-xs">{{ gantt.proceso.icon }}</span>
-          </div>
-          <span class="text-xs font-semibold text-ink">{{ gantt.proceso.label }}</span>
-          <span class="text-xs text-ink-50">— {{ gantt.filas }} filas</span>
-        </div>
-        <app-scheduler [data]="gantt.data" maxHeight="16.25rem"></app-scheduler>
-      </div>
+      <section *ngIf="gantt.filas > 0" class="gantt-panel" [attr.aria-label]="gantt.proceso.label">
+        <header class="gantt-heading"><span class="process-icon"><span class="material-icons" aria-hidden="true">{{ gantt.proceso.icon }}</span></span><h2>{{ gantt.proceso.label }}</h2><span class="row-count">{{ gantt.filas }} filas</span><span class="scroll-hint"><i class="pi pi-arrows-h" aria-hidden="true"></i>Desliza para ver las horas</span></header>
+        <app-scheduler [data]="gantt.data" maxHeight="22rem"></app-scheduler>
+      </section>
     </ng-container>
-
   </ng-container>
-
 </div>

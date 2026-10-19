@@ -1,17 +1,27 @@
-<h2 mat-dialog-title>Confirmar revisión</h2>
-
-<mat-dialog-content>
-  <p>¿Cuál es el resultado de esta revisión?</p>
-
-  <mat-radio-group [(ngModel)]="estado">
-    <mat-radio-button [value]="1">✅ Aceptado</mat-radio-button><br>
-    <mat-radio-button [value]="2">❌ Rechazado</mat-radio-button>
-  </mat-radio-group>
-</mat-dialog-content>
-
-<mat-dialog-actions align="end">
-  <button mat-button (click)="cancelar()">Cancelar</button>
-  <button mat-raised-button color="primary" (click)="confirmar()">
-    Confirmar
-  </button>
-</mat-dialog-actions>
+<div class="approval-dialog">
+  <header class="dialog-header">
+    <span class="dialog-icon pi pi-file-check" aria-hidden="true"></span>
+    <div><span class="dialog-eyebrow">Revisión de operación</span><h2 mat-dialog-title>Confirmar revisión</h2></div>
+    <button type="button" class="icon-button" aria-label="Cerrar sin confirmar" (click)="cancelar()"><i class="pi pi-times" aria-hidden="true"></i></button>
+  </header>
+  <mat-dialog-content class="dialog-content">
+    <p class="dialog-description" id="review-description">Selecciona el resultado de la revisión para continuar.</p>
+    <fieldset class="review-options" aria-describedby="review-description">
+      <legend class="sr-only">Resultado de la revisión</legend>
+      <label class="review-option" [class.selected]="estado === 1">
+        <input type="radio" name="estado" [value]="1" [(ngModel)]="estado" />
+        <span class="option-icon accepted pi pi-check-circle" aria-hidden="true"></span>
+        <span class="option-copy"><strong>Aceptado</strong><span>La información revisada es conforme.</span></span>
+      </label>
+      <label class="review-option" [class.selected]="estado === 2">
+        <input type="radio" name="estado" [value]="2" [(ngModel)]="estado" />
+        <span class="option-icon rejected pi pi-times-circle" aria-hidden="true"></span>
+        <span class="option-copy"><strong>Rechazado</strong><span>La información requiere correcciones.</span></span>
+      </label>
+    </fieldset>
+  </mat-dialog-content>
+  <mat-dialog-actions class="dialog-actions">
+    <button type="button" class="dialog-button secondary" (click)="cancelar()">Cancelar</button>
+    <button type="button" class="dialog-button primary" [disabled]="estado !== 1 && estado !== 2" (click)="confirmar()">Confirmar revisión<i class="pi pi-arrow-right" aria-hidden="true"></i></button>
+  </mat-dialog-actions>
+</div>

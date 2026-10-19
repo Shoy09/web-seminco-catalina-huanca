@@ -1,0 +1,66 @@
+/* El área de trabajo también se comparte con los overlays que CDK añade al body. */
+body {
+  --app-sidebar-offset: 0px;
+  --app-content-top: 0px;
+  --app-content-width: calc(100vw - var(--app-sidebar-offset));
+  --app-content-height: calc(100dvh - var(--app-content-top));
+}
+
+body:has(app-menu .layout-shell) { --app-content-top: 4rem; }
+@media (max-width: 767px) {
+  body:has(app-menu .sidebar-mobile-open) { overflow: hidden; }
+  /* El menú (50) y su fondo (40) tienen prioridad mientras está abierto. */
+  body:has(app-menu .sidebar-mobile-open) .cdk-overlay-container,
+  body:has(app-menu .sidebar-mobile-open) .app-content-overlay {
+    z-index: 35 !important;
+  }
+}
+@media (min-width: 768px) {
+  body:has(app-menu .layout-shell) { --app-sidebar-offset: 280px; }
+  body:has(app-menu .layout-shell.layout-sidebar-collapsed) { --app-sidebar-offset: 84px; }
+}
+
+/* Solo los diálogos globales: no desplazar las coordenadas de selects o tooltips. */
+.cdk-global-overlay-wrapper:has(.mat-mdc-dialog-container),
+.cdk-overlay-backdrop:has(+ .cdk-global-overlay-wrapper .mat-mdc-dialog-container) {
+  top: var(--app-content-top) !important;
+  left: var(--app-sidebar-offset) !important;
+  right: 0;
+  bottom: 0;
+  width: calc(100% - var(--app-sidebar-offset)) !important;
+  height: calc(100% - var(--app-content-top)) !important;
+  transition: left .3s, width .3s, opacity .2s;
+}
+
+.cdk-global-overlay-wrapper .cdk-overlay-pane:has(.mat-mdc-dialog-container) {
+  max-width: calc(100% - 32px) !important;
+  max-height: calc(100% - 32px) !important;
+}
+
+/* Material hereda estos límites: el margen se descuenta solo en el pane. */
+.cdk-overlay-pane > .mat-mdc-dialog-container {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+/* Ventanas y pantallas de carga creadas dentro de las páginas. */
+body .app-content-overlay {
+  top: var(--app-content-top) !important;
+  left: var(--app-sidebar-offset) !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  transition: left .3s;
+}
+body .app-content-overlay > * {
+  max-width: 100%;
+  max-height: calc(var(--app-content-height) - 32px) !important;
+  overflow: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cdk-global-overlay-wrapper:has(.mat-mdc-dialog-container),
+  .cdk-overlay-backdrop:has(+ .cdk-global-overlay-wrapper .mat-mdc-dialog-container),
+  body .app-content-overlay { transition: none; }
+}

@@ -1,150 +1,30 @@
-<div class="dialog-container">
-    <h2>Editar Plan de Producción</h2>
-
-    <div class="dialog-content">
-        <form>
-            <div class="form-group">
-                <label>Año:</label>
-                <input type="number" [(ngModel)]="plan.anio" name="anio" readonly>
-            </div>
-
-            <div class="form-group">
-                <label>Mes:</label>
-                <input type="text" [(ngModel)]="plan.mes" name="mes" readonly>
-            </div>
-
-            <div class="form-group">
-                <label>Semana:</label>
-                <input type="text" [(ngModel)]="plan.semana" name="semana">
-            </div>
-
-            <div class="form-group">
-                <label>Mina:</label>
-                <input type="text" [(ngModel)]="plan.mina" name="mina">
-            </div>
-
-            <div class="form-group">
-                <label>Zona:</label>
-                <input type="text" [(ngModel)]="plan.zona" name="zona">
-            </div>
-
-            <div class="form-group">
-                <label>Área:</label>
-                <input type="text" [(ngModel)]="plan.area" name="area">
-            </div>
-
-            <div class="form-group">
-                <label>Fase:</label>
-                <input type="text" [(ngModel)]="plan.fase" name="fase">
-            </div>
-
-            <div class="form-group">
-                <label>Minado Tipo:</label>
-                <input type="text" [(ngModel)]="plan.minado_tipo" name="minado_tipo">
-            </div>
-
-            <div class="form-group">
-                <label>Tipo Labor:</label>
-                <input type="text" [(ngModel)]="plan.tipo_labor" name="tipo_labor">
-            </div>
-
-            <div class="form-group">
-                <label>Tipo Mineral:</label>
-                <input type="text" [(ngModel)]="plan.tipo_mineral" name="tipo_mineral">
-            </div>
-
-            <div class="form-group">
-                <label>Estructura Veta:</label>
-                <input type="text" [(ngModel)]="plan.estructura_veta" name="estructura_veta">
-            </div>
-
-            <div class="form-group">
-                <label>Nivel:</label>
-                <input type="text" [(ngModel)]="plan.nivel" name="nivel">
-            </div>
-
-            <div class="form-group">
-                <label>Block:</label>
-                <input type="text" [(ngModel)]="plan.block" name="block">
-            </div>
-
-            <div class="form-group">
-                <label>Labor:</label>
-                <input type="text" [(ngModel)]="plan.labor" name="labor">
-            </div>
-
-            <div class="form-group">
-                <label>Ala:</label>
-                <input type="text" [(ngModel)]="plan.ala" name="ala">
-            </div>
-
-            <div class="form-group">
-                <label>Ancho Veta:</label>
-                <input type="number" [(ngModel)]="plan.ancho_veta" name="ancho_veta">
-            </div>
-
-            <div class="form-group">
-                <label>Ancho Minado Semanal:</label>
-                <input type="number" [(ngModel)]="plan.ancho_minado_sem" name="ancho_minado_sem">
-            </div>
-
-            <div class="form-group">
-                <label>Ancho Minado Mensual:</label>
-                <input type="number" [(ngModel)]="plan.ancho_minado_mes" name="ancho_minado_mes">
-            </div>
-
-            <div class="form-group">
-                <label>Ag (gr):</label>
-                <input type="number" [(ngModel)]="plan.ag_gr" name="ag_gr">
-            </div>
-
-            <div class="form-group">
-                <label>% Cu:</label>
-                <input type="number" [(ngModel)]="plan.porcentaje_cu" name="porcentaje_cu">
-            </div>
-
-            <div class="form-group">
-                <label>% Pb:</label>
-                <input type="number" [(ngModel)]="plan.porcentaje_pb" name="porcentaje_pb">
-            </div>
-
-            <div class="form-group">
-                <label>% Zn:</label>
-                <input type="number" [(ngModel)]="plan.porcentaje_zn" name="porcentaje_zn">
-            </div>
-
-            <div class="form-group">
-                <label>VPT Actual:</label>
-                <input type="number" [(ngModel)]="plan.vpt_act" name="vpt_act">
-            </div>
-
-            <div class="form-group">
-                <label>VPT Final:</label>
-                <input type="number" [(ngModel)]="plan.vpt_final" name="vpt_final">
-            </div>
-
-            <div class="form-group">
-                <label>Cut Off 1:</label>
-                <input type="number" [(ngModel)]="plan.cut_off_1" name="cut_off_1">
-            </div>
-
-            <div class="form-group">
-                <label>TONELAJE:</label>
-                <input type="number" [(ngModel)]="plan.cut_off_2" name="cut_off_2">
-            </div>
-
-            <div class="form-group">
-                <label>Programado:</label>
-                <select [(ngModel)]="plan.programado" name="programado">
+<div class="plan-dialog"><div class="dialog-heading"><span class="heading-icon"><i class="pi pi-box" aria-hidden="true"></i></span><div><h2 mat-dialog-title>Editar plan de producción</h2><p>Actualiza los datos del plan mensual.</p></div><button type="button" class="icon-button" (click)="cancelar()" aria-label="Cerrar diálogo"><i class="pi pi-times" aria-hidden="true"></i></button></div><mat-dialog-content class="dialog-body"><form class="form-grid plan-fields"><div class="field"><label for="edit-anio">Año</label><input id="edit-anio" type="number" step="any" [(ngModel)]="plan.anio" name="anio" readonly></div>
+<div class="field"><label for="edit-mes">Mes</label><input id="edit-mes" type="text" [(ngModel)]="plan.mes" name="mes" readonly></div>
+<div class="field"><label for="edit-semana">Semana</label><input id="edit-semana" type="text" [(ngModel)]="plan.semana" name="semana"></div>
+<div class="field"><label for="edit-mina">Mina</label><input id="edit-mina" type="text" [(ngModel)]="plan.mina" name="mina"></div>
+<div class="field"><label for="edit-zona">Zona</label><input id="edit-zona" type="text" [(ngModel)]="plan.zona" name="zona"></div>
+<div class="field"><label for="edit-area">Área</label><input id="edit-area" type="text" [(ngModel)]="plan.area" name="area"></div>
+<div class="field"><label for="edit-fase">Fase</label><input id="edit-fase" type="text" [(ngModel)]="plan.fase" name="fase"></div>
+<div class="field"><label for="edit-minado_tipo">Minado Tipo</label><input id="edit-minado_tipo" type="text" [(ngModel)]="plan.minado_tipo" name="minado_tipo"></div>
+<div class="field"><label for="edit-tipo_labor">Tipo Labor</label><input id="edit-tipo_labor" type="text" [(ngModel)]="plan.tipo_labor" name="tipo_labor"></div>
+<div class="field"><label for="edit-tipo_mineral">Tipo Mineral</label><input id="edit-tipo_mineral" type="text" [(ngModel)]="plan.tipo_mineral" name="tipo_mineral"></div>
+<div class="field"><label for="edit-estructura_veta">Estructura Veta</label><input id="edit-estructura_veta" type="text" [(ngModel)]="plan.estructura_veta" name="estructura_veta"></div>
+<div class="field"><label for="edit-nivel">Nivel</label><input id="edit-nivel" type="text" [(ngModel)]="plan.nivel" name="nivel"></div>
+<div class="field"><label for="edit-block">Block</label><input id="edit-block" type="text" [(ngModel)]="plan.block" name="block"></div>
+<div class="field"><label for="edit-labor">Labor</label><input id="edit-labor" type="text" [(ngModel)]="plan.labor" name="labor"></div>
+<div class="field"><label for="edit-ala">Ala</label><input id="edit-ala" type="text" [(ngModel)]="plan.ala" name="ala"></div>
+<div class="field"><label for="edit-ancho_veta">Ancho Veta</label><input id="edit-ancho_veta" type="number" step="any" [(ngModel)]="plan.ancho_veta" name="ancho_veta"></div>
+<div class="field"><label for="edit-ancho_minado_sem">Ancho Minado Semanal</label><input id="edit-ancho_minado_sem" type="number" step="any" [(ngModel)]="plan.ancho_minado_sem" name="ancho_minado_sem"></div>
+<div class="field"><label for="edit-ancho_minado_mes">Ancho Minado Mensual</label><input id="edit-ancho_minado_mes" type="number" step="any" [(ngModel)]="plan.ancho_minado_mes" name="ancho_minado_mes"></div>
+<div class="field"><label for="edit-ag_gr">Ag (gr)</label><input id="edit-ag_gr" type="number" step="any" [(ngModel)]="plan.ag_gr" name="ag_gr"></div>
+<div class="field"><label for="edit-porcentaje_cu">% Cu</label><input id="edit-porcentaje_cu" type="number" step="any" [(ngModel)]="plan.porcentaje_cu" name="porcentaje_cu"></div>
+<div class="field"><label for="edit-porcentaje_pb">% Pb</label><input id="edit-porcentaje_pb" type="number" step="any" [(ngModel)]="plan.porcentaje_pb" name="porcentaje_pb"></div>
+<div class="field"><label for="edit-porcentaje_zn">% Zn</label><input id="edit-porcentaje_zn" type="number" step="any" [(ngModel)]="plan.porcentaje_zn" name="porcentaje_zn"></div>
+<div class="field"><label for="edit-vpt_act">VPT Actual</label><input id="edit-vpt_act" type="number" step="any" [(ngModel)]="plan.vpt_act" name="vpt_act"></div>
+<div class="field"><label for="edit-vpt_final">VPT Final</label><input id="edit-vpt_final" type="number" step="any" [(ngModel)]="plan.vpt_final" name="vpt_final"></div>
+<div class="field"><label for="edit-cut_off_1">Cut Off 1</label><input id="edit-cut_off_1" type="number" step="any" [(ngModel)]="plan.cut_off_1" name="cut_off_1"></div>
+<div class="field"><label for="edit-cut_off_2">TONELAJE</label><input id="edit-cut_off_2" type="number" step="any" [(ngModel)]="plan.cut_off_2" name="cut_off_2"></div>
+<div class="field"><label for="edit-programado">Programado</label><select id="edit-programado" [(ngModel)]="plan.programado" name="programado">
                     <option value="Programado">Programado</option>
                     <option value="No Programado">No Programado</option>
-                </select>
-            </div>
-        </form>
-    </div>
-
-    <div class="button-group">
-        <button class="save-btn" (click)="guardar()">Guardar</button>
-        <button class="cancel-btn" (click)="cancelar()">Cancelar</button>
-    </div>
-</div>
+                </select></div></form></mat-dialog-content><div class="dialog-actions"><button type="button" class="ui-button" (click)="cancelar()">Cancelar</button><button type="button" class="ui-button primary" (click)="guardar()" ><i class="pi pi-check" aria-hidden="true"></i>Guardar plan</button></div></div>

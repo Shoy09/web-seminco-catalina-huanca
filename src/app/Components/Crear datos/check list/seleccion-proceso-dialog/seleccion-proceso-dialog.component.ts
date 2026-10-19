@@ -1,3 +1,4 @@
+import { MatDialogTitle } from '@angular/material/dialog';
 
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -10,7 +11,7 @@ import { OpcionesDialogComponent } from '../opciones-dialog/opciones-dialog.comp
 
 @Component({
   selector: 'app-seleccion-proceso-dialog',
-  imports: [FormsModule],
+  imports: [MatDialogTitle,FormsModule],
   templateUrl: './seleccion-proceso-dialog.component.html',
   styleUrl: './seleccion-proceso-dialog.component.css',
 })

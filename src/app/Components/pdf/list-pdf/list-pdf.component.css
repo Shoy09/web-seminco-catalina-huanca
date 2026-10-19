@@ -1,1 +1,63 @@
-/* Estilos manejados por Tailwind CSS */
+@import '../documentos-ui.css';
+.documents-layout { display: grid; grid-template-columns: 240px minmax(0,1fr); gap: 18px; align-items: start; }
+.folders-panel { min-width: 0; }
+.folder-total { padding: 2px 7px; border-radius: 5px; background: #F0F4F8; color: #7D8CA0; font-size: 10px; }
+.folders-list { display: grid; gap: 4px; max-height: calc(100dvh - 270px); min-height: 0; overflow-y: auto; padding: 8px; }
+.folder-row { display: flex; align-items: center; min-width: 0; border: 1px solid transparent; border-radius: 7px; background: #fff; }
+.folder-row:hover { background: #F7F9FB; }
+.folder-row.selected { border-color: #CDEDFE; background: #F0F8FD; }
+.folder-select { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; min-height: 42px; padding: 9px 8px; border: 0; background: transparent; color: #52647A; text-align: left; cursor: pointer; }
+.folder-select > i { flex-shrink: 0; color: #7D8CA0; font-size: 14px; }
+.folder-select > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; font-weight: 550; }
+.folder-select small { margin-left: auto; color: #7D8CA0; font-size: 10px; }
+.selected .folder-select, .selected .folder-select > i { color: #155C88; }
+.folder-row > .icon-button { width: 28px; height: 30px; margin-right: 3px; }
+.folder-row > .icon-button i { font-size: 11px; }
+.folders-empty { display: grid; place-items: center; gap: 8px; padding: 26px 16px; text-align: center; color: #7D8CA0; font-size: 11px; }
+.folders-empty > i { font-size: 24px; margin-bottom: 5px; }
+.folders-empty strong { color: #52647A; font-size: 12px; }
+.folders-empty span { font-size: 10px; }
+.files-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px; border-bottom: 1px solid #EDF1F5; }
+.files-title { display: grid; gap: 6px; min-width: 0; }
+.breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 10px; color: #7D8CA0; }
+.breadcrumb > i { font-size: 10px; }
+.files-title h2 { margin: 0; color: #0B1F3A; font-size: 14px; font-weight: 650; line-height: 1.5; overflow-wrap: anywhere; }
+.file-count { color: #7D8CA0; font-size: 10px; white-space: nowrap; }
+.files-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid #EDF1F5; }
+.search-field { position: relative; flex: 1; min-width: 140px; max-width: 360px; }
+.search-field > i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #7D8CA0; font-size: 13px; pointer-events: none; }
+.search-field input { width: 100%; height: 40px; border: 1px solid #DCE4EA; border-radius: 8px; padding: 9px 12px 9px 34px; background: #FBFCFD; color: #344963; font: inherit; font-size: 12px; outline: none; }
+.search-field input:focus { border-color: #38BDF8; box-shadow: 0 0 0 3px #38BDF814; }
+.search-field input::placeholder { color: #8B98A7; }
+.search-field input:disabled { opacity: .5; }
+.file-format { display: flex; align-items: center; gap: 6px; margin-left: auto; color: #7D8CA0; font-size: 10px; }
+.file-format > i { color: #B8433A; font-size: 13px; }
+.text-action { display: inline-flex; align-items: center; gap: 6px; padding: 5px 0; border: 0; background: transparent; color: #155C88; font-size: 11px; text-decoration: none; cursor: pointer; }
+.text-action:hover { text-decoration: underline; }
+.text-action i { font-size: 12px; }
+.table-scroll { max-width: 100%; overflow-x: auto; }
+.mat-mdc-table { width: 100%; min-width: 550px; background: #fff; }
+.mat-mdc-header-row { height: 42px; }
+.mat-mdc-header-cell { padding: 12px 16px; background: #F7F9FB; border-bottom: 1px solid #E1E8EF; color: #6A8096; font-size: 10px; font-weight: 650; }
+.mat-mdc-row { height: 64px; }
+.mat-mdc-cell { padding: 12px 16px; border-bottom: 1px solid #EDF1F5; font-size: 12px; color: #52647A; }
+.mat-mdc-row:hover { background: #FBFCFD; }
+.document-name { display: flex; align-items: center; gap: 10px; min-width: 160px; }
+.pdf-icon { display: grid; place-items: center; width: 34px; height: 38px; flex-shrink: 0; border-radius: 7px; background: #FFF2F0; color: #B8433A; font-size: 16px; }
+.document-name > div { display: grid; gap: 4px; }
+.document-link { max-width: 320px; padding: 0; border: 0; background: transparent; color: #344963; font-size: 12px; font-weight: 650; line-height: 1.5; text-align: left; overflow-wrap: anywhere; cursor: pointer; }
+.document-link:hover { color: #155C88; text-decoration: underline; }
+.document-name > div > span { color: #7D8CA0; font-size: 10px; }
+.row-actions { display: flex; justify-content: flex-end; gap: 2px; }
+.actions-header { text-align: right; }
+.mat-column-acciones { width: 128px; }
+.mat-mdc-paginator { border-top: 1px solid #EDF1F5; background: #fff; color: #7D8CA0; font-size: 11px; }
+.status-message { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px 16px; background: #F0F8FD; color: #52647A; font-size: 11px; }
+.status-message.error { background: #FFF8F7; color: #A3322A; }
+.empty-state { padding: 36px 20px; text-align: center; }
+.empty-state i { display: block; margin-bottom: 12px; color: #7D8CA0; font-size: 24px; }
+.empty-state strong { display: block; color: #344963; font-size: 13px; }
+.empty-state span { display: block; margin-top: 5px; color: #7D8CA0; font-size: 11px; }
+@media (max-width: 1100px) { .documents-layout { grid-template-columns: 200px minmax(0,1fr); gap: 14px; } }
+@media (max-width: 900px) { .documents-layout { grid-template-columns: minmax(0,1fr); } .folders-list { display:flex; overflow-x:auto; padding:8px; max-height:none; } .folder-row { flex:0 0 auto; min-width:170px; max-width:240px; } }
+@media (max-width: 540px) { .files-heading, .files-toolbar { padding:14px; } .search-field { max-width:none; } .file-format { display:none; } }

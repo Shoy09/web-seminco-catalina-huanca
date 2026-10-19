@@ -30,6 +30,7 @@ export class SeleccionProcesoEstatosDialogComponent {
   
   abrirDialogo(proceso: string) {
     const dialogRef = this.dialog.open(OpcionesDialogComponent, {
+      width: '560px',
       data: { proceso } // 🟢 Pasamos el proceso seleccionado
     });
   

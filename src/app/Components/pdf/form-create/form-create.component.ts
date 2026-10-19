@@ -1,3 +1,5 @@
+import { inject as injectNotificacionesUi } from '@angular/core';
+import { NotificacionesUiService } from 'app/services/notificaciones-ui.service';
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -23,10 +25,13 @@ export interface FormCreateDialogData {
   styleUrl: './form-create.component.css'
 })
 export class FormCreateComponent implements OnInit {
+  private readonly notificacionesUi = injectNotificacionesUi(NotificacionesUiService);
+
   form!: FormGroup;
   pdfFile: File | null = null;
   loading = false;
   modoEdicion = false;
+  errorMensaje = '';
 
   constructor(
     private fb: FormBuilder,
@@ -47,18 +52,20 @@ export class FormCreateComponent implements OnInit {
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
+    if (!file) return;
     if (file && file.type === 'application/pdf') {
       this.pdfFile = file;
       this.form.patchValue({ archivo: file });
       this.form.get('archivo')?.setErrors(null);
     } else {
-      alert('Por favor selecciona un archivo PDF válido.');
+      this.notificacionesUi.warning('Por favor selecciona un archivo PDF válido.');
       this.form.get('archivo')?.setErrors({ invalidType: true });
       this.pdfFile = null;
     }
   }
 
   onSubmit(): void {
+    if (this.loading) return;
     if (this.form.invalid) {
       Object.values(this.form.controls).forEach(c => c.markAsTouched());
       return;
@@ -72,6 +79,7 @@ export class FormCreateComponent implements OnInit {
     }
 
     this.loading = true;
+    this.errorMensaje = '';
 
     if (this.modoEdicion && this.data.pdf) {
       this.pdfService.updatePdf(this.data.pdf.id, formData).subscribe({
@@ -82,6 +90,7 @@ export class FormCreateComponent implements OnInit {
         error: (err) => {
           console.error('Error al actualizar PDF:', err);
           this.loading = false;
+          this.errorMensaje = 'No se pudieron guardar los cambios. Inténtalo nuevamente.';
         }
       });
     } else {
@@ -93,9 +102,16 @@ export class FormCreateComponent implements OnInit {
         error: (err) => {
           console.error('Error al crear PDF:', err);
           this.loading = false;
+          this.errorMensaje = 'No se pudo subir el documento. Inténtalo nuevamente.';
         }
       });
     }
+  }
+
+  quitarArchivo(input: HTMLInputElement): void {
+    this.pdfFile = null;
+    this.form.get('archivo')?.reset(null);
+    input.value = '';
   }
 
   cancelar(): void {

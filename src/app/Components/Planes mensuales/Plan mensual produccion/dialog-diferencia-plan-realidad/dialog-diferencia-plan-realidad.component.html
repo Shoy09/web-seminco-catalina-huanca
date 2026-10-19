@@ -1,8 +1,4 @@
-<h2 mat-dialog-title class="dialog-title">
-  📦 Diferencia entre Plan y Realidad
-</h2>
-
-<mat-dialog-content class="dialog-content">
+<div class="plan-dialog"><div class="dialog-heading"><span class="heading-icon"><i class="pi pi-arrow-right-arrow-left" aria-hidden="true"></i></span><div><h2 mat-dialog-title>Plan frente a real</h2><p>Comparativo del plan de producción.</p></div><button type="button" class="icon-button" (click)="cerrar()" aria-label="Cerrar diálogo"><i class="pi pi-times" aria-hidden="true"></i></button></div><mat-dialog-content class="dialog-body">
   <div class="info-section">
 <p><strong>Labor:</strong> {{ laborCompleta }}</p>
     <p><strong>Toneladas planificadas:</strong> {{ toneladas_plan || 0 }}</p>
@@ -25,8 +21,4 @@
       {{ ((sumaToneladas / (toneladas_plan || 1)) * 100) | number:'1.0-2' }}% completado
     </p>
   </div>
-</mat-dialog-content>
-
-<mat-dialog-actions align="end" class="dialog-actions">
-  <button mat-stroked-button color="primary" (click)="cerrar()">Cerrar</button>
-</mat-dialog-actions>
+</mat-dialog-content><div class="dialog-actions"><button type="button" class="ui-button primary" (click)="cerrar()">Cerrar</button></div></div>

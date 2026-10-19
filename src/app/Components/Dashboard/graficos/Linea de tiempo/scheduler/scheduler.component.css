@@ -1,340 +1,46 @@
-/* ═══════════════════════════════════════════════════════════════
-   SCHEDULER — Layout de tabla con columnas sticky reales
-   ═══════════════════════════════════════════════════════════════ */
-
-:host {
-  --col-fecha:     150px;
-  --col-equipo:    190px;
-  --row-height:    44px;
-  --header-height: 38px;
-  --bg-header:     #F7F9F8;
-  --bg-fecha:      #FEFCE8;
-  --bg-equipo:     #FAFAFA;
-  --border:        #E2E8F0;
-  --border-strong: #CBD5E1;
-}
-
-/* ── Tooltip flotante global (position: fixed) ───────────────── */
-.tooltip-fixed {
-  position: fixed;
-  z-index: 99999;
-  pointer-events: none;
-  background: #1E293B;
-  color: #F1F5F9;
-  border-radius: 10px;
-  font-size: 11px;
-  min-width: 180px;
-  max-width: 240px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
-  overflow: hidden;
-  font-family: 'Inter', 'Roboto', sans-serif;
-}
-
-/* ── Contenedor con scroll horizontal ────────────────────────── */
-.scheduler-outer {
-  width: 100%;
-  overflow: auto;
-  border: 1px solid var(--border-strong);
-  border-radius: 0.75rem;
-  background: #fff;
-  box-sizing: border-box;
-  /* sin padding-bottom — el tooltip ya no lo necesita */
-}
-
-/* ── Tabla principal ──────────────────────────────────────────── */
-.scheduler-table {
-  border-collapse: separate;
-  border-spacing: 0;
-  table-layout: fixed;
-  min-width: 1400px;
-  width: 100%;
-  font-family: 'Inter', 'Roboto', sans-serif;
-  font-size: 12px;
-}
-
-/* ── Columnas (anchos) ────────────────────────────────────────── */
-.col-fecha    { width: var(--col-fecha); }
-.col-equipo   { width: var(--col-equipo); }
-.col-timeline { width: auto; }
-
-/* ══════════════════════════════════════════════════════════════
-   HEADER
-══════════════════════════════════════════════════════════════ */
-.header-row th {
-  position: sticky;
-  top: 0;
-  z-index: 30;
-  background: var(--bg-header);
-  border-bottom: 2px solid var(--border-strong);
-  height: var(--header-height);
-  white-space: nowrap;
-}
-
-/* Celda Fecha header */
-.th-fecha {
-  left: 0;
-  z-index: 32 !important;   /* encima del equipo sticky */
-  padding: 0 14px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #344963;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-right: 1px solid var(--border-strong);
-  text-align: left;
-}
-
-/* Celda Equipo header */
-.th-equipo {
-  left: var(--col-fecha);
-  z-index: 31 !important;
-  padding: 0 14px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #344963;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-right: 2px solid var(--border-strong);
-  text-align: left;
-}
-
-/* Celda Timeline header */
-.th-timeline {
-  padding: 0;
-  vertical-align: middle;
-}
-
-/* Barra de horas */
-.hours-bar {
-  position: relative;
-  height: var(--header-height);
-  overflow: hidden;
-}
-
-.hour-cell {
-  position: absolute;
-  top: 0;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  padding-left: 6px;
-  border-left: 1px solid var(--border);
-  font-size: 10px;
-  font-weight: 600;
-  color: #94A3B8;
-  white-space: nowrap;
-}
-
-/* ══════════════════════════════════════════════════════════════
-   BODY — Celdas de fecha
-══════════════════════════════════════════════════════════════ */
-.divider-row td {
-  padding: 0;
-}
-.fecha-divider {
-  height: 2px;
-  background: linear-gradient(to right, rgba(11,31,58,0.1), rgba(56,189,248,0.15));
-}
-
-/* Fila de equipo */
-.equipo-row {
-  transition: background 0.1s;
-}
-.equipo-row:hover td {
-  background-color: #F0F9FF !important;
-}
-
-/* Celda Fecha (body) — sticky horizontal */
-.td-fecha {
-  position: sticky;
-  left: 0;
-  z-index: 10;
-  background: var(--bg-fecha);
-  border-right: 1px solid var(--border-strong);
-  border-bottom: 1px solid var(--border);
-  padding: 10px 14px;
-  vertical-align: middle;
-  min-width: var(--col-fecha);
-  width: var(--col-fecha);
-  /* sombra derecha para indicar que está fija */
-  box-shadow: 2px 0 4px rgba(0,0,0,0.04);
-}
-
-.fecha-label {
-  display: block;
-  font-weight: 700;
-  font-size: 12px;
-  color: #0B1F3A;
-  margin-bottom: 4px;
-}
-
-.turno-badge {
-  display: inline-block;
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 999px;
-  line-height: 1.5;
-}
-.turno-dia {
-  background: #FEF9C3;
-  color: #A16207;
-}
-.turno-noche {
-  background: #EDE9FE;
-  color: #4C1D95;
-}
-
-/* Celda Equipo (body) — sticky horizontal */
-.td-equipo {
-  position: sticky;
-  left: var(--col-fecha);
-  z-index: 9;
-  background: var(--bg-equipo);
-  border-right: 2px solid var(--border-strong);
-  border-bottom: 1px solid var(--border);
-  padding: 0 14px;
-  vertical-align: middle;
-  width: var(--col-equipo);
-  min-width: var(--col-equipo);
-  box-shadow: 2px 0 6px rgba(0,0,0,0.06);
-}
-
-.equipo-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: #333333;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: block;
-  max-width: 100%;
-}
-
-/* Celda Timeline (body) */
-.td-timeline {
-  border-bottom: 1px solid var(--border);
-  padding: 0;
-  vertical-align: middle;
-  /* overflow visible para que los tooltips salgan del td */
-  overflow: visible;
-}
-
-/* ══════════════════════════════════════════════════════════════
-   TIMELINE ROW — contenedor relativo para tareas absolutas
-══════════════════════════════════════════════════════════════ */
-.timeline-row {
-  position: relative;
-  height: var(--row-height);
-  overflow: visible;
-}
-
-.hour-cell:last-child {
-  transform: translateX(-100%);
-  padding: 0 6px 0 0;
-  border-left: none;
-  border-right: 1px solid var(--border);
-}
-
-/* Grid visual de horas */
-.timeline-grid {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.grid-line {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  border-left: 1px solid #F1F5F9;
-}
-.grid-line:first-child { border-left: none; }
-.grid-line:last-child  { transform: translateX(-1px); }
-
-/* ══════════════════════════════════════════════════════════════
-   BLOQUES DE TAREA
-══════════════════════════════════════════════════════════════ */
-.task {
-  position: absolute;
-  top: 6px;
-  height: 32px;
-  border-radius: 6px;
-  color: #fff;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 0 8px;
-  line-height: 32px;
-  white-space: nowrap;
-  cursor: pointer;
-  z-index: 5;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.18);
-  transition: filter 0.15s, transform 0.15s;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.task:hover {
-  filter: brightness(1.1);
-  transform: scaleY(1.08);
-  z-index: 9999;
-}
-
-.task-label {
-  letter-spacing: 0.03em;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-  pointer-events: none;
-}
-
-/* ══════════════════════════════════════════════════════════════
-   TOOLTIP CONTENIDO (usado por .tooltip-fixed)
-══════════════════════════════════════════════════════════════ */
-.tooltip-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  background: rgba(255,255,255,0.04);
-}
-
-.tooltip-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.tooltip-title {
-  font-weight: 700;
-  font-size: 12px;
-  color: #fff;
-  line-height: 1.3;
-}
-
-.tooltip-body {
-  padding: 8px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.tooltip-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.tooltip-key {
-  font-size: 10px;
-  color: #94A3B8;
-  white-space: nowrap;
-}
-
-.tooltip-val {
-  font-size: 10px;
-  font-weight: 600;
-  color: #E2E8F0;
-  text-align: right;
-}
+﻿:host { --col-fecha:124px; --col-equipo:96px; --row-height:44px; --header-height:40px; display:block; min-width:0; color:#0B1F3A; }
+* { box-sizing:border-box; }
+.scheduler-outer { width:100%; overflow:auto; background:white; scrollbar-width:thin; scrollbar-color:#BCCAD7 #F7F9FB; }
+.scheduler-outer:focus-visible { outline:2px solid #38BDF8; outline-offset:-2px; }
+.scheduler-table { width:100%; table-layout:fixed; border-collapse:separate; border-spacing:0; font-size:11px; }
+.col-fecha { width:var(--col-fecha); }
+.col-equipo { width:var(--col-equipo); }
+.col-timeline { width:auto; }
+.header-row th { position:sticky; top:0; z-index:3; height:var(--header-height); background:#F7F9FB; border-bottom:1px solid #DCE4EA; white-space:nowrap; }
+.th-fecha,.th-equipo { padding:0 12px; text-align:left; color:#6A8096; font-size:10px; font-weight:650; border-right:1px solid #DCE4EA; }
+.th-fecha { left:0; z-index:5 !important; }
+.th-equipo { left:var(--col-fecha); z-index:4 !important; }
+.th-timeline { padding:0; }
+.hours-bar { position:relative; height:var(--header-height); overflow:hidden; }
+.hour-cell { position:absolute; top:0; height:100%; display:flex; align-items:center; padding-left:5px; border-left:1px solid #E8EDF2; color:#7D8CA0; font-size:10px; font-weight:500; white-space:nowrap; }
+.hour-cell:last-child { transform:translateX(-100%); padding:0 5px 0 0; border-left:none; }
+.divider-row td { padding:0; }
+.fecha-divider { height:4px; background:#EDF1F5; }
+.td-fecha { position:sticky; left:0; z-index:2; width:var(--col-fecha); background:#FBFCFD; border-right:1px solid #E1E8EF; border-bottom:1px solid #EDF1F5; padding:10px 12px; vertical-align:top; }
+.fecha-label { display:block; margin-bottom:5px; font-size:11px; font-weight:650; color:#344963; white-space:nowrap; }
+.turno-badge { display:inline-block; padding:2px 7px; border-radius:5px; font-size:9px; font-weight:600; color:#52647A; background:#F0F4F8; }
+.turno-dia { background:#E0F2FE; color:#155C88; }
+.turno-noche { background:#EDF1F5; color:#52647A; }
+.td-equipo { position:sticky; left:var(--col-fecha); z-index:1; width:var(--col-equipo); padding:0 12px; background:white; border-right:1px solid #DCE4EA; border-bottom:1px solid #EDF1F5; box-shadow:3px 0 5px #0B1F3A06; vertical-align:middle; }
+.equipo-label { display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:11px; font-weight:650; color:#0B1F3A; }
+.td-timeline { border-bottom:1px solid #EDF1F5; padding:0; vertical-align:middle; }
+.equipo-row:hover .td-timeline,.equipo-row:hover .td-equipo { background:#FBFCFD; }
+.timeline-row { position:relative; height:var(--row-height); overflow:hidden; }
+.timeline-grid { position:absolute; inset:0; pointer-events:none; }
+.grid-line { position:absolute; top:0; bottom:0; border-left:1px solid #EDF1F5; }
+.grid-line:first-child { border-left:none; }
+.grid-line:last-child { transform:translateX(-1px); }
+.task { position:absolute; top:8px; height:28px; padding:0 5px; border:0; border-radius:4px; color:white; font:inherit; font-size:9px; font-weight:650; line-height:28px; cursor:pointer; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; transition:filter .15s; }
+.task:hover { filter:brightness(.92); }
+.task:focus-visible { outline:2px solid #0B1F3A; outline-offset:2px; }
+.task-label { pointer-events:none; }
+.tooltip-fixed { position:fixed; z-index:35; pointer-events:none; width:240px; max-width:calc(100vw - 24px); background:white; color:#344963; border:1px solid #DCE4EA; border-radius:10px; box-shadow:0 8px 28px #0B1F3A24; overflow:hidden; }
+.tooltip-header { display:flex; align-items:center; gap:8px; padding:11px 12px; background:#F7F9FB; border-bottom:1px solid #EDF1F5; }
+.tooltip-dot { width:8px; height:8px; border-radius:3px; flex-shrink:0; }
+.tooltip-title { color:#0B1F3A; font-size:11px; font-weight:700; overflow-wrap:anywhere; }
+.tooltip-body { display:grid; gap:7px; padding:11px 12px; }
+.tooltip-row { display:flex; justify-content:space-between; gap:12px; }
+.tooltip-key { color:#7D8CA0; font-size:10px; white-space:nowrap; }
+.tooltip-val { font-size:10px; font-weight:600; text-align:right; overflow-wrap:anywhere; }
+@media(max-width:700px) { :host { --col-fecha:104px; --col-equipo:70px; } .th-fecha,.th-equipo,.td-fecha,.td-equipo { padding-left:9px; padding-right:9px; } .fecha-label { font-size:10px; } .equipo-label { font-size:10px; } }
+@media(prefers-reduced-motion:reduce) { .task { transition:none; } }

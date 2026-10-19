@@ -1,3 +1,4 @@
+import { MatDialogTitle } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, inject, Inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -22,7 +23,7 @@ export interface CheckListFormData {
 
 @Component({
   selector: 'app-check-list-from',
-  imports: [ReactiveFormsModule, CommonModule, MatAutocompleteModule],
+  imports: [MatDialogTitle,ReactiveFormsModule, CommonModule, MatAutocompleteModule],
   templateUrl: './check-list-from.component.html',
   styleUrl: './check-list-from.component.css',
 })

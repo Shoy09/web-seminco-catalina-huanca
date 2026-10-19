@@ -2,12 +2,12 @@ import { Component, Inject } from '@angular/core';
 import { PlanProduccion } from '../../../../models/plan_produccion.model';
 import { PlanProduccionService } from '../../../../services/plan-produccion.service';
 import { ToastrService } from 'ngx-toastr';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-edit-plan-produccion',
-  imports: [FormsModule],
+  imports: [FormsModule, MatDialogModule],
   templateUrl: './edit-plan-produccion.component.html',
   styleUrl: './edit-plan-produccion.component.css'
 })

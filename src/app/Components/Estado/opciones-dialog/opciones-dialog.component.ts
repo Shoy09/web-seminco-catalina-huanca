@@ -27,7 +27,7 @@ export class OpcionesDialogComponent {
     if (opcion === 'estado') {
       this.dialogRef.close();
       this.dialog.open(EstadoFormComponent, {
-        width: '400px',
+        width: '640px',
         data: { proceso: this.data.proceso }
       });
     } else if (opcion === 'excel') {

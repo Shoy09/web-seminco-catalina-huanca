@@ -1,3 +1,5 @@
+import { calcularDiferenciaHorometro } from '../../compacto/horometros-utils';
+import { A11yModule } from '@angular/cdk/a11y';
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -11,11 +13,15 @@ interface AccionItem {
 @Component({
   selector: 'app-menuAcciones',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, A11yModule],
   templateUrl: './menuAcciones.component.html',
   styleUrls: ['./menuAcciones.component.css']
 })
 export class MenuAccionesComponent implements OnInit, OnChanges {
+  readonly diferenciaHorometro = calcularDiferenciaHorometro;
+
+  readonly iconosAcciones: Record<string, string> = { horometro: 'pi-gauge', condiciones: 'pi-wrench', checklist: 'pi-list-check', presion: 'pi-truck', programaTrabajo: 'pi-calendar', actualizar: 'pi-check-circle' };
+
 
   // 🔥 Inputs desde el padre
   @Input() horometrosData: any;
@@ -43,11 +49,11 @@ public programaTrabajoLocal: any;
 
   // 🔥 Acciones del menú
   public acciones: AccionItem[] = [
-    { id: 'horometro', texto: 'Horómetro', icono: 'fa-gauge' },
-    { id: 'condiciones', texto: 'Condiciones de equipo', icono: 'fa-screwdriver-wrench' },
-    { id: 'checklist', texto: 'CheckList', icono: 'fa-list-check' },
-    { id: 'presion', texto: 'Presión de llantas', icono: 'fa-truck-field' },
-    { id: 'programaTrabajo', texto: 'Programa Trabajo', icono: 'fa-calendar-check' },
+    { id: 'horometro', texto: 'Horómetros', icono: 'fa-gauge' },
+    { id: 'condiciones', texto: 'Condiciones', icono: 'fa-screwdriver-wrench' },
+    { id: 'checklist', texto: 'Checklist', icono: 'fa-list-check' },
+    { id: 'presion', texto: 'Llantas', icono: 'fa-truck-field' },
+    { id: 'programaTrabajo', texto: 'Programa de trabajo', icono: 'fa-calendar-check' },
     { id: 'actualizar', texto: 'Actualizar registro', icono: 'fa-arrows-rotate' },
   ];
   public accionSeleccionada: string = '';
@@ -117,7 +123,7 @@ public programaTrabajoLocal: any;
     });
 
     this.filasHorometro = [
-      { nombre: 'horometro', ...map(data?.horometro) },
+      { nombre: 'Horómetro', ...map(data?.horometro) },
     ];
   }
 
@@ -156,6 +162,7 @@ public programaTrabajoLocal: any;
     
     switch(id) {
       case 'horometro':
+        this.inicializarHorometros(this.horometrosData);
         this.mostrarModalHorometro = true;
         break;
       case 'condiciones':

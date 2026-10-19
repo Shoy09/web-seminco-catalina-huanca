@@ -1,159 +1,27 @@
-<h2 mat-dialog-title>Ingresar Plan de Metraje</h2>
-
-<div mat-dialog-content class="dialog-content">
-    <form [formGroup]="planForm">
-        <!-- Campos Fijos -->
-        <mat-form-field appearance="outline">
-            <mat-label>Año</mat-label>
-            <input matInput type="number" formControlName="anio">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Mes</mat-label>
-            <input matInput type="text" formControlName="mes">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Semana</mat-label>
-            <input matInput type="text" formControlName="semana">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Mina</mat-label>
-            <input matInput type="text" formControlName="mina">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Zona</mat-label>
-            <input matInput type="text" formControlName="zona">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Área</mat-label>
-            <input matInput type="text" formControlName="area">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Fase</mat-label>
-            <input matInput type="text" formControlName="fase">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Tipo de Minado</mat-label>
-            <input matInput type="text" formControlName="minado_tipo">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Tipo de Labor</mat-label>
-            <input matInput type="text" formControlName="tipo_labor">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Tipo de Mineral</mat-label>
-            <input matInput type="text" formControlName="tipo_mineral">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Estructura/Veta</mat-label>
-            <input matInput type="text" formControlName="estructura_veta">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Nivel</mat-label>
-            <input matInput type="text" formControlName="nivel">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Block</mat-label>
-            <input matInput type="text" formControlName="block">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Labor</mat-label>
-            <input matInput type="text" formControlName="labor">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Ala</mat-label>
-            <input matInput type="text" formControlName="ala">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Ancho Veta</mat-label>
-            <input matInput type="number" formControlName="ancho_veta">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Ancho Minado (Semana)</mat-label>
-            <input matInput type="number" formControlName="ancho_minado_sem">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Ancho Minado (Mes)</mat-label>
-            <input matInput type="number" formControlName="ancho_minado_mes">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Ag (g/t)</mat-label>
-            <input matInput type="number" formControlName="ag_gr">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>% Cu</mat-label>
-            <input matInput type="number" formControlName="porcentaje_cu">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>% Pb</mat-label>
-            <input matInput type="number" formControlName="porcentaje_pb">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>% Zn</mat-label>
-            <input matInput type="number" formControlName="porcentaje_zn">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>VPT Actual</mat-label>
-            <input matInput type="number" formControlName="vpt_act">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>VPT Final</mat-label>
-            <input matInput type="number" formControlName="vpt_final">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Cut-Off 1</mat-label>
-            <input matInput type="number" formControlName="cut_off_1">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Cut-Off 2</mat-label>
-            <input matInput type="number" formControlName="cut_off_2">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Programado</mat-label>
-            <mat-select formControlName="programado">
-                <mat-option value="Programado">Programado</mat-option>
-                <mat-option value="No Programado">No Programado</mat-option>
-            </mat-select>
-        </mat-form-field>
-
-        <!-- Campos Dinámicos -->
-        <div class="campos-dinamicos-container">
-            <div *ngFor="let campo of camposDinamicos" class="campo-item">
-                <mat-form-field appearance="outline">
-                    <mat-label>{{ campo }}</mat-label>
-                    <input matInput type="number" [formControlName]="campo">
-                </mat-form-field>
-            </div>
-        </div>
-    </form>
-</div>
-
-<div mat-dialog-actions class="button-group">
-    <button mat-button color="warn" (click)="cancelar()">Cancelar</button>
-    <button mat-button color="primary" (click)="guardar()" [disabled]="!planForm.valid">Guardar</button>
-</div>
+<div class="plan-dialog"><div class="dialog-heading"><span class="heading-icon"><i class="pi pi-box" aria-hidden="true"></i></span><div><h2 mat-dialog-title>Nuevo plan de producción</h2><p>Completa la información del plan mensual.</p></div><button type="button" class="icon-button" (click)="cancelar()" aria-label="Cerrar diálogo"><i class="pi pi-times" aria-hidden="true"></i></button></div><mat-dialog-content class="dialog-body"><form [formGroup]="planForm"><div class="form-grid plan-fields"><div class="field"><label for="plan-produccion-anio">Año</label><input id="plan-produccion-anio" type="number" step="any" formControlName="anio"  /></div>
+<div class="field"><label for="plan-produccion-mes">Mes</label><input id="plan-produccion-mes" type="text"  formControlName="mes"  /></div>
+<div class="form-divider">Datos del plan</div><div class="field"><label for="plan-produccion-semana">Semana</label><input id="plan-produccion-semana" type="text"  formControlName="semana"  /></div>
+<div class="field"><label for="plan-produccion-mina">Mina</label><input id="plan-produccion-mina" type="text"  formControlName="mina"  /></div>
+<div class="field"><label for="plan-produccion-zona">Zona</label><input id="plan-produccion-zona" type="text"  formControlName="zona"  /></div>
+<div class="field"><label for="plan-produccion-area">Área</label><input id="plan-produccion-area" type="text"  formControlName="area"  /></div>
+<div class="field"><label for="plan-produccion-fase">Fase</label><input id="plan-produccion-fase" type="text"  formControlName="fase"  /></div>
+<div class="field"><label for="plan-produccion-minado_tipo">Tipo de Minado</label><input id="plan-produccion-minado_tipo" type="text"  formControlName="minado_tipo"  /></div>
+<div class="field"><label for="plan-produccion-tipo_labor">Tipo de Labor</label><input id="plan-produccion-tipo_labor" type="text"  formControlName="tipo_labor"  /></div>
+<div class="field"><label for="plan-produccion-tipo_mineral">Tipo de Mineral</label><input id="plan-produccion-tipo_mineral" type="text"  formControlName="tipo_mineral"  /></div>
+<div class="field"><label for="plan-produccion-estructura_veta">Estructura/Veta</label><input id="plan-produccion-estructura_veta" type="text"  formControlName="estructura_veta"  /></div>
+<div class="field"><label for="plan-produccion-nivel">Nivel</label><input id="plan-produccion-nivel" type="text"  formControlName="nivel"  /></div>
+<div class="field"><label for="plan-produccion-block">Block</label><input id="plan-produccion-block" type="text"  formControlName="block"  /></div>
+<div class="field"><label for="plan-produccion-labor">Labor</label><input id="plan-produccion-labor" type="text"  formControlName="labor"  /></div>
+<div class="field"><label for="plan-produccion-ala">Ala</label><input id="plan-produccion-ala" type="text"  formControlName="ala"  /></div>
+<div class="field"><label for="plan-produccion-ancho_veta">Ancho Veta</label><input id="plan-produccion-ancho_veta" type="number" step="any" formControlName="ancho_veta"  /></div>
+<div class="field"><label for="plan-produccion-ancho_minado_sem">Ancho Minado (Semana)</label><input id="plan-produccion-ancho_minado_sem" type="number" step="any" formControlName="ancho_minado_sem"  /></div>
+<div class="field"><label for="plan-produccion-ancho_minado_mes">Ancho Minado (Mes)</label><input id="plan-produccion-ancho_minado_mes" type="number" step="any" formControlName="ancho_minado_mes"  /></div>
+<div class="field"><label for="plan-produccion-ag_gr">Ag (g/t)</label><input id="plan-produccion-ag_gr" type="number" step="any" formControlName="ag_gr"  /></div>
+<div class="field"><label for="plan-produccion-porcentaje_cu">% Cu</label><input id="plan-produccion-porcentaje_cu" type="number" step="any" formControlName="porcentaje_cu"  /></div>
+<div class="field"><label for="plan-produccion-porcentaje_pb">% Pb</label><input id="plan-produccion-porcentaje_pb" type="number" step="any" formControlName="porcentaje_pb"  /></div>
+<div class="field"><label for="plan-produccion-porcentaje_zn">% Zn</label><input id="plan-produccion-porcentaje_zn" type="number" step="any" formControlName="porcentaje_zn"  /></div>
+<div class="field"><label for="plan-produccion-vpt_act">VPT Actual</label><input id="plan-produccion-vpt_act" type="number" step="any" formControlName="vpt_act"  /></div>
+<div class="field"><label for="plan-produccion-vpt_final">VPT Final</label><input id="plan-produccion-vpt_final" type="number" step="any" formControlName="vpt_final"  /></div>
+<div class="field"><label for="plan-produccion-cut_off_1">Cut-Off 1</label><input id="plan-produccion-cut_off_1" type="number" step="any" formControlName="cut_off_1"  /></div>
+<div class="field"><label for="plan-produccion-cut_off_2">Cut-Off 2</label><input id="plan-produccion-cut_off_2" type="number" step="any" formControlName="cut_off_2"  /></div>
+<div class="field"><label for="plan-produccion-programado">Programado</label><select id="plan-produccion-programado" formControlName="programado"><option value="Programado">Programado</option><option value="No Programado">No Programado</option></select></div></div><details class="dynamic-section"><summary><span><i class="pi pi-table" aria-hidden="true"></i>Distribución A / B</span><span class="muted">{{ camposDinamicos.length }} campos</span></summary><div class="dynamic-grid"><div class="field" *ngFor="let campo of camposDinamicos"><label [for]="'dynamic-' + campo">{{ campo }}</label><input [id]="'dynamic-' + campo" type="number" step="any" [formControlName]="campo" /></div></div></details></form></mat-dialog-content><div class="dialog-actions"><button type="button" class="ui-button" (click)="cancelar()">Cancelar</button><button type="button" class="ui-button primary" (click)="guardar()" [disabled]="!planForm.valid"><i class="pi pi-check" aria-hidden="true"></i>Guardar plan</button></div></div>

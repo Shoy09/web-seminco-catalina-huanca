@@ -1,3 +1,6 @@
+import { CommonModule } from '@angular/common';
+import { inject as injectNotificacionesUi } from '@angular/core';
+import { NotificacionesUiService } from 'app/services/notificaciones-ui.service';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -27,7 +30,7 @@ import { DialogDiferenciaPlanRealidadComponent } from '../dialog-diferencia-plan
 
 @Component({
   selector: 'app-plan-metraje-list',
-  imports: [
+  imports: [CommonModule,
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
@@ -41,6 +44,8 @@ import { DialogDiferenciaPlanRealidadComponent } from '../dialog-diferencia-plan
   styleUrls: ['./plan-metraje-list.component.css']
 })
 export class PlanMetrajeListComponent implements OnInit {
+  private readonly notificacionesUi = injectNotificacionesUi(NotificacionesUiService);
+
   displayedColumns: string[] = [
     'mes', 'semana', 'mina', 'zona',
     'tipo_mineral', 'labor', 'acciones'
@@ -66,7 +71,7 @@ export class PlanMetrajeListComponent implements OnInit {
 
   abrirDialogoCrear(): void {
     const dialogRef = this.dialog.open(CreatePlanMetrajeComponent, {
-      width: '500px',
+      width: '820px',
       data: { 
         anio: this.anio, 
         mes: this.mes 
@@ -121,9 +126,15 @@ export class PlanMetrajeListComponent implements OnInit {
   }
   
 
+  limpiarFiltro(): void {
+    this.dataSource.filter = '';
+    this.dataSource.paginator?.firstPage();
+  }
+
   aplicarFiltro(event: Event): void {
     const filtroValor = (event.target as HTMLInputElement).value.trim().toLowerCase();
     this.dataSource.filter = filtroValor;
+    this.dataSource.paginator?.firstPage();
   }
 
   seleccionarArchivo(): void {
@@ -300,7 +311,7 @@ async enviarDatosAlServidor(planes: PlanMetraje[]): Promise<void> {
 editarPlan(plan: PlanMetraje): void {
 
   const dialogRef = this.dialog.open(EditPlanMetrajeComponent, {
-    width: '450px',
+    width: '820px',
     data: { ...plan } // Clonamos el objeto para evitar modificaciones antes de confirmar la API
   });
 
@@ -313,8 +324,8 @@ editarPlan(plan: PlanMetraje): void {
   });
 }
 
-  eliminarPlan(plan: any): void {
-    if (confirm(`¿Está seguro de eliminar el plan del mes ${plan.mes}?`)) {
+  async eliminarPlan(plan: any): Promise<void> {
+    if (await this.notificacionesUi.confirmar(`¿Está seguro de eliminar el plan del mes ${plan.mes}?`)) {
       
       // Llamar al servicio para eliminar el plan
     }
@@ -322,7 +333,7 @@ editarPlan(plan: PlanMetraje): void {
 
   verPlan(plan: any): void {
     this.dialog.open(PlanMetrajeDetallesDialogComponent, {
-      width: '450px', // Ajusta el tamaño según necesites
+      width: '820px', // Ajusta el tamaño según necesites
       data: plan
     });
   }

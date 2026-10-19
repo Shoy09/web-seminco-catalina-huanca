@@ -1,0 +1,17 @@
+:host { display: block; min-width: 0; }
+.approval-page { display: grid; gap: 10px; padding: 0 0 8px; color: #344963; }
+.review-panel { min-width: 0; border: 1px solid #DFE6ED; border-radius: 9px; background: #fff; overflow: hidden; }
+.panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 14px; border-bottom: 1px solid #EDF1F5; }
+h2 { margin: 0; color: #344963; font-size: 11px; font-weight: 650; }
+.count-badge { margin-left: 5px; padding: 2px 6px; background: #EDF5FA; color: #1D73A8; border-radius: 4px; font-size: 9px; }
+.table-hint { color: #94A3B8; font-size: 10px; }
+.actions-dock { position: sticky; bottom: 0; z-index: 20; }
+.loading-panel, .error-panel { display: flex; align-items: center; gap: 12px; padding: 18px; border: 1px solid #DFE6ED; border-radius: 9px; background: #fff; font-size: 12px; }
+.error-panel p { margin: 0; }
+.error-panel > i { color: #BD3636; }
+.error-panel button { margin-left: auto; padding: 7px 10px; background: #0B1F3A; color: #fff; border: 0; border-radius: 6px; cursor: pointer; font-size: 11px; }
+.loading-ring { width: 20px; height: 20px; border: 2px solid #E1E8EF; border-top-color: #38BDF8; border-radius: 50%; animation: loading 1s linear infinite; }
+button:focus-visible { outline: 2px solid #38BDF8; outline-offset: 3px; }
+@keyframes loading { to { transform: rotate(360deg); } }
+@media (max-width: 600px) { .table-hint { display: none; } }
+@media (prefers-reduced-motion: reduce) { .loading-ring { animation: none; } }

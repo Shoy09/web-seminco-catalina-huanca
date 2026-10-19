@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Equipo } from 'app/models/equipo.model';
 import { OperacionBaseJumbo } from 'app/models/OperacionBase.models';
 import * as XLSX from 'xlsx';
+import { normalizarLaborExcel } from '../../utils/normalizar-labor-excel';
 
 @Injectable({
   providedIn: 'root'
@@ -99,7 +100,7 @@ export class ExcelHorizontalExportService {
             'HOROMETRO M INICIAL': horometros.motor?.inicio ?? '',
             'HOROMETRO M FINAL': horometros.motor?.final ?? '',
             //'HORAS MOTOR': horometros.motor?.diferencia ?? '',
-            'LABOR': perforacionData.labor || '',
+            'LABOR': normalizarLaborExcel(perforacionData.labor),
             'Nº DE TALADRO': perforacionData.tal_prod || '',
             'Nº TAL. RIMADO': perforacionData.tal_rimados || '',
             'LONGITUD (PIES)': perforacionData.longitud || '',

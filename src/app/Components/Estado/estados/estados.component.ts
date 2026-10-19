@@ -68,9 +68,15 @@ export class EstadosComponent implements OnInit {
   }
   
 
+  limpiarFiltro(): void {
+    this.dataSource.filter = '';
+    this.dataSource.paginator?.firstPage();
+  }
+
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
     this.dataSource.filter = filterValue;
+    this.dataSource.paginator?.firstPage();
   }
 
   
@@ -90,7 +96,7 @@ export class EstadosComponent implements OnInit {
   
   eliminarEstado(id: number): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '350px',
+      width: '440px',
       data: { mensaje: '¿Estás seguro de que deseas eliminar este estado?' }
     });
 
@@ -110,7 +116,7 @@ export class EstadosComponent implements OnInit {
 
   abrirSeleccionProcesoDialogo() {
     const dialogRef = this.dialog.open(SeleccionProcesoEstatosDialogComponent, {
-      width: '400px'
+      width: '560px'
     });
   
     dialogRef.afterClosed().subscribe((procesoSeleccionado) => {

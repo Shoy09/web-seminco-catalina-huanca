@@ -1,3 +1,4 @@
+import { MatDialogTitle } from '@angular/material/dialog';
 
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -6,7 +7,7 @@ import { CheckListFromComponent } from '../check-list-from/check-list-from.compo
 @Component({
   selector: 'app-opciones-dialog',
   standalone: true,
-  imports: [],
+  imports: [MatDialogTitle,],
   templateUrl: './opciones-dialog.component.html',
   styleUrl: './opciones-dialog.component.css',
 })

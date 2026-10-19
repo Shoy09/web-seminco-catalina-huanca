@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
+import { A11yModule } from '@angular/cdk/a11y';
 import { Router, RouterModule } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { MenuModule } from 'primeng/menu';
@@ -16,6 +17,7 @@ import { UsuarioService } from '../../../services/usuario.service';
     MenuModule,
     RippleModule,
     TooltipModule,
+    A11yModule,
   ],
   templateUrl: './menu.component.html',
   styleUrl: './menu.component.css',
@@ -100,6 +102,15 @@ export class MenuComponent implements OnInit {
   menuMovilAbierto = false;
   mostrarCerrarSesion = false;
 
+  get sidebarCompacto(): boolean {
+    return this.menuColapsado && !this.menuMovilAbierto;
+  }
+
+  @HostListener('window:resize')
+  ajustarMenuAlViewport(): void {
+    if (window.innerWidth >= 768) this.cerrarMenuMovil();
+  }
+
   constructor(private router: Router, private usuarioService: UsuarioService) {
     this.rolUsuario    = localStorage.getItem('rol')             || '';
     this.nombreUsuario = localStorage.getItem('nombre_completo') || 'Usuario';
@@ -154,7 +165,7 @@ export class MenuComponent implements OnInit {
   }
 
   onMenuPrincipalClick(index: number, menu: any): void {
-    if (this.menuColapsado) {
+    if (this.sidebarCompacto) {
       const primerSubItem = menu.items?.[0];
       if (primerSubItem?.routerLink) {
         this.router.navigate(primerSubItem.routerLink);

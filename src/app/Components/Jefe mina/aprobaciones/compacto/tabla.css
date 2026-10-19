@@ -1,0 +1,25 @@
+:host { display: block; min-width: 0; }
+.activities-scroll { max-height: max(160px, calc(100dvh - 310px)); overflow: auto; }
+.activities-scroll:focus-visible { outline: 2px solid #38BDF8; outline-offset: -2px; }
+.activities-table { width: 100%; min-width: 680px; border-collapse: separate; border-spacing: 0; font-size: 11px; text-align: left; }
+.activities-table thead { position: sticky; top: 0; z-index: 1; }
+.activities-table th { background: #F7F9FC; color: #64748B; font-size: 10px; font-weight: 650; padding: 9px 14px; border-bottom: 1px solid #E5EBF1; white-space: nowrap; }
+.activities-table td { padding: 8px 14px; border-bottom: 1px solid #F0F3F6; color: #344963; }
+.activities-table tbody tr:last-child td { border-bottom: 0; }
+.activities-table tbody tr:hover { background: #FAFCFE; }
+.row-number { color: #94A3B8 !important; font-size: 11px; font-variant-numeric: tabular-nums; }
+.activity-status { display: inline-flex; align-items: center; gap: 7px; padding: 4px 7px; border-radius: 6px; font-size: 10px; font-weight: 650; white-space: nowrap; }
+.activity-status > span { height: 5px; width: 5px; border-radius: 50%; background: currentColor; }
+.activity-code { color: #344963; font-size: 11px; font-weight: 650; background: #F0F4F8; border: 1px solid #E5EBF1; padding: 4px 9px; border-radius: 5px; }
+.time-cell { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.time-cell i { margin-right: 8px; color: #94A3B8; font-size: 11px; }
+.actions-column { text-align: right; }
+.row-actions { display: flex; justify-content: flex-end; align-items: center; gap: 7px; }
+.row-action { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 30px; height: 28px; border: 1px solid #E1E8EF; border-radius: 7px; background: #fff; color: #64748B; cursor: pointer; font-size: 11px; padding: 0 8px; }
+.row-action:hover { background: #EAF8FE; border-color: #9BDBFC; color: #1D73A8; }
+.detail-action { color: #1D73A8; background: #F2F9FE; border-color: #D8EAF6; }
+.delete-action { border-color: transparent; color: #A17878; }
+.delete-action:hover { background: #FFF1F1; border-color: #F1D8D8; color: #BD3636; }
+.row-action:focus-visible { outline: 2px solid #38BDF8; outline-offset: 2px; }
+.table-footer { display: flex; justify-content: space-between; gap: 12px; padding: 12px 22px; border-top: 1px solid #EDF1F5; background: #FCFDFE; color: #7D8CA0; font-size: 10px; }
+@media (max-width: 768px) { .table-footer { flex-wrap: wrap; padding: 12px 16px; } .activities-table td, .activities-table th { padding-left: 16px; padding-right: 16px; } }

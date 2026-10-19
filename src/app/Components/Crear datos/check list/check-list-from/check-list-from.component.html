@@ -1,15 +1,11 @@
 
-<div class="max-h-[90dvh] overflow-y-auto bg-surface text-ink">
-  <header class="border-b border-border bg-gradient-to-r from-secondary via-secondary-75 to-primary p-5 text-white sm:p-6">
-    <h2 class="text-xl font-black">{{ editando ? 'Editar ítem de checklist' : 'Agregar ítems de checklist' }}</h2>
-    <p class="mt-2 text-sm text-white/80">Selecciona el proceso y los equipos a los que aplican las verificaciones.</p>
-  </header>
+<div class="data-dialog checklist-editor"><div class="dialog-heading"><span class="heading-icon"><i class="pi pi-check-square" aria-hidden="true"></i></span><div><h2 mat-dialog-title>{{ editando ? 'Editar ítem de checklist' : 'Agregar ítems de checklist' }}</h2><p>Define el proceso, los equipos y las verificaciones.</p></div><button type="button" class="icon-button" (click)="onCancel()" aria-label="Cerrar diálogo"><i class="pi pi-times" aria-hidden="true"></i></button></div>
 
-  <form [formGroup]="checkListForm" (ngSubmit)="onSubmit()">
-    <fieldset [disabled]="guardando || leyendoArchivo" class="min-w-0 space-y-6 p-5 disabled:opacity-70 sm:p-6">
+  <form [formGroup]="checkListForm" (ngSubmit)="onSubmit()" class="dialog-form"><div class="dialog-body">
+    <fieldset [disabled]="guardando || leyendoArchivo" class="dialog-fieldset">
       <section class="space-y-3">
         <label for="checklist-proceso" class="block text-sm font-bold text-secondary">1. Proceso</label>
-        <select id="checklist-proceso" formControlName="proceso" (change)="cambiarProceso()" required class="min-h-11 w-full rounded-2xl border border-border bg-surface-soft px-4 py-2 text-base outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
+        <select id="checklist-proceso" formControlName="proceso" (change)="cambiarProceso()" required class="min-h-11 w-full rounded-lg border border-border bg-surface-soft px-4 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20">
           <option value="" disabled>Seleccionar proceso</option>
           @for (proceso of procesos; track proceso) { <option [value]="proceso">{{ proceso }}</option> }
         </select>
@@ -19,7 +15,7 @@
 
       <section class="space-y-3" aria-labelledby="equipos-title">
         <h3 id="equipos-title" class="text-sm font-bold text-secondary">2. Equipos</h3>
-        <label class="flex min-h-11 cursor-pointer items-start gap-3 rounded-2xl border border-border bg-surface-soft p-4">
+        <label class="flex min-h-11 cursor-pointer items-start gap-3 rounded-lg border border-border bg-surface-soft p-4">
           <input type="checkbox" formControlName="todos" class="mt-1 h-4 w-4 shrink-0 accent-secondary" />
           <span class="text-sm"><strong class="block">Todos los equipos del proceso</strong><span class="mt-1 block text-xs text-ink-75">Incluye también los equipos que se registren en este proceso más adelante.</span></span>
         </label>
@@ -32,7 +28,7 @@
             <div class="rounded-xl border border-danger/20 bg-danger/5 p-3 text-sm text-danger" role="alert">{{ errorEquipos }} <button type="button" (click)="cargarEquipos()" class="ml-2 min-h-11 font-bold underline">Reintentar</button></div>
           } @else {
             <label for="checklist-equipo-search" class="sr-only">Buscar equipo por nombre, código o modelo</label>
-            <input id="checklist-equipo-search" type="search" [value]="busquedaEquipo" (input)="busquedaEquipo = $any($event.target).value" placeholder="Buscar equipo por código o nombre..." class="min-h-11 w-full rounded-xl border border-border bg-surface-soft px-3 text-base outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" />
+            <input id="checklist-equipo-search" type="search" [value]="busquedaEquipo" (input)="busquedaEquipo = $any($event.target).value" placeholder="Buscar equipo por código o nombre..." class="min-h-11 w-full rounded-xl border border-border bg-surface-soft px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" />
             <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
               <span class="font-semibold text-secondary" role="status">{{ equipoIds.size }} seleccionados de {{ equiposProceso.length }}</span>
               <div class="flex gap-3"><button type="button" (click)="seleccionarVisibles()" [disabled]="!equiposVisibles.length" class="min-h-11 font-semibold text-secondary disabled:opacity-40">Seleccionar visibles</button><button type="button" (click)="equipoIds.clear()" class="min-h-11 text-ink-75">Limpiar</button></div>
@@ -63,7 +59,7 @@
             <label for="checklist-categoria" class="text-sm font-bold">Categoría</label>
             <div class="relative">
               <i class="pi pi-search pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-50" aria-hidden="true"></i>
-              <input id="checklist-categoria" type="text" formControlName="categoria" [matAutocomplete]="categoriasPanel" #categoriaTrigger="matAutocompleteTrigger" (focus)="mostrarTodasCategorias = true" (input)="mostrarTodasCategorias = false" (blur)="normalizarEntrada('categoria')" maxlength="255" placeholder="Buscar o escribir una categoría" autocomplete="off" aria-describedby="categoria-ayuda" class="min-h-11 w-full rounded-2xl border border-border bg-surface-soft py-2 pl-11 pr-12 text-base outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" />
+              <input id="checklist-categoria" type="text" formControlName="categoria" [matAutocomplete]="categoriasPanel" #categoriaTrigger="matAutocompleteTrigger" (focus)="mostrarTodasCategorias = true" (input)="mostrarTodasCategorias = false" (blur)="normalizarEntrada('categoria')" maxlength="255" placeholder="Buscar o escribir una categoría" autocomplete="off" aria-describedby="categoria-ayuda" class="min-h-11 w-full rounded-lg border border-border bg-surface-soft py-2 pl-11 pr-12 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" />
               <button type="button" (click)="abrirCategorias(categoriaTrigger)" (mousedown)="$event.preventDefault()" [attr.aria-expanded]="categoriaTrigger.panelOpen" aria-label="Mostrar categorías existentes" class="absolute right-1 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-xl text-ink-75 transition hover:bg-primary/10 focus-visible:outline-2 focus-visible:outline-primary"><i class="pi pi-chevron-down text-xs" aria-hidden="true"></i></button>
               <mat-autocomplete #categoriasPanel="matAutocomplete" (optionSelected)="normalizarEntrada('categoria')">
                 @for (cat of categoriasFiltradas; track cat) {
@@ -80,12 +76,12 @@
           </div>
           <div class="flex flex-col gap-2">
             <label for="checklist-nombres" class="text-sm font-bold">{{ editando ? 'Nombre del ítem' : 'Nombres de los ítems' }}</label>
-            <textarea id="checklist-nombres" formControlName="nombre" [rows]="editando ? 2 : 5" aria-describedby="nombres-ayuda" placeholder="Verificar nivel de aceite" class="w-full resize-y rounded-2xl border border-border bg-surface-soft px-4 py-3 text-base outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"></textarea>
+            <textarea id="checklist-nombres" formControlName="nombre" [rows]="editando ? 2 : 5" aria-describedby="nombres-ayuda" placeholder="Verificar nivel de aceite" class="w-full resize-y rounded-lg border border-border bg-surface-soft px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"></textarea>
             <p id="nombres-ayuda" class="text-xs text-ink-50">{{ editando ? 'Actualiza el nombre y la asignación de este ítem.' : 'Escribe un ítem por línea. Todos compartirán la categoría y los equipos seleccionados.' }}</p>
             @if (errorNombres) { <p class="text-xs text-danger" role="alert">{{ errorNombres }}</p> }
           </div>
         } @else {
-          <div class="space-y-3 rounded-2xl border border-border bg-surface-soft p-4">
+          <div class="space-y-3 rounded-lg border border-border bg-surface-soft p-4">
             <p class="text-sm text-ink-75">Usa las columnas <strong>Categoría</strong> y <strong>Nombre</strong> en la primera hoja. Los ítems se asignarán al proceso y los equipos elegidos arriba.</p>
             <p class="text-xs text-ink-50">{{ categorias.length ? 'Categorías existentes: ' + categorias.join(', ') + '. También se aceptan nuevas categorías.' : 'Puedes escribir nuevas categorías en el archivo.' }}</p>
             <button type="button" (click)="descargarPlantilla()" class="min-h-11 text-sm font-bold text-secondary underline">Descargar plantilla</button>
@@ -107,9 +103,9 @@
 
     @if (mensaje) { <p class="mx-5 mb-4 rounded-xl border border-danger/20 bg-danger/5 p-3 text-sm text-danger" role="alert">{{ mensaje }}</p> }
     @if (guardando) { <p class="px-5 pb-4 text-sm text-secondary" role="status">Guardando {{ progreso }} de {{ totalGuardar }}…</p> }
-    <footer class="sticky bottom-0 flex flex-wrap justify-end gap-3 border-t border-border bg-surface-soft px-5 py-4 sm:px-6">
-      <button type="button" (click)="onCancel()" [disabled]="guardando" class="min-h-11 rounded-xl border border-border bg-surface px-4 py-2 text-sm font-semibold transition hover:bg-surface-soft disabled:opacity-50">Cancelar</button>
-      <button type="submit" [disabled]="!puedeGuardar" class="min-h-11 rounded-xl bg-secondary px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-secondary/90 disabled:cursor-not-allowed disabled:opacity-50">{{ guardando ? 'Guardando…' : editando ? 'Guardar cambios' : 'Guardar ' + filas.length + ' ítems' }}</button>
+    </div><footer class="dialog-actions">
+      <button type="button" (click)="onCancel()" [disabled]="guardando" class="ui-button">Cancelar</button>
+      <button type="submit" [disabled]="!puedeGuardar" class="ui-button primary">{{ guardando ? 'Guardando…' : editando ? 'Guardar cambios' : 'Guardar ' + filas.length + ' ítems' }}</button>
     </footer>
   </form>
 </div>

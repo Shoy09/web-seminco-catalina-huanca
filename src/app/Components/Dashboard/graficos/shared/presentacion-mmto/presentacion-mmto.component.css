@@ -54,14 +54,24 @@
   .guardia-table td { display: table-cell; }
 }
 
-.dialog-container:fullscreen,
-.dialog-container.fullscreen {
+.dialog-container:fullscreen {
   position: fixed;
   inset: 0;
   width: 100vw;
   height: 100dvh;
   max-height: 100dvh;
   border-radius: 0;
+}
+
+
+.dialog-container.fullscreen:not(:fullscreen) {
+  position: fixed;
+  width: var(--app-content-width, 100vw);
+  height: var(--app-content-height, 100dvh);
+  max-height: var(--app-content-height, 100dvh);
+  border-radius: 0;
+  top: var(--app-content-top, 0px);
+  left: var(--app-sidebar-offset, 0px);
 }
 
 @media (max-width: 767px) {

@@ -20,10 +20,7 @@ import { MatButtonModule } from '@angular/material/button';
     MatButtonModule,
   ],
   templateUrl: './perfil-editar-dialog.component.html',
-  styles: [`
-    :host ::ng-deep .compact-field .mat-mdc-form-field-subscript-wrapper { display: none; }
-    :host ::ng-deep .compact-field .mat-mdc-form-field-infix { padding-top: 10px; padding-bottom: 10px; min-height: unset; }
-  `],
+  styleUrl: './perfil-editar-dialog.component.css',
 })
 export class PerfilEditarDialogComponent {
   form: FormGroup;

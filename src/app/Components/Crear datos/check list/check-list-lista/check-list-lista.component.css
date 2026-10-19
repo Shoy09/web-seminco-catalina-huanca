@@ -1,1 +1,7 @@
-:host { display: block; min-width: 0; }
+@import '../../datos-lista.css';
+
+.mat-column-acciones { text-align: center; }
+.mat-column-acciones .row-actions { justify-content: center; }
+
+tr:has(.empty-state) > td { padding: 0; }
+.empty-state > i { display: grid; place-items: center; width: 42px; height: 42px; margin: 0 auto 12px; border-radius: 12px; background: #F0F4F8; color: #7D8CA0; font-size: 20px; }

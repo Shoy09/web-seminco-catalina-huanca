@@ -1,23 +1,15 @@
-<h2 mat-dialog-title class="dialog-title">
-  Confirmar eliminación
-</h2>
-
-<mat-dialog-content class="dialog-content">
-  <p class="main-text">
-    ¿Estás seguro de que deseas eliminar este registro?
-  </p>
-
-  <div class="warning-box">
-    Esta acción es permanente y no se puede deshacer.
-  </div>
-</mat-dialog-content>
-
-<mat-dialog-actions align="end" class="dialog-actions">
-  <button mat-stroked-button (click)="cancelar()">
-    Cancelar
-  </button>
-
-  <button mat-flat-button color="warn" (click)="confirmar()">
-    Eliminar
-  </button>
-</mat-dialog-actions>
+<div class="approval-dialog">
+  <header class="dialog-header">
+    <span class="dialog-icon delete-icon pi pi-trash" aria-hidden="true"></span>
+    <div><span class="dialog-eyebrow">Revisión de operación</span><h2 mat-dialog-title>Eliminar registro</h2></div>
+    <button type="button" class="icon-button" aria-label="Cerrar sin eliminar" (click)="cancelar()"><i class="pi pi-times" aria-hidden="true"></i></button>
+  </header>
+  <mat-dialog-content class="dialog-content">
+    <p class="dialog-description">¿Estás seguro de que deseas eliminar este registro?</p>
+    <div class="warning-box"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i><span>Esta acción es permanente y no se puede deshacer.</span></div>
+  </mat-dialog-content>
+  <mat-dialog-actions class="dialog-actions">
+    <button type="button" class="dialog-button secondary" (click)="cancelar()" cdkFocusInitial>Cancelar</button>
+    <button type="button" class="dialog-button danger" (click)="confirmar()"><i class="pi pi-trash" aria-hidden="true"></i>Eliminar registro</button>
+  </mat-dialog-actions>
+</div>

@@ -36,8 +36,14 @@ export class ListPdfComponent implements OnInit {
   
   // Estado de carga
   loading = false;
+  cargandoPdfs = false;
+  errorCarpetas = '';
+  errorPdfs = '';
+  filtroBusqueda = '';
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatPaginator) set paginator(value: MatPaginator) {
+    this.dataSource.paginator = value;
+  }
 
   constructor(
     private pdfService: PdfService, 
@@ -66,6 +72,7 @@ export class ListPdfComponent implements OnInit {
   // Cargar todas las carpetas
   cargarCarpetas(): void {
     this.loading = true;
+    this.errorCarpetas = '';
     this.carpetaService.getCarpetas().subscribe({
       next: (data: Carpeta[]) => {
         this.carpetas = data;
@@ -79,6 +86,7 @@ export class ListPdfComponent implements OnInit {
       error: (error) => {
         console.error('Error al obtener carpetas', error);
         this.loading = false;
+        this.errorCarpetas = 'No se pudieron cargar las carpetas.';
       }
     });
   }
@@ -86,29 +94,29 @@ export class ListPdfComponent implements OnInit {
   // Seleccionar una carpeta y cargar sus PDFs
   seleccionarCarpeta(carpeta: Carpeta): void {
     this.carpetaSeleccionada = carpeta;
+    this.limpiarFiltro();
     this.cargarPdfsPorCarpeta(carpeta.id);
   }
 
   // Cargar PDFs de una carpeta específica
   cargarPdfsPorCarpeta(carpetaId: number): void {
-    this.loading = true;
+    this.cargandoPdfs = true;
+    this.errorPdfs = '';
+    this.dataSource.data = [];
     this.pdfService.getPdfsPorCarpeta(carpetaId).subscribe({
       next: (data: Pdf[]) => {
+        if (this.carpetaSeleccionada?.id !== carpetaId) return;
         this.dataSource.data = data;
         // Actualizar el conteo en el mapa
         this.pdfCountMap[carpetaId] = data.length;
-        this.loading = false;
-        
-        setTimeout(() => {
-          if (this.paginator) {
-            this.dataSource.paginator = this.paginator;
-            this.paginator.firstPage();
-          }
-        });
+        this.cargandoPdfs = false;
+        this.dataSource.paginator?.firstPage();
       },
       error: (error) => {
+        if (this.carpetaSeleccionada?.id !== carpetaId) return;
         console.error('Error al obtener PDFs de la carpeta', error);
-        this.loading = false;
+        this.cargandoPdfs = false;
+        this.errorPdfs = 'No se pudieron cargar los documentos de esta carpeta.';
         this.dataSource.data = [];
       }
     });
@@ -116,8 +124,16 @@ export class ListPdfComponent implements OnInit {
 
   // Aplicar filtro de búsqueda
   applyFilter(event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
+    this.filtroBusqueda = (event.target as HTMLInputElement).value;
+    const filterValue = this.filtroBusqueda.trim().toLowerCase();
     this.dataSource.filter = filterValue;
+    this.dataSource.paginator?.firstPage();
+  }
+
+  limpiarFiltro(): void {
+    this.filtroBusqueda = '';
+    this.dataSource.filter = '';
+    this.dataSource.paginator?.firstPage();
   }
 
   // Abrir diálogo para crear nueva carpeta
@@ -197,6 +213,9 @@ export class ListPdfComponent implements OnInit {
             if (this.carpetaSeleccionada?.id === carpeta.id) {
               this.carpetaSeleccionada = null;
               this.dataSource.data = [];
+              this.cargandoPdfs = false;
+              this.errorPdfs = '';
+              this.limpiarFiltro();
             }
             this.cargarCarpetas();
           },

@@ -28,6 +28,7 @@ export interface NumeroRetardosDialogData {
     MatIconModule,
   ],
   templateUrl: './numero-retardos-dialog.component.html',
+  styleUrl: './numero-retardos-dialog.component.css',
 })
 export class NumeroRetardosDialogComponent implements OnInit {
   form: FormGroup;

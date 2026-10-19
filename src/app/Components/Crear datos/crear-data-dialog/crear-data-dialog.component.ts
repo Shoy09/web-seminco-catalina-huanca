@@ -28,6 +28,7 @@ export interface CrearDataDialogData {
     MatIconModule,
   ],
   templateUrl: './crear-data-dialog.component.html',
+  styleUrl: './crear-data-dialog.component.css',
 })
 export class CrearDataDialogComponent {
   form: FormGroup;

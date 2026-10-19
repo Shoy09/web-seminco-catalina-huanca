@@ -1,10 +1,10 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogContent, MatDialogActions } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 import { PlanMensual } from '../../../../models/plan-mensual.model';
 
 @Component({
   selector: 'app-dialog-diferencia-plan-realidad',
-  imports: [MatDialogContent, MatDialogActions],
+  imports: [MatDialogTitle, MatDialogContent],
   templateUrl: './dialog-diferencia-plan-realidad.component.html',
   styleUrls: ['./dialog-diferencia-plan-realidad.component.css']
 })

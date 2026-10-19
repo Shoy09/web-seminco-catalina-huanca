@@ -1,7 +1,1 @@
-﻿/* Estilos manejados por Tailwind CSS — ver styles.css para variables de tema */
-
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
+@import '../../operaciones-lista.css';

@@ -17,7 +17,18 @@ bootstrapApplication(AppComponent, {
       provideAnimations(),
       provideHttpClient(withInterceptorsFromDi()), // Habilita el uso de interceptores
       { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
-      provideToastr(),
+      provideToastr({
+        closeButton: true,
+        progressBar: true,
+        progressAnimation: 'decreasing',
+        timeOut: 5000,
+        extendedTimeOut: 2000,
+        tapToDismiss: false,
+        preventDuplicates: true,
+        maxOpened: 3,
+        autoDismiss: true,
+        positionClass: 'toast-top-right',
+      }),
       importProvidersFrom(MatNativeDateModule),
     ]
 }).catch(err => console.error(err));

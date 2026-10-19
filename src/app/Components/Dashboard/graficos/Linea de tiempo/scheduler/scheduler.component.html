@@ -1,6 +1,6 @@
 <!-- Tooltip flotante global (position: fixed, fuera de la tabla) -->
 <div
-  class="tooltip-fixed"
+  class="tooltip-fixed" role="tooltip"
   *ngIf="tooltip.visible && tooltip.task"
   [style.left.px]="tooltip.x"
   [style.top.px]="tooltip.y"
@@ -38,8 +38,8 @@
 </div>
 
 <!-- Tabla Gantt -->
-<div class="scheduler-outer" [style.max-height]="maxHeight">
-  <table class="scheduler-table">
+<div class="scheduler-outer" [style.max-height]="maxHeight" tabindex="0" role="region" aria-label="Actividad por equipo y hora. Desplaza para consultar todas las horas." (scroll)="hideTooltip()" (keydown.escape)="hideTooltip()">
+  <table class="scheduler-table" [style.min-width.px]="timelineEnd - timelineStart > 720 ? 1640 : 1100">
 
     <colgroup>
       <col class="col-fecha" />
@@ -93,16 +93,20 @@
               <div class="timeline-grid">
   <div class="grid-line" *ngFor="let h of hours" [style.left.%]="h.left"></div>
 </div>
-              <div
+              <button type="button"
                 class="task"
                 *ngFor="let task of equipo.tasks; trackBy: trackByTask"
                 [ngStyle]="getTaskStyle(task)"
+                [attr.aria-label]="task.estado_equipo + ' de ' + minutesToTime(task.startMin) + ' a ' + minutesToTime(task.endMin) + ', ' + getDuration(task)"
+                (focus)="showTooltipAtTask($event, task)"
+                (click)="showTooltipAtTask($event, task)"
+                (blur)="hideTooltip()"
                 (mouseenter)="showTooltip($event, task)"
                 (mousemove)="moveTooltip($event)"
                 (mouseleave)="hideTooltip()"
               >
                 <span class="task-label">{{ task.estado_equipo?.slice(0, 4) }}</span>
-              </div>
+              </button>
             </div>
           </td>
 

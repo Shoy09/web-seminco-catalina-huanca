@@ -1,3 +1,4 @@
+import { MatDialogModule } from '@angular/material/dialog';
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
@@ -7,7 +8,7 @@ import { PlanMensualService } from '../../../../services/plan-mensual.service';
 
 @Component({
   selector: 'app-edit-plan-avance',
-  imports: [FormsModule],
+  imports: [FormsModule, MatDialogModule],
   templateUrl: './edit-plan-avance.component.html',
   styleUrl: './edit-plan-avance.component.css'
 })

@@ -1,3 +1,5 @@
+import { inject as injectNotificacionesUi } from '@angular/core';
+import { NotificacionesUiService } from 'app/services/notificaciones-ui.service';
 import { PresentacionMmtoScoopComponent } from '../presentacion-mmto-scoop/presentacion-mmto-scoop.component';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { OperacionBaseScoop } from '../../../../../models/OperacionBase.models';
@@ -123,6 +125,8 @@ import { PresentacionGefeGuardiaScoopComponent } from '../presentacion-gefe-guar
   styleUrl: './principal-grafico-scoops.component.css',
 })
 export class PrincipalGraficoScoopsComponent implements OnInit {
+  private readonly notificacionesUi = injectNotificacionesUi(NotificacionesUiService);
+
   anio!: number;
   mes!: string;
   showZoom: boolean = false;
@@ -3364,7 +3368,7 @@ async ImportarExcel() {
 
             console.log('✅ Importación exitosa', resp);
 
-            alert('Excel importado correctamente');
+            this.notificacionesUi.success('Excel importado correctamente');
 
             this.cargarOperaciones();
 
@@ -3375,7 +3379,7 @@ async ImportarExcel() {
 
             console.error('❌ Error importando', err);
 
-            alert('Error al importar Excel');
+            this.notificacionesUi.error('Error al importar Excel');
 
             this.importandoExcel = false;
           }
@@ -3385,7 +3389,7 @@ async ImportarExcel() {
 
       console.error('❌ Error leyendo Excel', error);
 
-      alert('Error leyendo Excel');
+      this.notificacionesUi.error('Error leyendo Excel');
 
       this.importandoExcel = false;
     }

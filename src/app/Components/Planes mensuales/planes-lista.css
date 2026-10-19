@@ -1,0 +1,30 @@
+@import './planes-ui.css';
+.plans-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding: 16px 18px; border-bottom: 1px solid #EDF1F5; }
+.search-field { position: relative; flex: 1 1 230px; max-width: 380px; }
+.search-field i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #7D8CA0; font-size: 13px; pointer-events: none; }
+.search-field input { width: 100%; height: 40px; padding: 9px 12px 9px 34px; border: 1px solid #DCE4EA; border-radius: 8px; background: #FBFCFD; color: #344963; font: inherit; font-size: 12px; outline: none; }
+.search-field input:focus { border-color: #38BDF8; box-shadow: 0 0 0 3px #38BDF814; }
+.search-field input::placeholder { color: #8B98A7; }
+.clear-filters { display: inline-flex; align-items: center; gap: 6px; padding: 7px 8px; border: 0; border-radius: 6px; background: transparent; color: #155C88; font-size: 11px; cursor: pointer; }
+.clear-filters:hover { background: #E0F2FE; }
+.period-badge { display: inline-flex; align-items: center; gap: 7px; padding: 6px 9px; border: 1px solid #E1E8EF; border-radius: 6px; color: #52647A; font-size: 10px; }
+.period-badge i { color: #7D8CA0; font-size: 12px; }
+.results-count { margin-left: auto; white-space: nowrap; color: #7D8CA0; font-size: 11px; }
+.results-count strong { color: #0B1F3A; }
+.table-scroll { max-width: 100%; overflow-x: auto; }
+.mat-mdc-table { width: 100%; min-width: 800px; background: #fff; }
+.mat-mdc-header-row { height: 44px; }
+.mat-mdc-header-cell { padding: 12px 16px; border-bottom: 1px solid #E1E8EF; background: #F7F9FB; color: #6A8096; font-size: 10px; font-weight: 650; white-space: nowrap; }
+.mat-mdc-row { height: 56px; }
+.mat-mdc-cell { padding: 10px 16px; border-bottom: 1px solid #EDF1F5; color: #52647A; font-size: 11px; }
+.mat-mdc-row:hover { background: #FBFCFD; }
+.mat-mdc-cell.labor-cell { color: #0B1F3A; font-weight: 650; }
+.actions-header { text-align: right; }
+.row-actions { display: flex; justify-content: flex-end; gap: 2px; }
+.mat-column-acciones { width: 160px; }
+.mat-mdc-paginator { border-top: 1px solid #EDF1F5; background: #fff; color: #7D8CA0; font-size: 11px; }
+.empty-state { padding: 36px 20px; text-align: center; }
+.empty-state > i { display: block; margin-bottom: 12px; color: #7D8CA0; font-size: 22px; }
+.empty-state > strong { display: block; font-size: 13px; color: #344963; }
+.empty-state > span { display: block; margin-top: 4px; color: #7D8CA0; font-size: 11px; }
+@media (max-width: 600px) { .plans-toolbar { padding: 12px; gap: 10px; } .search-field { max-width: none; flex-basis: 100%; } .results-count { margin-left: auto; } }

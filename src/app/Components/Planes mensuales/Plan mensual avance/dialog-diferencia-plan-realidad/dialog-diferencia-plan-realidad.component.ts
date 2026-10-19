@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogContent, MatDialogActions } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogContent, MatDialogTitle } from '@angular/material/dialog';
 import { PlanMensual } from '../../../../models/plan-mensual.model';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-dialog-diferencia-plan-realidad',
-  imports: [MatDialogContent, MatDialogActions, MatProgressBarModule, MatButtonModule, CommonModule],
+  imports: [MatDialogTitle, MatDialogContent, MatProgressBarModule, MatButtonModule, CommonModule],
   templateUrl: './dialog-diferencia-plan-realidad.component.html',
   styleUrls: ['./dialog-diferencia-plan-realidad.component.css']
 })

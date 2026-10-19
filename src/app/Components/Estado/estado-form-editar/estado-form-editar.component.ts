@@ -1,3 +1,4 @@
+import { MatDialogTitle } from '@angular/material/dialog';
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -6,7 +7,7 @@ import { EstadoService } from '../../../services/estado.service';
 
 @Component({
   selector: 'app-estado-form-editar',
-  imports: [ReactiveFormsModule],
+  imports: [MatDialogTitle,ReactiveFormsModule],
   templateUrl: './estado-form-editar.component.html',
   styleUrl: './estado-form-editar.component.css'
 })

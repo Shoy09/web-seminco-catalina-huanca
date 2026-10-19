@@ -1,6 +1,8 @@
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
 @import "tailwindcss";
 @import "primeicons/primeicons.css";
+@import "./toast-styles.css";
+@import "./overlay-layout.css";
 
 @theme {
   /* Marca principal: celeste claro */

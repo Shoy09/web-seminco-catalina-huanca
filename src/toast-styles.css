@@ -1,0 +1,82 @@
+/* Estilo global de las notificaciones de ngx-toastr. */
+body .toast-container.toast-top-right { top: calc(var(--app-content-top, 0px) + 22px); right: 22px; }
+body .toast-container .ngx-toastr {
+  --toast-accent: #1D73A8;
+  --toast-tint: #EAF8FE;
+  width: min(380px, calc(var(--app-content-width, 100vw) - 44px));
+  min-height: 88px;
+  margin: 0 0 12px;
+  padding: 18px 44px 20px 72px;
+  border: 1px solid #E1E8EF;
+  border-left: 4px solid var(--toast-accent);
+  border-radius: 12px;
+  background: #fff;
+  background-image: none;
+  color: #344963;
+  box-shadow: 0 6px 24px rgba(11, 31, 58, .12), 0 1px 3px rgba(11, 31, 58, .04);
+  cursor: default;
+}
+body .toast-container .ngx-toastr:hover {
+  box-shadow: 0 8px 28px rgba(11, 31, 58, .16);
+  cursor: default;
+}
+body .toast-container .ngx-toastr::before {
+  content: '\e924';
+  position: absolute;
+  top: 18px;
+  left: 17px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--toast-tint);
+  color: var(--toast-accent);
+  font-family: 'primeicons';
+  font-size: 19px;
+  line-height: 1;
+}
+body .toast-container .toast-success { --toast-accent: #008557; --toast-tint: #E8F6EF; }
+body .toast-container .toast-success::before { content: '\e90a'; }
+body .toast-container .toast-error { --toast-accent: #C33D3D; --toast-tint: #FDEEEE; }
+body .toast-container .toast-error::before { content: '\e90c'; }
+body .toast-container .toast-warning { --toast-accent: #A86A13; --toast-tint: #FFF5E3; }
+body .toast-container .toast-warning::before { content: '\e922'; }
+body .toast-container .toast-title {
+  margin: 0 0 5px;
+  color: #0B1F3A;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+body .toast-container .toast-message { color: #526477; font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; white-space: pre-line; max-height: 260px; overflow-y: auto; }
+body .toast-container .toast-message a { color: #1D73A8; text-decoration: underline; }
+body .toast-container .toast-message a:hover { color: #0B1F3A; }
+body .toast-container .toast-close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  float: none;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  color: #7D8CA0;
+  font-size: 20px;
+  font-weight: 400;
+  text-shadow: none;
+  opacity: 1;
+}
+body .toast-container .toast-close-button:hover,
+body .toast-container .toast-close-button:focus { background: #EDF5FA; color: #0B1F3A; opacity: 1; }
+body .toast-container .toast-close-button:focus-visible { outline: 2px solid #38BDF8; outline-offset: 2px; }
+body .toast-container .toast-progress { height: 3px; background: var(--toast-accent); opacity: .55; }
+@media (max-width: 480px) {
+  body .toast-container.toast-top-right { top: calc(var(--app-content-top, 0px) + 16px); right: 16px; }
+  body .toast-container .ngx-toastr { padding-left: 64px; width: min(380px, calc(var(--app-content-width, 100vw) - 32px)); }
+  body .toast-container .ngx-toastr::before { left: 13px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body .toast-container .ngx-toastr { transition: none !important; }
+}

@@ -1,106 +1,21 @@
-<div class="dialog-container">
-    <h2>Editar Plan Mensual</h2>
-  
-    <div class="dialog-content">
-      <form>
-        <div class="form-group">
-          <label>Año:</label>
-          <input type="number" [(ngModel)]="plan.anio" name="anio" readonly>
-        </div>
-  
-        <div class="form-group">
-          <label>Mes:</label>
-          <input type="text" [(ngModel)]="plan.mes" name="mes" readonly>
-        </div>
-  
-        <div class="form-group">
-          <label>Minado Tipo:</label>
-          <input type="text" [(ngModel)]="plan.minado_tipo" name="minado_tipo">
-        </div>
-  
-        <div class="form-group">
-          <label>Empresa:</label>
-          <input type="text" [(ngModel)]="plan.empresa" name="empresa">
-        </div>
-  
-        <div class="form-group">
-          <label>Zona:</label>
-          <input type="text" [(ngModel)]="plan.zona" name="zona">
-        </div>
-  
-        <div class="form-group">
-          <label>Área:</label>
-          <input type="text" [(ngModel)]="plan.area" name="area">
-        </div>
-  
-        <div class="form-group">
-          <label>Tipo Mineral:</label>
-          <input type="text" [(ngModel)]="plan.tipo_mineral" name="tipo_mineral">
-        </div>
-  
-        <div class="form-group">
-          <label>Fase:</label>
-          <input type="text" [(ngModel)]="plan.fase" name="fase">
-        </div>
-  
-        <div class="form-group">
-          <label>Estructura Veta:</label>
-          <input type="text" [(ngModel)]="plan.estructura_veta" name="estructura_veta">
-        </div>
-  
-        <div class="form-group">
-          <label>Nivel:</label>
-          <input type="text" [(ngModel)]="plan.nivel" name="nivel">
-        </div>
-  
-        <div class="form-group">
-          <label>Tipo Labor:</label>
-          <input type="text" [(ngModel)]="plan.tipo_labor" name="tipo_labor">
-        </div>
-  
-        <div class="form-group">
-          <label>Labor:</label>
-          <input type="text" [(ngModel)]="plan.labor" name="labor">
-        </div>
-  
-        <div class="form-group">
-          <label>Ala:</label>
-          <input type="text" [(ngModel)]="plan.ala" name="ala">
-        </div>
-  
-        <div class="form-group">
-          <label>Avance (m):</label>
-          <input type="number" [(ngModel)]="plan.avance_m" name="avance_m">
-        </div>
-  
-        <div class="form-group">
-          <label>Ancho (m):</label>
-          <input type="number" [(ngModel)]="plan.ancho_m" name="ancho_m">
-        </div>
-  
-        <div class="form-group">
-          <label>Alto (m):</label>
-          <input type="number" [(ngModel)]="plan.alto_m" name="alto_m">
-        </div>
-  
-        <div class="form-group">
-          <label>TMS:</label>
-          <input type="number" [(ngModel)]="plan.tms" name="tms">
-        </div>
-  
-        <div class="form-group">
-          <label>Programado:</label>
-          <select [(ngModel)]="plan.programado" name="programado">
+<div class="plan-dialog"><div class="dialog-heading"><span class="heading-icon"><i class="pi pi-chart-line" aria-hidden="true"></i></span><div><h2 mat-dialog-title>Editar plan de avance</h2><p>Actualiza los datos del plan mensual.</p></div><button type="button" class="icon-button" (click)="cancelar()" aria-label="Cerrar diálogo"><i class="pi pi-times" aria-hidden="true"></i></button></div><mat-dialog-content class="dialog-body"><form class="form-grid plan-fields"><div class="field"><label for="edit-anio">Año</label><input id="edit-anio" type="number" step="any" [(ngModel)]="plan.anio" name="anio" readonly></div>
+<div class="field"><label for="edit-mes">Mes</label><input id="edit-mes" type="text" [(ngModel)]="plan.mes" name="mes" readonly></div>
+<div class="field"><label for="edit-minado_tipo">Minado Tipo</label><input id="edit-minado_tipo" type="text" [(ngModel)]="plan.minado_tipo" name="minado_tipo"></div>
+<div class="field"><label for="edit-empresa">Empresa</label><input id="edit-empresa" type="text" [(ngModel)]="plan.empresa" name="empresa"></div>
+<div class="field"><label for="edit-zona">Zona</label><input id="edit-zona" type="text" [(ngModel)]="plan.zona" name="zona"></div>
+<div class="field"><label for="edit-area">Área</label><input id="edit-area" type="text" [(ngModel)]="plan.area" name="area"></div>
+<div class="field"><label for="edit-tipo_mineral">Tipo Mineral</label><input id="edit-tipo_mineral" type="text" [(ngModel)]="plan.tipo_mineral" name="tipo_mineral"></div>
+<div class="field"><label for="edit-fase">Fase</label><input id="edit-fase" type="text" [(ngModel)]="plan.fase" name="fase"></div>
+<div class="field"><label for="edit-estructura_veta">Estructura Veta</label><input id="edit-estructura_veta" type="text" [(ngModel)]="plan.estructura_veta" name="estructura_veta"></div>
+<div class="field"><label for="edit-nivel">Nivel</label><input id="edit-nivel" type="text" [(ngModel)]="plan.nivel" name="nivel"></div>
+<div class="field"><label for="edit-tipo_labor">Tipo Labor</label><input id="edit-tipo_labor" type="text" [(ngModel)]="plan.tipo_labor" name="tipo_labor"></div>
+<div class="field"><label for="edit-labor">Labor</label><input id="edit-labor" type="text" [(ngModel)]="plan.labor" name="labor"></div>
+<div class="field"><label for="edit-ala">Ala</label><input id="edit-ala" type="text" [(ngModel)]="plan.ala" name="ala"></div>
+<div class="field"><label for="edit-avance_m">Avance (m)</label><input id="edit-avance_m" type="number" step="any" [(ngModel)]="plan.avance_m" name="avance_m"></div>
+<div class="field"><label for="edit-ancho_m">Ancho (m)</label><input id="edit-ancho_m" type="number" step="any" [(ngModel)]="plan.ancho_m" name="ancho_m"></div>
+<div class="field"><label for="edit-alto_m">Alto (m)</label><input id="edit-alto_m" type="number" step="any" [(ngModel)]="plan.alto_m" name="alto_m"></div>
+<div class="field"><label for="edit-tms">TMS</label><input id="edit-tms" type="number" step="any" [(ngModel)]="plan.tms" name="tms"></div>
+<div class="field"><label for="edit-programado">Programado</label><select id="edit-programado" [(ngModel)]="plan.programado" name="programado">
             <option value="Programado">Programado</option>
             <option value="No Programado">No Programado</option>
-          </select>
-        </div>
-      </form>
-    </div>
-  
-    <div class="button-group">
-      <button class="save-btn" (click)="guardar()">Guardar</button>
-      <button class="cancel-btn" (click)="cancelar()">Cancelar</button>
-    </div>
-  </div>
-  
+          </select></div></form></mat-dialog-content><div class="dialog-actions"><button type="button" class="ui-button" (click)="cancelar()">Cancelar</button><button type="button" class="ui-button primary" (click)="guardar()" ><i class="pi pi-check" aria-hidden="true"></i>Guardar plan</button></div></div>

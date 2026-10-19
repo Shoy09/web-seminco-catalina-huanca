@@ -1,3 +1,5 @@
+import { inject as injectNotificacionesUi } from '@angular/core';
+import { NotificacionesUiService } from 'app/services/notificaciones-ui.service';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -23,6 +25,8 @@ interface Labor {
   styleUrl: './autocad-minero.component.css'
 })
 export class AutocadMineroComponent implements OnInit {
+  private readonly notificacionesUi = injectNotificacionesUi(NotificacionesUiService);
+
   @ViewChild('canvas', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;
   private ctx!: CanvasRenderingContext2D;
 
@@ -72,7 +76,7 @@ export class AutocadMineroComponent implements OnInit {
   // ===== GESTIÓN DE LABORES =====
   iniciarLabor() {
     if (!this.nombreLabor.trim()) {
-      alert('Ingresa un nombre para la labor');
+      this.notificacionesUi.warning('Ingresa un nombre para la labor');
       return;
     }
 
@@ -90,7 +94,7 @@ export class AutocadMineroComponent implements OnInit {
 
   agregarPunto() {
     if (!this.laborActual) {
-      alert('Primero inicia una labor');
+      this.notificacionesUi.warning('Primero inicia una labor');
       return;
     }
 
@@ -116,7 +120,7 @@ export class AutocadMineroComponent implements OnInit {
 
   finalizarLabor() {
     if (this.laborActual && this.laborActual.puntos.length < 2) {
-      alert('Una labor debe tener al menos 2 puntos');
+      this.notificacionesUi.warning('Una labor debe tener al menos 2 puntos');
       return;
     }
     this.laborActual = null;

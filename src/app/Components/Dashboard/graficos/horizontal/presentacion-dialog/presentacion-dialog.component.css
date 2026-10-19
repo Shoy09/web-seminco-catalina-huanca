@@ -1,4 +1,4 @@
-﻿/* ── Icono ───────────────────────────────────────────────────── */
+/* ── Icono ───────────────────────────────────────────────────── */
 .ic-header {
   font-family: 'Material Icons'; font-size: 20px; line-height: 1;
   display: inline-flex; align-items: center; vertical-align: middle;
@@ -107,11 +107,11 @@
   -webkit-font-feature-settings: 'liga'; font-feature-settings: 'liga';
 }
 /* ── Fullscreen ──────────────────────────────────────────────── */
-.dialog-container.fullscreen {
-  position: fixed; inset: 0;
-  width: 100vw !important; height: 100vh !important;
-  max-width: 100vw !important; max-height: 100vh !important;
-  border-radius: 0 !important; z-index: 9999;
+.dialog-container.fullscreen:not(:fullscreen) {
+  position: fixed;
+  width: var(--app-content-width, 100vw) !important; height: var(--app-content-height, 100dvh) !important;
+  max-width: var(--app-content-width, 100vw) !important; max-height: var(--app-content-height, 100dvh) !important;
+  border-radius: 0 !important; z-index: 9999; top: var(--app-content-top, 0px); left: var(--app-sidebar-offset, 0px);
 }
 @media (max-width: 768px) {
   .dialog-header { padding: 8px 12px; }
