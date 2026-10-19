@@ -1,0 +1,55 @@
+<div class="space-y-3">
+  <section class="overflow-hidden rounded-2xl border border-border bg-surface shadow-sm">
+    <div class="flex flex-wrap items-center justify-between gap-2 bg-gradient-to-r from-secondary via-secondary-75 to-primary px-4 py-2.5 text-white">
+      <div class="flex items-center gap-2">
+        <span class="material-icons ic-header" aria-hidden="true">analytics</span>
+        <span class="text-sm font-bold tracking-tight">Utilitario</span>
+        <span class="hidden text-xs text-white/50 sm:inline">— Dashboard de Indicadores</span>
+      </div>
+      <button type="button" class="btn-header" (click)="exportarExcel()"
+        [disabled]="cargando || exportando || !operacionesFiltradas.length">
+        <span class="material-icons ic-sm" aria-hidden="true">table_chart</span>
+        {{ exportando ? 'Exportando…' : 'Excel' }}
+      </button>
+    </div>
+    <div class="flex flex-wrap items-center gap-3 px-3 py-2">
+      <div class="flex items-center gap-1.5">
+        <label for="desde-utilitario" class="label-filtro">Desde</label>
+        <input id="desde-utilitario" type="date" [(ngModel)]="fechaInicio" class="input-filtro" />
+      </div>
+      <div class="flex items-center gap-1.5">
+        <label for="hasta-utilitario" class="label-filtro">Hasta</label>
+        <input id="hasta-utilitario" type="date" [(ngModel)]="fechaFin" class="input-filtro" />
+      </div>
+      <div class="flex items-center gap-1.5">
+        <label for="turno-utilitario" class="label-filtro">Turno</label>
+        <select id="turno-utilitario" [(ngModel)]="turnoSeleccionado" class="input-filtro">
+          <option value="">Todos</option><option value="DÍA">Día</option><option value="NOCHE">Noche</option>
+        </select>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <label for="equipo-utilitario" class="label-filtro">Equipo</label>
+        <select id="equipo-utilitario" [(ngModel)]="equipoSeleccionado" class="input-filtro">
+          <option value="">Todos</option>
+          <option *ngFor="let equipo of equiposDisponibles" [value]="equipo">{{ equipo }}</option>
+        </select>
+      </div>
+      <button type="button" (click)="aplicarFiltro()" class="btn-primary" [disabled]="cargando">
+        <span class="material-icons ic-sm" aria-hidden="true">filter_alt</span> Aplicar
+      </button>
+      <button type="button" (click)="quitarFiltro()" class="btn-ghost" [disabled]="cargando">
+        <span class="material-icons ic-sm" aria-hidden="true">close</span> Limpiar
+      </button>
+      <button type="button" (click)="showZoom = !showZoom" class="btn-ghost" [attr.aria-pressed]="showZoom">
+        <span class="material-icons ic-sm" aria-hidden="true">zoom_in</span> {{ showZoom ? 'Ocultar zoom' : 'Zoom' }}
+      </button>
+    </div>
+  </section>
+  <app-dashboard-loading *ngIf="cargando" nombre="Utilitario" />
+  <p *ngIf="errorCarga" role="alert">{{ errorCarga }} <button type="button" class="btn-ghost" (click)="cargarOperaciones()">Reintentar</button></p>
+  <p *ngIf="errorEquipos" role="alert">{{ errorEquipos }} <button type="button" class="btn-ghost" (click)="cargarEquipos()">Reintentar equipos</button></p>
+  <p *ngIf="errorFiltro" role="alert">{{ errorFiltro }}</p>
+  <p *ngIf="errorExportacion" role="alert">{{ errorExportacion }}</p>
+  <app-dashboard-utilitario *ngIf="!cargando && !errorCarga" [operaciones]="operacionesFiltradas"
+    [estados]="estadosProceso" [showZoom]="showZoom" />
+</div>

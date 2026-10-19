@@ -1,3 +1,4 @@
+import { PrincipalGraficoUtilitarioComponent } from './Components/Dashboard/graficos/Utilitario/principal-grafico-utilitario/principal-grafico-utilitario.component';
 import { Routes } from '@angular/router';
 import { LoginComponent } from './Components/Principales/login/login.component';
 import { PrincipalComponent } from './Components/Principales/principal/principal.component';
@@ -92,6 +93,7 @@ export const routes: Routes = [
 { path: 'power-bi', component: PowerBiPublicComponent },
 { path: 'grafico-horizontal', component: PrincipalGraficoHorizontalComponent },
 { path: 'grafico-scalamin', component: PrincipalGraficoScalaminComponent },
+{ path: 'grafico-utilitario', component: PrincipalGraficoUtilitarioComponent },
 { path: 'grafico-tal-largo', component: PrincipalGraficoLargoComponent },
 {path: 'grafico-sostenimiento', component: PrincipalGraficoSostenimientoComponent},
 {path: 'grafico-scoops', component: PrincipalGraficoScoopsComponent},
