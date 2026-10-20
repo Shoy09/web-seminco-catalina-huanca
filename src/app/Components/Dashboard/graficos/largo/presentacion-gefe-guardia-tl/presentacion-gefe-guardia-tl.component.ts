@@ -50,10 +50,10 @@ interface ResumenLabor {
   labor: string;
   tipoPerforacion: string;
   nFila: number;         // fila dentro de la labor
-  nBarras: number;       // n_barras de esa fila
-  nTaladros: number;     // taladros únicos en esa fila
+  nBarras: number;       // n_barras de esta barra
+  nTaladro: number;      // número de taladro de esta barra
   longBarra: number;     // longitud_perforacion (m)
-  metraje: number;       // suma de longitud_perforacion de la fila
+  metraje: number;       // longitud_perforacion de esta barra
 }
 
 @Component({
@@ -238,7 +238,7 @@ export class PresentacionGefeGuardiaTlComponent implements OnInit, OnDestroy {
   private recalcularTodo(): void {
     this.kpis = this.calcularKpis(this.operacionesFiltradas);
 
-    this.resumenLabores = this.agruparPorEquipoLaborYTipo(this.operacionesFiltradas);
+    this.resumenLabores = this.obtenerDetalleBarras(this.operacionesFiltradas);
     this.barrasMetrosPorEquipo = this.agruparPorEquipo(this.operacionesFiltradas, 'metros');
     this.barrasMetrosPorGuardia = this.agruparPorGuardia(this.operacionesFiltradas);
     this.barrasMetrosPorTipoPerforacion = this.agruparPorTipoPerforacion(this.operacionesFiltradas);
@@ -250,102 +250,34 @@ export class PresentacionGefeGuardiaTlComponent implements OnInit, OnDestroy {
     this.barrasTopOperadores = this.topOperadoresPorMetros(this.operacionesFiltradas, 5);
   }
 
-  /**
-   * Agrupa por equipo + labor + tipo_perforacion + n_fila.
-   * - nBarras: n_barras representativo de la fila (el mayor si varía)
-   * - nTaladros: cantidad de n_taladro únicos en esa fila
-   * - longBarra: longitud_perforacion (m) representativa
-   * - metraje: suma de longitud_perforacion de todas las barras de la fila
-   */
-  private agruparPorEquipoLaborYTipo(ops: OperacionBaseTLargos[]): ResumenLabor[] {
-    const resumen = new Map<string, ResumenLabor>();
-
+  /** Conserva una fila por barra, aunque se repitan labor, fila y taladro. */
+  private obtenerDetalleBarras(ops: OperacionBaseTLargos[]): ResumenLabor[] {
+    const resumen: ResumenLabor[] = [];
     ops.forEach((op) => {
       const equipo = String(op.n_equipo || op.equipo || '').trim() || 'SIN EQUIPO';
-
       (op.registros ?? []).forEach((registro) => {
         const labor = String(registro.operacion?.labor || '').trim();
         if (!labor) return;
-
-        // Sub-agrupación por tipo + n_fila para contar taladros únicos
-        const porFilaTipo = new Map<string, {
-          tipoPerforacion: string;
-          nFila: number;
-          nBarras: number;
-          longBarra: number;
-          taladros: Set<number>;
-          metraje: number;
-        }>();
-
         (registro.operacion?.barras ?? []).forEach((barra: any) => {
-          const tipoPerforacion = String(barra.tipo_perforacion || '').trim().toUpperCase();
+          const tipo = String(barra.tipo_perforacion || '').trim().toUpperCase();
           const nFila = Number(barra.n_fila) || 0;
           const nTaladro = Number(barra.n_taladro) || 0;
           const nBarras = Number(barra.n_barras) || 0;
           const longitud = Number(barra.longitud_perforacion) || 0;
-
-          if (!tipoPerforacion || longitud <= 0 || nFila <= 0) return;
-
-          const claveFila = JSON.stringify([tipoPerforacion, nFila]);
-          let item = porFilaTipo.get(claveFila);
-
-          if (!item) {
-            item = {
-              tipoPerforacion,
-              nFila,
-              nBarras: 0,
-              longBarra: 0,
-              taladros: new Set<number>(),
-              metraje: 0,
-            };
-            porFilaTipo.set(claveFila, item);
+          if (nFila < 0) return;
+          if (nFila === 0) {
+            if (nTaladro <= 0 && nBarras <= 0 && !tipo) return;
+          } else if (!tipo || longitud <= 0) {
+            return;
           }
-
-          item.longBarra = Math.max(item.longBarra, longitud);
-          item.nBarras = Math.max(item.nBarras, nBarras);
-          if (nTaladro > 0) item.taladros.add(nTaladro);
-          item.metraje += longitud;
-        });
-
-        // Volcar al resumen global (clave incluye equipo + labor + tipo + fila)
-        porFilaTipo.forEach((item) => {
-          const clave = JSON.stringify([equipo, labor, item.tipoPerforacion, item.nFila]);
-          let fila = resumen.get(clave);
-
-          if (!fila) {
-            fila = {
-              equipo,
-              labor,
-              tipoPerforacion: item.tipoPerforacion,
-              nFila: item.nFila,
-              nBarras: item.nBarras,
-              nTaladros: item.taladros.size,
-              longBarra: item.longBarra,
-              metraje: 0,
-            };
-            resumen.set(clave, fila);
-          }
-
-          fila.nBarras = Math.max(fila.nBarras, item.nBarras);
-          fila.nTaladros += item.taladros.size;
-          fila.longBarra = Math.max(fila.longBarra, item.longBarra);
-          fila.metraje += item.metraje;
+          resumen.push({
+            equipo, labor, tipoPerforacion: tipo || 'SIN TIPO',
+            nFila, nBarras, nTaladro, longBarra: longitud, metraje: longitud,
+          });
         });
       });
     });
-
-    return Array.from(resumen.values())
-      .map((fila) => ({
-        ...fila,
-        longBarra: Number(fila.longBarra.toFixed(2)),
-        metraje: Number(fila.metraje.toFixed(2)),
-      }))
-      .sort((a, b) =>
-        a.equipo.localeCompare(b.equipo)
-        || a.labor.localeCompare(b.labor)
-        || a.tipoPerforacion.localeCompare(b.tipoPerforacion)
-        || a.nFila - b.nFila,
-      );
+    return resumen;
   }
 
   // ==========================================
