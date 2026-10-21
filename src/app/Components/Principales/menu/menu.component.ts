@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { A11yModule } from '@angular/cdk/a11y';
-import { Router, RouterModule } from '@angular/router';
+import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { MenuModule } from 'primeng/menu';
 import { RippleModule } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
 import { UsuarioService } from '../../../services/usuario.service';
+import { filter, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-menu',
@@ -22,7 +23,7 @@ import { UsuarioService } from '../../../services/usuario.service';
   templateUrl: './menu.component.html',
   styleUrl: './menu.component.css',
 })
-export class MenuComponent implements OnInit {
+export class MenuComponent implements OnInit, OnDestroy {
   rolUsuario:    string = '';
   nombreUsuario: string = 'Usuario';
 
@@ -102,6 +103,8 @@ export class MenuComponent implements OnInit {
   menuColapsado = false;
   menuMovilAbierto = false;
   mostrarCerrarSesion = false;
+  private rutasVisitadas: string[] = [];
+  private readonly routerSubscription: Subscription;
 
   get sidebarCompacto(): boolean {
     return this.menuColapsado && !this.menuMovilAbierto;
@@ -112,12 +115,23 @@ export class MenuComponent implements OnInit {
     if (window.innerWidth >= 768) this.cerrarMenuMovil();
   }
 
-  constructor(private router: Router, private usuarioService: UsuarioService) {
+  constructor(
+    private router: Router,
+    private usuarioService: UsuarioService
+  ) {
     this.rolUsuario    = localStorage.getItem('rol')             || '';
     this.nombreUsuario = localStorage.getItem('nombre_completo') || 'Usuario';
+    this.rutasVisitadas = [this.router.url];
+    this.routerSubscription = this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd)
+    ).subscribe(event => this.registrarRuta(event.urlAfterRedirects));
 
     // 4) Aplicamos el filtro de una vez con el rol que ya tenemos en localStorage
     this.aplicarFiltroPorRol();
+  }
+
+  ngOnDestroy(): void {
+    this.routerSubscription.unsubscribe();
   }
 
   ngOnInit(): void {
@@ -186,6 +200,27 @@ export class MenuComponent implements OnInit {
 
   colapsarMenu(): void {
     this.menuColapsado = !this.menuColapsado;
+  }
+
+  regresar(): void {
+    const rutaActual = this.rutaSinParametros(this.router.url);
+    while (this.rutasVisitadas.length && this.rutasVisitadas[this.rutasVisitadas.length - 1] === rutaActual) {
+      this.rutasVisitadas.pop();
+    }
+
+    const rutaAnterior = this.rutasVisitadas.pop();
+    void this.router.navigateByUrl(rutaAnterior || '/Dashboard/grafico-horizontal');
+  }
+
+  private registrarRuta(url: string): void {
+    const ruta = this.rutaSinParametros(url);
+    if (ruta !== '/login' && ruta !== '/' && this.rutasVisitadas[this.rutasVisitadas.length - 1] !== ruta) {
+      this.rutasVisitadas.push(ruta);
+    }
+  }
+
+  private rutaSinParametros(url: string): string {
+    return url.split(/[?#]/, 1)[0];
   }
 
   cerrarSesion(): void {

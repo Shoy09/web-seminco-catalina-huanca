@@ -8,8 +8,15 @@
     [class.is-mobile-open]="menuMovilAbierto" [cdkTrapFocus]="menuMovilAbierto" [cdkTrapFocusAutoCapture]="menuMovilAbierto"
     aria-label="Menú principal" (keydown.escape)="cerrarMenuMovil()">
     <div class="sidebar-brand">
-      <img src="login/logo1.png" alt="Seminco" />
+      <img *ngIf="!sidebarCompacto" src="login/logo1.png" alt="Seminco" />
       <div *ngIf="!sidebarCompacto" class="sidebar-brand-copy"><strong>SEMINCO</strong><span>Portal de operaciones</span></div>
+      <button type="button" pRipple class="sidebar-collapse-toggle"
+        (click)="colapsarMenu()"
+        [title]="menuColapsado ? 'Expandir menú' : 'Contraer menú'"
+        [attr.aria-label]="menuColapsado ? 'Expandir menú' : 'Contraer menú'"
+        aria-controls="app-sidebar" [attr.aria-expanded]="!menuColapsado">
+        <i class="pi pi-bars" aria-hidden="true"></i>
+      </button>
       <button type="button" class="sidebar-close" (click)="cerrarMenuMovil()" aria-label="Cerrar menú"><i class="pi pi-times" aria-hidden="true"></i></button>
     </div>
 
@@ -58,12 +65,11 @@
           (click)="toggleMenuMovil()" aria-label="Abrir menú" aria-controls="app-sidebar" [attr.aria-expanded]="menuMovilAbierto">
           <i class="pi pi-bars text-xl"></i>
         </button>
-        <!-- BOTÓN COLAPSAR DESKTOP -->
+        <!-- REGRESAR DESKTOP -->
         <button type="button" pRipple
           class="hidden h-10 w-10 items-center justify-center rounded-xl text-secondary transition hover:bg-primary-25 md:flex"
-          (click)="colapsarMenu()"
-          title="Contraer / expandir menú" [attr.aria-label]="menuColapsado ? 'Expandir menú' : 'Contraer menú'" aria-controls="app-sidebar" [attr.aria-expanded]="!menuColapsado">
-          <i class="pi text-lg" [ngClass]="menuColapsado ? 'pi-bars' : 'pi-angle-left'"></i>
+          (click)="regresar()" title="Regresar a la página anterior" aria-label="Regresar a la página anterior">
+          <i class="pi pi-angle-left text-lg" aria-hidden="true"></i>
         </button>
       </div>
 

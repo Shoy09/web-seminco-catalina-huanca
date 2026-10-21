@@ -17,6 +17,9 @@
 .nav-caption { display: block; padding: 2px 12px 10px; color: #8B98A7; font-size: 9px; font-weight: 650; letter-spacing: .1em; text-transform: uppercase; }
 .nav-list, .nav-children { list-style: none; padding: 0; margin: 0; }
 .nav-list { display: grid; gap: 4px; }
+.sidebar-collapse-toggle { display: grid; place-items: center; width: 34px; height: 34px; flex-shrink: 0; margin-left: auto; padding: 0; border: 0; border-radius: 8px; background: transparent; color: #52647A; cursor: pointer; transition: background .15s, color .15s; }
+.sidebar-collapse-toggle i { font-size: 17px; }
+.sidebar-collapse-toggle:hover { background: #F0F6FB; color: #0B1F3A; }
 .nav-parent { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 9px 12px; border: 0; border-radius: 8px; background: transparent; color: #52647A; text-align: left; cursor: pointer; transition: background .15s, color .15s; }
 .nav-icon { display: grid; place-items: center; width: 20px; flex-shrink: 0; font-size: 16px; }
 .nav-label { flex: 1; min-width: 0; font-size: 12px; font-weight: 550; }
@@ -37,7 +40,7 @@
 .sidebar-operation { display: block; padding-top: 8px; text-align: center; color: #8B98A7; font-size: 9px; }
 .is-compact { width: 84px; }
 .is-compact .sidebar-brand { justify-content: center; margin: 0 12px; }
-.is-compact .sidebar-brand img { width: 42px; height: 42px; }
+.is-compact .sidebar-collapse-toggle { width: 36px; height: 36px; margin-left: 0; }
 .compact-user { justify-content: center; padding-left: 12px; padding-right: 12px; }
 .is-compact .nav-parent, .is-compact .logout-button { justify-content: center; padding-left: 0; padding-right: 0; }
 .is-compact .sidebar-nav { padding-left: 14px; padding-right: 14px; }
@@ -47,6 +50,7 @@
 @media (max-width: 767px) {
   .app-sidebar { width: 300px; transform: translateX(-100%); visibility: hidden; box-shadow: 12px 0 40px #0B1F3A26; }
   .app-sidebar.is-mobile-open { transform: translateX(0); visibility: visible; }
+  .sidebar-collapse-toggle { display: none; }
   .sidebar-close { display: grid; }
   .sidebar-brand { height: 68px; margin: 0 16px; gap: 10px; }
   .sidebar-brand img { width: 40px; height: 40px; }
