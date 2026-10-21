@@ -100,4 +100,51 @@ describe('Indicadores de Utilitario según el modelo DAX', () => {
     expect(normalizarOperaciones([{ ...original, registros: 'inválido' } as unknown as OperacionUtilitario])[0].registros).toEqual([]);
   });
 
+  it('exporta el formato de Scissor con encabezado de operación y horas en camelCase', () => {
+    const respuestaScissor = {
+      id: 1,
+      fecha: '2026-10-21',
+      turno: 'DÍA',
+      operador: 'DIOSES, JHOEL',
+      guardia: 'A',
+      equipo: 'Utilitario',
+      codigo_equipo: 'UT-01',
+      registros: [{
+        nro: 1,
+        estado: 'OPERATIVO',
+        codigo: '101',
+        horaInicio: '07:00',
+        horaFin: '09:30',
+        operacion: {
+          origen: { nivel: '450', tipoLabor: 'RAMPA', labor: 'RAMPA 450', ala: 'NORTE' },
+          destino: { nivel: '470', tipoLabor: 'GALERIA', labor: 'GALERIA 470', ala: 'SUR' },
+          observaciones: 'Trabajo realizado',
+        },
+      }],
+    } as unknown as OperacionUtilitario;
+
+    const resultado = construirFilas([respuestaScissor]);
+
+    expect(resultado).toEqual([jasmine.objectContaining({
+      idOperacion: 1,
+      fecha: '2026-10-21',
+      turno: 'DIA',
+      equipo: 'UT-01',
+      operador: 'DIOSES, JHOEL',
+      guardia: 'A',
+      inicio: '07:00',
+      final: '09:30',
+      horas: 2.5,
+      labor: 'RAMPA 450',
+      origenNivel: '450',
+      origenTipoLabor: 'RAMPA',
+      origenAla: 'NORTE',
+      destinoNivel: '470',
+      destinoTipoLabor: 'GALERIA',
+      destinoLabor: 'GALERIA 470',
+      destinoAla: 'SUR',
+      observacion: 'Trabajo realizado',
+    })]);
+  });
+
 });

@@ -8,20 +8,8 @@ import { MatDialog } from '@angular/material/dialog';
 
 // tabla.component.ts - NUEVA ESTRUCTURA
 interface Operacion {
-  // Origen
-  origen_nivel: string;
-  origen_tipo_labor: string;
-  origen_labor: string;
-  origen_ala: string;
-  
-  // Destino
-  destino_nivel: string;
-  destino_tipo_labor: string;
-  destino_labor: string;
-  destino_ala: string;
-  
-  // Observaciones
-  observaciones: string;
+  labor?: string; destino?: string; tipo_labor?: string; tipo_labor_id?: number | null;
+  ducto?: string; cable?: string; tuberia?: string; observaciones?: string;
 }
 
 interface Registro {
@@ -29,7 +17,7 @@ interface Registro {
   estado: string;
   codigo: string;
   horaInicio: string;
-  horaFin: string;
+  horaFin: string | null;
   color: string;
   operacion: Operacion;
   indiceOriginal: number;
@@ -73,23 +61,10 @@ export class TablaComponent implements OnChanges {
       estado: item.estado,
       codigo: item.codigo,
       horaInicio: item.hora_inicio,
-      horaFin: item.hora_final || '--:--',
+      horaFin: item.hora_final ?? null,
       color: this.getColorEstado(item.estado),
       indiceOriginal: index,
-      operacion: item.operacion || {
-        // Origen
-        origen_nivel: '',
-        origen_tipo_labor: '',
-        origen_labor: '',
-        origen_ala: '',
-        // Destino
-        destino_nivel: '',
-        destino_tipo_labor: '',
-        destino_labor: '',
-        destino_ala: '',
-        // Observaciones
-        observaciones: ''
-      }
+      operacion: structuredClone(item.operacion || {})
     }));
   }
 
@@ -139,7 +114,7 @@ export class TablaComponent implements OnChanges {
       this.registroEnEdicion.estado = datosActualizados.estado;
       this.registroEnEdicion.codigo = datosActualizados.codigo;
       this.registroEnEdicion.horaInicio = datosActualizados.horaInicio;
-      this.registroEnEdicion.horaFin = datosActualizados.horaFin;
+      this.registroEnEdicion.horaFin = datosActualizados.horaFin || null;
       this.registroEnEdicion.color = this.getColorEstado(datosActualizados.estado);
       this.emitirCambios();
     }
@@ -150,22 +125,10 @@ export class TablaComponent implements OnChanges {
   onGuardarPerforacion(datosPerforacion: any) {
     if (this.registroEnEdicion) {
       this.registroEnEdicion.operacion = {
-        // 📍 ORIGEN
-        origen_nivel: datosPerforacion.origen.nivel,
-        origen_tipo_labor: datosPerforacion.origen.tipoLabor,
-        origen_labor: datosPerforacion.origen.labor,
-        origen_ala: datosPerforacion.origen.ala,
-        
-        // 📍 DESTINO
-        destino_nivel: datosPerforacion.destino.nivel,
-        destino_tipo_labor: datosPerforacion.destino.tipoLabor,
-        destino_labor: datosPerforacion.destino.labor,
-        destino_ala: datosPerforacion.destino.ala,
-        
-        // 📝 Observaciones
-        observaciones: datosPerforacion.observaciones
+        ...this.registroEnEdicion.operacion,
+        ...datosPerforacion
       };
-      
+
       console.log('✅ Perforación guardada:', this.registroEnEdicion.operacion);
       this.emitirCambios();
     }
@@ -174,11 +137,12 @@ export class TablaComponent implements OnChanges {
 
   emitirCambios() {
     const dataActualizada = this.datos.map(registro => ({
+      ...this.data[registro.indiceOriginal],
       numero: registro.nro,
       estado: registro.estado,
       codigo: registro.codigo,
       hora_inicio: registro.horaInicio,
-      hora_final: registro.horaFin,
+      hora_final: registro.horaFin || null,
       operacion: registro.operacion  // ✅ Nueva estructura con origen/destino
     }));
     

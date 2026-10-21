@@ -7,12 +7,19 @@ export interface DetalleUtilitario {
   destino_nivel?: string; destino_tipo_labor?: string; destino_labor?: string; destino_ala?: string;
   observaciones?: string;
 }
-export type OperacionUtilitario = OperacionBase<DetalleUtilitario>;
+export type OperacionUtilitario = OperacionBase<DetalleUtilitario> & {
+  codigo?: string;
+  codigo_equipo?: string;
+  nombre_equipo?: string;
+};
 export type Agrupacion = 'equipo' | 'dia' | 'semana' | 'mes' | 'ano' | 'guardia' | 'operador';
 export type Familia = 'OPERATIVO' | 'MANTENIMIENTO' | 'DEMORA' | 'OTRO';
 export interface FilaUtilitario {
+  idOperacion: number | string | null;
   fecha: string; turno: string; equipo: string; guardia: string; operador: string;
   codigo: string; actividad: string; observacion: string; labor: string;
+  origenNivel: string; origenTipoLabor: string; origenAla: string;
+  destinoNivel: string; destinoTipoLabor: string; destinoLabor: string; destinoAla: string;
   inicio: string; final: string | null; familia: Familia; horas: number; correctivo: boolean;
 }
 export interface IndicadorUtilitario {
@@ -38,14 +45,51 @@ export function horasRegistro(inicio: string, final: string | null): number {
 
 /** La API puede entregar registros como JSON, igual que en aprobaciones. */
 export function normalizarOperaciones(datos: OperacionUtilitario[]): OperacionUtilitario[] {
-  return datos.map(op => {
-    let registros: unknown = op.registros;
-    if (typeof registros === 'string') {
-      try { registros = JSON.parse(registros); } catch { registros = []; }
-    }
-    return { ...op, registros: Array.isArray(registros)
-      ? registros.filter(r => r && typeof r === 'object') as Registro<DetalleUtilitario>[] : [] };
+  return datos.map(raw => {
+    const op = raw as OperacionUtilitario & Record<string, unknown>;
+    const registros = parsearJson(op.registros);
+    return {
+      ...op,
+      equipo: String(op.equipo || op.nombre_equipo || ''),
+      n_equipo: String(op.n_equipo || op.codigo_equipo || op.codigo || ''),
+      registros: Array.isArray(registros) ? registros.flatMap((registro, index) => {
+        if (!registro || typeof registro !== 'object') return [];
+        const r = registro as Record<string, unknown>;
+        const detalle = parsearJson(r['operacion']);
+        const d = detalle && typeof detalle === 'object' ? detalle as Record<string, unknown> : {};
+        const origen = parsearJson(d['origen']);
+        const origenDatos = origen && typeof origen === 'object' ? origen as Record<string, unknown> : {};
+        const destino = parsearJson(d['destino']);
+        const destinoDatos = destino && typeof destino === 'object' ? destino as Record<string, unknown> : {};
+        return [{
+          ...r,
+          id: Number(r['id'] || index + 1),
+          numero: Number(r['numero'] ?? r['nro'] ?? index + 1),
+          estado: String(r['estado'] || ''),
+          codigo: String(r['codigo'] || ''),
+          hora_inicio: String(r['hora_inicio'] ?? r['horaInicio'] ?? ''),
+          hora_final: (r['hora_final'] ?? r['horaFin'] ?? null) as string | null,
+          operacion: {
+            ...d,
+            origen_nivel: String(d['origen_nivel'] ?? d['origenNivel'] ?? origenDatos['nivel'] ?? ''),
+            origen_tipo_labor: String(d['origen_tipo_labor'] ?? d['origenTipoLabor'] ?? origenDatos['tipoLabor'] ?? d['origen_tipoLabor'] ?? ''),
+            origen_labor: String(d['origen_labor'] ?? d['origenLabor'] ?? origenDatos['labor'] ?? ''),
+            origen_ala: String(d['origen_ala'] ?? d['origenAla'] ?? origenDatos['ala'] ?? ''),
+            destino_nivel: String(d['destino_nivel'] ?? d['destinoNivel'] ?? destinoDatos['nivel'] ?? ''),
+            destino_tipo_labor: String(d['destino_tipo_labor'] ?? d['destinoTipoLabor'] ?? destinoDatos['tipoLabor'] ?? d['destino_tipoLabor'] ?? ''),
+            destino_labor: String(d['destino_labor'] ?? d['destinoLabor'] ?? destinoDatos['labor'] ?? ''),
+            destino_ala: String(d['destino_ala'] ?? d['destinoAla'] ?? destinoDatos['ala'] ?? ''),
+            observaciones: String(d['observaciones'] ?? ''),
+          },
+        } as Registro<DetalleUtilitario>];
+      }) : [],
+    };
   });
+}
+
+function parsearJson(valor: unknown): unknown {
+  if (typeof valor !== 'string') return valor;
+  try { return JSON.parse(valor); } catch { return []; }
 }
 
 export function construirFilas(operaciones: OperacionUtilitario[], estados: Estado[] = []): FilaUtilitario[] {
@@ -62,12 +106,20 @@ export function construirFilas(operaciones: OperacionUtilitario[], estados: Esta
       : estado.includes('DEMORA') ? 'DEMORA' : estado === 'OPERATIVO' ? 'OPERATIVO' : 'OTRO';
     const fecha = String(op.fecha || '').slice(0, 10);
     return {
+      idOperacion: op.id ?? null,
       fecha, turno: normalizar(op.turno), equipo: String(op.n_equipo || op.equipo || 'Sin equipo').trim(),
       guardia: String(op.guardia || 'Sin guardia').trim(), operador: op.operador || 'Sin operador',
       codigo, familia, actividad: e?.estado_principal || codigo || r.estado || 'Sin actividad',
       observacion: String(r.operacion?.observaciones || '').trim() || 'Sin observación',
       // LABOR no existe como campo único: se usa la labor de origen, una por registro.
       labor: String(r.operacion?.origen_labor || '').trim(),
+      origenNivel: String(r.operacion?.origen_nivel || ''),
+      origenTipoLabor: String(r.operacion?.origen_tipo_labor || ''),
+      origenAla: String(r.operacion?.origen_ala || ''),
+      destinoNivel: String(r.operacion?.destino_nivel || ''),
+      destinoTipoLabor: String(r.operacion?.destino_tipo_labor || ''),
+      destinoLabor: String(r.operacion?.destino_labor || ''),
+      destinoAla: String(r.operacion?.destino_ala || ''),
       inicio: r.hora_inicio, final: r.hora_final, horas: horasRegistro(r.hora_inicio, r.hora_final),
       // Mismo criterio del builder de sostenimiento; no contar preventivos como fallas.
       correctivo: familia === 'MANTENIMIENTO' &&
@@ -143,4 +195,3 @@ export function paretoUtilitario(filas: FilaUtilitario[], mantenimiento: boolean
     return { ...p, acumulado: dividir(horas, total) * 100 };
   });
 }
-

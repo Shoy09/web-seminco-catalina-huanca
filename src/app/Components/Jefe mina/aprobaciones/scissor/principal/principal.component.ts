@@ -164,6 +164,7 @@ validarCambios() {
     // 🔥 payload final
     const payload: any = {
       ...nuevaRaw,
+      registros: JSON.stringify(nuevaRaw.registros),
       [campoObservacion]: JSON.stringify(original),
       revisado: revisionActual + 1,
 
@@ -225,7 +226,7 @@ validarCambios() {
     jefe_guardia: this.cardData.jefeGuardia,
     equipo: this.cardData.equipo,
     n_equipo: this.cardData.codigo,
-    tipo_equipo: this.cardData.tipo_equipo,
+    ...(this.operacionOriginal.tipo_equipo !== undefined ? { tipo_equipo: this.cardData.tipo_equipo } : {}),
 
     registros: this.tablaData,
 
@@ -271,8 +272,7 @@ formatearHorometros(data: any) {
 
   return {
     diesel: data.diesel ? map(data.diesel) : null,
-    electrico: data.electrico ? map(data.electrico) : null,
-    percusion: data.percusion ? map(data.percusion) : null,
+
   };
 }
 
@@ -360,7 +360,7 @@ formatearHorometros(data: any) {
       aceiteMotor: !!c.aceiteMotor,
       aceiteHidraulico: !!c.aceiteHidraulico,
       aceiteTransmision: !!c.aceiteTransmision,
-      combustible: c.combustible || '',
+      combustible: c.combustible ?? '',
       descripcion: c.descripcion || '',
       horaLlenado: c.horaLlenado || '',
       lugar: c.lugar || '',

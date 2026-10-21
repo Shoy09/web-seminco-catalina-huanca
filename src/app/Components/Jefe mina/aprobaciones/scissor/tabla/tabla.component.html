@@ -7,7 +7,7 @@
         <td><span class="activity-status" [style.color]="item.color" [style.background-color]="item.color + '12'"><span></span>{{ item.estado }}</span></td>
         <td><span class="activity-code">{{ item.codigo }}</span></td>
         <td class="time-cell"><i class="pi pi-clock" aria-hidden="true"></i>{{ item.horaInicio }}</td>
-        <td class="time-cell">{{ item.horaFin }}</td>
+        <td class="time-cell">{{ item.horaFin || '--:--' }}</td>
         <td><div class="row-actions">
           <button type="button" class="row-action" (click)="onEdit(item)" title="Editar estado y horario" [attr.aria-label]="'Editar estado y horario del registro ' + item.nro"><i class="pi pi-pencil" aria-hidden="true"></i></button>
           <button type="button" class="row-action detail-action" (click)="onExecute(item)" title="Detalle de perforación" [attr.aria-label]="'Abrir detalle de perforación del registro ' + item.nro"><i class="pi pi-file-edit" aria-hidden="true"></i><span>Detalle</span></button>

@@ -8,10 +8,11 @@ import { Estado } from 'app/models/Estado';
 import { OperacionesService } from 'app/services/operaciones.service';
 import { EquipoService } from 'app/services/equipo.service';
 import { EstadoService } from 'app/services/estado.service';
+import { ExcelUtilitarioExportService } from 'app/services/export/excel-export-utilitario.service';
 import { DashboardLoadingComponent } from '../../shared/dashboard-loading/dashboard-loading.component';
 import { DashboardUtilitarioComponent } from './dashboard-utilitario.component';
 import {
-  DetalleUtilitario, OperacionUtilitario, construirFilas, indicadoresUtilitario, normalizarOperaciones,
+  DetalleUtilitario, OperacionUtilitario, normalizarOperaciones,
 } from './utilitario-indicadores';
 
 @Component({
@@ -25,6 +26,7 @@ export class PrincipalGraficoUtilitarioComponent implements OnInit {
   private readonly operacionesService = inject(OperacionesService);
   private readonly equipoService = inject(EquipoService);
   private readonly estadoService = inject(EstadoService);
+  private readonly excelExportService = inject(ExcelUtilitarioExportService);
   readonly PROCESO = 'SCISSOR';
   operacionesOriginal: OperacionUtilitario[] = [];
   operacionesFiltradas: OperacionUtilitario[] = [];
@@ -111,16 +113,7 @@ export class PrincipalGraficoUtilitarioComponent implements OnInit {
     this.exportando = true;
     this.errorExportacion = '';
     try {
-      const XLSX = await import('xlsx');
-      const filas = construirFilas(this.operacionesFiltradas, this.estadosProceso);
-      const libro = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(libro, XLSX.utils.json_to_sheet(filas.map(f => ({
-        Fecha: f.fecha, Turno: f.turno, Equipo: f.equipo, Guardia: f.guardia, Operador: f.operador,
-        Código: f.codigo, Actividad: f.actividad, Estado: f.familia, Inicio: f.inicio, Final: f.final,
-        Horas: f.horas, 'Labor de origen': f.labor, Observación: f.observacion,
-      }))), 'Registros');
-      XLSX.utils.book_append_sheet(libro, XLSX.utils.json_to_sheet(indicadoresUtilitario(filas, 'equipo')), 'Indicadores por equipo');
-      XLSX.writeFile(libro, `Utilitario_${new Date().toISOString().slice(0, 10)}.xlsx`);
+      await this.excelExportService.exportarOperaciones(this.operacionesFiltradas, this.estadosProceso, this.equipos);
     } catch {
       this.errorExportacion = 'No se pudo generar el Excel. Inténtalo nuevamente.';
     } finally {

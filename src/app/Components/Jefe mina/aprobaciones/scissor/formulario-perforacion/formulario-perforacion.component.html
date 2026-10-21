@@ -9,7 +9,7 @@
                 bg-gradient-to-r from-[#0B1F3A] to-[#344963] text-white border-b border-white/10">
       <div class="flex items-center gap-2.5">
         <i class="far fa-file-alt text-xl opacity-90"></i>
-        <h1 class="text-lg font-semibold m-0 tracking-tight">Formulario de Perforación</h1>
+        <h1 class="text-lg font-semibold m-0 tracking-tight">Detalle de operación</h1>
       </div>
       <div class="flex items-center gap-2">
         <span class="bg-gradient-to-r from-[#1D73A8] to-[#0B1F3A] text-white text-[10px] font-bold uppercase tracking-wide px-3 py-1 rounded-full shadow">✎ EDITABLE</span>
@@ -29,60 +29,13 @@
                  [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-300
                  [&::-webkit-scrollbar-thumb]:rounded-full">
 
-      <!-- Origen (siempre) -->
       <fieldset class="border border-slate-200 rounded-xl px-4 py-3 bg-white">
-        <legend class="inline-flex items-center gap-1.5 px-2 text-[13px] font-bold text-[#1f3b43] bg-white">
-          <i class="fas fa-arrow-right-from-bracket text-[#0B1F3A] text-sm"></i> Origen
-        </legend>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div class="flex flex-col gap-1">
-            <label class="text-xs font-semibold text-slate-700">Nivel <span class="text-red-500">*</span></label>
-            <input type="text" placeholder="Ej: 450" [(ngModel)]="datosPerforacion.origen.nivel" name="origen_nivel"
-              class="w-full px-3 py-2 border-[1.5px] border-slate-200 rounded-lg bg-white text-xs text-slate-800 focus:outline-none focus:border-[#0B1F3A] transition-all"/>
-          </div>
-          <div class="flex flex-col gap-1">
-            <label class="text-xs font-semibold text-slate-700">Tipo Labor <span class="text-red-500">*</span></label>
-            <input type="text" placeholder="Ej: RAMPA, GALERIA" [(ngModel)]="datosPerforacion.origen.tipoLabor" name="origen_tipoLabor"
-              class="w-full px-3 py-2 border-[1.5px] border-slate-200 rounded-lg bg-white text-xs text-slate-800 focus:outline-none focus:border-[#0B1F3A] transition-all"/>
-          </div>
-          <div class="flex flex-col gap-1">
-            <label class="text-xs font-semibold text-slate-700">Labor <span class="text-red-500">*</span></label>
-            <input type="text" placeholder="Nombre de la labor" [(ngModel)]="datosPerforacion.origen.labor" name="origen_labor"
-              class="w-full px-3 py-2 border-[1.5px] border-slate-200 rounded-lg bg-white text-xs text-slate-800 focus:outline-none focus:border-[#0B1F3A] transition-all"/>
-          </div>
-          <div class="flex flex-col gap-1">
-            <label class="text-xs font-semibold text-slate-700">Ala</label>
-            <input type="text" placeholder="NORTE, SUR (opcional)" [(ngModel)]="datosPerforacion.origen.ala" name="origen_ala"
-              class="w-full px-3 py-2 border-[1.5px] border-slate-200 rounded-lg bg-white text-xs text-slate-800 focus:outline-none focus:border-[#0B1F3A] transition-all"/>
-          </div>
-        </div>
-      </fieldset>
-
-      <!-- Destino (solo OPERATIVO) -->
-      <fieldset *ngIf="mostrarCamposCompletos" class="border border-slate-200 rounded-xl px-4 py-3 bg-white">
-        <legend class="inline-flex items-center gap-1.5 px-2 text-[13px] font-bold text-[#1f3b43] bg-white">
-          <i class="fas fa-arrow-right-to-bracket text-[#0B1F3A] text-sm"></i> Destino
-        </legend>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div class="flex flex-col gap-1">
-            <label class="text-xs font-semibold text-slate-700">Nivel</label>
-            <input type="text" placeholder="Ej: 450" [(ngModel)]="datosPerforacion.destino.nivel" name="destino_nivel"
-              class="w-full px-3 py-2 border-[1.5px] border-slate-200 rounded-lg bg-white text-xs text-slate-800 focus:outline-none focus:border-[#0B1F3A] transition-all"/>
-          </div>
-          <div class="flex flex-col gap-1">
-            <label class="text-xs font-semibold text-slate-700">Tipo Labor</label>
-            <input type="text" placeholder="Ej: RAMPA, GALERIA" [(ngModel)]="datosPerforacion.destino.tipoLabor" name="destino_tipoLabor"
-              class="w-full px-3 py-2 border-[1.5px] border-slate-200 rounded-lg bg-white text-xs text-slate-800 focus:outline-none focus:border-[#0B1F3A] transition-all"/>
-          </div>
-          <div class="flex flex-col gap-1">
-            <label class="text-xs font-semibold text-slate-700">Labor</label>
-            <input type="text" placeholder="Nombre de la labor" [(ngModel)]="datosPerforacion.destino.labor" name="destino_labor"
-              class="w-full px-3 py-2 border-[1.5px] border-slate-200 rounded-lg bg-white text-xs text-slate-800 focus:outline-none focus:border-[#0B1F3A] transition-all"/>
-          </div>
-          <div class="flex flex-col gap-1">
-            <label class="text-xs font-semibold text-slate-700">Ala</label>
-            <input type="text" placeholder="NORTE, SUR (opcional)" [(ngModel)]="datosPerforacion.destino.ala" name="destino_ala"
-              class="w-full px-3 py-2 border-[1.5px] border-slate-200 rounded-lg bg-white text-xs text-slate-800 focus:outline-none focus:border-[#0B1F3A] transition-all"/>
+        <legend class="px-2 text-sm font-bold">Detalle de operación Scissor</legend>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div *ngFor="let campo of ['labor', 'destino', 'tipo_labor', 'ducto', 'cable', 'tuberia']" class="flex flex-col gap-1">
+            <label [for]="'scissor-' + campo" class="text-xs font-semibold text-slate-700">{{ campo === 'tipo_labor' ? 'Tipo de labor' : campo === 'tuberia' ? 'Tubería' : (campo | titlecase) }}</label>
+            <input type="text" [id]="'scissor-' + campo" [name]="campo" [(ngModel)]="datosPerforacion[campo]"
+              class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs" />
           </div>
         </div>
       </fieldset>

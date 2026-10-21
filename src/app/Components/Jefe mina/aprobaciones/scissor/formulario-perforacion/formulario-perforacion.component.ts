@@ -12,19 +12,9 @@ import { FormsModule } from '@angular/forms';
 
 // 🔥 NUEVA INTERFAZ CON ORIGEN/DESTINO
 interface DatosPerforacion {
-  origen: {
-    nivel: string;
-    tipoLabor: string;
-    labor: string;
-    ala: string;
-  };
-  destino: {
-    nivel: string;
-    tipoLabor: string;
-    labor: string;
-    ala: string;
-  };
-  observaciones: string;
+  labor: string; destino: string; tipo_labor: string; tipo_labor_id?: number | null;
+  ducto: string; cable: string; tuberia: string; observaciones: string;
+  [key: string]: any;
 }
 
 @Component({
@@ -55,7 +45,7 @@ export class FormularioPerforacionComponent implements OnInit, OnChanges {
   ngOnInit() {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['operacion'] && this.operacion) {
+    if (changes['operacion'] || changes['visible']?.currentValue) {
       this.cargarDatosOperacion(this.operacion);
     }
   }
@@ -66,34 +56,25 @@ export class FormularioPerforacionComponent implements OnInit, OnChanges {
 
   // 🔥 CARGA DATOS DESDE OPERACIÓN (con nueva estructura origen/destino)
   cargarDatosOperacion(op: any) {
-    console.log('📥 Cargando operación:', op);
+    const datos = this.normalizarOperacion(op);
+    this.datosPerforacion = { ...this.getInitDatosPerforacion(), ...datos };
+  }
 
-    // Origen
-    this.datosPerforacion.origen.nivel = op.origen_nivel || '';
-    this.datosPerforacion.origen.tipoLabor = op.origen_tipo_labor || '';
-    this.datosPerforacion.origen.labor = op.origen_labor || '';
-    this.datosPerforacion.origen.ala = op.origen_ala || '';
+  private normalizarOperacion(op: unknown): Record<string, unknown> {
+    let valor: unknown = op;
+    if (typeof valor === 'string') {
+      try {
+        valor = JSON.parse(valor);
+      } catch {
+        return {};
+      }
+    }
+    return valor && typeof valor === 'object' ? valor as Record<string, unknown> : {};
+  }
 
-    // Destino
-    this.datosPerforacion.destino.nivel = op.destino_nivel || '';
-    this.datosPerforacion.destino.tipoLabor = op.destino_tipo_labor || '';
-    this.datosPerforacion.destino.labor = op.destino_labor || '';
-    this.datosPerforacion.destino.ala = op.destino_ala || '';
-
-    // Observaciones
-    this.datosPerforacion.observaciones = op.observaciones || '';
-
-    // Agregar a listas dinámicas (origen)
-    this.agregarSiNoExiste(this.niveles, op.origen_nivel);
-    this.agregarSiNoExiste(this.tiposLabor, op.origen_tipo_labor);
-    this.agregarSiNoExiste(this.labores, op.origen_labor);
-    this.agregarSiNoExiste(this.alas, op.origen_ala);
-
-    // Agregar a listas dinámicas (destino)
-    this.agregarSiNoExiste(this.niveles, op.destino_nivel);
-    this.agregarSiNoExiste(this.tiposLabor, op.destino_tipo_labor);
-    this.agregarSiNoExiste(this.labores, op.destino_labor);
-    this.agregarSiNoExiste(this.alas, op.destino_ala);
+  private leerTexto(...valores: unknown[]): string {
+    const valor = valores.find(item => item !== null && item !== undefined);
+    return typeof valor === 'string' ? valor : String(valor ?? '');
   }
 
   agregarSiNoExiste(lista: string[], valor: string) {
@@ -135,8 +116,7 @@ export class FormularioPerforacionComponent implements OnInit, OnChanges {
   }
   private getInitDatosPerforacion(): DatosPerforacion {
     return {
-      origen: { nivel: '', tipoLabor: '', labor: '', ala: '' },
-      destino: { nivel: '', tipoLabor: '', labor: '', ala: '' },
+      labor: '', destino: '', tipo_labor: '', ducto: '', cable: '', tuberia: '',
       observaciones: '',
     };
   }
