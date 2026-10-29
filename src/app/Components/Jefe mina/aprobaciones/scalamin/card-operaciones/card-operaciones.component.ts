@@ -1,3 +1,5 @@
+import { GuardiaService } from '../../../../../services/guardia.service';
+import { Guardia } from '../../../../../models/guardia.model';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { RouterModule } from '@angular/router';
@@ -37,17 +39,19 @@ export class CardOperacionesComponent implements OnChanges, OnInit {
     { key: 'equipo', options: [] },
     { key: 'codigo', options: [] },
     { key: 'jefeGuardia', options: [] },
-    { key: 'guardia', options: ['A', 'B', 'C', 'D'] },  // 👈 antes era seccion
+    { key: 'guardia', options: [] },  // 👈 antes era seccion
   ];
 
   constructor(
     private equipoService: EquipoService,
+    private guardiaService: GuardiaService,
     private usuarioService: UsuarioService
   ) {}
 
   // 🔥 INIT
   ngOnInit(): void {
     this.cargarEquipos();
+    this.cargarGuardias();
     this.cargarJefesGuardia();
   }
 
@@ -95,6 +99,15 @@ export class CardOperacionesComponent implements OnChanges, OnInit {
   // 🔥 ===============================
   // 🔹 HELPERS
   // 🔥 ===============================
+  cargarGuardias() {
+    this.guardiaService.getGuardias().subscribe({
+      next: (guardias: Guardia[]) => {
+        this.mergeOpciones('guardia', guardias.map(g => g.guardia));
+        this.ensureCurrentValues();
+      },
+      error: err => console.error('Error guardias:', err)
+    });
+  }
   mergeOpciones(key: string, nuevas: string[]) {
     const campo = this.campos.find(c => c.key === key);
     if (!campo) return;

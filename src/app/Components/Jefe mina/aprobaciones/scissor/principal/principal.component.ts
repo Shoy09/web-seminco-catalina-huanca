@@ -226,6 +226,7 @@ validarCambios() {
     jefe_guardia: this.cardData.jefeGuardia,
     equipo: this.cardData.equipo,
     n_equipo: this.cardData.codigo,
+    guardia: this.cardData.guardia,
     ...(this.operacionOriginal.tipo_equipo !== undefined ? { tipo_equipo: this.cardData.tipo_equipo } : {}),
 
     registros: this.tablaData,
@@ -297,6 +298,7 @@ formatearHorometros(data: any) {
       jefeGuardia: op.jefe_guardia,
       equipo: op.equipo,
       codigo: op.n_equipo,
+      guardia: op.guardia || '',
       tipo_equipo: op.tipo_equipo || '',
     };
   }

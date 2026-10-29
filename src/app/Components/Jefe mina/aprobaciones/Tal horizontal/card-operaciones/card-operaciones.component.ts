@@ -4,7 +4,8 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { OperacionBase } from '../../../../../models/OperacionBase.models';
 import { EquipoService } from '../../../../../services/equipo.service';
-import { SeccionService } from '../../../../../services/seccion.service';
+import { GuardiaService } from '../../../../../services/guardia.service';
+import { Guardia } from '../../../../../models/guardia.model';
 import { UsuarioService } from '../../../../../services/usuario.service';
 import { Usuario } from '../../../../../models/Usuario';
 
@@ -46,7 +47,7 @@ export class CardOperacionesComponent implements OnChanges, OnInit {
 
   constructor(
     private equipoService: EquipoService,
-    private seccionService: SeccionService,
+    private guardiaService: GuardiaService,
     private usuarioService: UsuarioService
   ) {}
 
@@ -113,11 +114,11 @@ export class CardOperacionesComponent implements OnChanges, OnInit {
   // 🔹 SECCIONES
   // 🔥 ===============================
   cargarSecciones() {
-    this.seccionService.getSeccionesByProceso(this.PROCESO)
+    this.guardiaService.getGuardias()
       .subscribe({
-        next: (secciones: any[]) => {
+        next: (secciones: Guardia[]) => {
 
-          const nombres = secciones.map(s => s.nombre);
+          const nombres = secciones.map(s => s.guardia);
           this.mergeOpciones('seccion', nombres);
 
           // 🔥 asegurar valores actuales

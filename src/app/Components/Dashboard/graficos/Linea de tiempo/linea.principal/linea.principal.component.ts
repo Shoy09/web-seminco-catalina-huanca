@@ -68,6 +68,22 @@ export class LineaPrincipalComponent {
       proceso: 'SCOOPTRAM',
       icon: 'local_shipping',
       color: 'bg-sky-500'
+    },
+    {
+      id: 'scissor',
+      label: 'Scissor',
+      tipo: 'scissor',
+      proceso: 'SCISSOR',
+      icon: 'elevator',
+      color: 'bg-amber-500'
+    },
+    {
+      id: 'scalamin',
+      label: 'Scalamin',
+      tipo: 'scalamin',
+      proceso: 'SCALAMIN',
+      icon: 'precision_manufacturing',
+      color: 'bg-indigo-500'
     }
   ];
 

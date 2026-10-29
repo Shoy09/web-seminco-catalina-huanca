@@ -3,9 +3,10 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { EquipoService } from '../../../../../services/equipo.service';
-import { SeccionService } from '../../../../../services/seccion.service';
+import { Guardia } from '../../../../../models/guardia.model';
 import { UsuarioService } from '../../../../../services/usuario.service';
 import { Usuario } from '../../../../../models/Usuario';
+import { GuardiaService } from 'app/services/guardia.service';
 
 @Component({
   selector: 'app-card-operaciones',
@@ -45,7 +46,7 @@ export class CardOperacionesComponent implements OnChanges, OnInit {
 
   constructor(
     private equipoService: EquipoService,
-    private seccionService: SeccionService,
+    private seccionService: GuardiaService,
     private usuarioService: UsuarioService
   ) {}
 
@@ -112,11 +113,11 @@ cargarJefesGuardia() {
   // 🔹 SECCIONES
   // 🔥 ===============================
   cargarSecciones() {
-    this.seccionService.getSeccionesByProceso(this.PROCESO)
+    this.seccionService.getGuardias()
       .subscribe({
-        next: (secciones: any[]) => {
+        next: (secciones: Guardia[]) => {
 
-          const nombres = secciones.map(s => s.nombre);
+          const nombres = secciones.map(s => s.guardia);
           this.mergeOpciones('seccion', nombres);
 
           // 🔥 asegurar valores actuales

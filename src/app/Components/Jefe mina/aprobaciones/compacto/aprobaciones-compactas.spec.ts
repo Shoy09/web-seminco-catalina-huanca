@@ -1,11 +1,11 @@
-﻿import { Type } from '@angular/core';
+import { Type } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { of, Subject } from 'rxjs';
 import { OperacionesService } from 'app/services/operaciones.service';
 import { EquipoService } from 'app/services/equipo.service';
-import { SeccionService } from 'app/services/seccion.service';
+import { GuardiaService } from 'app/services/guardia.service';
 import { UsuarioService } from 'app/services/usuario.service';
 import { NotificacionesUiService } from 'app/services/notificaciones-ui.service';
 import { PrincipalSostenimientoComponent } from '../enpernador/principal/principal.component';
@@ -17,7 +17,7 @@ import { PrincipalTalHorizontalComponent } from '../Tal horizontal/principal/pri
 const casos: { nombre: string; componente: Type<any>; campos: number; acciones: number }[] = [
   { nombre: 'Sostenimiento', componente: PrincipalSostenimientoComponent, campos: 8, acciones: 2 },
   { nombre: 'Scalamin', componente: PrincipalScalaminComponent, campos: 7, acciones: 2 },
-  { nombre: 'Scissor', componente: PrincipalScissorComponent, campos: 6, acciones: 5 },
+  { nombre: 'Scissor', componente: PrincipalScissorComponent, campos: 7, acciones: 5 },
   { nombre: 'Scoop', componente: PrincipalScoopsComponent, campos: 9, acciones: 6 },
   { nombre: 'Tal horizontal', componente: PrincipalTalHorizontalComponent, campos: 8, acciones: 5 },
 ];
@@ -41,7 +41,7 @@ for (const caso of casos) {
         { provide: OperacionesService, useValue: operaciones },
         { provide: MatDialog, useValue: { open: () => ({ afterClosed: () => of(null) }) } },
         { provide: EquipoService, useValue: { getEquiposByProceso: () => of([]) } },
-        { provide: SeccionService, useValue: { getSeccionesByProceso: () => of([]) } },
+        { provide: GuardiaService, useValue: { getGuardias: () => of([]) } },
         { provide: UsuarioService, useValue: { obtenerJefesGuardia: () => of([]) } },
         { provide: NotificacionesUiService, useValue: { success: () => {}, warning: () => {}, error: () => {} } },
       ] }).compileComponents();
